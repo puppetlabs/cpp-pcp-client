@@ -6,51 +6,43 @@
 #include <string>
 #include <unistd.h>
 
-namespace Cthun_Test_Client {
-
-// static const int NUM_CONNECTIONS { 10 };
+namespace Cthun {
 
 static const std::string URL { "ws://127.0.0.1:8080/cthun/" };
 
-
 int main(int argc, char* argv[]) {
     std::cout << "### I'm inside main()!\n";
-    std::string message { "### Message payload ###" };
+    std::string message { "### Message payload (synchronous) ###" };
 
     // Create client
-    Client the_client {};
+    Client::TestClient the_client {};
 
-    // Connect
-    websocketpp::connection_hdl hdl;
     try {
-         hdl = the_client.connect(URL);
-    } catch(connection_error& e) {
+        // Connect to server
+        Client::Connection_ID id = the_client.connect(URL);
+
+        std::cout << "### We're connected!\n";
+
+        sleep(2);
+
+        // Send a message
+        the_client.send(id, message);
+
+        std::cout << "### Message sent (SYNCHRONOUS - MAIN THREAD)\n";
+
+        // Close connections
+        the_client.closeAllConnections();
+    } catch(Client::client_error& e) {
         std::cout << e.what() << std::endl;
         return 1;
     }
-
-    std::cout << "### We're connected!\n";
-
-    sleep(2);
-
-    // Send message
-    try {
-        the_client.send(hdl, message);
-    } catch(message_error& e) {
-        std::cout << e.what() << std::endl;
-        return 1;
-    }
-
-    std::cout << "### Message sent!\n";
-
-    the_client.join_the_thread();
 
     return 0;
 }
 
-}  // namespace Cthun_Test_Client
+}  // namespace Cthun
 
 
 int main(int argc, char** argv) {
-    return Cthun_Test_Client::main(argc, argv);
+    return Cthun::main(argc, argv);
 }
