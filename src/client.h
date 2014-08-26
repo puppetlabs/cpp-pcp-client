@@ -15,6 +15,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <unordered_map>
 
 // See http://www.zaphoyd.com/websocketpp/manual/reference/cpp11-support
@@ -31,6 +32,8 @@ namespace Client {
 
 typedef websocketpp::client<websocketpp::config::asio_client> Client_Configuration;
 
+typedef std::string Message;
+
 typedef Common::UUID Connection_ID;
 static const auto getNewConnectionID = Common::getUUID;
 
@@ -38,9 +41,6 @@ typedef std::unordered_map<Connection_ID, websocketpp::connection_hdl>
     Connection_Handlers;
 typedef std::pair<Connection_ID &, websocketpp::connection_hdl &>
     Connection_Handler_Pair;
-
-typedef std::unordered_map<Connection_ID, std::thread> Connection_Threads;
-typedef std::pair<Connection_ID &, std::thread> Connection_Thread_Pair;
 
 //
 // Errors
@@ -77,12 +77,17 @@ class unknown_connection : public client_error {
 
 class TestClient {
   public:
-    TestClient();
+    TestClient() = delete;
+    explicit TestClient(std::vector<Message> & messages);
     ~TestClient();
 
     /// Connect to the specified server and return a connection id.
     /// Raise a connection_error in case of failure.
     Connection_ID connect(std::string url);
+
+    /// Get the state of the specified connection.
+    /// Raise an unknow_connection in case connection_id is unknown.
+    websocketpp::session::state::value getStateOf(Connection_ID connection_id);
 
     /// Send message on the specified connection.
     /// Raise a message_error in case of failure.
@@ -113,17 +118,14 @@ class TestClient {
 
   private:
     Client_Configuration client_;
-
+    std::vector<Message> & messages_;
     // NB: connection handlers are thread safe
     Connection_Handlers connection_handlers_;
-    Connection_Threads connection_threads_;
+    std::shared_ptr<std::thread> connection_thread_;
 
     /// Return the connection handler given its id.
     /// Raise a unknown_connection in case the id is unknown.
     websocketpp::connection_hdl getConnectionHandler(Connection_ID connection_id);
-
-    void joinConnectionThread(Connection_ID);
-    void joinAllConnectionThreads();
 };
 
 }  // namespace Client
