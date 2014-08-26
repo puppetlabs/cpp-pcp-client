@@ -58,15 +58,13 @@ FIND_PACKAGE(Threads REQUIRED)
 #
 # Refer vendor libraries
 #
-# TODO: include gmock and horsewhisperer
+# TODO(ale): include gmock and horsewhisperer
 INCLUDE(${VENDOR_DIRECTORY}/websocketpp.cmake)
 
 #
 # Include vendor directories
 #
 INCLUDE_DIRECTORIES(
-#     ${GMOCK_INCLUDE_DIRS}
-#     ${HORSEWHISPERER_INCLUDE_DIRS}
     ${WEBSOCKETPP_INCLUDE_DIRS}
 )
 

@@ -1,9 +1,9 @@
-#ifndef CTHUN_TEST_CLIENT_SRC_CONNECTION_METADATA_H_
-#define CTHUN_TEST_CLIENT_SRC_CONNECTION_METADATA_H_
+#ifndef CTHUN_CLIENT_SRC_CONNECTION_METADATA_H_
+#define CTHUN_CLIENT_SRC_CONNECTION_METADATA_H_
 
 #include <string>
 
-namespace Cthun_Test_Client {
+namespace Cthun {
 
 class ConnectionMetadata {
   public:
@@ -14,6 +14,6 @@ class ConnectionMetadata {
     std::string url_;
 };
 
-}  // namespace Cthun_Test_Client
+}  // namespace Cthun
 
-#endif  // CTHUN_TEST_CLIENT_SRC_CONNECTION_METADATA_H_
+#endif  // CTHUN_CLIENT_SRC_CONNECTION_METADATA_H_
