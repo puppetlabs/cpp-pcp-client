@@ -68,14 +68,12 @@ class unknown_connection : public client_error {
 };
 
 //
-// Test Client
+// Base Client
 //
 
-class TestClient {
+class BaseClient {
   public:
-    TestClient() = delete;
-    explicit TestClient(std::vector<Message> & messages);
-    ~TestClient();
+    BaseClient();
 
     /// Connect to the specified server and return a connection id.
     /// Raise a connection_error in case of failure.
@@ -100,31 +98,33 @@ class TestClient {
     void closeAllConnections();
 
     /// Event loop open callback.
-    void onOpen_(websocketpp::connection_hdl hdl);
+    virtual void onOpen_(websocketpp::connection_hdl hdl) = 0;
 
     /// Event loop close callback.
-    void onClose_(websocketpp::connection_hdl hdl);
+    virtual void onClose_(websocketpp::connection_hdl hdl) = 0;
 
     /// Event loop failure callback.
-    void onFail_(websocketpp::connection_hdl hdl);
+    virtual void onFail_(websocketpp::connection_hdl hdl) = 0;
 
     /// Event loop TLS init callback.
-    Context_Ptr onTlsInit_(websocketpp::connection_hdl hdl);
+    virtual Context_Ptr onTlsInit_(websocketpp::connection_hdl hdl) = 0;
 
     /// Event loop failure callback.
-    void onMessage_(websocketpp::connection_hdl hdl,
-                    Client_Configuration::message_ptr msg);
+    virtual void onMessage_(websocketpp::connection_hdl hdl,
+                            Client_Configuration::message_ptr msg) = 0;
 
-  private:
+  protected:
     Client_Configuration client_;
-    std::vector<Message> & messages_;
     // NB: connection handlers are thread safe
     Connection_Handlers connection_handlers_;
     std::shared_ptr<std::thread> connection_thread_;
 
-    /// Return the connection handler given its id.
+    /// Return the specified connection handler.
     /// Raise a unknown_connection in case the id is unknown.
     websocketpp::connection_hdl getConnectionHandler(Connection_ID connection_id);
+
+    /// Gracefully terminates the client.
+    void shutdown();
 };
 
 }  // namespace Client
