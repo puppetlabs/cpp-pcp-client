@@ -1,4 +1,5 @@
 #include "client.h"
+#include "test_client.h"
 #include "connection_metadata.h"
 
 #include <iostream>

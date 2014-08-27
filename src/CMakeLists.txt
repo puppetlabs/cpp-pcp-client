@@ -1,5 +1,6 @@
 # Set sources
 SET(SOURCES
+    test_client.cpp
     client.cpp
     connection_metadata.cpp
 )
