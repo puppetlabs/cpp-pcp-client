@@ -1,4 +1,5 @@
 #include "client.h"
+
 #include <iostream>
 
 // NB: (from websocketpp wiki) "Per the websocket spec, a client can
@@ -9,7 +10,7 @@ namespace Client {
 
 TestClient::TestClient(std::vector<Message> & messages)
     : messages_ { messages } {
-    // Create endpoint
+    // Create and start endpoint
     client_.init_asio();
     client_.start_perpetual();
 
@@ -17,6 +18,7 @@ TestClient::TestClient(std::vector<Message> & messages)
 
     using websocketpp::lib::placeholders::_1;
     using websocketpp::lib::bind;
+    client_.set_tls_init_handler(bind(&TestClient::onTlsInit_, this, ::_1));
     client_.set_open_handler(bind(&TestClient::onOpen_, this, ::_1));
     client_.set_close_handler(bind(&TestClient::onClose_, this, ::_1));
     client_.set_fail_handler(bind(&TestClient::onFail_, this, ::_1));
@@ -130,6 +132,20 @@ void TestClient::onClose_(websocketpp::connection_hdl hdl) {
 
 void TestClient::onFail_(websocketpp::connection_hdl hdl) {
     std::cout << "### Triggered onFail_()\n";
+}
+
+Context_Ptr TestClient::onTlsInit_(websocketpp::connection_hdl hdl) {
+    Context_Ptr ctx {
+        new boost::asio::ssl::context(boost::asio::ssl::context::tlsv1) };
+
+    try {
+        ctx->set_options(boost::asio::ssl::context::default_workarounds |
+                         boost::asio::ssl::context::no_sslv2 |
+                         boost::asio::ssl::context::single_dh_use);
+    } catch (std::exception& e) {
+        std::cout << "### ERROR (tls): " << e.what() << std::endl;
+    }
+    return ctx;
 }
 
 void TestClient::onMessage_(websocketpp::connection_hdl hdl,
