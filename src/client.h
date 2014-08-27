@@ -9,9 +9,7 @@
 
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/client.hpp>
-#include <websocketpp/config/asio_no_tls_client.hpp>
-
-// TODO(ale): use <websocketpp/config/asio_client.hpp> for TLS
+#include <websocketpp/config/asio_client.hpp>
 
 #include <string>
 #include <vector>
@@ -30,13 +28,11 @@ namespace Client {
 // Aliases
 //
 
-typedef websocketpp::client<websocketpp::config::asio_client> Client_Configuration;
-
+typedef websocketpp::client<websocketpp::config::asio_tls_client> Client_Configuration;
+typedef websocketpp::lib::shared_ptr<boost::asio::ssl::context> Context_Ptr;
 typedef std::string Message;
-
 typedef Common::UUID Connection_ID;
 static const auto getNewConnectionID = Common::getUUID;
-
 typedef std::unordered_map<Connection_ID, websocketpp::connection_hdl>
     Connection_Handlers;
 typedef std::pair<Connection_ID &, websocketpp::connection_hdl &>
@@ -111,6 +107,9 @@ class TestClient {
 
     /// Event loop failure callback.
     void onFail_(websocketpp::connection_hdl hdl);
+
+    /// Event loop TLS init callback.
+    Context_Ptr onTlsInit_(websocketpp::connection_hdl hdl);
 
     /// Event loop failure callback.
     void onMessage_(websocketpp::connection_hdl hdl,
