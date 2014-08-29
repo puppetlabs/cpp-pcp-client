@@ -1,8 +1,8 @@
 # Set sources
 SET(SOURCES
-    test_client.cpp
-    client.cpp
-    connection_metadata.cpp
+    connection.cpp
+    endpoint.cpp
+    connection_manager.cpp
 )
 
 SET(LIBS
