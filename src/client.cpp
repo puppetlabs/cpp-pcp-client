@@ -77,7 +77,7 @@ void BaseClient::sendWhenEstablished(Connection_Handle hdl, std::string msg,
 
     if (current_state == Connection_State_Values::open) {
         send(hdl, msg);
-    } else if (current_state != Connection_State_Values::connecting) {
+    } else if (current_state == Connection_State_Values::connecting) {
         int interval_idx { 0 };
         while (interval_idx < num_intervals) {
             if (getStateOf(hdl) == Connection_State_Values::open) {
