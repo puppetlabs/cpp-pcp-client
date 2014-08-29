@@ -2,10 +2,11 @@
 #include <iostream>
 
 namespace Cthun {
+namespace Client {
 
-ConnectionMetadata::ConnectionMetadata(std::string url)
-    : url_ { url } {
-    std::cout << "### Inside ConnectionMetadata init! Url = " << url_ << "\n";
-}
+// TODO(ale): todo
 
+ConnectionMetadata::ConnectionMetadata() {}
+
+}  // namespace Client
 }  // namespace Cthun

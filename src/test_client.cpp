@@ -53,24 +53,5 @@ void TestClient::onFail_(websocketpp::connection_hdl hdl) {
     std::cout << "### Triggered onFail_()\n";
 }
 
-Context_Ptr TestClient::onTlsInit_(websocketpp::connection_hdl hdl) {
-    Context_Ptr ctx {
-        new boost::asio::ssl::context(boost::asio::ssl::context::tlsv1) };
-
-    try {
-        ctx->set_options(boost::asio::ssl::context::default_workarounds |
-                         boost::asio::ssl::context::no_sslv2 |
-                         boost::asio::ssl::context::single_dh_use);
-    } catch (std::exception& e) {
-        std::cout << "### ERROR (tls): " << e.what() << std::endl;
-    }
-    return ctx;
-}
-
-void TestClient::onMessage_(websocketpp::connection_hdl hdl,
-                            Client_Configuration::message_ptr msg) {
-        std::cout << "### Got a MESSAGE!!! " << msg->get_payload() << std::endl;
-}
-
 }  // namespace Client
 }  // namespace Cthun

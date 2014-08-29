@@ -10,8 +10,6 @@
 
 namespace Cthun {
 
-static const int MAX_WAIT_INTERVALS { 5 };
-
 void showHelp() {
     std::cout << "Invalid command line arguments.\n"
               << "Usage: ctunn-client [url] [num connections] "
@@ -42,12 +40,12 @@ int main(int argc, char* argv[]) {
     Client::TestClient the_client { messages };
 
     // Set the connections
-    std::vector<Client::Connection_ID> connection_ids;
+    std::vector<Client::Connection_Handle> connection_handlers;
     for (auto i = 0; i < num_connections; i++) {
         try {
             // Connect to server
-            Client::Connection_ID id = the_client.connect(url);
-            connection_ids.push_back(id);
+            Client::Connection_Handle hdl = the_client.connect(url);
+            connection_handlers.push_back(hdl);
         } catch(Client::client_error& e) {
             std::cout << "### ERROR (connecting): " << e.what() << std::endl;
             return 1;
@@ -59,23 +57,18 @@ int main(int argc, char* argv[]) {
 
     // Send messages
     try {
-        for (auto id : connection_ids) {
-            int wait_intervals { 0 };
-            while (wait_intervals < MAX_WAIT_INTERVALS) {
-                if (the_client.getStateOf(id) == websocketpp::session::state::open) {
-                    std::cout << "### We're connected!\n";
-                    std::string sync_message { "### Message payload (SYNC) "
-                                               " on connection " + id };
-                    the_client.send(id, sync_message);
-                    std::cout << "### Message sent (SYNCHRONOUS - MAIN THREAD) "
-                              << "on connection " << id << "\n";
-                    break;
-                }
-                wait_intervals++;
-                sleep(1);
-            }
+        int connection_idx { 0 };
+
+        for (auto hdl : connection_handlers) {
+            connection_idx++;
+            std::string sync_message { "### Message (SYNC) for connection "
+                                       + std::to_string(connection_idx) };
+            the_client.sendWhenEstablished(hdl, sync_message);
+            std::cout << "### Message sent (SYNCHRONOUS - MAIN THREAD) "
+                      << "on connection " << connection_idx << "\n";
         }
     } catch(Client::client_error& e) {
+        // NB: catching the base error class
         std::cout << "### ERROR (sending): " << e.what() << std::endl;
         return 1;
     }
@@ -99,5 +92,10 @@ int main(int argc, char* argv[]) {
 
 
 int main(int argc, char** argv) {
-    return Cthun::main(argc, argv);
+    try {
+        return Cthun::main(argc, argv);
+    } catch(std::runtime_error& e) {
+        std::cout << "UNEXPECTED EXCEPTION: " << e.what() << std::endl;
+        return 1;
+    }
 }
