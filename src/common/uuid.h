@@ -10,6 +10,9 @@
 namespace Cthun {
 namespace Common {
 
+// TODO(ale): this is currently unused; remove if still unused after
+// implementing ConnectionMetadata.
+
 typedef std::string UUID;
 
 static UUID getUUID() __attribute__((unused));

@@ -44,7 +44,6 @@ INCLUDE_DIRECTORIES("${MAINFOLDER}/include")
 #
 # Dependency Packages
 #
-
 FIND_PACKAGE(Boost 1.55 REQUIRED COMPONENTS program_options system random)
 if (NOT Boost_FOUND)
     MESSAGE (FATAL_ERROR "Boost is required. Please install it before using ${APPLICATION_NAME}")

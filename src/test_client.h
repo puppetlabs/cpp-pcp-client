@@ -17,20 +17,13 @@ class TestClient : public BaseClient {
     ~TestClient();
 
     /// Event loop open callback.
-    void onOpen_(websocketpp::connection_hdl hdl);
+    void onOpen_(Connection_Handle hdl);
 
     /// Event loop close callback.
-    void onClose_(websocketpp::connection_hdl hdl);
+    void onClose_(Connection_Handle hdl);
 
     /// Event loop failure callback.
-    void onFail_(websocketpp::connection_hdl hdl);
-
-    /// Event loop TLS init callback.
-    Context_Ptr onTlsInit_(websocketpp::connection_hdl hdl);
-
-    /// Event loop failure callback.
-    void onMessage_(websocketpp::connection_hdl hdl,
-                    Client_Configuration::message_ptr msg);
+    void onFail_(Connection_Handle hdl);
 
   private:
     std::vector<Message> & messages_;
