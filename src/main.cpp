@@ -52,9 +52,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Sleep to allow sending async messages
-    sleep(6);
-
     // Send messages
     try {
         int connection_idx { 0 };
