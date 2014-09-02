@@ -1,21 +1,19 @@
 #ifndef CTHUN_CLIENT_SRC_CLIENT_H_
 #define CTHUN_CLIENT_SRC_CLIENT_H_
 
+// Comment the CTHUN_CLIENT_SECURE_TRANSPORT def to not use TLS
+#define CTHUN_CLIENT_SECURE_TRANSPORT
+
 #include "common/uuid.h"
 #include "errors.h"
 #include "macros.h"
 
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/client.hpp>
-
-// Comment the CTHUN_CLIENT_SECURE_TRANSPORT def to not use TLS
-#define CTHUN_CLIENT_SECURE_TRANSPORT
-
-#ifdef CTHUN_CLIENT_SECURE_TRANSPORT
+// NB: we must include asio_client.hpp even if CTHUN_CLIENT_SECURE_TRANSPORT
+// is not defined in order to define Context_Ptr
 #include <websocketpp/config/asio_client.hpp>
-#else
 #include <websocketpp/config/asio_no_tls_client.hpp>
-#endif  // CTHUN_CLIENT_SECURE_TRANSPORT
 
 #include <string>
 #include <vector>
