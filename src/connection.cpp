@@ -38,7 +38,7 @@ void Connection::setOnFailCallback(Event_Callback callback) {
     onFail_callback_ = callback;
 }
 
-void Connection::setOMessageCallback(OnMessage_Callback callback) {
+void Connection::setOnMessageCallback(OnMessage_Callback callback) {
     onMessage_callback_ = callback;
 }
 

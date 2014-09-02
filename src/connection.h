@@ -40,7 +40,7 @@ class Connection {
     void setOnFailCallback(Event_Callback callback);
 
     /// Callback called by onMessage.
-    void setOMessageCallback(OnMessage_Callback callback);
+    void setOnMessageCallback(OnMessage_Callback callback);
 
     //
     // Accessors

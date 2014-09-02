@@ -43,7 +43,8 @@ int runTestConnection(std::string url,
                               << connection_ptr->getID() << " server: "
                               << connection_ptr->getRemoteServer() << "\n";
                     for (auto msg : messages) {
-                        client_ptr->send(hdl, msg, websocketpp::frame::opcode::text);
+                        client_ptr->send(hdl, msg,
+                                         Client::Frame_Opcode_Values::text);
                     }
                 };
             c_p->setOnOpenCallback(onOpen_c);

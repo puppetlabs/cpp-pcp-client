@@ -59,6 +59,9 @@ namespace Close_Code_Values = websocketpp::close::status;
 using Connection_State = websocketpp::session::state::value;
 namespace Connection_State_Values = websocketpp::session::state;
 
+using Frame_Opcode = websocketpp::frame::opcode::value;
+namespace Frame_Opcode_Values = websocketpp::frame::opcode;
+
 }  // namespace Client
 }  // namespace Cthun
 
