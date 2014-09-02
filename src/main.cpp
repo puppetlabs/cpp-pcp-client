@@ -1,6 +1,7 @@
 #include "client.h"
-#include "test_client.h"
-#include "connection_metadata.h"
+#include "connection.h"
+#include "endpoint.h"
+#include "connection_manager.h"
 
 #include <iostream>
 #include <sstream>
@@ -14,6 +15,100 @@ void showHelp() {
     std::cout << "Invalid command line arguments.\n"
               << "Usage: ctunn-client [url] [num connections] "
               << "{message} {message} ... \n";
+}
+
+int runTestConnection(std::string url,
+                      int num_connections,
+                      std::vector<std::string> messages) {
+    Client::Connection c { url };
+
+    // using Lala = std::shared_ptr<Client::Connection<Client::Client_No_TLS>>;
+    // std::vector<Lala> connections;
+
+    std::vector<Client::Connection::Ptr> connections;
+
+
+    for (auto i = 0; i < num_connections; i++) {
+        try {
+            // Create and configure a Connection
+
+            Client::Connection::Ptr c_p {
+                Client::CONNECTION_MANAGER.createConnection(url) };
+
+            Client::Connection::Event_Callback onOpen_c =
+                [&](Client::Client_Type* client_ptr,
+                        Client::Connection* connection_ptr) {
+                    auto hdl = connection_ptr->getConnectionHandle();
+                    std::cout << "### onOpen callback: connection id: "
+                              << connection_ptr->getID() << " server: "
+                              << connection_ptr->getRemoteServer() << "\n";
+                    for (auto msg : messages) {
+                        client_ptr->send(hdl, msg, websocketpp::frame::opcode::text);
+                    }
+                };
+            c_p->setOnOpenCallback(onOpen_c);
+
+            std::cout << "### About to open!\n";
+
+            // Connect to server
+            Client::CONNECTION_MANAGER.open(c_p);
+
+            // Store the Connection pointer
+            connections.push_back(c_p);
+        } catch(Client::client_error& e) {
+            std::cout << "### ERROR (connecting): " << e.what() << std::endl;
+            return 1;
+        }
+    }
+
+    // Sleep a bit to let the handshakes complete
+    std::cout << "\n\n### Waiting a bit to let the handshakes complete\n";
+    sleep(4);
+    std::cout << "### Done waiting!\n";
+
+    // Send messages
+    try {
+        int connection_idx { 0 };
+
+        for (auto c_p : connections) {
+            connection_idx++;
+            std::string sync_message { "### Message (SYNC) for connection "
+                                       + std::to_string(connection_idx) };
+            if (c_p->getState() == Client::Connection_State_Values::open) {
+                Client::CONNECTION_MANAGER.send(c_p, sync_message);
+                std::cout << "### Message sent (SYNCHRONOUS - MAIN THREAD) "
+                          << "on connection " << c_p->getID() << "\n";
+            } else {
+                std::cout << "### Connection " << c_p->getID()
+                          << " is not open yet... Current state = "
+                          << c_p->getState() << " Skipping!\n";
+            }
+        }
+    } catch(Client::client_error& e) {
+        // NB: catching the base error class
+        std::cout << "### ERROR (sending): " << e.what() << std::endl;
+        return 1;
+    }
+
+    // Sleep a bit to get the messages back
+
+    std::cout << "\n\n### Waiting a bit to let the messages come back\n";
+    sleep(4);
+    std::cout << "### Done waiting!\n";
+
+    // Close connections synchronously
+    try {
+        // NB: this is done by the destructor
+        sleep(6);
+        std::cout << "### ### ###\n"
+                  << "### Done sending; about to close all connections\n";
+        Client::CONNECTION_MANAGER.closeAllConnections();
+    } catch(Client::client_error& e) {
+        std::cout << "### ERROR (closing): " << e.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -36,53 +131,7 @@ int main(int argc, char* argv[]) {
         messages.push_back(argv[i]);
     }
 
-    // Create client
-    Client::TestClient the_client { messages };
-
-    // Set the connections
-    std::vector<Client::Connection_Handle> connection_handlers;
-    for (auto i = 0; i < num_connections; i++) {
-        try {
-            // Connect to server
-            Client::Connection_Handle hdl = the_client.connect(url);
-            connection_handlers.push_back(hdl);
-        } catch(Client::client_error& e) {
-            std::cout << "### ERROR (connecting): " << e.what() << std::endl;
-            return 1;
-        }
-    }
-
-    // Send messages
-    try {
-        int connection_idx { 0 };
-
-        for (auto hdl : connection_handlers) {
-            connection_idx++;
-            std::string sync_message { "### Message (SYNC) for connection "
-                                       + std::to_string(connection_idx) };
-            the_client.sendWhenEstablished(hdl, sync_message);
-            std::cout << "### Message sent (SYNCHRONOUS - MAIN THREAD) "
-                      << "on connection " << connection_idx << "\n";
-        }
-    } catch(Client::client_error& e) {
-        // NB: catching the base error class
-        std::cout << "### ERROR (sending): " << e.what() << std::endl;
-        return 1;
-    }
-
-    // Close connections synchronously
-    try {
-        // NB: this is done by the destructor
-        sleep(6);
-        std::cout << "### ### ###\n"
-                  << "### Done sending; about to close all connections\n";
-        the_client.closeAllConnections();
-    } catch(Client::client_error& e) {
-        std::cout << "### ERROR (closing): " << e.what() << std::endl;
-        return 1;
-    }
-
-    return 0;
+    return runTestConnection(url, num_connections, messages);
 }
 
 }  // namespace Cthun
