@@ -27,7 +27,6 @@ int runTestConnection(std::string url,
 
     std::vector<Client::Connection::Ptr> connections;
 
-
     for (auto i = 0; i < num_connections; i++) {
         try {
             // Create and configure a Connection
