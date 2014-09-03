@@ -13,6 +13,7 @@
 // NB: we must include asio_client.hpp even if CTHUN_CLIENT_SECURE_TRANSPORT
 // is not defined in order to define Context_Ptr
 #include <websocketpp/config/asio_client.hpp>
+
 #ifndef CTHUN_CLIENT_SECURE_TRANSPORT
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #endif  // CTHUN_CLIENT_SECURE_TRANSPORT
