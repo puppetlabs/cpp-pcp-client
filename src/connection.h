@@ -11,15 +11,18 @@
 namespace Cthun {
 namespace Client {
 
-class Connection {
+// NB: enable_shared_from_this<> is to create a shared_ptr to *this
+
+class Connection : public std::enable_shared_from_this<Connection> {
   public:
     using Ptr = std::shared_ptr<Connection>;
-    using Event_Callback = std::function<void(
-        Client_Type* client_ptr, Connection* connection_ptr)>;
 
-    using OnMessage_Callback = std::function<void(
-        Client_Type* client_ptr, Connection* connection_ptr, std::string message)>;
+    using Event_Callback = std::function<void(Client_Type* client_ptr,
+                                              Connection::Ptr connection_ptr)>;
 
+    using OnMessage_Callback = std::function<void(Client_Type* client_ptr,
+                                                  Connection::Ptr connection_ptr,
+                                                  std::string message)>;
 
     explicit Connection(std::string url);
 
@@ -86,13 +89,13 @@ class Connection {
     Close_Code remote_close_code_;
 
     Event_Callback onOpen_callback_ {
-        [](Client_Type* client_ptr, Connection* connection_ptr) {} };
+        [](Client_Type* client_ptr, Connection::Ptr connection_ptr) {} };
     Event_Callback onClose_callback_ {
-        [](Client_Type* client_ptr, Connection* connection_ptr) {} };
+        [](Client_Type* client_ptr, Connection::Ptr connection_ptr) {} };
     Event_Callback onFail_callback_ {
-        [](Client_Type* client_ptr, Connection* connection_ptr) {} };
+        [](Client_Type* client_ptr, Connection::Ptr connection_ptr) {} };
     OnMessage_Callback onMessage_callback_ {
-        [](Client_Type* client_ptr, Connection* connection_ptr,
+        [](Client_Type* client_ptr, Connection::Ptr connection_ptr,
            std::string message) {} };
 };
 

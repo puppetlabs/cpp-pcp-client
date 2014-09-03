@@ -95,7 +95,7 @@ Close_Code Connection::getRemoteCloseCode() const {
 void Connection::onOpen(Client_Type* client_ptr, Connection_Handle hdl) {
     std::cout << "### triggered onOpen!\n";
 
-    onOpen_callback_(client_ptr, this);
+    onOpen_callback_(client_ptr, shared_from_this());
 
     state_ = Connection_State_Values::open;
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
@@ -105,7 +105,7 @@ void Connection::onOpen(Client_Type* client_ptr, Connection_Handle hdl) {
 void Connection::onClose(Client_Type* client_ptr, Connection_Handle hdl) {
     std::cout << "### triggered onClose!\n";
 
-    onClose_callback_(client_ptr, this);
+    onClose_callback_(client_ptr, shared_from_this());
 
     state_ = Connection_State_Values::closed;
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
@@ -116,7 +116,7 @@ void Connection::onClose(Client_Type* client_ptr, Connection_Handle hdl) {
 void Connection::onFail(Client_Type* client_ptr, Connection_Handle hdl) {
     std::cout << "### triggered onFail!\n";
 
-    onFail_callback_(client_ptr, this);
+    onFail_callback_(client_ptr, shared_from_this());
 
     state_ = Connection_State_Values::closed;
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
@@ -128,7 +128,7 @@ void Connection::onMessage(Client_Type* client_ptr, Connection_Handle hdl,
                            Client_Type::message_ptr msg) {
     std::cout << "### triggered onMessage!\n" << msg->get_payload() << std::endl;
 
-    onMessage_callback_(client_ptr, this, msg->get_payload());
+    onMessage_callback_(client_ptr, shared_from_this(), msg->get_payload());
 }
 
 }  // namespace Client

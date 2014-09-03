@@ -36,7 +36,7 @@ int runTestConnection(std::string url,
 
             Client::Connection::Event_Callback onOpen_c =
                 [&](Client::Client_Type* client_ptr,
-                        Client::Connection* connection_ptr) {
+                        Client::Connection::Ptr connection_ptr) {
                     auto hdl = connection_ptr->getConnectionHandle();
                     std::cout << "### onOpen callback: connection id: "
                               << connection_ptr->getID() << " server: "
@@ -46,6 +46,7 @@ int runTestConnection(std::string url,
                                          Client::Frame_Opcode_Values::text);
                     }
                 };
+
             c_p->setOnOpenCallback(onOpen_c);
 
             std::cout << "### About to open!\n";
