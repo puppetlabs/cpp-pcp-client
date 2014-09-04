@@ -2,6 +2,9 @@
 #include "connection.h"
 #include "endpoint.h"
 #include "connection_manager.h"
+#include "common/file_utils.h"
+
+#include <boost/program_options.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -11,28 +14,42 @@
 
 namespace Cthun {
 
-void showHelp() {
-    std::cout << "Invalid command line arguments.\n"
-              << "Usage: ctunn-client [url] [num connections] "
-              << "{message} {message} ... \n";
-}
+namespace po = boost::program_options;
+
+static std::string DEFAULT_CA { "./test-resources/ssl/ca/ca_crt.pem" };
+static std::string DEFAULT_CERT { "./test-resources/ssl/certs/cthun-client.pem" };
+static std::string DEFAULT_KEY { "./test-resources/ssl/private_keys/cthun-client.pem" };
 
 int runTestConnection(std::string url,
                       int num_connections,
-                      std::vector<std::string> messages) {
-    Client::Connection c { url };
+                      std::vector<std::string> messages,
+                      std::string ca_crt_path,
+                      std::string client_crt_path,
+                      std::string client_key_path) {
+    // Configure the Endpoint to use TLS
+    Client::CONNECTION_MANAGER.configureSecureEndpoint(
+        ca_crt_path, client_crt_path, client_key_path);
 
-    // using Lala = std::shared_ptr<Client::Connection<Client::Client_No_TLS>>;
-    // std::vector<Lala> connections;
+    Client::Connection c { url };
 
     std::vector<Client::Connection::Ptr> connections;
 
     for (auto i = 0; i < num_connections; i++) {
         try {
             // Create and configure a Connection
-
             Client::Connection::Ptr c_p {
                 Client::CONNECTION_MANAGER.createConnection(url) };
+
+            Client::Connection::Event_Callback onFail_c =
+                [&](Client::Client_Type* client_ptr,
+                        Client::Connection::Ptr connection_ptr) {
+                    auto hdl = connection_ptr->getConnectionHandle();
+                    std::cout << "### onFail callback -"
+                              << " id: " << connection_ptr->getID()
+                              << " server: " << connection_ptr->getRemoteServer()
+                              << " error: " << connection_ptr->getErrorReason()
+                              << " state: " << connection_ptr->getState() << "\n";
+                };
 
             Client::Connection::Event_Callback onOpen_c =
                 [&](Client::Client_Type* client_ptr,
@@ -47,9 +64,8 @@ int runTestConnection(std::string url,
                     }
                 };
 
+            c_p->setOnFailCallback(onFail_c);
             c_p->setOnOpenCallback(onOpen_c);
-
-            std::cout << "### About to open!\n";
 
             // Connect to server
             Client::CONNECTION_MANAGER.open(c_p);
@@ -63,7 +79,7 @@ int runTestConnection(std::string url,
     }
 
     // Sleep a bit to let the handshakes complete
-    std::cout << "\n\n### Waiting a bit to let the handshakes complete\n";
+    std::cout << "\n\n### Waiting to let the handshakes complete\n";
     sleep(4);
     std::cout << "### Done waiting!\n";
 
@@ -91,8 +107,7 @@ int runTestConnection(std::string url,
         return 1;
     }
 
-    // Sleep a bit to get the messages back
-
+    // Sleep to get the messages back
     std::cout << "\n\n### Waiting a bit to let the messages come back\n";
     sleep(4);
     std::cout << "### Done waiting!\n";
@@ -113,26 +128,44 @@ int runTestConnection(std::string url,
 }
 
 int main(int argc, char* argv[]) {
-    if (argc < 4) {
-        showHelp();
-        return 1;
+    po::options_description desc("Allowed options");
+    desc.add_options()
+        ("help", "display help")
+        ("server", po::value<std::string>()->default_value(
+            "wss://localhost:8090/cthun/"), "address of the cthun server")
+        ("num_connections", po::value<int>()->default_value(1),
+            "number of connections")
+        ("ca", po::value<std::string>()->default_value(DEFAULT_CA),
+            "CA certificate")
+        ("cert", po::value<std::string>()->default_value(DEFAULT_CERT),
+            "client certificate")
+        ("key", po::value<std::string>()->default_value(DEFAULT_KEY),
+            "client private key")
+        ("messages,M", po::value<std::vector<std::string>>()->default_value(
+            std::vector<std::string>(), ""), "messages");
+
+    po::positional_options_description p;
+    p.add("messages", -1);
+
+    po::variables_map vm;
+    po::store(po::command_line_parser(argc, argv)
+              .options(desc).positional(p).run(), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        std::cout << desc;
+        return 0;
     }
 
-    std::string url { argv[1] };
+    // TODO(ale): does boost offer something similar?
+    auto expandPath = Common::FileUtils::expandAsDoneByShell;
 
-    std::istringstream num_connections_stream { argv[2] };
-    int num_connections;
-    if (!(num_connections_stream >> num_connections)) {
-        showHelp();
-        return 1;
-    }
-
-    std::vector<std::string> messages {};
-    for (auto i = 3; i < argc; i++) {
-        messages.push_back(argv[i]);
-    }
-
-    return runTestConnection(url, num_connections, messages);
+    return runTestConnection(vm["server"].as<std::string>(),
+                             vm["num_connections"].as<int>(),
+                             vm["messages"].as<std::vector<std::string>>(),
+                             expandPath(vm["ca"].as<std::string>()),
+                             expandPath(vm["cert"].as<std::string>()),
+                             expandPath(vm["key"].as<std::string>()));
 }
 
 }  // namespace Cthun
@@ -141,7 +174,7 @@ int main(int argc, char* argv[]) {
 int main(int argc, char** argv) {
     try {
         return Cthun::main(argc, argv);
-    } catch(std::runtime_error& e) {
+    } catch (std::runtime_error& e) {
         std::cout << "UNEXPECTED EXCEPTION: " << e.what() << std::endl;
         return 1;
     }

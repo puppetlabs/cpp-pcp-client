@@ -20,7 +20,14 @@ namespace Client {
 
 class ConnectionManager {
   public:
+    // TODO(ale): function to reset the Endpoint
+
     static ConnectionManager& Instance();
+
+    /// Throw...
+    void configureSecureEndpoint(const std::string& ca_crt_path,
+                                 const std::string& client_crt_path,
+                                 const std::string& client_key_path);
 
     Connection::Ptr createConnection(std::string url);
 
@@ -42,6 +49,10 @@ class ConnectionManager {
 
   private:
     Endpoint::Ptr endpoint_ptr_;
+    bool is_secure_ { false };
+    std::string ca_crt_path_;
+    std::string client_crt_path_;
+    std::string client_key_path_;
 
     // To control the lazy instantiation of the endpoint
     bool endpoint_running_;

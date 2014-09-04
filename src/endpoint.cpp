@@ -3,12 +3,16 @@
 namespace Cthun {
 namespace Client {
 
-Endpoint::Endpoint() {
+Endpoint::Endpoint(const std::string& ca_crt_path,
+                   const std::string& client_crt_path,
+                   const std::string& client_key_path)
+    : ca_crt_path_ { ca_crt_path },
+      client_crt_path_ { client_crt_path },
+      client_key_path_ { client_key_path } {
     // Initialize the transport system. Note that in perpetual mode,
     // the event loop does not terminate when there are no connections
     client_.init_asio();
     client_.start_perpetual();
-
 
 #ifdef CTHUN_CLIENT_SECURE_TRANSPORT
     // Bind the TLS init function
@@ -114,6 +118,12 @@ void Endpoint::closeConnections() {
 
 // TLS init handler (will be bound to all connections)
 
+
+// NB: for TLS certificates, refer to:
+// www.boost.org/doc/libs/1_56_0/doc/html/boost_asio/reference/ssl__context.html
+
+// TODO(ale): double check boost asio ssl options
+
 Context_Ptr Endpoint::onTlsInit(Connection_Handle hdl) {
     Context_Ptr ctx {
         new boost::asio::ssl::context(boost::asio::ssl::context::tlsv1) };
@@ -122,6 +132,11 @@ Context_Ptr Endpoint::onTlsInit(Connection_Handle hdl) {
         ctx->set_options(boost::asio::ssl::context::default_workarounds |
                          boost::asio::ssl::context::no_sslv2 |
                          boost::asio::ssl::context::single_dh_use);
+        ctx->use_certificate_file(client_crt_path_,
+                                  boost::asio::ssl::context::file_format::pem);
+        ctx->use_private_key_file(client_key_path_,
+                                  boost::asio::ssl::context::file_format::pem);
+        ctx->load_verify_file(ca_crt_path_);
     } catch (std::exception& e) {
         // TODO(ale): this is what the the debug_client does and it
         // seems to work, nonetheless check if we need to raise here
