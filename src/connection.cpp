@@ -7,7 +7,7 @@
 namespace Cthun {
 namespace Client {
 
-Connection::Connection(std::string url)
+Connection::Connection(const std::string& url)
     : url_ { url },
       id_ { Common::getUUID() },
       state_ { Connection_State_Values::connecting },
@@ -95,33 +95,33 @@ Close_Code Connection::getRemoteCloseCode() const {
 void Connection::onOpen(Client_Type* client_ptr, Connection_Handle hdl) {
     std::cout << "### triggered onOpen!\n";
 
-    onOpen_callback_(client_ptr, shared_from_this());
-
     state_ = Connection_State_Values::open;
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
     remote_server_ = websocket_ptr->get_response_header("Server");
+
+    onOpen_callback_(client_ptr, shared_from_this());
 }
 
 void Connection::onClose(Client_Type* client_ptr, Connection_Handle hdl) {
     std::cout << "### triggered onClose!\n";
-
-    onClose_callback_(client_ptr, shared_from_this());
-
     state_ = Connection_State_Values::closed;
+
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
     remote_close_reason_ = websocket_ptr->get_remote_close_reason();
     remote_close_code_ = websocket_ptr->get_remote_close_code();
+
+    onClose_callback_(client_ptr, shared_from_this());
 }
 
 void Connection::onFail(Client_Type* client_ptr, Connection_Handle hdl) {
     std::cout << "### triggered onFail!\n";
 
-    onFail_callback_(client_ptr, shared_from_this());
-
     state_ = Connection_State_Values::closed;
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
     remote_server_ = websocket_ptr->get_response_header("Server");
     error_reason_ = websocket_ptr->get_ec().message();
+
+    onFail_callback_(client_ptr, shared_from_this());
 }
 
 void Connection::onMessage(Client_Type* client_ptr, Connection_Handle hdl,

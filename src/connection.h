@@ -24,7 +24,7 @@ class Connection : public std::enable_shared_from_this<Connection> {
                                                   Connection::Ptr connection_ptr,
                                                   std::string message)>;
 
-    explicit Connection(std::string url);
+    explicit Connection(const std::string& url);
 
     //
     // Configuration

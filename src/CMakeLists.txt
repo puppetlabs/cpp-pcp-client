@@ -12,17 +12,17 @@ SET(LIBS
     ${PTHREADS}
 )
 
-ADD_LIBRARY(cthun_ws_client ${SOURCES})
-TARGET_LINK_LIBRARIES(cthun_ws_client
+ADD_LIBRARY(cthun_client ${SOURCES})
+TARGET_LINK_LIBRARIES(cthun_client
     ${LIBS}
 )
 
-ADD_EXECUTABLE(cthun_ws_client-bin main.cpp)
-TARGET_LINK_LIBRARIES(cthun_ws_client-bin cthun_ws_client)
-SET_TARGET_PROPERTIES(cthun_ws_client-bin
+ADD_EXECUTABLE(cthun_client-bin main.cpp)
+TARGET_LINK_LIBRARIES(cthun_client-bin cthun_client)
+SET_TARGET_PROPERTIES(cthun_client-bin
     PROPERTIES
-    OUTPUT_NAME cthun_ws_client
+    OUTPUT_NAME cthun_client
     CLEAN_DIRECT_OUTPUT 1
 )
 
-INSTALL(TARGETS cthun_ws_client-bin DESTINATION bin)
+INSTALL(TARGETS cthun_client-bin DESTINATION bin)

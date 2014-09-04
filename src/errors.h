@@ -25,18 +25,6 @@ class message_error : public client_error {
     explicit message_error(std::string const& msg) : client_error(msg) {}
 };
 
-/// Unknown connection id class.
-class unknown_connection : public client_error {
-  public:
-    unknown_connection() : client_error(std_msg_) {}
-
-    explicit unknown_connection(std::string const& msg)
-        : client_error(std_msg_ + " " + msg) {}
-
-  private:
-    std::string std_msg_ { "Unknown connection" };
-};
-
 }  // namespace Client
 }  // namespace Cthun
 
