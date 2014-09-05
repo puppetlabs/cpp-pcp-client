@@ -1,8 +1,11 @@
 #include "connection.h"
 #include "common/uuid.h"
+#include "log/log.h"
 
 #include <string>
 #include <iostream>
+
+LOG_DECLARE_NAMESPACE("client.connection");
 
 namespace Cthun {
 namespace Client {
@@ -93,7 +96,7 @@ Close_Code Connection::getRemoteCloseCode() const {
 // TODO(ale): session validation; TLS
 
 void Connection::onOpen(Client_Type* client_ptr, Connection_Handle hdl) {
-    std::cout << "### triggered onOpen!\n";
+    LOG_DEBUG("triggered onOpen");
 
     state_ = Connection_State_Values::open;
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
@@ -103,7 +106,7 @@ void Connection::onOpen(Client_Type* client_ptr, Connection_Handle hdl) {
 }
 
 void Connection::onClose(Client_Type* client_ptr, Connection_Handle hdl) {
-    std::cout << "### triggered onClose!\n";
+    LOG_DEBUG("triggered onClose");
     state_ = Connection_State_Values::closed;
 
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
@@ -114,7 +117,7 @@ void Connection::onClose(Client_Type* client_ptr, Connection_Handle hdl) {
 }
 
 void Connection::onFail(Client_Type* client_ptr, Connection_Handle hdl) {
-    std::cout << "### triggered onFail!\n";
+    LOG_DEBUG("triggered onFail");
 
     state_ = Connection_State_Values::closed;
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
@@ -126,7 +129,7 @@ void Connection::onFail(Client_Type* client_ptr, Connection_Handle hdl) {
 
 void Connection::onMessage(Client_Type* client_ptr, Connection_Handle hdl,
                            Client_Type::message_ptr msg) {
-    std::cout << "### triggered onMessage!\n" << msg->get_payload() << std::endl;
+    LOG_DEBUG("triggered onMessage:\n%1%", msg->get_payload());
 
     onMessage_callback_(client_ptr, shared_from_this(), msg->get_payload());
 }

@@ -1,5 +1,8 @@
 #include "connection_manager.h"
 #include "errors.h"
+#include "log/log.h"
+
+LOG_DECLARE_NAMESPACE("client.connection_manager");
 
 namespace Cthun {
 namespace Client {
@@ -15,7 +18,7 @@ void ConnectionManager::configureSecureEndpoint(const std::string& ca_crt_path,
     if (endpoint_running_) {
         // TODO(ale): should we throw a client_error to let the caller
         // reset the endpoint?
-        std::cout << "### WARNING: an endpoint has already started\n";
+        LOG_WARNING("an endpoint has already started");
     }
     is_secure_ = true;
     ca_crt_path_ = ca_crt_path;

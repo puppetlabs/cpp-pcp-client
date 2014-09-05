@@ -1,10 +1,9 @@
 #ifndef CTHUN_CLIENT_SRC_LOG_LOG_H_
 #define CTHUN_CLIENT_SRC_LOG_LOG_H_
 
+// HERE(ale): this code was originally copied from cfacter
 
-
-// TODO(ale): todo! So far, this is the same as the cfacter one.
-
+// TODO(ale): change "//**" to "///" for doc consistency (?)
 
 // To use this header, you must:
 // - Have Boost on the include path
@@ -15,22 +14,27 @@
  * See Boost.Log's documentation.
  */
 #define BOOST_LOG_DYN_LINK
+
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/format.hpp>
+
 #include <cstdio>
+#include <string>
 
 /**
  * Defines the root logging namespace.
  */
-#define LOG_ROOT_NAMESPACE "puppetlabs.cthun.client."
+#define LOG_ROOT_NAMESPACE "puppetlabs.cthun."
 
 /**
  * Used to declare a logging namespace for a source file.
  * This macro must be used before any other logging macro.
  * @param ns The logging namespace name.
  */
-#define LOG_DECLARE_NAMESPACE(ns) static const std::string g_logger = LOG_ROOT_NAMESPACE ns;
+#define LOG_DECLARE_NAMESPACE(ns) static const std::string g_logger = \
+    LOG_ROOT_NAMESPACE ns;
+
 /**
  * Logs a message.
  * @param level The logging level for the message.
@@ -38,82 +42,109 @@
  * @param ... The format message parameters.
  */
 #define LOG_MESSAGE(level, format, ...) \
-    if (facter::logging::is_log_enabled(g_logger, level)) { \
-        facter::logging::log(g_logger, level, format, ##__VA_ARGS__); \
+    if (Cthun::Log::is_log_enabled(g_logger, level)) { \
+        Cthun::Log::log(g_logger, level, format, ##__VA_ARGS__); \
     }
+
 /**
  * Logs a trace message.
  * @param format The format message.
  * @param ... The format message parameters.
  */
-#define LOG_TRACE(format, ...) LOG_MESSAGE(facter::logging::log_level::trace, format, ##__VA_ARGS__)
+#define LOG_TRACE(format, ...) LOG_MESSAGE(Cthun::Log::log_level::trace, \
+                                           format, ##__VA_ARGS__)
+
 /**
  * Logs a debug message.
  * @param format The format message.
  * @param ... The format message parameters.
  */
-#define LOG_DEBUG(format, ...) LOG_MESSAGE(facter::logging::log_level::debug, format, ##__VA_ARGS__)
+#define LOG_DEBUG(format, ...) LOG_MESSAGE(Cthun::Log::log_level::debug, \
+                                           format, ##__VA_ARGS__)
+
 /**
  * Logs an info message.
  * @param format The format message.
  * @param ... The format message parameters.
  */
-#define LOG_INFO(format, ...) LOG_MESSAGE(facter::logging::log_level::info, format, ##__VA_ARGS__)
+#define LOG_INFO(format, ...) LOG_MESSAGE(Cthun::Log::log_level::info, \
+                                          format, ##__VA_ARGS__)
+
 /**
  * Logs a warning message.
  * @param format The format message.
  * @param ... The format message parameters.
  */
-#define LOG_WARNING(format, ...) LOG_MESSAGE(facter::logging::log_level::warning, format, ##__VA_ARGS__)
+#define LOG_WARNING(format, ...) LOG_MESSAGE(Cthun::Log::log_level::warning, \
+                                             format, ##__VA_ARGS__)
+
 /**
  * Logs an error message.
  * @param format The format message.
  * @param ... The format message parameters.
  */
-#define LOG_ERROR(format, ...) LOG_MESSAGE(facter::logging::log_level::error, format, ##__VA_ARGS__)
+#define LOG_ERROR(format, ...) LOG_MESSAGE(Cthun::Log::log_level::error, \
+                                           format, ##__VA_ARGS__)
+
 /**
  * Logs a fatal message.
  * @param format The format message.
  * @param ... The format message parameters.
  */
-#define LOG_FATAL(format, ...) LOG_MESSAGE(facter::logging::log_level::fatal, format, ##__VA_ARGS__)
+#define LOG_FATAL(format, ...) LOG_MESSAGE(Cthun::Log::log_level::fatal, \
+                                           format, ##__VA_ARGS__)
+
 /**
  * Determines if the given logging level is enabled.
  * @param level The logging level to check.
  */
-#define LOG_IS_ENABLED(level) facter::logging::is_log_enabled(g_logger, level)
+#define LOG_IS_ENABLED(level) Cthun::Log::is_log_enabled(g_logger, level)
+
 /**
  * Determines if the trace logging level is enabled.
- * @returns Returns true if trace logging is enabled or false if it is not enabled.
+ * @returns Returns true if trace logging is enabled or false if it is
+ * not enabled.
  */
-#define LOG_IS_TRACE_ENABLED() LOG_IS_ENABLED(facter::logging::log_level::trace)
+#define LOG_IS_TRACE_ENABLED() LOG_IS_ENABLED(Cthun::Log::log_level::trace)
+
 /**
  * Determines if the debug logging level is enabled.
- * @returns Returns true if debug logging is enabled or false if it is not enabled.
+ * @returns Returns true if debug logging is enabled or false if it is
+ * not enabled.
  */
-#define LOG_IS_DEBUG_ENABLED() LOG_IS_ENABLED(facter::logging::log_level::debug)
+#define LOG_IS_DEBUG_ENABLED() LOG_IS_ENABLED(Cthun::Log::log_level::debug)
+
 /**
  * Determines if the info logging level is enabled.
- * @returns Returns true if info logging is enabled or false if it is not enabled.
+ * @returns Returns true if info logging is enabled or false if it is
+ * not enabled.
  */
-#define LOG_IS_INFO_ENABLED() LOG_IS_ENABLED(facter::logging::log_level::info)
+#define LOG_IS_INFO_ENABLED() LOG_IS_ENABLED(Cthun::Log::log_level::info)
+
 /**
  * Determines if the warning logging level is enabled.
- * @returns Returns true if warning logging is enabled or false if it is not enabled.
+ * @returns Returns true if warning logging is enabled or false if it
+ * is not enabled.
  */
-#define LOG_IS_WARNING_ENABLED() LOG_IS_ENABLED(facter::logging::log_level::warning)
+#define LOG_IS_WARNING_ENABLED() LOG_IS_ENABLED(Cthun::Log::log_level::warning)
+
 /**
  * Determines if the error logging level is enabled.
- * @returns Returns true if error logging is enabled or false if it is not enabled.
+ * @returns Returns true if error logging is enabled or false if it is
+ *not enabled.
  */
-#define LOG_IS_ERROR_ENABLED() LOG_IS_ENABLED(facter::logging::log_level::error)
+#define LOG_IS_ERROR_ENABLED() LOG_IS_ENABLED(Cthun::Log::log_level::error)
+
 /**
  * Determines if the fatal logging level is enabled.
- * @returns Returns true if fatal logging is enabled or false if it is not enabled.
+ * @returns Returns true if fatal logging is enabled or false if it is
+ * not enabled.
  */
-#define LOG_IS_FATAL_ENABLED() LOG_IS_ENABLED(facter::logging::log_level::fatal)
+#define LOG_IS_FATAL_ENABLED() LOG_IS_ENABLED(Cthun::Log::log_level::fatal)
 
-// TODO(ale): correct namespace?
+//
+// namespace Cthun::Log
+//
 
 namespace Cthun {
 namespace Log {
@@ -121,8 +152,7 @@ namespace Log {
 /**
  * Represents the supported logging levels.
  */
-enum class log_level
-{
+enum class log_level {
     trace,
     debug,
     info,
@@ -138,6 +168,7 @@ enum class log_level
  * name "Severity" of log_level_attr is tied to BOOST_LOG_SEV.
  */
 BOOST_LOG_ATTRIBUTE_KEYWORD(log_level_attr, "Severity", log_level);
+
 /**
  * The Boost.Log attribute for namespace.
  */
@@ -162,7 +193,8 @@ void configure_logging(log_level level, std::ostream &dst);
  * Determines if the given log level is enabled for the given logger.
  * @param logger The logger to check.
  * @param level The logging level to check.
- * @return Returns true if the logging level is enabled or false if it is not.
+ * @return Returns true if the logging level is enabled or false if it
+ * is not.
  */
 bool is_log_enabled(const std::string &logger, log_level level);
 
@@ -172,7 +204,8 @@ bool is_log_enabled(const std::string &logger, log_level level);
  * @param level The logging level to log with.
  * @param message The message to log.
  */
-void log(const std::string &logger, log_level level, std::string const& message);
+void log(const std::string &logger, log_level level,
+         std::string const& message);
 
 /**
  * Logs a given format message to the given logger.
@@ -180,7 +213,8 @@ void log(const std::string &logger, log_level level, std::string const& message)
  * @param level The logging level to log with.
  * @param message The message being formatted.
  */
-void log(const std::string &logger, log_level level, boost::format& message);
+void log(const std::string &logger, log_level level,
+         boost::format& message);
 
 /**
  * Logs a given format message to the given logger.
@@ -193,8 +227,8 @@ void log(const std::string &logger, log_level level, boost::format& message);
  * @param args The remaining arguments to the message.
  */
 template <typename T, typename... TArgs>
-void log(const std::string &logger, log_level level, boost::format& message, T arg, TArgs... args)
-{
+void log(const std::string &logger, log_level level,
+         boost::format& message, T arg, TArgs... args) {
     message % arg;
     log(logger, level, message, std::forward<TArgs>(args)...);
 }
@@ -208,13 +242,13 @@ void log(const std::string &logger, log_level level, boost::format& message, T a
  * @param args The remaining arguments to the message.
  */
 template <typename... TArgs>
-void log(const std::string &logger, log_level level, std::string const& format, TArgs... args)
-{
+void log(const std::string &logger, log_level level,
+         std::string const& format, TArgs... args) {
     boost::format message(format);
     log(logger, level, message, std::forward<TArgs>(args)...);
 }
 
-}  // namespace Cthun
 }  // namespace Log
+}  // namespace Cthun
 
 #endif  // CTHUN_CLIENT_SRC_LOG_LOG_H_
