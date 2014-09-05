@@ -1,7 +1,9 @@
 # Set sources
 SET(SOURCES
-    connection.cpp
+    log/log.cpp
+    configuration.cpp
     endpoint.cpp
+    connection.cpp
     connection_manager.cpp
 )
 

@@ -1,4 +1,7 @@
 #include "endpoint.h"
+#include "log/log.h"
+
+LOG_DECLARE_NAMESPACE("client.endpoint");
 
 namespace Cthun {
 namespace Client {
@@ -9,8 +12,15 @@ Endpoint::Endpoint(const std::string& ca_crt_path,
     : ca_crt_path_ { ca_crt_path },
       client_crt_path_ { client_crt_path },
       client_key_path_ { client_key_path } {
+    // Disable websocketpp logging to avoid clashing with ours
+    // TODO(ale): it could be useful to stream it to a file
+
+    client_.clear_access_channels(websocketpp::log::alevel::all);
+    client_.clear_error_channels(websocketpp::log::elevel::all);
+
     // Initialize the transport system. Note that in perpetual mode,
     // the event loop does not terminate when there are no connections
+
     client_.init_asio();
     client_.start_perpetual();
 
@@ -93,8 +103,7 @@ void Endpoint::close(Connection::Ptr connection_ptr, Close_Code code,
                      Message reason) {
     websocketpp::lib::error_code ec;
 
-    std::cout << "### About to close connection "
-              << connection_ptr->getID() << std::endl;
+    LOG_DEBUG("About to close connection %1%", connection_ptr->getID());
 
     client_.close(connection_ptr->getConnectionHandle(), code, reason, ec);
     if (ec) {
@@ -140,7 +149,7 @@ Context_Ptr Endpoint::onTlsInit(Connection_Handle hdl) {
     } catch (std::exception& e) {
         // TODO(ale): this is what the the debug_client does and it
         // seems to work, nonetheless check if we need to raise here
-        std::cout << "### ERROR (tls): " << e.what() << std::endl;
+        LOG_ERROR("failed to configure TLS: %1%", e.what());
     }
     return ctx;
 }

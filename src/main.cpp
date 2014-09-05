@@ -3,6 +3,8 @@
 #include "endpoint.h"
 #include "connection_manager.h"
 #include "common/file_utils.h"
+#include "configuration.h"
+#include "log/log.h"
 
 #include <boost/program_options.hpp>
 
@@ -11,6 +13,8 @@
 #include <vector>
 #include <string>
 #include <unistd.h>
+
+LOG_DECLARE_NAMESPACE("client.main");
 
 namespace Cthun {
 
@@ -44,20 +48,22 @@ int runTestConnection(std::string url,
                 [&](Client::Client_Type* client_ptr,
                         Client::Connection::Ptr connection_ptr) {
                     auto hdl = connection_ptr->getConnectionHandle();
-                    std::cout << "### onFail callback -"
-                              << " id: " << connection_ptr->getID()
-                              << " server: " << connection_ptr->getRemoteServer()
-                              << " error: " << connection_ptr->getErrorReason()
-                              << " state: " << connection_ptr->getState() << "\n";
+                    LOG_DEBUG("onFail callback: id %1%, server %2%, state %3%, "
+                        "error %4%",
+                        connection_ptr->getID(),
+                        connection_ptr->getRemoteServer(),
+                        connection_ptr->getErrorReason(),
+                        connection_ptr->getState());
                 };
 
             Client::Connection::Event_Callback onOpen_c =
                 [&](Client::Client_Type* client_ptr,
                         Client::Connection::Ptr connection_ptr) {
                     auto hdl = connection_ptr->getConnectionHandle();
-                    std::cout << "### onOpen callback: connection id: "
-                              << connection_ptr->getID() << " server: "
-                              << connection_ptr->getRemoteServer() << "\n";
+                    LOG_DEBUG("onOpen callback: id %1%, server %2%, state %3%",
+                        connection_ptr->getID(),
+                        connection_ptr->getRemoteServer(),
+                        connection_ptr->getState());
                     for (auto msg : messages) {
                         client_ptr->send(hdl, msg,
                                          Client::Frame_Opcode_Values::text);
@@ -73,15 +79,15 @@ int runTestConnection(std::string url,
             // Store the Connection pointer
             connections.push_back(c_p);
         } catch(Client::client_error& e) {
-            std::cout << "### ERROR (connecting): " << e.what() << std::endl;
+            LOG_ERROR("failed to connect: %1%", e.what());
             return 1;
         }
     }
 
     // Sleep a bit to let the handshakes complete
-    std::cout << "\n\n### Waiting to let the handshakes complete\n";
+    LOG_DEBUG("Waiting to let the handshakes complete");
     sleep(4);
-    std::cout << "### Done waiting!\n";
+    LOG_DEBUG("Done waiting");
 
     // Send messages
     try {
@@ -93,34 +99,32 @@ int runTestConnection(std::string url,
                                        + std::to_string(connection_idx) };
             if (c_p->getState() == Client::Connection_State_Values::open) {
                 Client::CONNECTION_MANAGER.send(c_p, sync_message);
-                std::cout << "### Message sent (SYNCHRONOUS - MAIN THREAD) "
-                          << "on connection " << c_p->getID() << "\n";
+                LOG_DEBUG("Message sent (SYNCHRONOUS - MAIN THREAD) on "
+                    "connection %1%", c_p->getID());
             } else {
-                std::cout << "### Connection " << c_p->getID()
-                          << " is not open yet... Current state = "
-                          << c_p->getState() << " Skipping!\n";
+                LOG_DEBUG("Connection %1% is not open yet... Current state is "
+                          " %2%. Skipping.", c_p->getID(), c_p->getState());
             }
         }
     } catch(Client::client_error& e) {
         // NB: catching the base error class
-        std::cout << "### ERROR (sending): " << e.what() << std::endl;
+        LOG_ERROR("failed to send message: %1%", e.what());
         return 1;
     }
 
     // Sleep to get the messages back
-    std::cout << "\n\n### Waiting a bit to let the messages come back\n";
+    LOG_DEBUG("Waiting to receive message from server");
     sleep(4);
-    std::cout << "### Done waiting!\n";
+    LOG_DEBUG("Done waiting");
 
     // Close connections synchronously
     try {
         // NB: this is done by the destructor
         sleep(6);
-        std::cout << "### ### ###\n"
-                  << "### Done sending; about to close all connections\n";
+        LOG_DEBUG("Done sending; about to close all connections");
         Client::CONNECTION_MANAGER.closeAllConnections();
     } catch(Client::client_error& e) {
-        std::cout << "### ERROR (closing): " << e.what() << std::endl;
+        LOG_ERROR("failed to close connections: %1%", e.what());
         return 1;
     }
 
@@ -156,6 +160,9 @@ int main(int argc, char* argv[]) {
         std::cout << desc;
         return 0;
     }
+
+    // TODO(ale): set log level on command line
+    Client::Configuration::initializeLogging(Log::log_level::debug);
 
     // TODO(ale): does boost offer something similar?
     auto expandPath = Common::FileUtils::expandAsDoneByShell;
