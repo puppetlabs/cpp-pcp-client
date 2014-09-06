@@ -43,7 +43,7 @@ void Log::configure_logging(Log::log_level level, std::ostream &dst) {
             boost::log::attributes::current_thread_id::value_type>("ThreadID")
         << " " << std::left << std::setfill(' ') << std::setw(5)
         << Log::log_level_attr << " "
-        << Log::namespace_attr << " - "
+        << Log::namespace_attr << " "
         << boost::log::expressions::smessage);
 
     sink->set_filter(log_level_attr >= level);
@@ -61,9 +61,9 @@ std::ostream& Log::operator<<(std::ostream& strm, Log::log_level level) {
     return strm;
 }
 
-void Log::log(const std::string &logger, Log::log_level level,
+void Log::log(const std::string &logger, Log::log_level level, int line_num,
               boost::format& message) {
-    log(logger, level, message.str());
+    log(logger, level, line_num, message.str());
 }
 
 //
@@ -88,9 +88,7 @@ static std::string red(std::string const& message) {
     return "\33[0;31m" + message + "\33[0m";
 }
 
-// TODO(ale): pass the line number
-
-void Log::log(const std::string &logger, Log::log_level level,
+void Log::log(const std::string &logger, Log::log_level level, int line_num,
               std::string const& message) {
     boost::log::sources::severity_logger<Log::log_level> slg;
     slg.add_attribute("Namespace",
@@ -102,29 +100,28 @@ void Log::log(const std::string &logger, Log::log_level level,
         return;
     }
 
-    // TODO(ale): log line number
-
     switch (level) {
         case Log::log_level::trace:
-            BOOST_LOG_SEV(slg, level) << cyan(message);
+            BOOST_LOG_SEV(slg, level) << line_num << " - " << cyan(message);
             break;
         case Log::log_level::debug:
-            BOOST_LOG_SEV(slg, level) << cyan(message);
+            BOOST_LOG_SEV(slg, level) << line_num << " - " << cyan(message);
             break;
         case Log::log_level::info:
-            BOOST_LOG_SEV(slg, level) << green(message);
+            BOOST_LOG_SEV(slg, level) << line_num << " - " << green(message);
             break;
         case Log::log_level::warning:
-            BOOST_LOG_SEV(slg, level) << yellow(message);
+            BOOST_LOG_SEV(slg, level) << line_num << " - " << yellow(message);
             break;
         case Log::log_level::error:
-            BOOST_LOG_SEV(slg, level) << red(message);
+            BOOST_LOG_SEV(slg, level) << line_num << " - " << red(message);
             break;
         case Log::log_level::fatal:
-            BOOST_LOG_SEV(slg, level) << red(message);
+            BOOST_LOG_SEV(slg, level) << line_num << " - " << red(message);
             break;
         default:
-            BOOST_LOG_SEV(slg, level) << "Invalid logging level used.";
+            BOOST_LOG_SEV(slg, level) << line_num << " - "
+                                      << "Invalid logging level used.";
             break;
     }
 }

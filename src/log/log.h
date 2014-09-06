@@ -38,12 +38,13 @@
 /**
  * Logs a message.
  * @param level The logging level for the message.
+ * @param line_num The number of the log line in the source file.
  * @param format The format message.
  * @param ... The format message parameters.
  */
-#define LOG_MESSAGE(level, format, ...) \
+#define LOG_MESSAGE(level, line_num, format, ...) \
     if (Cthun::Log::is_log_enabled(g_logger, level)) { \
-        Cthun::Log::log(g_logger, level, format, ##__VA_ARGS__); \
+        Cthun::Log::log(g_logger, level, line_num, format, ##__VA_ARGS__); \
     }
 
 /**
@@ -52,7 +53,7 @@
  * @param ... The format message parameters.
  */
 #define LOG_TRACE(format, ...) LOG_MESSAGE(Cthun::Log::log_level::trace, \
-                                           format, ##__VA_ARGS__)
+                                           __LINE__, format, ##__VA_ARGS__)
 
 /**
  * Logs a debug message.
@@ -60,7 +61,7 @@
  * @param ... The format message parameters.
  */
 #define LOG_DEBUG(format, ...) LOG_MESSAGE(Cthun::Log::log_level::debug, \
-                                           format, ##__VA_ARGS__)
+                                           __LINE__, format, ##__VA_ARGS__)
 
 /**
  * Logs an info message.
@@ -68,7 +69,7 @@
  * @param ... The format message parameters.
  */
 #define LOG_INFO(format, ...) LOG_MESSAGE(Cthun::Log::log_level::info, \
-                                          format, ##__VA_ARGS__)
+                                          __LINE__, format, ##__VA_ARGS__)
 
 /**
  * Logs a warning message.
@@ -76,7 +77,7 @@
  * @param ... The format message parameters.
  */
 #define LOG_WARNING(format, ...) LOG_MESSAGE(Cthun::Log::log_level::warning, \
-                                             format, ##__VA_ARGS__)
+                                             __LINE__, format, ##__VA_ARGS__)
 
 /**
  * Logs an error message.
@@ -84,7 +85,7 @@
  * @param ... The format message parameters.
  */
 #define LOG_ERROR(format, ...) LOG_MESSAGE(Cthun::Log::log_level::error, \
-                                           format, ##__VA_ARGS__)
+                                           __LINE__, format, ##__VA_ARGS__)
 
 /**
  * Logs a fatal message.
@@ -92,7 +93,7 @@
  * @param ... The format message parameters.
  */
 #define LOG_FATAL(format, ...) LOG_MESSAGE(Cthun::Log::log_level::fatal, \
-                                           format, ##__VA_ARGS__)
+                                           __LINE__, format, ##__VA_ARGS__)
 
 /**
  * Determines if the given logging level is enabled.
@@ -204,16 +205,17 @@ bool is_log_enabled(const std::string &logger, log_level level);
  * @param level The logging level to log with.
  * @param message The message to log.
  */
-void log(const std::string &logger, log_level level,
+void log(const std::string &logger, log_level level, int line_num,
          std::string const& message);
 
 /**
  * Logs a given format message to the given logger.
  * @param logger The logger to log the message to.
  * @param level The logging level to log with.
+ * @param line_num The number of the log line in the source file.
  * @param message The message being formatted.
  */
-void log(const std::string &logger, log_level level,
+void log(const std::string &logger, log_level level, int line_num,
          boost::format& message);
 
 /**
@@ -222,15 +224,16 @@ void log(const std::string &logger, log_level level,
  * @tparam TArgs The types of the remaining arguments.
  * @param logger The logger to log to.
  * @param level The logging level to log with.
+ * @param line_num The number of the log line in the source file.
  * @param message The message being formatted.
  * @param arg The first argument to the message.
  * @param args The remaining arguments to the message.
  */
 template <typename T, typename... TArgs>
-void log(const std::string &logger, log_level level,
+void log(const std::string &logger, log_level level, int line_num,
          boost::format& message, T arg, TArgs... args) {
     message % arg;
-    log(logger, level, message, std::forward<TArgs>(args)...);
+    log(logger, level, line_num, message, std::forward<TArgs>(args)...);
 }
 
 /**
@@ -238,14 +241,15 @@ void log(const std::string &logger, log_level level,
  * @tparam TArgs The types of the arguments to format the message with.
  * @param logger The logger to log to.
  * @param level The logging level to log with.
+ * @param line_num The number of the log line in the source file.
  * @param format The message format.
  * @param args The remaining arguments to the message.
  */
 template <typename... TArgs>
-void log(const std::string &logger, log_level level,
+void log(const std::string &logger, log_level level, int line_num,
          std::string const& format, TArgs... args) {
-    boost::format message(format);
-    log(logger, level, message, std::forward<TArgs>(args)...);
+    boost::format message { format };
+    log(logger, level, line_num, message, std::forward<TArgs>(args)...);
 }
 
 }  // namespace Log
