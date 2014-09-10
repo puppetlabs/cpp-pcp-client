@@ -91,10 +91,6 @@ Close_Code Connection::getRemoteCloseCode() const {
 
 // TODO(ale): use templates (?)
 
-// TODO(ale): log messages; remove stdout "###" messages
-
-// TODO(ale): session validation; TLS
-
 void Connection::onOpen(Client_Type* client_ptr, Connection_Handle hdl) {
     LOG_DEBUG("triggered onOpen");
 

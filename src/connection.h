@@ -15,11 +15,14 @@ namespace Client {
 
 class Connection : public std::enable_shared_from_this<Connection> {
   public:
+    /// Connection shared pointer type
     using Ptr = std::shared_ptr<Connection>;
 
+    /// Generic event callback type
     using Event_Callback = std::function<void(Client_Type* client_ptr,
                                               Connection::Ptr connection_ptr)>;
 
+    /// OnMessage event callback type
     using OnMessage_Callback = std::function<void(Client_Type* client_ptr,
                                                   Connection::Ptr connection_ptr,
                                                   std::string message)>;
@@ -49,13 +52,28 @@ class Connection : public std::enable_shared_from_this<Connection> {
     // Accessors
     //
 
+    /// Returns the remote url
     std::string getURL() const;
+
+    /// Returns the connection ID
     Connection_ID getID() const;
+
+    /// Returns the connection handle used by the underlying transport
     Connection_Handle getConnectionHandle() const;
+
+    /// Returns the current connection state
     Connection_State getState() const;
+
+    /// Returns the error string
     std::string getErrorReason() const;
+
+    /// Returns the remote server, parsed from a received message
     std::string getRemoteServer() const;
+
+    /// Returns the remote close reason
     std::string getRemoteCloseReason() const;
+
+    /// Returns the remote close code
     Close_Code getRemoteCloseCode() const;
 
     //

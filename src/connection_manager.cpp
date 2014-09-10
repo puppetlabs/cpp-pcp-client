@@ -1,6 +1,7 @@
 #include "connection_manager.h"
 #include "errors.h"
 #include "log/log.h"
+#include "common/file_utils.h"
 
 LOG_DECLARE_NAMESPACE("client.connection_manager");
 
@@ -12,18 +13,35 @@ ConnectionManager& ConnectionManager::Instance() {
     return instance;
 }
 
-void ConnectionManager::configureSecureEndpoint(const std::string& ca_crt_path,
-                                                const std::string& client_crt_path,
-                                                const std::string& client_key_path) {
+void ConnectionManager::configureSecureEndpoint(
+        const std::string& ca_crt_path,
+        const std::string& client_crt_path,
+        const std::string& client_key_path) {
     if (endpoint_running_) {
-        // TODO(ale): should we throw a client_error to let the caller
-        // reset the endpoint?
-        LOG_WARNING("an endpoint has already started");
+        throw client_error { "an endpoint has already started" };
     }
-    is_secure_ = true;
+
+    for (auto crt : std::vector<std::string> {
+                        ca_crt_path, client_crt_path, client_key_path }) {
+        if (crt.empty()) {
+            throw client_error { "not all certificates were specified" };
+        }
+        if (!Common::FileUtils::fileExists(crt)) {
+            throw client_error { crt + " does not exist" };
+        }
+    }
+
     ca_crt_path_ = ca_crt_path;
     client_crt_path_ = client_crt_path;
     client_key_path_ = client_key_path;
+}
+
+void ConnectionManager::resetEndpoint() {
+    if (endpoint_running_) {
+        endpoint_ptr_->closeConnections();
+        endpoint_ptr_.reset();
+        endpoint_running_ = false;
+    }
 }
 
 Connection::Ptr ConnectionManager::createConnection(std::string url) {
@@ -52,6 +70,13 @@ void ConnectionManager::closeAllConnections() {
     }
 }
 
+std::vector<Connection_ID> ConnectionManager::getConnectionIDs() {
+    if (endpoint_running_) {
+        return endpoint_ptr_->getConnectionIDs();
+    }
+    return std::vector<Connection_ID> {};
+}
+
 //
 // Private interface
 //
@@ -62,18 +87,18 @@ ConnectionManager::ConnectionManager()
 }
 
 void ConnectionManager::startEndpointIfNeeded() {
-    // TODO(ale): logs
     if (!endpoint_running_) {
         endpoint_running_ = true;
         if (is_secure_) {
+            LOG_INFO("initializing secure endpoint");
             endpoint_ptr_.reset(
                 new Endpoint(ca_crt_path_, client_crt_path_, client_key_path_));
         } else {
+            LOG_INFO("initializing endpoint");
             endpoint_ptr_.reset(new Endpoint());
         }
     }
 }
-
 
 }  // namespace Client
 }  // namespace Cthun
