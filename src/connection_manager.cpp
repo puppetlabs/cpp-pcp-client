@@ -34,6 +34,7 @@ void ConnectionManager::configureSecureEndpoint(
     ca_crt_path_ = ca_crt_path;
     client_crt_path_ = client_crt_path;
     client_key_path_ = client_key_path;
+    is_secure_ = true;
 }
 
 void ConnectionManager::resetEndpoint() {
