@@ -44,6 +44,13 @@ INCLUDE_DIRECTORIES("${MAINFOLDER}/include")
 #
 # Dependency Packages
 #
+
+# prefer openssl from ports
+if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
+    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/local/lib)
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /opt/local/include)
+endif()
+
 FIND_PACKAGE(Boost 1.55 REQUIRED COMPONENTS program_options system random log
              thread date_time regex)
 if (NOT Boost_FOUND)
