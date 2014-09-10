@@ -95,7 +95,7 @@ ENDFOREACH (CONFIGINPUT ${CONFIGINPUTS})
 # Set specfic compile flags
 #
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-missing-field-initializers -Wno-ignored-qualifiers")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-missing-field-initializers -Wno-ignored-qualifiers -Wno-deprecated-register")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-missing-field-initializers -Wno-unused-local-typedefs -Wno-ignored-qualifiers")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
