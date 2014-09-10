@@ -4,7 +4,7 @@
 # Project Properties
 #
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6.2)
-PROJECT (cthun_client C CXX)
+PROJECT (cthun-client C CXX)
 SET (APPLICATION_NAME "Cthun WebSocket Client")
 SET (APPLICATION_CODENAME "${PROJECT_NAME}")
 SET (APPLICATION_COPYRIGHT_YEARS "2014")
@@ -58,14 +58,16 @@ FIND_PACKAGE(Threads REQUIRED)
 #
 # Refer vendor libraries
 #
-# TODO(ale): include gmock and horsewhisperer
+# TODO(ale): include horsewhisperer
 INCLUDE(${VENDOR_DIRECTORY}/websocketpp.cmake)
+include(${VENDOR_DIRECTORY}/gmock.cmake)
 
 #
 # Include vendor directories
 #
 INCLUDE_DIRECTORIES(
     ${WEBSOCKETPP_INCLUDE_DIRS}
+    ${GMOCK_INCLUDE_DIRS}
 )
 
 #
@@ -106,6 +108,12 @@ endif()
 ADD_SUBDIRECTORY(src)
 
 #
+# Testing
+#
+ENABLE_TESTING()
+ADD_SUBDIRECTORY(test)
+
+#
 # Add cpplint target
 #
 include(FindPythonInterp)
@@ -136,7 +144,7 @@ else()
         set(CPPLINT_ARGS "${CPPLINT_ARGS} --output=vs7")
     endif()
 
-    add_custom_target(cpplint
+    ADD_CUSTOM_TARGET(cpplint
         COMMAND ${PYTHON_EXECUTABLE} ${CPPLINT_PATH} ${CPPLINT_ARGS} ${ALL_SOURCES}
         VERBATIM
     )

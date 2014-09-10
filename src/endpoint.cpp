@@ -1,5 +1,6 @@
 #include "endpoint.h"
 #include "log/log.h"
+#include "common/string_utils.h"
 
 LOG_DECLARE_NAMESPACE("client.endpoint");
 
@@ -115,18 +116,36 @@ void Endpoint::close(Connection::Ptr connection_ptr, Close_Code code,
 // closeConnections
 
 void Endpoint::closeConnections() {
+    // Keep track of failures
+    std::vector<Connection_ID> failure_ids;
+
     for (auto connections_iter = connections_.begin();
          connections_iter != connections_.end(); connections_iter++) {
         if (connections_iter->second->getState()
                 == Connection_State_Values::open) {
-            close(connections_iter->second);
+            try {
+                close(connections_iter->second);
+            } catch (message_error) {
+                failure_ids.push_back(connections_iter->second->getID());
+            }
         }
     }
+
     connections_.clear();
+
+    if (!failure_ids.empty()) {
+        std::string message {
+            "Failed to close " + std::to_string(failure_ids.size())
+            + " connection"
+            + Common::StringUtils::plural<Connection_ID>(failure_ids) + ":" };
+        for (auto id : failure_ids) {
+            message += " " + id;
+        }
+        throw message_error { message };
+    }
 }
 
 // TLS init handler (will be bound to all connections)
-
 
 // NB: for TLS certificates, refer to:
 // www.boost.org/doc/libs/1_56_0/doc/html/boost_asio/reference/ssl__context.html
@@ -152,6 +171,16 @@ Context_Ptr Endpoint::onTlsInit(Connection_Handle hdl) {
         LOG_ERROR("failed to configure TLS: %1%", e.what());
     }
     return ctx;
+}
+
+// Connection IDs accessor
+
+std::vector<Connection_ID> Endpoint::getConnectionIDs() {
+    std::vector<Connection_ID> connection_ids;
+    for (auto connection_entry : connections_) {
+        connection_ids.push_back(connection_entry.first);
+    }
+    return connection_ids;
 }
 
 }  // namespace Client

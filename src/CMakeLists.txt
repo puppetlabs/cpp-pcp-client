@@ -1,6 +1,8 @@
 # Set sources
 SET(SOURCES
     log/log.cpp
+    common/file_utils.cpp
+    common/string_utils.cpp
     configuration.cpp
     endpoint.cpp
     connection.cpp
@@ -14,17 +16,17 @@ SET(LIBS
     ${PTHREADS}
 )
 
-ADD_LIBRARY(cthun_client ${SOURCES})
-TARGET_LINK_LIBRARIES(cthun_client
+ADD_LIBRARY(cthun-client ${SOURCES})
+TARGET_LINK_LIBRARIES(cthun-client
     ${LIBS}
 )
 
-ADD_EXECUTABLE(cthun_client-bin main.cpp)
-TARGET_LINK_LIBRARIES(cthun_client-bin cthun_client)
-SET_TARGET_PROPERTIES(cthun_client-bin
+ADD_EXECUTABLE(cthun-client-bin main.cpp)
+TARGET_LINK_LIBRARIES(cthun-client-bin cthun-client)
+SET_TARGET_PROPERTIES(cthun-client-bin
     PROPERTIES
-    OUTPUT_NAME cthun_client
+    OUTPUT_NAME cthun-client
     CLEAN_DIRECT_OUTPUT 1
 )
 
-INSTALL(TARGETS cthun_client-bin DESTINATION bin)
+INSTALL(TARGETS cthun-client-bin DESTINATION bin)
