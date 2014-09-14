@@ -47,7 +47,6 @@ int runTestConnection(std::string url,
             Client::Connection::Event_Callback onFail_c =
                 [&](Client::Client_Type* client_ptr,
                         Client::Connection::Ptr connection_ptr) {
-                    auto hdl = connection_ptr->getConnectionHandle();
                     LOG_DEBUG("onFail callback: id %1%, server %2%, state %3%, "
                         "error %4%",
                         connection_ptr->getID(),

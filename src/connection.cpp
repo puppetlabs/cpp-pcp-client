@@ -96,7 +96,11 @@ void Connection::onOpen(Client_Type* client_ptr, Connection_Handle hdl) {
 
     state_ = Connection_State_Values::open;
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
-    remote_server_ = websocket_ptr->get_response_header("Server");
+
+    std::string server_name { websocket_ptr->get_response_header("Server") };
+    if (!server_name.empty()) {
+        remote_server_ = server_name;
+    }
 
     onOpen_callback_(client_ptr, shared_from_this());
 }
@@ -117,7 +121,12 @@ void Connection::onFail(Client_Type* client_ptr, Connection_Handle hdl) {
 
     state_ = Connection_State_Values::closed;
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
-    remote_server_ = websocket_ptr->get_response_header("Server");
+
+    std::string server_name { websocket_ptr->get_response_header("Server") };
+    if (!server_name.empty()) {
+        remote_server_ = server_name;
+    }
+
     error_reason_ = websocket_ptr->get_ec().message();
 
     onFail_callback_(client_ptr, shared_from_this());
