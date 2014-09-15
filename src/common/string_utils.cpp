@@ -22,7 +22,7 @@ std::string StringUtils::getExpiryDatetime(int expiry_minutes) {
 
     // Get current time and add the specified minutes
     time_t expiry_time { time(nullptr) };
-    expiry_time += 60 * minutes;
+    expiry_time += 60 * expiry_minutes;
 
     // Get local time structure
     localtime_r(&expiry_time, &expiry_time_info);
