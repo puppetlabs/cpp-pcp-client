@@ -37,6 +37,26 @@ std::string getExpiryDatetime(int expiry_minutes) {
     return std::string { expiry_time_buffer };
 }
 
+// TODO(ale): test on Linux
+void displayProgress(double percent, int len, std::string status) {
+    printf("%c[2K", 27);
+    printf("\r");
+
+    if (percent > 0) {
+        std::string progress {};
+        for (int idx = 0; idx < len; ++idx) {
+            if (idx < static_cast<int>(len * percent)) {
+                progress += "=";
+            } else {
+                progress += " ";
+            }
+        }
+        std::cout << status << " [" << progress << "] "
+                  << static_cast<int>(100 * percent) << "%";
+        std::flush(std::cout);
+    }
+}
+
 }  // namespace StringUtils
 }  // namespace Common
 }  // namespace Cthun
