@@ -20,6 +20,11 @@ std::string plural(std::vector<T> things);
 /// Returns an empty string in case it fails to allocate the buffer.
 std::string getExpiryDatetime(int expiry_minutes = 1);
 
+/// Erases the current line on stdout, places the cursor at the
+/// beginning of it, and displays a progress message.
+void displayProgress(double percent, int len,
+                     std::string status = "in progress");
+
 }  // namespace StringUtils
 }  // namespace Common
 }  // namespace Cthun
