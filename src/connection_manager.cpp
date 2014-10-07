@@ -59,6 +59,12 @@ void ConnectionManager::send(Connection::Ptr connection_ptr, Message message) {
     endpoint_ptr_->send(connection_ptr, message);
 }
 
+void ConnectionManager::ping(Connection::Ptr connection_ptr,
+                             const std::string& binary_payload) {
+    startEndpointIfNeeded();
+    endpoint_ptr_->ping(connection_ptr, binary_payload);
+}
+
 void ConnectionManager::close(Connection::Ptr connection_ptr,
                               Close_Code code, Message reason) {
     startEndpointIfNeeded();

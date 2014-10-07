@@ -10,7 +10,7 @@ namespace Client {
 namespace Configuration {
 
 static const Log::log_level DEFAULT_LOG_LEVEL { Log::log_level::info };
-static std::ostream& DEFAULT_LOG_STREAM = std::cout ;
+static std::ostream& DEFAULT_LOG_STREAM = std::cout;
 
 // TODO(ale): allow configuring log to file
 
