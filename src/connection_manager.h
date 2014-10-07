@@ -46,6 +46,11 @@ class ConnectionManager {
     /// Throw a message_error in case of failure.
     void send(Connection::Ptr connection_ptr, Message message);
 
+    /// Ping the other endpoint of the pointed connection.
+    /// Throw a message_error in case of failure.
+    void ping(Connection::Ptr connection_ptr,
+              const std::string& binary_payload);
+
     /// Close the pointed connection; reason and code are optional
     /// (respectively default to "Closed by client" and normal as
     /// in rfc6455).

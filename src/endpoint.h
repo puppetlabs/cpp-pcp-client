@@ -32,11 +32,14 @@ class Endpoint {
     /// Throw a connection_error in case of failure.
     void open(Connection::Ptr connection_ptr);
 
-    // TODO(ale): send binary message; Message class;
-
     /// Send message on the specified connection.
     /// Throw a message_error in case of failure.
     void send(Connection::Ptr connection_ptr, std::string msg);
+
+    /// Ping the other endpoint of the specified connection.
+    /// Throw a message_error in case of failure.
+    void ping(Connection::Ptr connection_ptr,
+              const std::string& binary_payload);
 
     /// Close the specified connection; reason and code are optional
     /// (respectively default to "Closed by client" and 'normal' as

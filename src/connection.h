@@ -27,7 +27,19 @@ class Connection : public std::enable_shared_from_this<Connection> {
                                                   Connection::Ptr connection_ptr,
                                                   std::string message)>;
 
+    /// ping callback type
+    using Ping_Callback = std::function<bool(Client_Type* client_ptr,
+                                             Connection::Ptr connection_ptr,
+                                             std::string binary_payload)>;
+
+    /// pong and pongTimeout callback type
+    using Pong_Callback = std::function<void(Client_Type* client_ptr,
+                                             Connection::Ptr connection_ptr,
+                                             std::string binary_payload)>;
+
     explicit Connection(const std::string& url);
+
+    void waitForOpen(int max_num_checks = 5, int interval_check = 1);
 
     //
     // Configuration
@@ -47,6 +59,16 @@ class Connection : public std::enable_shared_from_this<Connection> {
 
     /// Callback called by onMessage.
     void setOnMessageCallback(OnMessage_Callback callback);
+
+    /// Callback called by onPing.
+    void setOnPingCallback(Ping_Callback callback);
+
+    /// Callback called by onPong.
+    /// Set it to a function returning false to disable pong responses.
+    void setOnPongCallback(Pong_Callback callback);
+
+    /// Callback called by onPongTimeout.
+    void setOnPongTimeoutCallback(Pong_Callback callback);
 
     //
     // Accessors
@@ -96,6 +118,18 @@ class Connection : public std::enable_shared_from_this<Connection> {
     virtual void onMessage(Client_Type* client_ptr, Connection_Handle hdl,
                            Client_Type::message_ptr msg);
 
+    /// Event handler: on message.
+    virtual bool onPing(Client_Type* client_ptr, Connection_Handle hdl,
+                        std::string binary_payload);
+
+    /// Event handler: on message.
+    virtual void onPong(Client_Type* client_ptr, Connection_Handle hdl,
+                        std::string binary_payload);
+
+    /// Event handler: on message.
+    virtual void onPongTimeout(Client_Type* client_ptr, Connection_Handle hdl,
+                               std::string binary_payload);
+
   protected:
     std::string url_;
     Connection_ID id_;
@@ -115,6 +149,18 @@ class Connection : public std::enable_shared_from_this<Connection> {
     OnMessage_Callback onMessage_callback_ {
         [](Client_Type* client_ptr, Connection::Ptr connection_ptr,
            std::string message) {} };
+
+    // Returning true by default to send back pong
+    Ping_Callback onPing_callback_ {
+        [](Client_Type* client_ptr, Connection::Ptr connection_ptr,
+           std::string binary_payload) { return true; } };
+
+    Pong_Callback onPong_callback_ {
+        [](Client_Type* client_ptr, Connection::Ptr connection_ptr,
+           std::string binary_payload) {} };
+    Pong_Callback onPongTimeout_callback_ {
+        [](Client_Type* client_ptr, Connection::Ptr connection_ptr,
+           std::string binary_payload) {} };
 };
 
 }  // namespace Client

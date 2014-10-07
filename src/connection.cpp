@@ -18,6 +18,18 @@ Connection::Connection(const std::string& url)
     // TODO(ale): validate url
 }
 
+void Connection::waitForOpen(int max_num_checks, int interval_check) {
+    int idx { 0 };
+    do {
+        if (state_ == Cthun::Client::Connection_State_Values::open) {
+            return;
+        }
+        idx++;
+        sleep(interval_check);
+    } while (idx < max_num_checks);
+    throw connection_error { "open connection waiting timeout" };
+}
+
 //
 // Configuration
 //
@@ -43,6 +55,18 @@ void Connection::setOnFailCallback(Event_Callback callback) {
 
 void Connection::setOnMessageCallback(OnMessage_Callback callback) {
     onMessage_callback_ = callback;
+}
+
+void Connection::setOnPingCallback(Ping_Callback callback) {
+    onPing_callback_ = callback;
+}
+
+void Connection::setOnPongCallback(Pong_Callback callback) {
+    onPong_callback_ = callback;
+}
+
+void Connection::setOnPongTimeoutCallback(Pong_Callback callback) {
+    onPongTimeout_callback_ = callback;
 }
 
 //
@@ -92,7 +116,7 @@ Close_Code Connection::getRemoteCloseCode() const {
 // TODO(ale): use templates (?)
 
 void Connection::onOpen(Client_Type* client_ptr, Connection_Handle hdl) {
-    LOG_DEBUG("triggered onOpen");
+    LOG_TRACE("triggered onOpen");
 
     state_ = Connection_State_Values::open;
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
@@ -106,7 +130,7 @@ void Connection::onOpen(Client_Type* client_ptr, Connection_Handle hdl) {
 }
 
 void Connection::onClose(Client_Type* client_ptr, Connection_Handle hdl) {
-    LOG_DEBUG("triggered onClose");
+    LOG_TRACE("triggered onClose");
     state_ = Connection_State_Values::closed;
 
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
@@ -117,7 +141,7 @@ void Connection::onClose(Client_Type* client_ptr, Connection_Handle hdl) {
 }
 
 void Connection::onFail(Client_Type* client_ptr, Connection_Handle hdl) {
-    LOG_DEBUG("triggered onFail");
+    LOG_TRACE("triggered onFail");
 
     state_ = Connection_State_Values::closed;
     Client_Type::connection_ptr websocket_ptr { client_ptr->get_con_from_hdl(hdl) };
@@ -134,9 +158,30 @@ void Connection::onFail(Client_Type* client_ptr, Connection_Handle hdl) {
 
 void Connection::onMessage(Client_Type* client_ptr, Connection_Handle hdl,
                            Client_Type::message_ptr msg) {
-    LOG_DEBUG("triggered onMessage:\n%1%", msg->get_payload());
+    LOG_TRACE("triggered onMessage:\n%1%", msg->get_payload());
 
     onMessage_callback_(client_ptr, shared_from_this(), msg->get_payload());
+}
+
+bool Connection::onPing(Client_Type* client_ptr, Connection_Handle hdl,
+                        std::string binary_payload) {
+    LOG_TRACE("triggered onPing: %1%", binary_payload);
+
+    return onPing_callback_(client_ptr, shared_from_this(), binary_payload);
+}
+
+void Connection::onPong(Client_Type* client_ptr, Connection_Handle hdl,
+                        std::string binary_payload) {
+    LOG_TRACE("triggered onPong: %1%", binary_payload);
+
+    onPong_callback_(client_ptr, shared_from_this(), binary_payload);
+}
+
+void Connection::onPongTimeout(Client_Type* client_ptr, Connection_Handle hdl,
+                               std::string binary_payload) {
+    LOG_TRACE("triggered onPongTimeout: %1%", binary_payload);
+
+    onPongTimeout_callback_(client_ptr, shared_from_this(), binary_payload);
 }
 
 }  // namespace Client

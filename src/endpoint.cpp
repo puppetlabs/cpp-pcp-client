@@ -49,7 +49,6 @@ Endpoint::~Endpoint() {
 void Endpoint::open(Connection::Ptr connection_ptr) {
     // Create a websocketpp connection
 
-    // TODO(ale): use the exception-based call
     websocketpp::lib::error_code ec;
     typename Client_Type::connection_ptr websocket_ptr {
         client_.get_connection(connection_ptr->getURL(), ec) };
@@ -76,6 +75,12 @@ void Endpoint::open(Connection::Ptr connection_ptr) {
         &Connection::onFail, connection_ptr, &client_, ::_1));
     websocket_ptr->set_message_handler(bind(
         &Connection::onMessage, connection_ptr, &client_, ::_1, ::_2));
+    websocket_ptr->set_ping_handler(bind(
+        &Connection::onPing, connection_ptr, &client_, ::_1, ::_2));
+    websocket_ptr->set_pong_handler(bind(
+        &Connection::onPong, connection_ptr, &client_, ::_1, ::_2));
+    websocket_ptr->set_pong_timeout_handler(bind(
+        &Connection::onPongTimeout, connection_ptr, &client_, ::_1, ::_2));
 
     // Finally, open the connection
 
@@ -95,6 +100,17 @@ void Endpoint::send(Connection::Ptr connection_ptr, std::string msg) {
                  websocketpp::frame::opcode::text, ec);
     if (ec) {
         throw message_error { "Failed to send message: " + ec.message() };
+    }
+}
+
+// ping (NB: no need for pong(); this is client-oriented)
+
+void Endpoint::ping(Connection::Ptr connection_ptr,
+                    const std::string& binary_payload) {
+    websocketpp::lib::error_code ec;
+    client_.ping(connection_ptr->getConnectionHandle(), binary_payload, ec);
+    if (ec) {
+        throw message_error { "Failed to ping: " + ec.message() };
     }
 }
 
