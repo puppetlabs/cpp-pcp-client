@@ -27,7 +27,9 @@ void Connection::waitForOpen(int max_num_checks, int interval_check) {
         idx++;
         sleep(interval_check);
     } while (idx < max_num_checks);
-    throw connection_error { "open connection waiting timeout" };
+    throw connection_error { "on open event timeout (waited for "
+                             + std::to_string(max_num_checks * interval_check)
+                             + " s)" };
 }
 
 //
