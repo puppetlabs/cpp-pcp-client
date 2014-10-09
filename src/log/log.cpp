@@ -42,8 +42,8 @@ void Log::configure_logging(Log::log_level level, std::ostream &dst) {
         << " " << boost::log::expressions::attr<
             boost::log::attributes::current_thread_id::value_type>("ThreadID")
         << " " << std::left << std::setfill(' ') << std::setw(5)
-        << Log::log_level_attr << " "
-        << Log::namespace_attr << " "
+        << Log::log_level_attr << " ["
+        << Log::namespace_attr << ":"
         << boost::log::expressions::smessage);
 
     sink->set_filter(log_level_attr >= level);
@@ -102,25 +102,25 @@ void Log::log(const std::string &logger, Log::log_level level, int line_num,
 
     switch (level) {
         case Log::log_level::trace:
-            BOOST_LOG_SEV(slg, level) << line_num << " - " << cyan(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << cyan(message);
             break;
         case Log::log_level::debug:
-            BOOST_LOG_SEV(slg, level) << line_num << " - " << cyan(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << cyan(message);
             break;
         case Log::log_level::info:
-            BOOST_LOG_SEV(slg, level) << line_num << " - " << green(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << green(message);
             break;
         case Log::log_level::warning:
-            BOOST_LOG_SEV(slg, level) << line_num << " - " << yellow(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << yellow(message);
             break;
         case Log::log_level::error:
-            BOOST_LOG_SEV(slg, level) << line_num << " - " << red(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << red(message);
             break;
         case Log::log_level::fatal:
-            BOOST_LOG_SEV(slg, level) << line_num << " - " << red(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << red(message);
             break;
         default:
-            BOOST_LOG_SEV(slg, level) << line_num << " - "
+            BOOST_LOG_SEV(slg, level) << line_num << "] - "
                                       << "Invalid logging level used.";
             break;
     }
