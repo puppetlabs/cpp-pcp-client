@@ -51,8 +51,8 @@ void displayProgress(double percent, int len, std::string status) {
                 progress += " ";
             }
         }
-        std::cout << status << " [" << progress << "] "
-                  << static_cast<int>(100 * percent) << "%";
+        std::cout << status << "   [" << progress << "]   "
+                  << static_cast<int>(100 * percent) << "% completed";
         std::flush(std::cout);
     }
 }
