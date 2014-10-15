@@ -25,6 +25,18 @@ std::string getExpiryDatetime(int expiry_minutes = 1);
 void displayProgress(double percent, int len,
                      std::string status = "in progress");
 
+/// Wraps message with the POSIX cyan display code
+std::string cyan(std::string const& message);
+
+/// Wraps message with the POSIX green display code
+std::string green(std::string const& message);
+
+/// Wraps message with the POSIX yellow display code
+std::string yellow(std::string const& message);
+
+/// Wraps message with the POSIX red display code
+std::string red(std::string const& message);
+
 }  // namespace StringUtils
 }  // namespace Common
 }  // namespace Cthun

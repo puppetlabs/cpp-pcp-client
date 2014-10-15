@@ -1,4 +1,5 @@
 #include "log.h"
+#include "../common/string_utils.h"
 
 // boost includes are not always warning-clean. Disable warnings that
 // cause problems before including the headers, then re-enable the warnings.
@@ -72,22 +73,6 @@ void Log::log(const std::string &logger, Log::log_level level, int line_num,
 
 // HERE(ale): we don't have the Win32 implementation; see cfacter
 
-static std::string cyan(std::string const& message) {
-    return "\33[0;36m" + message + "\33[0m";
-}
-
-static std::string green(std::string const& message) {
-    return "\33[0;32m" + message + "\33[0m";
-}
-
-static std::string yellow(std::string const& message) {
-    return "\33[0;33m" + message + "\33[0m";
-}
-
-static std::string red(std::string const& message) {
-    return "\33[0;31m" + message + "\33[0m";
-}
-
 void Log::log(const std::string &logger, Log::log_level level, int line_num,
               std::string const& message) {
     boost::log::sources::severity_logger<Log::log_level> slg;
@@ -100,24 +85,26 @@ void Log::log(const std::string &logger, Log::log_level level, int line_num,
         return;
     }
 
+    namespace S_U = Cthun::Common::StringUtils;
+
     switch (level) {
         case Log::log_level::trace:
-            BOOST_LOG_SEV(slg, level) << line_num << "] - " << cyan(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << S_U::cyan(message);
             break;
         case Log::log_level::debug:
-            BOOST_LOG_SEV(slg, level) << line_num << "] - " << cyan(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << S_U::cyan(message);
             break;
         case Log::log_level::info:
-            BOOST_LOG_SEV(slg, level) << line_num << "] - " << green(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << S_U::green(message);
             break;
         case Log::log_level::warning:
-            BOOST_LOG_SEV(slg, level) << line_num << "] - " << yellow(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << S_U::yellow(message);
             break;
         case Log::log_level::error:
-            BOOST_LOG_SEV(slg, level) << line_num << "] - " << red(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << S_U::red(message);
             break;
         case Log::log_level::fatal:
-            BOOST_LOG_SEV(slg, level) << line_num << "] - " << red(message);
+            BOOST_LOG_SEV(slg, level) << line_num << "] - " << S_U::red(message);
             break;
         default:
             BOOST_LOG_SEV(slg, level) << line_num << "] - "

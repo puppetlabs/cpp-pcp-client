@@ -57,6 +57,22 @@ void displayProgress(double percent, int len, std::string status) {
     }
 }
 
+std::string cyan(std::string const& message) {
+    return "\33[0;36m" + message + "\33[0m";
+}
+
+std::string green(std::string const& message) {
+    return "\33[0;32m" + message + "\33[0m";
+}
+
+std::string yellow(std::string const& message) {
+    return "\33[0;33m" + message + "\33[0m";
+}
+
+std::string red(std::string const& message) {
+    return "\33[0;31m" + message + "\33[0m";
+}
+
 }  // namespace StringUtils
 }  // namespace Common
 }  // namespace Cthun
