@@ -12,10 +12,6 @@ namespace CthunClient {
 
 TEST_CASE("CthunAgent::serialize", "[message]") {
     SECTION("can serialize a string") {
-
-
-        std::cout << "### Root: " << ROOT_PATH << "\n";
-
         std::string s { "lalala" };
         SerializedMessage buffer;
         serialize<std::string>(s, s.size(), buffer);

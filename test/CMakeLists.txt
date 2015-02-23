@@ -39,7 +39,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
 add_custom_target(check
-    ALL
     "${MAINFOLDER}/bin/${test_BIN}"
     DEPENDS ${test_BIN}
     COMMENT "Executing unit tests..."

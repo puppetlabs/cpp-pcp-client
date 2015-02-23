@@ -58,3 +58,8 @@ else()
         VERBATIM
     )
 endif()
+
+add_test(
+    NAME "cthun-client\\ library\\ tests"
+    COMMAND "${MAINFOLDER}/bin/cthun-client-unittests"
+)
