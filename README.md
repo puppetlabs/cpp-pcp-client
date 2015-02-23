@@ -1,13 +1,13 @@
-# cthun_test_client
+# cthun_client
 
 ## Intro
 
-cthun_test_client is a WebSocket-based tool to execute load tests on Cthun
+cthun_client contains common C++ code for Cthun components
 
 ## Installation
 
-TODO
+Download!
 
 ## Use
 
-TODO
+Include!
