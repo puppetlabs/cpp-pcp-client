@@ -20,23 +20,13 @@ include_directories(
 )
 
 add_executable(${test_BIN} ${SOURCES})
+target_link_libraries(${test_BIN} cthun-client)
 
 set(LIBS
     ${Boost_LIBRARIES}
 )
 
 target_link_libraries(${test_BIN} ${LIBS})
-
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wno-reorder -Wno-unused-parameter -Wno-deprecated-register")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-
-    # NB: -pthread is needed for fedora20 (cmake does not add the library, even
-    # afer finding it)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wno-unused-parameter -lpthread -pthread")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-endif()
 
 add_custom_target(check
     "${MAINFOLDER}/bin/${test_BIN}"

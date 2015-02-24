@@ -10,10 +10,42 @@ set(EXECUTABLE_OUTPUT_PATH "${MAINFOLDER}/bin")
 set(VENDOR_DIRECTORY "${PROJECT_SOURCE_DIR}/vendor")
 list(APPEND CMAKE_MODULE_PATH ${VENDOR_DIRECTORY})
 
+# Set compiler flags
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wno-reorder -Wno-unused-parameter -Wno-deprecated-register")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+
+    # NB: -pthread is needed for fedora20 (cmake does not add the library, even
+    # afer finding it)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wno-unused-parameter -lpthread -pthread")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+endif()
+
+# Include vendor libraries and directories
+
+include(
+    ${VENDOR_DIRECTORY}/websocketpp.cmake
+)
+
+# include_directories(
+#     ${RAPIDJSON_INCLUDE_DIRS}
+# )
+
+# Add src subdirectory
+
+add_subdirectory(src)
+
 # Add the test suite
 
 enable_testing()
 add_subdirectory(test)
+
+add_test(
+    NAME "cthun-client\\ library\\ tests"
+    COMMAND "${MAINFOLDER}/bin/cthun-client-unittests"
+)
 
 # Add cpplint target
 
@@ -58,8 +90,3 @@ else()
         VERBATIM
     )
 endif()
-
-add_test(
-    NAME "cthun-client\\ library\\ tests"
-    COMMAND "${MAINFOLDER}/bin/cthun-client-unittests"
-)

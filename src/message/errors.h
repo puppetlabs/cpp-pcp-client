@@ -1,5 +1,5 @@
 #ifndef CTHUN_CLIENT_SRC_MESSAGE_ERRORS_H_
-#define SRC_ERRORS_H_
+#define CTHUN_CLIENT_SRC_MESSAGE_ERRORS_H_
 
 #include <stdexcept>
 #include <string>
