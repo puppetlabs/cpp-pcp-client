@@ -1,5 +1,6 @@
 set(SOURCES
     connector/timings.cpp
+    data_container/data_container.cpp
     # connector/connector.cpp
 )
 
