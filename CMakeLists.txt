@@ -25,13 +25,12 @@ endif()
 
 # Include vendor libraries and directories
 
-include(
-    ${VENDOR_DIRECTORY}/websocketpp.cmake
-)
+include(${VENDOR_DIRECTORY}/websocketpp.cmake)
+include(${VENDOR_DIRECTORY}/rapidjson.cmake)
 
-# include_directories(
-#     ${RAPIDJSON_INCLUDE_DIRS}
-# )
+include_directories(
+  ${RAPIDJSON_INCLUDE_DIRS}
+)
 
 # Add src subdirectory
 

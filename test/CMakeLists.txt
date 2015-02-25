@@ -7,6 +7,7 @@ set(SOURCES
     main.cpp
 
     unit/message/serialization_test.cpp
+    unit/data_container/data_container_test.cpp
 )
 
 set(test_BIN cthun-client-unittests)
