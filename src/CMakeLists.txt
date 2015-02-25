@@ -1,6 +1,8 @@
 set(SOURCES
     connector/timings.cpp
     data_container/data_container.cpp
+    validator/schema.cpp
+    validator/validator.cpp
     # connector/connector.cpp
 )
 

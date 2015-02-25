@@ -12,13 +12,15 @@ list(APPEND CMAKE_MODULE_PATH ${VENDOR_DIRECTORY})
 
 # Set compiler flags
 
+# Exclusions
+# - Wsign-compare (valijson)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wno-reorder -Wno-unused-parameter -Wno-deprecated-register")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -Wno-reorder -Wno-unused-parameter -Wno-deprecated-register -Wno-sign-compare")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
     # NB: -pthread is needed for fedora20 (cmake does not add the library, even
     # afer finding it)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wno-unused-parameter -lpthread -pthread")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-sign-compare -lpthread -pthread")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
@@ -27,9 +29,11 @@ endif()
 
 include(${VENDOR_DIRECTORY}/websocketpp.cmake)
 include(${VENDOR_DIRECTORY}/rapidjson.cmake)
+include(${VENDOR_DIRECTORY}/valijson.cmake)
 
 include_directories(
   ${RAPIDJSON_INCLUDE_DIRS}
+  ${VALIJSON_INCLUDE_DIRS}
 )
 
 # Add src subdirectory
