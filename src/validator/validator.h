@@ -17,9 +17,14 @@ class validator_error : public std::runtime_error  {
     explicit validator_error(std::string const& msg) : std::runtime_error(msg) {}
 };
 
-class register_error : public validator_error  {
+class schema_redefinition_error : public validator_error  {
   public:
-    explicit register_error(std::string const& msg) : validator_error(msg) {}
+    explicit schema_redefinition_error(std::string const& msg) : validator_error(msg) {}
+};
+
+class schema_not_found_error : public validator_error  {
+  public:
+    explicit schema_not_found_error(std::string const& msg) : validator_error(msg) {}
 };
 
 class validation_error : public validator_error {
@@ -34,9 +39,10 @@ class Validator {
         return instance;
     }
 
-    void registerSchema(std::string name, Schema schema);
-    void validate(DataContainer& data, std::string schema) const;
+    void registerSchema(const std::string& schema_name, const Schema& schema);
+    void validate(DataContainer& data, std::string schema_name) const;
     bool includesSchema(std::string schema_name) const;
+    ContentType getSchemaContentType(std::string schema_name) const;
     void reset();
 
   private:

@@ -109,4 +109,9 @@ TEST_CASE("Schema::addConstraint(subschema)", "[addConstraint]") {
     }
 }
 
+TEST_CASE("Schema::getContentType()", "[getContentType]") {
+    Schema schema { ContentType::Binary };
+    REQUIRE(schema.getContentType() == ContentType::Binary);
+}
+
 }  // namespace CthunClient

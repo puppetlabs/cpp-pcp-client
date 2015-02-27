@@ -31,6 +31,10 @@ void Schema::addConstraint(std::string field, Schema sub_schema, bool required) 
     }
 }
 
+ContentType Schema::getContentType() const {
+    return content_type_;
+}
+
 const valijson::Schema Schema::getRaw() const {
     valijson::Schema schema;
 

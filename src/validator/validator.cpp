@@ -12,29 +12,30 @@ namespace CthunClient {
 /// Public API
 ///
 
-void Validator::registerSchema(std::string name, Schema schema) {
+void Validator::registerSchema(const std::string& schema_name, const Schema& schema) {
     std::lock_guard<std::mutex> lock(lookup_mutex_);
-    if (includesSchema(name)) {
-        throw register_error { "Schema '" + name + "' already defined." };
+    if (includesSchema(schema_name)) {
+        throw schema_redefinition_error { "Schema '" + schema_name +
+                                          "' already defined." };
     }
 
-    schema_map_[name] = schema;
+    schema_map_[schema_name] = schema;
 }
 
-void Validator::validate(DataContainer& data, std::string schema) const {
+void Validator::validate(DataContainer& data, std::string schema_name) const {
     std::unique_lock<std::mutex> lock (lookup_mutex_);
-    if (!includesSchema(schema)) {
-        throw validation_error { "'" + schema + "' is not a registred schema" };
+    if (!includesSchema(schema_name)) {
+        throw validation_error { "'" + schema_name + "' is not a registred schema" };
     }
     lock.unlock();
 
     // we can freely unlock. When a schema has been set it cannot be modified
 
-    if (!validateDataContainer(data, schema_map_.at(schema))) {
+    if (!validateDataContainer(data, schema_map_.at(schema_name))) {
         // TODO(ploubser): Log valijson eror string when logging at debug level
         // but we've got to wait for leatherman
         throw validation_error { "DataContainer does not match schema: '" +
-                                 schema + "'" };
+                                 schema_name + "'" };
     }
 }
 
@@ -44,6 +45,17 @@ bool Validator::includesSchema(std::string schema_name) const {
     }
 
     return false;
+}
+
+ContentType Validator::getSchemaContentType(std::string schema_name) const {
+    std::unique_lock<std::mutex> lock (lookup_mutex_);
+    if (!includesSchema(schema_name)) {
+        throw schema_not_found_error { "'" + schema_name +
+                                       "' is not a registred schema" };
+    }
+    lock.unlock();
+
+    return schema_map_.at(schema_name).getContentType();
 }
 
 void Validator::reset() {
@@ -61,7 +73,7 @@ Validator::Validator() {
 
 void Validator::registerDefaultSchemas() {
     // Envelope Schema
-    Schema schema {};
+    Schema schema { ContentType::Json };
     schema.addConstraint("id", TypeConstraint::String, true);
     schema.addConstraint("expires", TypeConstraint::String, true);
     schema.addConstraint("sender", TypeConstraint::String, true);

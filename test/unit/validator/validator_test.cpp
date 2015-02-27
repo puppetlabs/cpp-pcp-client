@@ -17,7 +17,7 @@ TEST_CASE("Validator::registerSchema", "[registerSchema]") {
     SECTION("it cannot register a schema name more than once") {
         Validator::Instance().registerSchema("test-schema", schema);
         REQUIRE_THROWS_AS(Validator::Instance().registerSchema("test-schema", schema),
-                          register_error);
+                          schema_redefinition_error);
     }
 }
 
@@ -62,6 +62,22 @@ TEST_CASE("Validator::validate", "[validate]") {
             data.set<std::string>("id", "1234");
         REQUIRE_THROWS_AS(Validator::Instance().validate(data, "envelope"),
                           validation_error);        }
+    }
+}
+
+TEST_CASE("Validator::getSchemaContentType", "[getSchemaContentType]") {
+    Schema schema { ContentType::Binary };
+    Validator::Instance().reset();
+
+    SECTION("it can return the schema's content type") {
+        Validator::Instance().registerSchema("test-schema", schema);
+        REQUIRE(Validator::Instance().getSchemaContentType("test-schema") ==
+                ContentType::Binary);
+    }
+
+    SECTION("it throws when the schema is undefined") {
+        REQUIRE_THROWS_AS(Validator::Instance().getSchemaContentType("test-schema"),
+                         schema_not_found_error);
     }
 }
 
