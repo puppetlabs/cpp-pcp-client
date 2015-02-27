@@ -12,6 +12,10 @@ namespace CthunClient {
 /// Public API
 ///
 
+Validator::Validator() {
+    registerDefaultSchemas();
+}
+
 void Validator::registerSchema(const std::string& schema_name, const Schema& schema) {
     std::lock_guard<std::mutex> lock(lookup_mutex_);
     if (includesSchema(schema_name)) {
@@ -58,18 +62,9 @@ ContentType Validator::getSchemaContentType(std::string schema_name) const {
     return schema_map_.at(schema_name).getContentType();
 }
 
-void Validator::reset() {
-    schema_map_ = std::map<std::string, Schema>();
-    registerDefaultSchemas();
-}
-
 ///
 /// Private methods
 ///
-
-Validator::Validator() {
-    registerDefaultSchemas();
-}
 
 void Validator::registerDefaultSchemas() {
     // Envelope Schema

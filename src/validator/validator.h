@@ -34,22 +34,16 @@ class validation_error : public validator_error {
 
 class Validator {
   public:
-    static Validator& Instance() {
-        static Validator instance;
-        return instance;
-    }
-
+    Validator();
     void registerSchema(const std::string& schema_name, const Schema& schema);
     void validate(DataContainer& data, std::string schema_name) const;
     bool includesSchema(std::string schema_name) const;
     ContentType getSchemaContentType(std::string schema_name) const;
-    void reset();
 
   private:
     std::map<std::string, Schema> schema_map_;
     mutable std::mutex lookup_mutex_;
 
-    Validator();
     void registerDefaultSchemas();
     bool validateDataContainer(DataContainer& data, const Schema& schema) const;
 };
