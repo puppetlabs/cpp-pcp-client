@@ -21,12 +21,12 @@ class Schema {
     const valijson::Schema getRaw() const;
 
   private:
+    ContentType content_type_;
     V_C::PropertiesConstraint::PropertySchemaMap properties_;
     V_C::PropertiesConstraint::PropertySchemaMap pattern_properties_;
     V_C::RequiredConstraint::RequiredProperties required_properties_;
 
     V_C::TypeConstraint getConstraint(TypeConstraint type) const;
-    ContentType content_type_;
 };
 
 }  // namespace CthunClient
