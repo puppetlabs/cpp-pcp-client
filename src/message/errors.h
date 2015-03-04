@@ -9,14 +9,29 @@ namespace CthunClient {
 /// Base error class.
 class message_error : public std::runtime_error {
   public:
-    explicit message_error(std::string const& msg) : std::runtime_error(msg) {}
+    explicit message_error(std::string const& msg)
+            : std::runtime_error(msg) {}
 };
 
 /// Serialization error
-
-class serialization_error : public message_error {
+class message_serialization_error : public message_error {
   public:
-    explicit serialization_error(std::string const& msg) : message_error(msg) {}
+    explicit message_serialization_error(std::string const& msg)
+            : message_error(msg) {}
+};
+
+/// Unsupported version error
+class unsupported_version_error : public message_error {
+  public:
+    explicit unsupported_version_error(std::string const& msg)
+            : message_error(msg) {}
+};
+
+/// Invalid chunk error
+class invalid_chunk_error : public message_error {
+  public:
+    explicit invalid_chunk_error(std::string const& msg)
+            : message_error(msg) {}
 };
 
 }  // namespace CthunClient

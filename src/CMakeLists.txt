@@ -1,9 +1,11 @@
 set(SOURCES
+    connector/connection.cpp
+    connector/connector.cpp
     connector/timings.cpp
     data_container/data_container.cpp
+    message/message.cpp
     validator/schema.cpp
     validator/validator.cpp
-    # connector/connector.cpp
 )
 
 set(LIBS

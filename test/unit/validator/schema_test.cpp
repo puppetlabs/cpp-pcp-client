@@ -18,8 +18,15 @@ bool validate_test(DataContainer document, Schema schema) {
     return validator.validate(adapted_document, &validation_results);
 }
 
-TEST_CASE("Schema::addConstraint(type)", "[addConstraint]") {
-    Schema schema {};
+TEST_CASE("Schema::getName", "[validation]") {
+    SECTION("the user can set during construction and get the schema name") {
+        Schema schema { "a very nice name" };
+        REQUIRE(schema.getName() == "a very nice name");
+    }
+}
+
+TEST_CASE("Schema::addConstraint(type)", "[validation]") {
+    Schema schema { "spam" };
 
     SECTION("it creates an interger constraint") {
         DataContainer data { "{\"foo\" : 2}" };
@@ -95,13 +102,14 @@ TEST_CASE("Schema::addConstraint(type)", "[addConstraint]") {
     }
 }
 
-TEST_CASE("Schema::addConstraint(subschema)", "[addConstraint]") {
-    Schema schema {};
+TEST_CASE("Schema::addConstraint(subschema)", "[validation]") {
+    Schema schema { "spam" };
+
     SECTION("it creates a sub schema constraint") {
         DataContainer data {"{\"root\" : "
                                 "{\"foo\" : \"bar\","
                                 "\"baz\" : 1 }}" };
-        Schema subschema {};
+        Schema subschema { "subschema" };
         subschema.addConstraint("foo", TypeConstraint::String, true);
         subschema.addConstraint("baz", TypeConstraint::Int, true);
         schema.addConstraint("root", subschema, true);
@@ -109,8 +117,8 @@ TEST_CASE("Schema::addConstraint(subschema)", "[addConstraint]") {
     }
 }
 
-TEST_CASE("Schema::getContentType()", "[getContentType]") {
-    Schema schema { ContentType::Binary };
+TEST_CASE("Schema::getContentType()", "[validation]") {
+    Schema schema { "eggs", ContentType::Binary };
     REQUIRE(schema.getContentType() == ContentType::Binary);
 }
 

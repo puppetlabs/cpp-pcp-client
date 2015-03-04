@@ -1,7 +1,7 @@
 #ifndef CTHUN_CLIENT_SRC_MESSAGE_SERIALIZATION_H_
 #define CTHUN_CLIENT_SRC_MESSAGE_SERIALIZATION_H_
 
-#include "errors.h"
+#include "./errors.h"
 
 #include <boost/detail/endian.hpp>
 
@@ -86,7 +86,8 @@ inline void serialize_(const uint8_t& number,
 
 // Serialize the specified type T object, of given size. The encoded
 // bytes will be stored in the passed buffer, which will be resized.
-// Throw a serialization_error in case it fails to resize the buffer.
+// Throw a message_serialization_error in case it fails to resize the
+// buffer.
 template<typename T>
 inline void serialize(const T& thing,
                       size_t thing_size,
@@ -96,12 +97,12 @@ inline void serialize(const T& thing,
     try {
         buffer.resize(offset + thing_size);
     } catch(std::bad_alloc) {
-        throw serialization_error { "serialization: bad allocation" };
+        throw message_serialization_error { "serialization: bad allocation" };
     } catch(const std::exception& e) {
-        throw serialization_error { e.what() };
+        throw message_serialization_error { e.what() };
     } catch(...) {
-        throw serialization_error { "seriliazation: unexpected error when "
-                                    "allocating memory" };
+        throw message_serialization_error { "seriliazation: unexpected error "
+                                            "when allocating memory" };
     }
 
     SerializedMessage::iterator buffer_itr = buffer.begin() + offset;
