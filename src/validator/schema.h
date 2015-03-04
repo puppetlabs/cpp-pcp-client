@@ -37,4 +37,4 @@ class Schema {
 
 }  // namespace CthunClient
 
-#endif // CTHUN_CLIENT_SRC_VALIDATOR_SCHEMA_H_
+#endif  // CTHUN_CLIENT_SRC_VALIDATOR_SCHEMA_H_

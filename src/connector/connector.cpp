@@ -203,7 +203,7 @@ void Connector::sendMessage_(std::vector<std::string> endpoints,
     MessageChunk data_chunk { ChunkDescriptor::DATA, data_txt };
     Message msg { envelope_chunk, data_chunk };
 
-    for (auto debug_content: debug) {
+    for (auto debug_content : debug) {
         MessageChunk d_c { ChunkDescriptor::DEBUG, debug_content.toString() };
         msg.addDebugChunk(d_c);
     }
@@ -274,7 +274,7 @@ void Connector::processMessage_(std::string msg_txt) {
 void Connector::monitorConnectionTask_(int max_connect_attempts) {
     assert(connection_ptr_ != nullptr);
 
-    while(true) {
+    while (true) {
         std::unique_lock<std::mutex> the_lock { mutex_ };
         monitor_timer_.reset();
 
@@ -282,8 +282,7 @@ void Connector::monitorConnectionTask_(int max_connect_attempts) {
             [this] {
                 return is_destructing_
                        || monitor_timer_.elapsedSeconds() < CONNECTION_CHECK_INTERVAL;
-            }
-        );
+            });
 
         if (is_destructing_) {
             // The dtor has been invoked

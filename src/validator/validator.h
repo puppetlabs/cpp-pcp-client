@@ -44,7 +44,7 @@ class validation_error : public validator_error {
 
 class Validator {
   public:
-    Validator() {};
+    Validator() {}
     void registerSchema(const Schema& schema);
     void validate(DataContainer& data, std::string schema_name) const;
     bool includesSchema(std::string schema_name) const;
@@ -59,4 +59,4 @@ class Validator {
 
 }  // namespace CthunClient
 
-#endif // CTHUN_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
+#endif  // CTHUN_CLIENT_SRC_VALIDATOR_VALIDATOR_H_

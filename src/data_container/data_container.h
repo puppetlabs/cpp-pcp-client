@@ -206,8 +206,7 @@ class DataContainer {
             }
 
             set_<T>(jval[first], rest...);
-        }
-        else {
+        } else {
             set_string_<std::string>(jval, first);
             return;
         }

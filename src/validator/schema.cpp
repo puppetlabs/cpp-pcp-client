@@ -64,7 +64,7 @@ const std::string Schema::getName() const {
 ///
 
 V_C::TypeConstraint Schema::getConstraint(TypeConstraint type) const {
-    switch(type) {
+    switch (type) {
         case TypeConstraint::Object :
             return V_C::TypeConstraint::kObject;
         case TypeConstraint::Array :

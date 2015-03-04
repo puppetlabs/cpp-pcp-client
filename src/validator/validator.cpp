@@ -25,7 +25,7 @@ void Validator::registerSchema(const Schema& schema) {
 }
 
 void Validator::validate(DataContainer& data, std::string schema_name) const {
-    std::unique_lock<std::mutex> lock (lookup_mutex_);
+    std::unique_lock<std::mutex> lock(lookup_mutex_);
     if (!includesSchema(schema_name)) {
         throw schema_not_found_error { "'" + schema_name
                                        + "' is not a registred schema" };
@@ -47,7 +47,7 @@ bool Validator::includesSchema(std::string schema_name) const {
 }
 
 ContentType Validator::getSchemaContentType(std::string schema_name) const {
-    std::unique_lock<std::mutex> lock (lookup_mutex_);
+    std::unique_lock<std::mutex> lock(lookup_mutex_);
     if (!includesSchema(schema_name)) {
         throw schema_not_found_error { "'" + schema_name +
                                        "' is not a registred schema" };
