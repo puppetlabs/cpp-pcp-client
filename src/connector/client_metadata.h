@@ -25,7 +25,7 @@ std::string getClientIdentityFromCert(const std::string& client_crt_path) {
     std::unique_ptr<std::FILE, int(*)(std::FILE*)> fp {
         std::fopen(client_crt_path.data(), "r"), std::fclose };
     if (fp == nullptr) {
-        throw connection_fatal_error { "certificate file '" + client_crt_path
+        throw connection_config_error { "certificate file '" + client_crt_path
                                        + "' does not exist." };
     }
     std::unique_ptr<X509, void(*)(X509*)> cert {
