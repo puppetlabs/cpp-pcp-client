@@ -1,14 +1,14 @@
 #include "test/test.h"
 
-#include "src/message.h"
-#include "src/errors.h"
+#include "src/message/message.h"
+#include "src/message/errors.h"
 
 #include <iostream>
 #include <vector>
 #include <stdint.h>
 #include <chrono>
 
-namespace CthunAgent {
+namespace CthunClient {
 
 TEST_CASE("MessageChunk", "[message]") {
     SECTION("can instantiate with default ctor") {
@@ -119,11 +119,11 @@ TEST_CASE("Message::Message, getters & inspectors - passing chunks", "[message]"
         MessageChunk bad_debug_c { 3, 10983, "I am a badly sized debug chunk" };
 
         REQUIRE_THROWS_AS(Message { bad_env_c },
-                          message_processing_error);
+                          invalid_chunk_error);
         REQUIRE_THROWS_AS(Message(envelope_chunk, bad_data_c),
-                          message_processing_error);
+                          invalid_chunk_error);
         REQUIRE_THROWS_AS(Message(envelope_chunk, data_chunk, bad_debug_c),
-                          message_processing_error);
+                          invalid_chunk_error);
     }
 
     SECTION("throws if a passed chunk has an unknown descriptor") {
@@ -132,11 +132,11 @@ TEST_CASE("Message::Message, getters & inspectors - passing chunks", "[message]"
         MessageChunk bad_debug_c { 9, 10, "tenletters" };
 
         REQUIRE_THROWS_AS(Message { bad_env_c },
-                          message_processing_error);
+                          invalid_chunk_error);
         REQUIRE_THROWS_AS(Message(envelope_chunk, bad_data_c),
-                          message_processing_error);
+                          invalid_chunk_error);
         REQUIRE_THROWS_AS(Message(envelope_chunk, data_chunk, bad_debug_c),
-                          message_processing_error);
+                          invalid_chunk_error);
     }
 }
 
@@ -278,7 +278,7 @@ TEST_CASE("Message::Message - failure cases", "[message]") {
         SerializedMessage msg_buffer_bad { 0x01 };  // has only version
         auto msg_s = vecToStr(msg_buffer_bad, { data_chunk_buffer_valid });
 
-        REQUIRE_THROWS_AS(Message { msg_s }, message_processing_error);
+        REQUIRE_THROWS_AS(Message { msg_s }, message_serialization_error);
     }
 
     SECTION("fails to parse if the message version is not supported") {
@@ -286,7 +286,7 @@ TEST_CASE("Message::Message - failure cases", "[message]") {
         msg_buffer_bad[0] = { 0xFF };  // setting a bad version
         auto msg_s = vecToStr(msg_buffer_bad, { data_chunk_buffer_valid });
 
-        REQUIRE_THROWS_AS(Message { msg_s }, message_processing_error);
+        REQUIRE_THROWS_AS(Message { msg_s }, unsupported_version_error);
     }
 
     SECTION("fails to parse if the message contains a chunk with an invalid "
@@ -295,14 +295,14 @@ TEST_CASE("Message::Message - failure cases", "[message]") {
         data_chunk_bad[0] = { 0xFA };  // setting a bad descritptor
         auto msg_s = vecToStr(msg_buffer_valid, { data_chunk_bad });
 
-        REQUIRE_THROWS_AS(Message { msg_s }, message_processing_error);
+        REQUIRE_THROWS_AS(Message { msg_s }, message_serialization_error);
     }
 
     SECTION("fails to parse if the message contains two data chunks") {
         auto msg_s = vecToStr(msg_buffer_valid, { data_chunk_buffer_valid,
                                                   data_chunk_buffer_valid });
 
-        REQUIRE_THROWS_AS(Message { msg_s }, message_processing_error);
+        REQUIRE_THROWS_AS(Message { msg_s }, message_serialization_error);
     }
 
     SECTION("fails to parse if the envelope content is smaller than what "
@@ -311,7 +311,7 @@ TEST_CASE("Message::Message - failure cases", "[message]") {
         msg_buffer_bad[5] = { 0x10 };  // increasing the size
         auto msg_s = vecToStr(msg_buffer_bad);
 
-        REQUIRE_THROWS_AS(Message { msg_s }, message_processing_error);
+        REQUIRE_THROWS_AS(Message { msg_s }, message_serialization_error);
     }
 }
 
@@ -360,28 +360,28 @@ TEST_CASE("Message modifiers", "[message]") {
         auto data_chunk_bad = data_chunk;
         data_chunk_bad.descriptor = 0x09;
         REQUIRE_THROWS_AS(msg.setDataChunk(data_chunk_bad),
-                          message_processing_error);
+                          invalid_chunk_error);
     }
 
     SECTION("fails to set a data chunk with wrong size") {
         auto data_chunk_bad = data_chunk;
         data_chunk_bad.size = 99;
         REQUIRE_THROWS_AS(msg.setDataChunk(data_chunk_bad),
-                          message_processing_error);
+                          invalid_chunk_error);
     }
 
     SECTION("fails to set a debug chunk with unknown descriptor") {
         auto debug_chunk_bad = data_chunk;
         debug_chunk_bad.descriptor = 0x09;
         REQUIRE_THROWS_AS(msg.addDebugChunk(debug_chunk_bad),
-                          message_processing_error);
+                          invalid_chunk_error);
     }
 
     SECTION("fails to set a debug chunk with wrong size") {
         auto debug_chunk_bad = data_chunk;
         debug_chunk_bad.size = 99;
         REQUIRE_THROWS_AS(msg.addDebugChunk(debug_chunk_bad),
-                          message_processing_error);
+                          invalid_chunk_error);
     }
 }
 
@@ -464,6 +464,9 @@ TEST_CASE("Message::getSerialized", "[message]") {
         REQUIRE(msg_parsed.getDataChunk() == da_c);
     }
 }
+
+// TODO(ale): convert the old DataParser::parseAndValidateChunk tests
+// to Message::getParsedChunks
 
 //
 // Performance
@@ -551,4 +554,4 @@ TEST_CASE("Message serialization and parsing performance", "[message]") {
               << " msg/s)\n";
 }
 
-}  // namespace CthunAgent
+}  // namespace CthunClient

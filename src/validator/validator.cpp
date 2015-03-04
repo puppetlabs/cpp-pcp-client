@@ -12,24 +12,23 @@ namespace CthunClient {
 /// Public API
 ///
 
-Validator::Validator() {
-    registerDefaultSchemas();
-}
-
-void Validator::registerSchema(const std::string& schema_name, const Schema& schema) {
+void Validator::registerSchema(const Schema& schema) {
     std::lock_guard<std::mutex> lock(lookup_mutex_);
+    auto schema_name = schema.getName();
     if (includesSchema(schema_name)) {
         throw schema_redefinition_error { "Schema '" + schema_name +
                                           "' already defined." };
     }
 
-    schema_map_[schema_name] = schema;
+    auto p = std::pair<std::string, Schema>(schema_name, schema);
+    schema_map_.insert(p);
 }
 
 void Validator::validate(DataContainer& data, std::string schema_name) const {
     std::unique_lock<std::mutex> lock (lookup_mutex_);
     if (!includesSchema(schema_name)) {
-        throw validation_error { "'" + schema_name + "' is not a registred schema" };
+        throw schema_not_found_error { "'" + schema_name
+                                       + "' is not a registred schema" };
     }
     lock.unlock();
 
@@ -44,11 +43,7 @@ void Validator::validate(DataContainer& data, std::string schema_name) const {
 }
 
 bool Validator::includesSchema(std::string schema_name) const {
-    if (schema_map_.find(schema_name) != schema_map_.end()) {
-        return true;
-    }
-
-    return false;
+    return schema_map_.find(schema_name) != schema_map_.end();
 }
 
 ContentType Validator::getSchemaContentType(std::string schema_name) const {
@@ -66,19 +61,8 @@ ContentType Validator::getSchemaContentType(std::string schema_name) const {
 /// Private methods
 ///
 
-void Validator::registerDefaultSchemas() {
-    // Envelope Schema
-    Schema schema { ContentType::Json };
-    schema.addConstraint("id", TypeConstraint::String, true);
-    schema.addConstraint("expires", TypeConstraint::String, true);
-    schema.addConstraint("sender", TypeConstraint::String, true);
-    schema.addConstraint("endpoints", TypeConstraint::Array, true);
-    schema.addConstraint("data_schema", TypeConstraint::String, true);
-    schema.addConstraint("destination_report", TypeConstraint::Bool, false);
-    registerSchema("envelope", schema);
-}
-
-bool Validator::validateDataContainer(DataContainer& data, const Schema& schema) const {
+bool Validator::validateDataContainer(DataContainer& data,
+                                      const Schema& schema) const {
     valijson::Validator validator { schema.getRaw() };
     valijson::adapters::RapidJsonAdapter adapted_document { data.getRaw() };
     valijson::ValidationResults validation_results;

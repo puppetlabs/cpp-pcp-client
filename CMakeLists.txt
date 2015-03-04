@@ -32,8 +32,9 @@ include(${VENDOR_DIRECTORY}/rapidjson.cmake)
 include(${VENDOR_DIRECTORY}/valijson.cmake)
 
 include_directories(
-  ${RAPIDJSON_INCLUDE_DIRS}
-  ${VALIJSON_INCLUDE_DIRS}
+    ${RAPIDJSON_INCLUDE_DIRS}
+    ${VALIJSON_INCLUDE_DIRS}
+    ${WEBSOCKETPP_INCLUDE_DIRS}
 )
 
 # Add src subdirectory

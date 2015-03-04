@@ -1,9 +1,12 @@
 #ifndef CTHUN_CLIENT_SRC_MESSAGE_MESSAGE_H_
 #define CTHUN_CLIENT_SRC_MESSAGE_MESSAGE_H_
 
+#include "./errors.h"
 #include "./serialization.h"
 
 #include "../data_container/data_container.h"
+
+#include "../validator/validator.h"
 
 #include <string>
 #include <vector>
@@ -12,6 +15,16 @@
 #include <stdint.h>  // uint8_t
 
 namespace CthunClient {
+
+//
+// Constants
+//
+
+static const std::string ENVELOPE_SCHEMA_NAME { "envelope" };
+
+static const std::string CTHUN_LOGIN_SCHEMA_NAME { "http://puppetlabs.com/loginschema" };
+static const std::string CTHUN_REQUEST_SCHEMA_NAME { "http://puppetlabs.com/cnc_request" };
+static const std::string CTHUN_RESPONSE_SCHEMA_NAME { "http://puppetlabs.com/cnc_response" };
 
 //
 // ChunkDescriptor
@@ -62,10 +75,61 @@ struct MessageChunk {
 // ParsedContent
 //
 
-struct ParsedContent {
+// TODO(ale): update the parsed debug format once we define specs
+
+struct ParsedChunks {
+    // Envelope
     DataContainer envelope;
+
+    // Data
+    bool has_data;
+    ContentType data_type;
     DataContainer data;
-    std::vector<DataContainer> debug;
+    std::string binary_data;
+
+    // Debug
+    std::vector<std::string> debug;
+
+    // Default ctor
+    ParsedChunks()
+            : envelope {},
+              has_data { false },
+              data_type { ContentType::Json },
+              data {},
+              binary_data { "" },
+              debug {} {}
+
+    // No data ctor
+    ParsedChunks(DataContainer _envelope,
+                 std::vector<std::string> _debug)
+            : envelope { _envelope },
+              has_data { false },
+              data_type { ContentType::Json },
+              data {},
+              binary_data { "" },
+              debug { _debug } {}
+
+    // JSON data ctor
+    ParsedChunks(DataContainer _envelope,
+                 DataContainer _data,
+                 std::vector<std::string> _debug)
+            : envelope { _envelope },
+              has_data { true },
+              data_type { ContentType::Json },
+              data { _data },
+              binary_data { "" },
+              debug { _debug } {}
+
+    // Binary data ctor
+    ParsedChunks(DataContainer _envelope,
+                 std::string _binary_data,
+                 std::vector<std::string> _debug)
+            : envelope { _envelope },
+              has_data { true },
+              data_type { ContentType::Binary },
+              data {},
+              binary_data { _binary_data },
+              debug { _debug } {}
 };
 
 //
@@ -80,26 +144,28 @@ class Message {
 
     // Construct a Message by parsing the payload delivered
     // by the transport layer as a std::string.
-    // Throw a message_processing_error in case of invalid message.
+    // Throw an unsupported_version_error in case the indicated
+    // message format version is not supported.
+    // Throw a message_serialization_error in case of invalid message.
     explicit Message(const std::string& transport_payload);
 
     // Create a new message with a given envelope.
-    // Throw a message_processing_error in case of invalid chunk
+    // Throw a invalid_chunk_error in case of invalid chunk
     // (unknown descriptor or wrong size).
     explicit Message(MessageChunk envelope);
 
-    // ... and a data chunk; throw a message_processing_error as above
+    // ... and a data chunk; throw a invalid_chunk_error as above
     Message(MessageChunk envelope,
             MessageChunk data_chunk);
 
-    // ... and a debug chunk; throw a message_processing_error as above
+    // ... and a debug chunk; throw a invalid_chunk_error as above
     Message(MessageChunk envelope,
             MessageChunk data_chunk,
             MessageChunk debug_chunk);
 
     // Add optional chunks after validating it.
-    // Throw a message_processing_error in case of invalid chunk
-    // (unknown descriptor or wrong size).
+    // Throw a invalid_chunk_error in case of invalid chunk (unknown
+    // descriptor or wrong size).
     void setDataChunk(MessageChunk data_chunk);
     void addDebugChunk(MessageChunk debug_chunk);
 
@@ -119,10 +185,13 @@ class Message {
     // memory for the buffer.
     SerializedMessage getSerialized() const;
 
-    // Parse, validate, and return the content of chunks.
-    // Each chunk will be processed based on its descriptor.
-    // Throw a message_validation_error in case of invalid message.
-    ParsedContent getParsedContent() const;
+    // Parse, validate, and return the content of chunks by using
+    // the specified validator; the data chunk will be validated
+    // with the schema indicated in the envelope.
+    // Throw a schema_not_found_error in case the schema indicated in
+    // the envelope is not registred in the validator.
+    // Throw a validation_error in case of invalid message.
+    ParsedChunks getParsedChunks(const Validator& validator) const;
 
     // Return a string representation of all message fields.
     std::string toString() const;

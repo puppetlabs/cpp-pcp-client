@@ -8,6 +8,15 @@ namespace CthunClient {
 /// Public API
 ///
 
+Schema::Schema(const std::string& name, ContentType content_type)
+        : name_ { name },
+          content_type_ { content_type } {
+}
+
+Schema::Schema(const std::string& name)
+        : Schema(name, ContentType::Json) {
+}
+
 void Schema::addConstraint(std::string field, TypeConstraint type, bool required) {
     V_C::TypeConstraint constraint { getConstraint(type) };
 
@@ -46,6 +55,10 @@ const valijson::Schema Schema::getRaw() const {
     return schema;
 }
 
+const std::string Schema::getName() const {
+    return name_;
+}
+
 ///
 /// Private methods
 ///
@@ -68,7 +81,7 @@ V_C::TypeConstraint Schema::getConstraint(TypeConstraint type) const {
             return V_C::TypeConstraint::kNull;
         case TypeConstraint::Any :
             return V_C::TypeConstraint::kAny;
-        }
-    };
+    }
+}
 
 }  // namespace CthunClient

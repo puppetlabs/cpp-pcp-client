@@ -81,11 +81,13 @@ class data_type_error : public std::runtime_error  {
 class DataContainer {
   public:
     DataContainer();
-    explicit DataContainer(std::string msg);
+    explicit DataContainer(std::string json_txt1);
     explicit DataContainer(const rapidjson::Value& value);
     DataContainer(const DataContainer& data);
     DataContainer(const DataContainer&& data);
     DataContainer& operator=(DataContainer other);
+
+    // TODO(ale): add an empty() method
 
     std::string toString() const;
 

@@ -7,35 +7,38 @@
 namespace CthunClient {
 
 /// Base error class.
-class connector_error : public std::runtime_error {
+class connection_error : public std::runtime_error {
   public:
-    explicit connector_error(std::string const& msg) : std::runtime_error(msg) {}
+    explicit connection_error(std::string const& msg)
+            : std::runtime_error(msg) {}
 };
 
-// TODO(ale): ensure error names are meaningful with the new library
-
-/// Endpoint error class.
-class endpoint_error : public connector_error {
+/// Connection fatal error.
+class connection_fatal_error : public connection_error {
   public:
-    explicit endpoint_error(std::string const& msg) : connector_error(msg) {}
+    explicit connection_fatal_error(std::string const& msg)
+            : connection_error(msg) {}
 };
 
-/// Connection error class.
-class connection_error : public connector_error {
+/// Connection configuration error.
+class connection_config_error : public connection_error {
   public:
-    explicit connection_error(std::string const& msg) : connector_error(msg) {}
+    explicit connection_config_error(std::string const& msg)
+            : connection_error(msg) {}
 };
 
-/// Message sending error class.
-class message_error : public connector_error {
+/// Connection processing error.
+class connection_processing_error : public connection_error {
   public:
-    explicit message_error(std::string const& msg) : connector_error(msg) {}
+    explicit connection_processing_error(std::string const& msg)
+            : connection_error(msg) {}
 };
 
-/// File not found error class.
-class file_not_found_error : public connector_error {
+/// Connection not initialized error.
+class connection_not_init_error : public connection_error {
   public:
-    explicit file_not_found_error(std::string const& msg) : connector_error(msg) {}
+    explicit connection_not_init_error(std::string const& msg)
+            : connection_error(msg) {}
 };
 
 }  // namespace CthunClient
