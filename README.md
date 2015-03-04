@@ -115,10 +115,10 @@ The _Parsed_Chunks_ struct is a simplification of a parsed Cthun message. It all
 for direct access of a message's Envelope, Data and Debug chunks as DataContainer
 or string objects.
 
-The ParsedContent struct is defined as:
+The ParsedChunks struct is defined as:
 
 ```
-    struct ParsedContent {
+    struct ParsedChunks {
         // Envelope
         DataContainer envelope;
 
@@ -329,7 +329,7 @@ method which is defined as follows:
 The parameters are described as follows:
 
  - schema - A previously created schema object
- - callback - A callback function with the signature void(ParsedContent msg_content)
+ - callback - A callback function with the signature void(ParsedChunks msg_content)
 
 For example:
 
