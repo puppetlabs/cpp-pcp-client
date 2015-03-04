@@ -30,7 +30,7 @@ class Connector {
 
     Connector() = delete;
 
-    /// Throws a connection_fatal_error in case it fails to retrieve
+    /// Throws a connection_config_error in case it fails to retrieve
     /// the client identity from its certificate.
     Connector(const std::string& server_url,
               const std::string& type,
