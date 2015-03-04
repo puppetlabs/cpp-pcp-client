@@ -6,8 +6,8 @@ DataContainer::DataContainer() {
     document_root_.SetObject();
 }
 
-DataContainer::DataContainer(std::string msg) {
-    document_root_.Parse(msg.data());
+DataContainer::DataContainer(std::string json_text) {
+    document_root_.Parse(json_text.data());
 
     if (document_root_.HasParseError()) {
         throw parse_error { "invalid json" };

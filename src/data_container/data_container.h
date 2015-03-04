@@ -81,7 +81,7 @@ class data_type_error : public std::runtime_error  {
 class DataContainer {
   public:
     DataContainer();
-    explicit DataContainer(std::string json_txt1);
+    explicit DataContainer(std::string json_txt);
     explicit DataContainer(const rapidjson::Value& value);
     DataContainer(const DataContainer& data);
     DataContainer(const DataContainer&& data);
