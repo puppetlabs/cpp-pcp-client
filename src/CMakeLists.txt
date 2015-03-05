@@ -1,4 +1,5 @@
 set(SOURCES
+    connector/client_metadata.cpp
     connector/connection.cpp
     connector/connector.cpp
     connector/timings.cpp
