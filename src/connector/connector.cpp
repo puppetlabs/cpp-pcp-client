@@ -55,6 +55,13 @@ Connector::Connector(const std::string& server_url,
 }
 
 Connector::~Connector() {
+    if (connection_ptr_ != nullptr) {
+        // reset callbacks to avoid breaking the Connection instance
+        // due to callbacks having an invalid reference context
+        // LOG_INFO("Resetting the WebSocket event callbacks");
+        connection_ptr_->resetCallbacks();
+    }
+
     {
         std::lock_guard<std::mutex> the_lock { mutex_ };
         is_destructing_ = true;
