@@ -10,12 +10,137 @@
 
 namespace CthunClient {
 
-bool validate_test(DataContainer document, Schema schema) {
+bool validateTest(DataContainer document, Schema schema) {
     valijson::Validator validator { schema.getRaw() };
     valijson::adapters::RapidJsonAdapter adapted_document { document.getRaw() };
     valijson::ValidationResults validation_results;
-
     return validator.validate(adapted_document, &validation_results);
+}
+
+const std::string trivial_schema_txt {
+    "{ \"title\": \"trivial\","
+    "  \"type\": \"object\","
+    "  \"properties\": {"
+    "       \"index\": {"
+    "           \"type\": \"integer\""
+    "       }"
+    "  },"
+    "  \"required\": [\"index\"],"
+    "  \"additionalProperties\" : true"
+    "}"};
+
+const std::string song_schema_txt {
+    "{ \"title\": \"song\","
+    "  \"type\": \"object\","
+    "  \"properties\": {"
+    "       \"artist\": {"
+    "           \"type\": \"string\""
+    "       },"
+    "       \"title\": {"
+    "           \"type\": \"string\""
+    "       },"
+    "       \"album\": {"
+    "           \"type\": \"string\""
+    "       },"
+    "       \"year\": {"
+    "           \"description\": \"release year\","
+    "           \"type\": \"integer\","
+    "           \"minimum\": 1950"
+    "       }"
+    "  },"
+    "  \"required\": [\"artist\", \"title\"],"
+    "  \"additionalProperties\" : false"
+    "}"};
+
+TEST_CASE("Schema::Schema", "[validation]") {
+    SECTION("can instantiate an empty Schema") {
+        REQUIRE_NOTHROW(Schema("foo"));
+    }
+
+    SECTION("can instantiate an empty Schema by setting the content type") {
+        REQUIRE_NOTHROW(Schema("bar", ContentType::Json));
+    }
+
+    SECTION("can instantiate by parsing a JSON schema") {
+        DataContainer json_schema { "{\"spam\" : {\"type\" : \"object\"}}" };
+        REQUIRE_NOTHROW(Schema("spam", json_schema));
+    }
+
+    SECTION("throw schema_error if parsing an invalid schema", "[validation]") {
+        DataContainer json_schema { "[\"un\", \"deux\"]" };
+        REQUIRE_THROWS_AS(Schema("eggs", json_schema),
+                          schema_error);
+    }
+
+    SECTION("instantiate correctly by parsing a JSON schema") {
+        DataContainer song_json_schema { song_schema_txt };
+        Schema song_schema { "song", song_json_schema };
+
+        SECTION("it validates valid data") {
+            std::string good_song_txt {
+                " { \"artist\": \"Zappa\","
+                "   \"title\" : \"Bobby Brown\","
+                "   \"album\" : \"Sheik Yerbouti\","
+                "   \"year\"  : 1979 }" };
+            DataContainer good_song { good_song_txt };
+
+            REQUIRE(validateTest(good_song, song_schema));
+        }
+
+        SECTION("it does not validate data with missing entries") {
+            // Missing artist entry
+            std::string bad_song_txt {
+                " { \"title\" : \"Three Girl Rhumba\","
+                "   \"album\" : \"Pink Flag\","
+                "   \"year\"  : 1977"
+                " }" };
+
+            DataContainer bad_song { bad_song_txt };
+            REQUIRE_FALSE(validateTest(bad_song, song_schema));
+        }
+
+        SECTION("it does not validate data with invalid entries") {
+            // Invalid title entry
+            std::string bad_song_txt {
+                " { \"artist\": \"Wire\","
+                "   \"title\" : 12,"
+                "   \"album\" : \"Pink Flag\","
+                "   \"year\"  : 1977"
+                " }" };
+
+            DataContainer bad_song { bad_song_txt };
+            REQUIRE_FALSE(validateTest(bad_song, song_schema));
+        }
+
+        SECTION("it does not validate data with undefined entries") {
+            // 'duration' entry is not defined
+            std::string bad_song_txt {
+                " { \"artist\"   : \"Wire\","
+                "   \"title\"    : \"Ex Lion Tamer\","
+                "   \"album\"    : \"Pink Flag\","
+                "   \"year\"     : 1977,"
+                "   \"duration\" : 138"
+                " }" };
+
+            DataContainer bad_song { bad_song_txt };
+            REQUIRE_FALSE(validateTest(bad_song, song_schema));
+        }
+
+        SECTION("it validates data with undefined entries when allowed") {
+            DataContainer json_schema { trivial_schema_txt };
+            Schema schema { "parsed schema", json_schema };
+            DataContainer data {};
+
+            // Missing index
+            REQUIRE_FALSE(validateTest(data, schema));
+
+            data.set<int>("index", 42);
+            REQUIRE(validateTest(data, schema));
+
+            data.set<std::string>("foo", "bar");
+            REQUIRE(validateTest(data, schema));
+        }
+    }
 }
 
 TEST_CASE("Schema::getName", "[validation]") {
@@ -26,83 +151,106 @@ TEST_CASE("Schema::getName", "[validation]") {
 }
 
 TEST_CASE("Schema::addConstraint(type)", "[validation]") {
+    SECTION("it throws a schem_error for parsed schemas") {
+        DataContainer json_schema { trivial_schema_txt };
+        Schema parsed_schema { "parsed schema", json_schema };
+        REQUIRE_THROWS_AS(parsed_schema.addConstraint("foo", TypeConstraint::Int),
+                          schema_error);
+    }
+
     Schema schema { "spam" };
 
     SECTION("it creates an interger constraint") {
         DataContainer data { "{\"foo\" : 2}" };
+        DataContainer bad_data { "{\"foo\" : \"two\"}" };
         schema.addConstraint("foo", TypeConstraint::Int, true);
-        REQUIRE(validate_test(data, schema));
+
+        REQUIRE(validateTest(data, schema));
+        REQUIRE_FALSE(validateTest(bad_data, schema));
     }
 
     SECTION("it creates an string constraint") {
         DataContainer data { "{\"foo\" : \"bar\"}" };
         schema.addConstraint("foo", TypeConstraint::String, true);
-        REQUIRE(validate_test(data, schema));
+        REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an double constraint") {
         DataContainer data { "{\"foo\" : 0.0 }" };
         schema.addConstraint("foo", TypeConstraint::Double, true);
-        REQUIRE(validate_test(data, schema));
+        REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an boolean constraint") {
         DataContainer data { "{\"foo\" : true }" };
         schema.addConstraint("foo", TypeConstraint::Bool, true);
-        REQUIRE(validate_test(data, schema));
+        REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an array constraint") {
         DataContainer data { "{\"foo\" : []}" };
         schema.addConstraint("foo", TypeConstraint::Array, true);
-        REQUIRE(validate_test(data, schema));
+        REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an string constraint") {
         DataContainer data { "{\"foo\" : {}}" };
         schema.addConstraint("foo", TypeConstraint::Object, true);
-        REQUIRE(validate_test(data, schema));
+        REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an string constraint") {
         DataContainer data { "{\"foo\" : null}" };
         schema.addConstraint("foo", TypeConstraint::Null, true);
-        REQUIRE(validate_test(data, schema));
+        REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an any constraint") {
         DataContainer data { "{\"foo\" : 1}" };
         schema.addConstraint("foo", TypeConstraint::Any, true);
-        REQUIRE(validate_test(data, schema));
+        REQUIRE(validateTest(data, schema));
     }
 
    SECTION("it creates optional constraint") {
         DataContainer data { "{}" };
         schema.addConstraint("foo", TypeConstraint::Int, false);
-        REQUIRE(validate_test(data, schema));
+        REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates multiple constraint") {
         DataContainer data { "{\"foo\" : \"bar\","
-                             "\"baz\" : 1 }" };
+                             " \"baz\" : 1 }" };
         schema.addConstraint("foo", TypeConstraint::String, true);
         schema.addConstraint("baz", TypeConstraint::Int, true);
-        REQUIRE(validate_test(data, schema));
+        REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it can be modified after use") {
         DataContainer data { "{\"foo\" : \"bar\"}" };
         schema.addConstraint("foo", TypeConstraint::String, true);
-        validate_test(data, schema);
+
+        REQUIRE(validateTest(data, schema));
+
         schema.addConstraint("baz", TypeConstraint::Int, true);
         DataContainer data2 { "{\"foo\" : \"bar\","
                               "\"baz\" : 1 }" };
-        REQUIRE(!validate_test(data, schema));
-        REQUIRE(validate_test(data2, schema));
+
+        REQUIRE_FALSE(validateTest(data, schema));
+        REQUIRE(validateTest(data2, schema));
     }
 }
 
 TEST_CASE("Schema::addConstraint(subschema)", "[validation]") {
+    SECTION("it throws a schem_error for parsed schemas") {
+        Schema subschema { "subschema" };
+        subschema.addConstraint("foo", TypeConstraint::String, true);
+
+        DataContainer json_schema { trivial_schema_txt };
+        Schema parsed_schema { "parsed schema", json_schema };
+        REQUIRE_THROWS_AS(parsed_schema.addConstraint("foo", subschema, true),
+                          schema_error);
+    }
+
     Schema schema { "spam" };
 
     SECTION("it creates a sub schema constraint") {
@@ -113,7 +261,7 @@ TEST_CASE("Schema::addConstraint(subschema)", "[validation]") {
         subschema.addConstraint("foo", TypeConstraint::String, true);
         subschema.addConstraint("baz", TypeConstraint::Int, true);
         schema.addConstraint("root", subschema, true);
-        REQUIRE(validate_test(data, schema));
+        REQUIRE(validateTest(data, schema));
     }
 }
 

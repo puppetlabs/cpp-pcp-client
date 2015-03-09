@@ -89,6 +89,8 @@ class DataContainer {
 
     // TODO(ale): add an empty() method
 
+    rapidjson::Document getRaw() const;
+
     std::string toString() const;
 
     bool includes(std::string first) const {
@@ -99,14 +101,6 @@ class DataContainer {
     bool includes(std::string first, Args... rest) const {
         return includes_(document_root_, first.data(), rest...);
     }
-
-    rapidjson::Document getRaw() {
-        rapidjson::Document tmp;
-        rapidjson::Document::AllocatorType& a = document_root_.GetAllocator();
-        tmp.CopyFrom(document_root_, a);
-        return std::move(document_root_);
-    }
-
     template <typename T>
     T get(std::string first) const {
         const rapidjson::Value& v = document_root_;
@@ -130,7 +124,7 @@ class DataContainer {
     }
 
   private:
-    rapidjson::Document document_root_;
+    mutable rapidjson::Document document_root_;
 
     template <typename ... Args>
     bool includes_(const rapidjson::Value& jval, const char * first) const {

@@ -33,6 +33,13 @@ DataContainer& DataContainer::operator=(DataContainer other) {
     return *this;
 }
 
+rapidjson::Document DataContainer::getRaw() const {
+    rapidjson::Document tmp;
+    auto& a_t = document_root_.GetAllocator();
+    tmp.CopyFrom(document_root_, a_t);
+    return tmp;
+}
+
 std::string DataContainer::toString() const {
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
