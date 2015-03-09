@@ -58,9 +58,8 @@ TEST_CASE("MessageChunk::toString", "[message]") {
     }
 
     SECTION("the string representation of the chunk is correct") {
-        auto s = envelope_chunk.toString();  // "1" + "16" + "I am an envelope"
-        REQUIRE(s.size() == 1 + 2 + envelope_chunk.size);
-        REQUIRE(s.substr(1 + 2, std::string::npos) == envelope_chunk.content);
+        auto s = envelope_chunk.toString();
+        REQUIRE(s == "size: 16 bytes - content: I am an envelope");
     }
 }
 

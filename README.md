@@ -249,6 +249,9 @@ The parameters are described as:
  a connection to the Cthun server if a problem occurs. It will try to connect
  indefinately when set to 0. Defaults to 0.
 
+Note that if the Connector fails to re-establish the connection after the
+specified number of attempts, the background thread will stop executing.
+
 ```
     connector.enablePersistence(5);
 ```
@@ -329,12 +332,12 @@ method which is defined as follows:
 The parameters are described as follows:
 
  - schema - A previously created schema object
- - callback - A callback function with the signature void(ParsedChunks msg_content)
+ - callback - A callback function with the signature void(const ParsedChunks& msg_content)
 
 For example:
 
 ```
-    void cnc_requestCallback(ParsedChunks msg_content) {
+    void cnc_requestCallback(const ParsedChunks& msg_content) {
       std::cout << "Message envelope: " << msg_content.envelope.toString() << std::endl;
 
       if (msg_content.has_data()) {

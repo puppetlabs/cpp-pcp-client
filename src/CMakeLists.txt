@@ -4,6 +4,7 @@ set(SOURCES
     connector/connector.cpp
     connector/timings.cpp
     data_container/data_container.cpp
+    message/chunks.cpp
     message/message.cpp
     validator/schema.cpp
     validator/validator.cpp

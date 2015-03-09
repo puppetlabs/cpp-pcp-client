@@ -171,7 +171,7 @@ void Connection::connect(int max_connect_attempts) {
                                    + (idx > 1 ? "s" : "") };
 }
 
-void Connection::send(std::string msg) {
+void Connection::send(const std::string& msg) {
     websocketpp::lib::error_code ec;
     endpoint_.send(connection_handle_,
                    msg,
@@ -338,16 +338,15 @@ void Connection::onOpen(WS_Connection_Handle hdl) {
 
 void Connection::onMessage(WS_Connection_Handle hdl,
                            WS_Client_Type::message_ptr msg) {
-    // LOG_TRACE("WebSocket onMessage event:\n%1%", msg->get_payload());
     if (onMessage_callback_) {
         try {
             // NB: on_message_callback_ should not raise; in case of
             // failure; it must be able to notify back the error...
             onMessage_callback_(msg->get_payload());
         } catch (std::exception&  e) {
-            // LOG_ERROR("Unexpected error during onMessage: %1%", e.what());
+            // LOG_ERROR("onMessage callback failure: %1%", e.what());
         } catch (...) {
-            // LOG_ERROR("Unexpected error during onMessage");
+            // LOG_ERROR("onMessage callback failure: unexpected error");
         }
     }
 }

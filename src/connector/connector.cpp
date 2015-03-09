@@ -100,9 +100,14 @@ void Connector::connect(int max_connect_attempts) {
         connection_ptr_->connect(max_connect_attempts);
         // Send the login message
         sendLogin_();
-    } catch (connection_error& e) {
+    } catch (connection_processing_error& e) {
+        // NB: connection_fatal_errors are propagated whereas
+        //     connection_processing_errors are converted to
+        //     connection_config_errors (they can be thrown after
+        //     websocketpp::Endpoint::connect() or ::send() failures)
+
         // LOG_ERROR("Failed to connect: %1%", e.what());
-        throw connection_fatal_error { "failed to connect" };
+        throw connection_config_error { e.what() };
     }
 }
 
@@ -118,13 +123,18 @@ void Connector::enablePersistence(int max_connect_attempts) {
     checkConnectionInitialization_();
 
     if (!is_monitoring_) {
+        if (monitor_task_.joinable()) {
+            // Detach the old task
+            monitor_task_.detach();
+        }
+
         is_monitoring_ = true;
         monitor_task_ = std::move(
             std::thread(&Connector::monitorConnectionTask_,
                         this, max_connect_attempts));
     } else {
         // LOG_WARNING("The monitoring task that enables persistence "
-        //             "has already started")
+        //             "is running")
     }
 }
 
@@ -133,14 +143,16 @@ void Connector::enablePersistence(int max_connect_attempts) {
 void Connector::send(const Message& msg) {
     checkConnectionInitialization_();
     auto serialized_msg = msg.getSerialized();
+    // LOG_DEBUG("Sending message of %1% bytes:\n%2%",
+    //           serialized_msg.size(), serialized_msg);
     connection_ptr_->send(&serialized_msg[0], serialized_msg.size());
 }
 
-void Connector::send(std::vector<std::string> endpoints,
-                     std::string data_schema,
+void Connector::send(const std::vector<std::string>& endpoints,
+                     const std::string& data_schema,
                      unsigned int timeout,
-                     DataContainer data_json,
-                     std::vector<DataContainer> debug) {
+                     const DataContainer& data_json,
+                     const std::vector<DataContainer>& debug) {
     sendMessage_(endpoints,
                  data_schema,
                  timeout,
@@ -148,11 +160,11 @@ void Connector::send(std::vector<std::string> endpoints,
                  debug);
 }
 
-void Connector::send(std::vector<std::string> endpoints,
-                     std::string data_schema,
+void Connector::send(const std::vector<std::string>& endpoints,
+                     const std::string& data_schema,
                      unsigned int timeout,
-                     std::string data_binary,
-                     std::vector<DataContainer> debug) {
+                     const std::string& data_binary,
+                     const std::vector<DataContainer>& debug) {
     sendMessage_(endpoints,
                  data_schema,
                  timeout,
@@ -190,6 +202,9 @@ MessageChunk Connector::createEnvelope_(const std::vector<std::string>& endpoint
                                         unsigned int timeout) {
     auto msg_id = UUID::getUUID();
     auto expires = getISO8601Time(timeout);
+    // LOG_INFO("Creating message with id %1% for %2%" receiver%3%",
+    //          msg_id, endpoints.size(), StringUtils::plural(endpoints.size()));
+
     DataContainer envelope_content {};
 
     envelope_content.set<std::string>("id", msg_id);
@@ -201,11 +216,11 @@ MessageChunk Connector::createEnvelope_(const std::vector<std::string>& endpoint
     return MessageChunk { ChunkDescriptor::ENVELOPE, envelope_content.toString() };
 }
 
-void Connector::sendMessage_(std::vector<std::string> endpoints,
-                             std::string data_schema,
+void Connector::sendMessage_(const std::vector<std::string>& endpoints,
+                             const std::string& data_schema,
                              unsigned int timeout,
-                             std::string data_txt,
-                             std::vector<DataContainer> debug) {
+                             const std::string& data_txt,
+                             const std::vector<DataContainer>& debug) {
     auto envelope_chunk = createEnvelope_(endpoints, data_schema, timeout);
     MessageChunk data_chunk { ChunkDescriptor::DATA, data_txt };
     Message msg { envelope_chunk, data_chunk };
@@ -241,8 +256,8 @@ void Connector::sendLogin_() {
 
 // WebSocket onMessage callback
 
-void Connector::processMessage_(std::string msg_txt) {
-    // LOG_DEBUG("Received message:\n%1%", msg_txt);
+void Connector::processMessage_(const std::string& msg_txt) {
+    // LOG_DEBUG("Received message of %1% bytes:\n%2%", msg_txt.size(), msg_txt);
 
     // Deserialize the incoming message
     std::unique_ptr<Message> msg_ptr;
@@ -305,8 +320,19 @@ void Connector::monitorConnectionTask_(int max_connect_attempts) {
                 // LOG_DEBUG("Sending heartbeat ping");
                 connection_ptr_->ping();
             }
-        } catch (connection_error& e) {
+        } catch (connection_processing_error& e) {
+            // Connection::connect_() failure - keep trying
             // LOG_ERROR("Monitoring task (persistence) failure: %1%", e.what());
+        } catch (connection_fatal_error& e) {
+            // Failed to reconnect after max_connect_attempts - stop
+            // LOG_ERROR("The monitoring task (persistence) will stop - "
+            //           "failure: %1%", e.what());
+
+            // TODO(ale): evaluate exposing is_monitoring_ - update docs
+
+            is_monitoring_ = false;
+            the_lock.unlock();
+            return;
         }
 
         the_lock.unlock();

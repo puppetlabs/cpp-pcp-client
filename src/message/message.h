@@ -1,6 +1,7 @@
 #ifndef CTHUN_CLIENT_SRC_MESSAGE_MESSAGE_H_
 #define CTHUN_CLIENT_SRC_MESSAGE_MESSAGE_H_
 
+#include "./chunks.h"
 #include "./errors.h"
 #include "./serialization.h"
 
@@ -25,112 +26,6 @@ static const std::string ENVELOPE_SCHEMA_NAME { "envelope" };
 static const std::string CTHUN_LOGIN_SCHEMA_NAME { "http://puppetlabs.com/loginschema" };
 static const std::string CTHUN_REQUEST_SCHEMA_NAME { "http://puppetlabs.com/cnc_request" };
 static const std::string CTHUN_RESPONSE_SCHEMA_NAME { "http://puppetlabs.com/cnc_response" };
-
-//
-// ChunkDescriptor
-//
-
-namespace ChunkDescriptor {
-    // Filter the chunk type bits (envelope, data, debug)
-    static const uint8_t TYPE_MASK { 0x0F };
-
-    // All the descriptors that use the JSON format
-    static const std::vector<uint8_t> JSON_DESCRIPTORS { 0x00 };
-
-    static const uint8_t ENVELOPE { 0x01 };
-    static const uint8_t DATA { 0x02 };
-    static const uint8_t DEBUG { 0x03 };
-
-    static std::map<uint8_t, const std::string> names {
-        { ENVELOPE, "envelope" },
-        { DATA, "data" },
-        { DEBUG, "debug" }
-    };
-
-}  // namespace ChunkDescriptor
-
-//
-// MessageChunk
-//
-
-struct MessageChunk {
-    uint8_t descriptor;
-    uint32_t size;  // [byte]
-    std::string content;
-
-    MessageChunk();
-
-    MessageChunk(uint8_t _descriptor, uint32_t _size, std::string _content);
-
-    MessageChunk(uint8_t _descriptor, std::string _content);
-
-    bool operator==(const MessageChunk& other_msg_chunk) const;
-
-    void serializeOn(SerializedMessage& buffer) const;
-
-    std::string toString() const;
-};
-
-//
-// ParsedContent
-//
-
-// TODO(ale): update the parsed debug format once we define specs
-
-struct ParsedChunks {
-    // Envelope
-    DataContainer envelope;
-
-    // Data
-    bool has_data;
-    ContentType data_type;
-    DataContainer data;
-    std::string binary_data;
-
-    // Debug
-    std::vector<std::string> debug;
-
-    // Default ctor
-    ParsedChunks()
-            : envelope {},
-              has_data { false },
-              data_type { ContentType::Json },
-              data {},
-              binary_data { "" },
-              debug {} {}
-
-    // No data ctor
-    ParsedChunks(DataContainer _envelope,
-                 std::vector<std::string> _debug)
-            : envelope { _envelope },
-              has_data { false },
-              data_type { ContentType::Json },
-              data {},
-              binary_data { "" },
-              debug { _debug } {}
-
-    // JSON data ctor
-    ParsedChunks(DataContainer _envelope,
-                 DataContainer _data,
-                 std::vector<std::string> _debug)
-            : envelope { _envelope },
-              has_data { true },
-              data_type { ContentType::Json },
-              data { _data },
-              binary_data { "" },
-              debug { _debug } {}
-
-    // Binary data ctor
-    ParsedChunks(DataContainer _envelope,
-                 std::string _binary_data,
-                 std::vector<std::string> _debug)
-            : envelope { _envelope },
-              has_data { true },
-              data_type { ContentType::Binary },
-              data {},
-              binary_data { _binary_data },
-              debug { _debug } {}
-};
 
 //
 // Message

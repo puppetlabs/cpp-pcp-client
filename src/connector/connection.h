@@ -115,7 +115,7 @@ class Connection {
     /// Send a message to the server.
     /// Throw a connection_processing_error in case of failure while
     /// sending.
-    void send(std::string msg);
+    void send(const std::string& msg);
     void send(void* const serialized_msg_ptr, size_t msg_len);
 
     /// Ping the server.
@@ -156,7 +156,7 @@ class Connection {
     std::function<void()> onOpen_callback;
 
     /// Callback function executed by the onMessage handler
-    std::function<void(std::string message)> onMessage_callback_;
+    std::function<void(const std::string& message)> onMessage_callback_;
 
     /// Exponential backoff interval for re-connect
     uint32_t connection_backoff_s_ { CONNECTION_BACKOFF_S };

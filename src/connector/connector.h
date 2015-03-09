@@ -8,6 +8,7 @@
 #include "../validator/validator.h"
 #include "../validator/schema.h"
 
+#include "../message/chunks.h"
 #include "../message/message.h"
 
 #include "../data_container/data_container.h"
@@ -26,7 +27,7 @@ namespace CthunClient {
 
 class Connector {
   public:
-    using MessageCallback = std::function<void(ParsedChunks msg_content)>;
+    using MessageCallback = std::function<void(const ParsedChunks& parsed_chunks)>;
 
     Connector() = delete;
 
@@ -52,7 +53,7 @@ class Connector {
     /// following an exponential backoff.
     /// Once the underlying connection is open, send a login message
     /// to the server.
-    /// Throw a connection_config_error if it fails to configure the
+    /// Throw a connection_config_error if it fails to set up the
     /// underlying communications layer (ex. invalid certificates).
     /// Throw a connection_fatal_error if it fails to open the
     /// underlying connection after the specified number of attempts
@@ -79,23 +80,27 @@ class Connector {
     /// It simply returns in case of multiple enablePersistence calls.
     void enablePersistence(int max_connect_attempts = 0);
 
+    // TODO(ale): since we allow to specify max_connect_attempts in
+    // enablePersistence(), should expose is_monitoring_ in addition
+    // to isConnected()?
+
     /// Send a message.
     /// Throw a connection_processing_error in case of failure.
     /// Throw a connection_not_init_error in case the connection has
     /// not been opened previously.
     void send(const Message& msg);
 
-    void send(std::vector<std::string> endpoints,
-              std::string data_schema,
+    void send(const std::vector<std::string>& endpoints,
+              const std::string& data_schema,
               unsigned int timeout,
-              DataContainer data_json,
-              std::vector<DataContainer> debug = std::vector<DataContainer> {});
+              const DataContainer& data_json,
+              const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
 
-    void send(std::vector<std::string> endpoints,
-              std::string data_schema,
+    void send(const std::vector<std::string>& endpoints,
+              const std::string& data_schema,
               unsigned int timeout,
-              std::string data_binary,
-              std::vector<DataContainer> debug = std::vector<DataContainer> {});
+              const std::string& data_binary,
+              const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
 
   private:
     /// Cthun server url
@@ -129,11 +134,11 @@ class Connector {
                                  const std::string& data_schema,
                                  unsigned int timeout);
 
-    void sendMessage_(std::vector<std::string> endpoints,
-                      std::string data_schema,
+    void sendMessage_(const std::vector<std::string>& endpoints,
+                      const std::string& data_schema,
                       unsigned int timeout,
-                      std::string data_txt,
-                      std::vector<DataContainer> debug);
+                      const std::string& data_txt,
+                      const std::vector<DataContainer>& debug);
 
     void sendLogin_();
 
@@ -142,7 +147,7 @@ class Connector {
     // messages.
     // Parse and validate the passed message; execute the callback
     // associated with the schema specified in the envelope.
-    void processMessage_(std::string msg_txt);
+    void processMessage_(const std::string& msg_txt);
 
     // Monitoring task
     void monitorConnectionTask_(int max_connect_attempts);
