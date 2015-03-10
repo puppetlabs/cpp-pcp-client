@@ -25,8 +25,19 @@ class Schema {
   public:
     Schema() = delete;
 
-    // Instantiate an empty Schema with no constraint
-    Schema(const std::string& name, ContentType content_type);
+    // The following constructors instantiate an empty Schema with no
+    // constraint
+
+    Schema(const std::string& name,
+           const ContentType content_type,
+           const TypeConstraint type);
+
+    Schema(const std::string& name,
+           const ContentType content_type);
+
+    Schema(const std::string& name,
+           const TypeConstraint type);
+
     Schema(const std::string& name);
 
     // Instantiate a Schema of type ContentType::Json by parsing the
@@ -34,11 +45,13 @@ class Schema {
     // It won't be possible to add further constraints to such schema
     // (hence the const modifier, even though ineffective).
     // Throw a schema_error in case of parsing failure.
-    const Schema(const std::string& name, DataContainer json_schema);
+    const Schema(const std::string& name,
+                 const DataContainer json_schema);
 
-    // Add constraints.
-    // Throw a schema_error in case the Schema instance was
-    // constructed by parsing a JSON schema.
+    // Add constraints to a JSON object schema.
+    // Throw a schema_error in case the Schema instance is not of
+    // TypeConstraint::Object type or if it was constructed by parsing
+    // a JSON schema.
     void addConstraint(std::string field, TypeConstraint type, bool required = false);
     void addConstraint(std::string field, Schema sub_schema, bool required = false);
 
@@ -48,14 +61,29 @@ class Schema {
 
   private:
     std::string name_;
-    ContentType content_type_;
+
+    // To distinguish between binary and JSON data
+    const ContentType content_type_;
+
+    // To add a global type constraint; default to Object (see ctors)
+    const TypeConstraint type_;
+
+    // Stores the schema parsed by the parsing ctor
     const valijson::Schema parsed_json_schema_;
+
+    // Flag; set in case the used ctor was the parsing one
     const bool parsed_;
+
+    // Store constraints for validjson
     V_C::PropertiesConstraint::PropertySchemaMap properties_;
     V_C::PropertiesConstraint::PropertySchemaMap pattern_properties_;
     V_C::RequiredConstraint::RequiredProperties required_properties_;
 
+    // Convert CthunClient::TypeConstraint to the validjson ones
     V_C::TypeConstraint getConstraint(TypeConstraint type) const;
+
+    // Check if it's possible to add constraints
+    void checkAddConstraint();
 };
 
 }  // namespace CthunClient

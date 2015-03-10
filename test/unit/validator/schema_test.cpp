@@ -238,16 +238,31 @@ TEST_CASE("Schema::addConstraint(type)", "[validation]") {
         REQUIRE_FALSE(validateTest(data, schema));
         REQUIRE(validateTest(data2, schema));
     }
+
+    SECTION("it throws a schema_error if type is not Object") {
+        Schema schema { "eggs", TypeConstraint::String };
+        REQUIRE_THROWS_AS(schema.addConstraint("baz", TypeConstraint::Int, true),
+                          schema_error);
+    }
 }
 
 TEST_CASE("Schema::addConstraint(subschema)", "[validation]") {
-    SECTION("it throws a schem_error for parsed schemas") {
+    SECTION("it throws a schema_error for parsed schemas") {
         Schema subschema { "subschema" };
         subschema.addConstraint("foo", TypeConstraint::String, true);
 
         DataContainer json_schema { trivial_schema_txt };
         Schema parsed_schema { "parsed schema", json_schema };
         REQUIRE_THROWS_AS(parsed_schema.addConstraint("foo", subschema, true),
+                          schema_error);
+    }
+
+    SECTION("it throws a schema_error if type is not Object") {
+        Schema subschema { "subschema" };
+        subschema.addConstraint("foo", TypeConstraint::String, true);
+
+        Schema schema { "actual schema", TypeConstraint::Array };
+        REQUIRE_THROWS_AS(schema.addConstraint("foo", subschema, true),
                           schema_error);
     }
 

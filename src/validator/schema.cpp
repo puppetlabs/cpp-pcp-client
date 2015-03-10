@@ -11,7 +11,7 @@ namespace CthunClient {
 // Free functions
 //
 
-valijson::Schema parseSchema(DataContainer& metadata) {
+valijson::Schema parseSchema(const DataContainer& metadata) {
     valijson::Schema schema {};
     valijson::SchemaParser parser {};
     valijson::adapters::RapidJsonAdapter r_j_schema { metadata.getRaw() };
@@ -24,22 +24,37 @@ valijson::Schema parseSchema(DataContainer& metadata) {
 // Public API
 //
 
-Schema::Schema(const std::string& name, ContentType content_type)
+Schema::Schema(const std::string& name,
+               const ContentType content_type,
+               const TypeConstraint type)
         : name_ { name },
           content_type_ { content_type },
           parsed_json_schema_ {},
-          parsed_ { false } {
+          parsed_ { false },
+          type_ { type } {
+}
+
+Schema::Schema(const std::string& name,
+               const ContentType content_type)
+        : Schema(name, content_type, TypeConstraint::Object) {
+}
+
+Schema::Schema(const std::string& name,
+               const TypeConstraint type)
+        : Schema(name, ContentType::Json, type) {
 }
 
 Schema::Schema(const std::string& name)
-        : Schema(name, ContentType::Json) {
+        : Schema(name, ContentType::Json, TypeConstraint::Object) {
 }
 
-const Schema::Schema(const std::string& name, DataContainer metadata)
+const Schema::Schema(const std::string& name,
+                     const DataContainer metadata)
         try : name_ { name },
               content_type_ { ContentType::Json },
               parsed_json_schema_ { parseSchema(metadata) },
-              parsed_ { true } {
+              parsed_ { true },
+              type_ { TypeConstraint::Object } {
 } catch (std::exception& e) {
     throw schema_error { std::string("failed to parse schema: ") + e.what() };
 } catch (...) {
@@ -47,10 +62,7 @@ const Schema::Schema(const std::string& name, DataContainer metadata)
 }
 
 void Schema::addConstraint(std::string field, TypeConstraint type, bool required) {
-    if (parsed_) {
-        throw schema_error { "cannot add constraints to a schema that "
-                             "was previously parsed" };
-    }
+    checkAddConstraint();
 
     V_C::TypeConstraint constraint { getConstraint(type) };
 
@@ -64,10 +76,7 @@ void Schema::addConstraint(std::string field, TypeConstraint type, bool required
 }
 
 void Schema::addConstraint(std::string field, Schema sub_schema, bool required) {
-    if (parsed_) {
-        throw schema_error { "cannot add constraints to a schema that "
-                             "was previously parsed" };
-    }
+    checkAddConstraint();
 
     V_C::ItemsConstraint sub_schema_constraint { sub_schema.getRaw() };
 
@@ -93,7 +102,7 @@ const valijson::Schema Schema::getRaw() const {
     }
 
     valijson::Schema schema {};
-    auto constraint = getConstraint(TypeConstraint::Object);
+    auto constraint = getConstraint(type_);
     schema.addConstraint(constraint);
 
     if (!properties_.empty()) {
@@ -130,6 +139,16 @@ V_C::TypeConstraint Schema::getConstraint(TypeConstraint type) const {
             return V_C::TypeConstraint::kNull;
         case TypeConstraint::Any :
             return V_C::TypeConstraint::kAny;
+    }
+}
+
+void Schema::checkAddConstraint() {
+    if (parsed_) {
+        throw schema_error { "schema was populate by parsing JSON" };
+    }
+
+    if (type_ != TypeConstraint::Object) {
+        throw schema_error { "type is not JSON Object" };
     }
 }
 
