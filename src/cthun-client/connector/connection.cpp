@@ -1,9 +1,23 @@
+// See http://www.zaphoyd.com/websocketpp/manual/reference/cpp11-support
+// for prepocessor directives and choosing between boost and cpp11
+// C++11 STL tokens
+#define _WEBSOCKETPP_CPP11_FUNCTIONAL_
+#define _WEBSOCKETPP_CPP11_MEMORY_
+#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
+#define _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
+#define _WEBSOCKETPP_CPP11_THREAD_
+
 #include "./connection.h"
 #include "./errors.h"
 
 #include "../data_container/data_container.h"
 
 #include "../message/message.h"
+
+#include <websocketpp/common/connection_hdl.hpp>
+#include <websocketpp/client.hpp>
+#include <websocketpp/config/asio_client.hpp>
+#include <websocketpp/config/asio_no_tls_client.hpp>
 
 // TODO(ale): include logging library and uncomment logging macros
 
@@ -35,32 +49,33 @@ Connection::Connection(const std::string& server_url,
         : server_url_ { server_url },
           client_metadata_ { client_metadata },
           connection_state_ { ConnectionStateValues::initialized },
-          consecutive_pong_timeouts_ { 0 } {
+          consecutive_pong_timeouts_ { 0 },
+          endpoint_ { new WS_Client_Type() }{
     // Turn off websocketpp logging to avoid runtime errors (see CTH-69)
-    endpoint_.clear_access_channels(websocketpp::log::alevel::all);
-    endpoint_.clear_error_channels(websocketpp::log::elevel::all);
+    endpoint_->clear_access_channels(websocketpp::log::alevel::all);
+    endpoint_->clear_error_channels(websocketpp::log::elevel::all);
 
     // Initialize the transport system. Note that in perpetual mode,
     // the event loop does not terminate when there are no connections
-    endpoint_.init_asio();
-    endpoint_.start_perpetual();
+    endpoint_->init_asio();
+    endpoint_->start_perpetual();
 
     try {
         // Bind the event handlers
         using websocketpp::lib::bind;
-        endpoint_.set_tls_init_handler(bind(&Connection::onTlsInit, this, ::_1));
-        endpoint_.set_open_handler(bind(&Connection::onOpen, this, ::_1));
-        endpoint_.set_close_handler(bind(&Connection::onClose, this, ::_1));
-        endpoint_.set_fail_handler(bind(&Connection::onFail, this, ::_1));
-        endpoint_.set_message_handler(bind(&Connection::onMessage, this, ::_1, ::_2));
-        endpoint_.set_ping_handler(bind(&Connection::onPing, this, ::_1, ::_2));
-        endpoint_.set_pong_handler(bind(&Connection::onPong, this, ::_1, ::_2));
-        endpoint_.set_pong_timeout_handler(bind(&Connection::onPongTimeout, this, ::_1, ::_2));
-        endpoint_.set_tcp_pre_init_handler(bind(&Connection::onPreTCPInit, this, ::_1));
-        endpoint_.set_tcp_post_init_handler(bind(&Connection::onPostTCPInit, this, ::_1));
+        endpoint_->set_tls_init_handler(bind(&Connection::onTlsInit, this, ::_1));
+        endpoint_->set_open_handler(bind(&Connection::onOpen, this, ::_1));
+        endpoint_->set_close_handler(bind(&Connection::onClose, this, ::_1));
+        endpoint_->set_fail_handler(bind(&Connection::onFail, this, ::_1));
+        endpoint_->set_message_handler(bind(&Connection::onMessage, this, ::_1, ::_2));
+        endpoint_->set_ping_handler(bind(&Connection::onPing, this, ::_1, ::_2));
+        endpoint_->set_pong_handler(bind(&Connection::onPong, this, ::_1, ::_2));
+        endpoint_->set_pong_timeout_handler(bind(&Connection::onPongTimeout, this, ::_1, ::_2));
+        endpoint_->set_tcp_pre_init_handler(bind(&Connection::onPreTCPInit, this, ::_1));
+        endpoint_->set_tcp_post_init_handler(bind(&Connection::onPostTCPInit, this, ::_1));
 
         // Start the event loop thread
-        endpoint_thread_.reset(new std::thread(&WS_Client_Type::run, &endpoint_));
+        endpoint_thread_.reset(new std::thread(&WS_Client_Type::run, endpoint_.get()));
     } catch (...) {
         // LOG_DEBUG("Failed to configure the websocket endpoint; about to stop "
         //           "the event loop");
@@ -173,7 +188,7 @@ void Connection::connect(int max_connect_attempts) {
 
 void Connection::send(const std::string& msg) {
     websocketpp::lib::error_code ec;
-    endpoint_.send(connection_handle_,
+    endpoint_->send(connection_handle_,
                    msg,
                    websocketpp::frame::opcode::binary,
                    ec);
@@ -185,7 +200,7 @@ void Connection::send(const std::string& msg) {
 
 void Connection::send(void* const serialized_msg_ptr, size_t msg_len) {
     websocketpp::lib::error_code ec;
-    endpoint_.send(connection_handle_,
+    endpoint_->send(connection_handle_,
                    serialized_msg_ptr,
                    msg_len,
                    websocketpp::frame::opcode::binary,
@@ -198,7 +213,7 @@ void Connection::send(void* const serialized_msg_ptr, size_t msg_len) {
 
 void Connection::ping(const std::string& binary_payload) {
     websocketpp::lib::error_code ec;
-    endpoint_.ping(connection_handle_, binary_payload, ec);
+    endpoint_->ping(connection_handle_, binary_payload, ec);
     if (ec) {
         throw connection_processing_error { "failed to ping: " + ec.message() };
     }
@@ -207,7 +222,7 @@ void Connection::ping(const std::string& binary_payload) {
 void Connection::close(CloseCode code, const std::string& reason) {
     // LOG_DEBUG("About to close connection");
     websocketpp::lib::error_code ec;
-    endpoint_.close(connection_handle_, code, reason, ec);
+    endpoint_->close(connection_handle_, code, reason, ec);
     if (ec) {
         throw connection_processing_error { "failed to close connetion: "
                                             + ec.message() };
@@ -219,7 +234,7 @@ void Connection::close(CloseCode code, const std::string& reason) {
 //
 
 void Connection::cleanUp_() {
-    endpoint_.stop_perpetual();
+    endpoint_->stop_perpetual();
     if (connection_state_ == ConnectionStateValues::open) {
         try {
             close();
@@ -237,13 +252,13 @@ void Connection::connect_() {
     connection_timings_ = ConnectionTimings();
     websocketpp::lib::error_code ec;
     WS_Client_Type::connection_ptr connection_ptr {
-        endpoint_.get_connection(server_url_, ec) };
+        endpoint_->get_connection(server_url_, ec) };
     if (ec) {
         throw connection_processing_error { "failed to connect to " + server_url_
                                             + ": " + ec.message() };
     }
     connection_handle_ = connection_ptr->get_handle();
-    endpoint_.connect(connection_ptr);
+    endpoint_->connect(connection_ptr);
 }
 
 //

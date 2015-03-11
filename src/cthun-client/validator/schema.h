@@ -3,10 +3,32 @@
 
 #include "../data_container/data_container.h"
 
-#include <valijson/schema_parser.hpp>
-
 #include <map>
 #include <string>
+#include <set>
+
+
+// boost forward declarations used in valijson forward declarations
+namespace boost {
+    template<typename K, typename T, typename C, typename CA, typename A>
+    class ptr_map;
+    struct heap_clone_allocator;
+}
+
+// valijson forward declarations
+namespace valijson {
+    class Schema;
+
+    namespace constraints {
+        struct TypeConstraint;
+        typedef boost::ptr_map<std::string, Schema,
+                               std::less<std::string>,
+                               boost::heap_clone_allocator,
+                               std::allocator< std::pair<const std::string,
+                                                         void*>>> PropertySchemaMap;
+        typedef std::set<std::string> RequiredProperties;
+    }
+}
 
 namespace CthunClient {
 
@@ -40,6 +62,10 @@ class Schema {
 
     Schema(const std::string& name);
 
+    Schema(const Schema& schema);
+
+    ~Schema();
+
     // Instantiate a Schema of type ContentType::Json by parsing the
     // JSON schema passed as a DataContainer object.
     // It won't be possible to add further constraints to such schema
@@ -69,15 +95,15 @@ class Schema {
     const TypeConstraint type_;
 
     // Stores the schema parsed by the parsing ctor
-    const valijson::Schema parsed_json_schema_;
+    const std::unique_ptr<valijson::Schema> parsed_json_schema_;
 
     // Flag; set in case the used ctor was the parsing one
     const bool parsed_;
 
     // Store constraints for validjson
-    V_C::PropertiesConstraint::PropertySchemaMap properties_;
-    V_C::PropertiesConstraint::PropertySchemaMap pattern_properties_;
-    V_C::RequiredConstraint::RequiredProperties required_properties_;
+    std::unique_ptr<V_C::PropertySchemaMap> properties_;
+    std::unique_ptr<V_C::PropertySchemaMap> pattern_properties_;
+    std::unique_ptr<V_C::RequiredProperties> required_properties_;
 
     // Convert CthunClient::TypeConstraint to the validjson ones
     V_C::TypeConstraint getConstraint(TypeConstraint type) const;

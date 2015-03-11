@@ -29,9 +29,12 @@ Schema::Schema(const std::string& name,
                const TypeConstraint type)
         : name_ { name },
           content_type_ { content_type },
-          parsed_json_schema_ {},
+          parsed_json_schema_ { new valijson::Schema() },
           parsed_ { false },
-          type_ { type } {
+          type_ { type },
+          properties_ { new V_C::PropertiesConstraint::PropertySchemaMap() },
+          pattern_properties_ { new V_C::PropertiesConstraint::PropertySchemaMap() },
+          required_properties_ { new V_C::RequiredConstraint::RequiredProperties() } {
 }
 
 Schema::Schema(const std::string& name,
@@ -48,18 +51,39 @@ Schema::Schema(const std::string& name)
         : Schema(name, ContentType::Json, TypeConstraint::Object) {
 }
 
+Schema::Schema(const Schema& s)
+        : name_ { s.name_ },
+          content_type_ { s.content_type_ },
+          type_ { s.type_ },
+          parsed_json_schema_ { new valijson::Schema(*s.parsed_json_schema_) },
+          parsed_ { s.parsed_ },
+          properties_ {
+            new V_C::PropertiesConstraint::PropertySchemaMap(*s.properties_) },
+          pattern_properties_ {
+            new V_C::PropertiesConstraint::PropertySchemaMap(*s.pattern_properties_) },
+          required_properties_ {
+            new V_C::RequiredConstraint::RequiredProperties(*s.required_properties_)} {
+}
+
 const Schema::Schema(const std::string& name,
                      const DataContainer metadata)
         try : name_ { name },
               content_type_ { ContentType::Json },
-              parsed_json_schema_ { parseSchema(metadata) },
+              parsed_json_schema_ { new valijson::Schema(parseSchema(metadata)) },
               parsed_ { true },
-              type_ { TypeConstraint::Object } {
+              type_ { TypeConstraint::Object },
+              properties_ { new V_C::PropertiesConstraint::PropertySchemaMap() },
+              pattern_properties_ { new V_C::PropertiesConstraint::PropertySchemaMap() },
+              required_properties_ { new V_C::RequiredConstraint::RequiredProperties() } {
 } catch (std::exception& e) {
     throw schema_error { std::string("failed to parse schema: ") + e.what() };
 } catch (...) {
     throw schema_error { "failed to parse schema" };
 }
+
+// unique_ptr requires a complete type at time of destruction. this forces us to
+// either have an empty destructor or use a shared_ptr instead.
+Schema::~Schema() {};
 
 void Schema::addConstraint(std::string field, TypeConstraint type, bool required) {
     checkAddConstraint();
@@ -67,11 +91,11 @@ void Schema::addConstraint(std::string field, TypeConstraint type, bool required
     V_C::TypeConstraint constraint { getConstraint(type) };
 
     // Add optional type constraint
-    properties_[field].addConstraint(constraint);
+    (*properties_)[field].addConstraint(constraint);
 
     if (required) {
         // add required constraint
-        required_properties_.insert(field);
+        required_properties_->insert(field);
     }
 }
 
@@ -81,10 +105,10 @@ void Schema::addConstraint(std::string field, Schema sub_schema, bool required) 
     V_C::ItemsConstraint sub_schema_constraint { sub_schema.getRaw() };
 
     // Add optional schema constraint
-    properties_[field].addConstraint(sub_schema_constraint);
+    (*properties_)[field].addConstraint(sub_schema_constraint);
 
     if (required) {
-        required_properties_.insert(field);
+        required_properties_->insert(field);
     }
 }
 
@@ -98,20 +122,20 @@ ContentType Schema::getContentType() const {
 
 const valijson::Schema Schema::getRaw() const {
     if (parsed_) {
-        return parsed_json_schema_;
+        return *parsed_json_schema_;
     }
 
     valijson::Schema schema {};
     auto constraint = getConstraint(type_);
     schema.addConstraint(constraint);
 
-    if (!properties_.empty()) {
-        schema.addConstraint(new V_C::PropertiesConstraint(properties_,
-                                                           pattern_properties_));
+    if (!properties_->empty()) {
+        schema.addConstraint(new V_C::PropertiesConstraint(*properties_,
+                                                           *pattern_properties_));
     }
 
-    if (!required_properties_.empty()) {
-        schema.addConstraint(new V_C::RequiredConstraint(required_properties_));
+    if (!required_properties_->empty()) {
+        schema.addConstraint(new V_C::RequiredConstraint(*required_properties_));
     }
 
     return schema;
