@@ -44,7 +44,12 @@ class validation_error : public validator_error {
 
 class Validator {
   public:
-    Validator() {}
+    Validator();
+
+    // NB: Validator is thread-safe; it employs a mutex for that. As a
+    //     consequence, Validator instances are not copyable.
+    Validator(Validator&& other_validator);
+
     void registerSchema(const Schema& schema);
     void validate(DataContainer& data, std::string schema_name) const;
     bool includesSchema(std::string schema_name) const;
