@@ -12,6 +12,16 @@ namespace CthunClient {
 /// Public API
 ///
 
+Validator::Validator()
+        : schema_map_ {},
+          lookup_mutex_ {} {
+}
+
+Validator::Validator(Validator&& other_validator)
+        : schema_map_ { other_validator.schema_map_ },
+          lookup_mutex_ {} {
+}
+
 void Validator::registerSchema(const Schema& schema) {
     std::lock_guard<std::mutex> lock(lookup_mutex_);
     auto schema_name = schema.getName();
