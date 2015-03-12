@@ -303,12 +303,13 @@ void Connector::monitorConnectionTask_(int max_connect_attempts) {
         cond_var_.wait(the_lock,
             [this] {
                 return is_destructing_
-                       || monitor_timer_.elapsedSeconds() < CONNECTION_CHECK_INTERVAL;
+                       || monitor_timer_.elapsedSeconds() > CONNECTION_CHECK_INTERVAL;
             });
 
         if (is_destructing_) {
             // The dtor has been invoked
             // LOG_INFO("Stopping the monitor task (persistence)");
+            the_lock.unlock();
             return;
         }
 
