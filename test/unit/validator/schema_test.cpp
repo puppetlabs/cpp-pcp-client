@@ -1,7 +1,7 @@
 #include "test/test.h"
 
-#include "src/validator/schema.h"
-#include "src/data_container/data_container.h"
+#include <cthun-client/validator/schema.h>
+#include <cthun-client/data_container/data_container.h>
 
 #include <valijson/adapters/rapidjson_adapter.hpp>
 #include <valijson/schema_parser.hpp>
@@ -232,10 +232,11 @@ TEST_CASE("Schema::addConstraint(type)", "[validation]") {
         REQUIRE(validateTest(data, schema));
 
         schema.addConstraint("baz", TypeConstraint::Int, true);
+        REQUIRE_FALSE(validateTest(data, schema));
+
         DataContainer data2 { "{\"foo\" : \"bar\","
                               "\"baz\" : 1 }" };
 
-        REQUIRE_FALSE(validateTest(data, schema));
         REQUIRE(validateTest(data2, schema));
     }
 

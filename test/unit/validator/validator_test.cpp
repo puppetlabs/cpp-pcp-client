@@ -1,8 +1,8 @@
 #include "test/test.h"
 
-#include "src/validator/validator.h"
-#include "src/validator/schema.h"
-#include "src/data_container/data_container.h"
+#include <cthun-client/validator/validator.h>
+#include <cthun-client/validator/schema.h>
+#include <cthun-client/data_container/data_container.h>
 
 namespace CthunClient {
 

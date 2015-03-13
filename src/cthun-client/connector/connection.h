@@ -4,21 +4,13 @@
 #include "./timings.h"
 #include "./client_metadata.h"
 
-// See http://www.zaphoyd.com/websocketpp/manual/reference/cpp11-support
-// for prepocessor directives and choosing between boost and cpp11
-// C++11 STL tokens
-#define _WEBSOCKETPP_CPP11_FUNCTIONAL_
-#define _WEBSOCKETPP_CPP11_MEMORY_
-#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
-#define _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
-#define _WEBSOCKETPP_CPP11_THREAD_
 
-#include <websocketpp/common/connection_hdl.hpp>
-#include <websocketpp/client.hpp>
+//#include <websocketpp/common/connection_hdl.hpp>
+//#include <websocketpp/client.hpp>
 // NB: we must include asio_client.hpp even if CTHUN_CLIENT_SECURE_TRANSPORT
 // is not defined in order to define WS_Context_Ptr
-#include <websocketpp/config/asio_client.hpp>
-#include <websocketpp/config/asio_no_tls_client.hpp>
+//#include <websocketpp/config/asio_client.hpp>
+//#include <websocketpp/config/asio_no_tls_client.hpp>
 
 #include <string>
 #include <vector>
@@ -26,6 +18,41 @@
 #include <thread>
 #include <atomic>
 #include <stdint.h>
+
+// Forward declarations for boost::asio
+namespace boost {
+    namespace asio {
+        namespace ssl {
+            struct context;
+        }
+    }
+}
+
+// Forward declarations for websocketpp
+namespace websocketpp {
+    template <typename T>
+    class client;
+
+    namespace config {
+        struct asio_tls_client;
+    }
+
+    namespace message_buffer {
+        namespace alloc {
+            template <typename message>
+            class con_msg_manager;
+        }
+
+        template <template<class> class con_msg_manager>
+        class message;
+    }
+
+    namespace lib{
+        using std::shared_ptr;
+    }
+
+    using connection_hdl = std::weak_ptr<void>;
+}
 
 namespace CthunClient {
 
@@ -40,11 +67,6 @@ static const std::string DEFAULT_CLOSE_REASON { "Closed by client" };
 using WS_Client_Type = websocketpp::client<websocketpp::config::asio_tls_client>;
 using WS_Context_Ptr = websocketpp::lib::shared_ptr<boost::asio::ssl::context>;
 using WS_Connection_Handle = websocketpp::connection_hdl;
-
-// Frame opcodes
-
-using WS_Frame_Opcode = websocketpp::frame::opcode::value;
-namespace WS_Frame_Opcode_Values = websocketpp::frame::opcode;
 
 // Connection States
 
@@ -144,10 +166,10 @@ class Connection {
     std::atomic<ConnectionState> connection_state_;
 
     /// Consecutive pong timeouts counter (NB: useful for debug msgs)
-    uint consecutive_pong_timeouts_ { 0 };
+    uint32_t consecutive_pong_timeouts_ { 0 };
 
     /// Transport layer endpoint instance
-    WS_Client_Type endpoint_;
+    std::unique_ptr<WS_Client_Type> endpoint_;
 
     /// Transport layer event loop thread
     std::shared_ptr<std::thread> endpoint_thread_;
@@ -188,7 +210,9 @@ class Connection {
     /// Handler executed by the transport layer in case of a
     /// WebSocket onMessage event. Calls onMessage_callback_();
     /// in case it fails, the exception is filtered and logged.
-    void onMessage(WS_Connection_Handle hdl, WS_Client_Type::message_ptr msg);
+    void onMessage(WS_Connection_Handle hdl,
+    //std::shared_ptr<void*> foo);
+    std::shared_ptr<class websocketpp::message_buffer::message<websocketpp::message_buffer::alloc::con_msg_manager>> msg);
 };
 
 }  // namespace CthunClient

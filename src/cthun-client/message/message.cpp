@@ -1,4 +1,5 @@
 #include "./message.h"
+#include "../data_container/data_container.h"
 
 // TODO(ale): include logging library and uncomment logging macros
 

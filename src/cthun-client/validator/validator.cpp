@@ -47,7 +47,7 @@ void Validator::validate(DataContainer& data, std::string schema_name) const {
     if (!validateDataContainer(data, schema_map_.at(schema_name))) {
         // TODO(ploubser): Log valijson eror string when logging at debug level
         // but we've got to wait for leatherman
-        throw validation_error { "DataContainer does not match schema: '" +
+        throw validation_error { data.toString() + " does not match schema: '" +
                                  schema_name + "'" };
     }
 }

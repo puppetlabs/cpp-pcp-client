@@ -1,6 +1,8 @@
-# allow include directives with absolute paths for cthun-agent sources
+# allow include directives with absolute paths for cthun-client sources
 set(BASEPATH "${CMAKE_CURRENT_LIST_DIR}/..")
 include_directories("${BASEPATH}")
+SET(SOURCE_DIR "${BASEPATH}/src")
+include_directories("${SOURCE_DIR}")
 set(CATCH_DIRECTORY "${VENDOR_DIRECTORY}/catch")
 
 set(SOURCES

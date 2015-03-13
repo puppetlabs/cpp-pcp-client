@@ -1,6 +1,6 @@
 #include "test/test.h"
 
-#include "src/data_container/data_container.h"
+#include <cthun-client/data_container/data_container.h>
 
 #include <iostream>
 
@@ -126,6 +126,19 @@ TEST_CASE("DataContainer::includes", "[data]") {
         DataContainer msg { "\"foo\"" };
         REQUIRE(msg.includes("bar", "bar") == false);
         REQUIRE(msg.includes("foo") == false);
+    }
+}
+
+TEST_CASE("DataContainer::keys", "[data]") {
+    SECTION("It returns a vector of keys") {
+        DataContainer data { "{ \"a\" : 1, "
+                              " \"b\" : 2}"};
+        REQUIRE(data.keys().size() == 2);
+    }
+
+    SECTION("It returns an empty vector when the DataContainer is empty") {
+        DataContainer data {};
+        REQUIRE(data.keys().size() == 0);
     }
 }
 

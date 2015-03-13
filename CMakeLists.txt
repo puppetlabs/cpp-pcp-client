@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(cthun-client C CXX)
+project(cthun-client)
 
 # Project paths
 
@@ -9,6 +9,13 @@ set(LIBRARY_OUTPUT_PATH "${MAINFOLDER}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${MAINFOLDER}/bin")
 set(VENDOR_DIRECTORY "${PROJECT_SOURCE_DIR}/vendor")
 list(APPEND CMAKE_MODULE_PATH ${VENDOR_DIRECTORY})
+
+if ("${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
+  set(CTHUN_CLIENT_TOPLEVEL TRUE)
+else ()
+   set(CTHUN_CLIENT_TOPLEVEL FALSE)
+endif ()
+
 
 # Set compiler flags
 
@@ -43,54 +50,56 @@ add_subdirectory(src)
 
 # Add the test suite
 
-enable_testing()
-add_subdirectory(test)
+if (CTHUN_CLIENT_TOPLEVEL)
+    enable_testing()
+    add_subdirectory(test)
 
-add_test(
-    NAME "cthun-client\\ library\\ tests"
-    COMMAND "${MAINFOLDER}/bin/cthun-client-unittests"
-)
-
-# Add cpplint target
-
-include(FindPythonInterp)
-if (NOT PYTHONINTERP_FOUND)
-    message(STATUS "Python not found; 'cpplint' target will not be available")
-else()
-    set(CPPLINT_FILTER
-        "-build/c++11"            # <thread>, <condvar>, etc...
-        "-whitespace/indent"      # We use 4 space indentation
-        "-build/include"          # Why?
-        "-build/namespaces"       # What's a namespace to do
-        "-legal/copyright"        # Not yet
-        "-runtime/references"     # Not sure about this religion
-        "-readability/streams"    # What?
-        "-readability/namespace"  # Ignore nested namespace comment formatting
-        "-whitespace/braces"      # Is there a k&r setting?
-        "-whitespace/line_length" # Well yeah, but ... not just now
-        "-runtime/arrays"         # Sizing an array with a 'const int' doesn't make it variable sized
-        "-readability/todo"       # Seriously? todo comments need to identify an owner? pffft
-        "-whitespace/empty_loop_body" # Can't handle do { ... } while(expr);
-        "-runtime/int"            # Some C types are needed for library interop
-        "-runtime/explicit"       # Using implicit conversion from string to regex for regex calls.
-        "-build/header_guard"     # Disable header guards (cpplint doesn't yet support enforcing #pragma once)
+    add_test(
+      NAME "cthun-client\\ library\\ tests"
+      COMMAND "${MAINFOLDER}/bin/cthun-client-unittests"
     )
 
-    FILE (GLOB_RECURSE ALL_SOURCES src/*.cpp src/*.h test/*.cpp test/*.h)
+  # Add cpplint target
 
-    set(CPPLINT_PATH "${MAINFOLDER}/ext/cpplint.py")
+  include(FindPythonInterp)
+  if (NOT PYTHONINTERP_FOUND)
+      message(STATUS "Python not found; 'cpplint' target will not be available")
+  else()
+      set(CPPLINT_FILTER
+          "-build/c++11"            # <thread>, <condvar>, etc...
+          "-whitespace/indent"      # We use 4 space indentation
+          "-build/include"          # Why?
+          "-build/namespaces"       # What's a namespace to do
+          "-legal/copyright"        # Not yet
+          "-runtime/references"     # Not sure about this religion
+          "-readability/streams"    # What?
+          "-readability/namespace"  # Ignore nested namespace comment formatting
+          "-whitespace/braces"      # Is there a k&r setting?
+          "-whitespace/line_length" # Well yeah, but ... not just now
+          "-runtime/arrays"         # Sizing an array with a 'const int' doesn't make it variable sized
+          "-readability/todo"       # Seriously? todo comments need to identify an owner? pffft
+          "-whitespace/empty_loop_body" # Can't handle do { ... } while(expr);
+          "-runtime/int"            # Some C types are needed for library interop
+          "-runtime/explicit"       # Using implicit conversion from string to regex for regex calls.
+          "-build/header_guard"     # Disable header guards (cpplint doesn't yet support enforcing #pragma once)
+      )
 
-    set(CPPLINT_ARGS "")
-    if (CPPLINT_FILTER)
-        string(REPLACE ";" "," CPPLINT_FILTER "${CPPLINT_FILTER}")
-        set(CPPLINT_ARGS "${CPPLINT_ARGS}--filter=${CPPLINT_FILTER}")
-    endif()
-    if (MSVC)
-        set(CPPLINT_ARGS "${CPPLINT_ARGS} --output=vs7")
-    endif()
+      FILE (GLOB_RECURSE ALL_SOURCES src/*.cpp src/*.h test/*.cpp test/*.h)
 
-    ADD_CUSTOM_TARGET(cpplint
-        COMMAND ${PYTHON_EXECUTABLE} ${CPPLINT_PATH} ${CPPLINT_ARGS} ${ALL_SOURCES}
-        VERBATIM
-    )
+      set(CPPLINT_PATH "${MAINFOLDER}/ext/cpplint.py")
+
+      set(CPPLINT_ARGS "")
+      if (CPPLINT_FILTER)
+          string(REPLACE ";" "," CPPLINT_FILTER "${CPPLINT_FILTER}")
+          set(CPPLINT_ARGS "${CPPLINT_ARGS}--filter=${CPPLINT_FILTER}")
+      endif()
+      if (MSVC)
+          set(CPPLINT_ARGS "${CPPLINT_ARGS} --output=vs7")
+      endif()
+
+      ADD_CUSTOM_TARGET(cpplint
+          COMMAND ${PYTHON_EXECUTABLE} ${CPPLINT_PATH} ${CPPLINT_ARGS} ${ALL_SOURCES}
+          VERBATIM
+      )
+  endif()
 endif()
