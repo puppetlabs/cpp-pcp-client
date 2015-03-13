@@ -23,7 +23,7 @@
 namespace boost {
     namespace asio {
         namespace ssl {
-            struct context;
+            class context;
         }
     }
 }

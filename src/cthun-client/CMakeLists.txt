@@ -11,12 +11,11 @@ set(SOURCES
 )
 
 set(LIBS
+    ${LEATHERMAN_LIBRARIES}
     ${Boost_LIBRARIES}
 )
 
 add_library(cthun-client ${SOURCES})
-target_link_libraries(cthun-client ${LIBS})
-
-target_link_libraries(cthun-client)
+target_link_libraries(cthun-client PRIVATE ${LIBS})
 
 install(TARGETS cthun-client DESTINATION lib)
