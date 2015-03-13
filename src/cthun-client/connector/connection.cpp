@@ -17,7 +17,6 @@
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/client.hpp>
 #include <websocketpp/config/asio_client.hpp>
-#include <websocketpp/config/asio_no_tls_client.hpp>
 
 // TODO(ale): include logging library and uncomment logging macros
 

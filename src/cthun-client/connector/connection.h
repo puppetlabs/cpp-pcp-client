@@ -210,9 +210,11 @@ class Connection {
     /// Handler executed by the transport layer in case of a
     /// WebSocket onMessage event. Calls onMessage_callback_();
     /// in case it fails, the exception is filtered and logged.
-    void onMessage(WS_Connection_Handle hdl,
-    //std::shared_ptr<void*> foo);
-    std::shared_ptr<class websocketpp::message_buffer::message<websocketpp::message_buffer::alloc::con_msg_manager>> msg);
+    void onMessage(
+        WS_Connection_Handle hdl,
+        std::shared_ptr<
+            class websocketpp::message_buffer::message<
+                websocketpp::message_buffer::alloc::con_msg_manager>> msg);
 };
 
 }  // namespace CthunClient

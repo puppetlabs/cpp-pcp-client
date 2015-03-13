@@ -10,6 +10,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <chrono>
 
 namespace CthunClient {
 
@@ -17,7 +18,7 @@ namespace CthunClient {
 // Constants
 //
 
-static const uint CONNECTION_CHECK_INTERVAL { 15 };  // [s]
+static const uint CONNECTION_CHECK_S { 15 };  // [s]
 static const int DEFAULT_MSG_TIMEOUT { 10 };  // [s]
 
 //
@@ -45,12 +46,11 @@ Connector::Connector(const std::string& server_url,
           connection_ptr_ { nullptr },
           validator_ {},
           schema_callback_pairs_ {},
-          monitor_task_ {},
+          monitor_task_ptr_ { nullptr },
           mutex_ {},
           cond_var_ {},
           is_destructing_ { false },
-          is_monitoring_ { false },
-          monitor_timer_ {} {
+          is_monitoring_ { false } {
     addEnvelopeSchemaToValidator_();
 }
 
@@ -68,8 +68,8 @@ Connector::~Connector() {
         cond_var_.notify_one();
     }
 
-    if (monitor_task_.joinable()) {
-        monitor_task_.join();
+    if (monitor_task_ptr_ != nullptr && monitor_task_ptr_->joinable()) {
+        monitor_task_ptr_->join();
     }
 }
 
@@ -93,13 +93,16 @@ void Connector::connect(int max_connect_attempts) {
             [this](std::string message) {
                 processMessage_(message);
             });
+
+        connection_ptr_->setOnOpenCallback(
+            [this]() {
+                sendLogin_();
+            });
     }
 
     try {
         // Open the WebSocket connection
         connection_ptr_->connect(max_connect_attempts);
-        // Send the login message
-        sendLogin_();
     } catch (connection_processing_error& e) {
         // NB: connection_fatal_errors are propagated whereas
         //     connection_processing_errors are converted to
@@ -123,15 +126,16 @@ void Connector::enablePersistence(int max_connect_attempts) {
     checkConnectionInitialization_();
 
     if (!is_monitoring_) {
-        if (monitor_task_.joinable()) {
+        if (monitor_task_ptr_ != nullptr && monitor_task_ptr_->joinable()) {
             // Detach the old task
-            monitor_task_.detach();
+            monitor_task_ptr_->detach();
         }
 
         is_monitoring_ = true;
-        monitor_task_ = std::move(
-            std::thread(&Connector::monitorConnectionTask_,
-                        this, max_connect_attempts));
+        monitor_task_ptr_.reset(
+            new std::thread(&Connector::monitorConnectionTask_,
+                            this,
+                            max_connect_attempts));
     } else {
         // LOG_WARNING("The monitoring task that enables persistence "
         //             "is running")
@@ -298,13 +302,11 @@ void Connector::monitorConnectionTask_(int max_connect_attempts) {
 
     while (true) {
         std::unique_lock<std::mutex> the_lock { mutex_ };
-        monitor_timer_.reset();
+        // monitor_timer_.reset();
+        auto now = std::chrono::system_clock::now();
 
-        cond_var_.wait(the_lock,
-            [this] {
-                return is_destructing_
-                       || monitor_timer_.elapsedSeconds() > CONNECTION_CHECK_INTERVAL;
-            });
+        cond_var_.wait_until(the_lock,
+                             now + std::chrono::seconds(CONNECTION_CHECK_S));
 
         if (is_destructing_) {
             // The dtor has been invoked
@@ -314,7 +316,7 @@ void Connector::monitorConnectionTask_(int max_connect_attempts) {
         }
 
         try {
-            if (connection_ptr_->getConnectionState() != ConnectionStateValues::open) {
+            if (!isConnected()) {
                 // LOG_WARNING("Connection to Cthun server lost; retrying");
                 connection_ptr_->connect(max_connect_attempts);
             } else {
@@ -332,7 +334,6 @@ void Connector::monitorConnectionTask_(int max_connect_attempts) {
             // TODO(ale): evaluate exposing is_monitoring_ - update docs
 
             is_monitoring_ = false;
-            the_lock.unlock();
             return;
         }
 

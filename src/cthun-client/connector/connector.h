@@ -3,7 +3,6 @@
 
 #include "./connection.h"
 #include "./client_metadata.h"
-#include "./timer.h"
 
 #include "../validator/validator.h"
 #include "../validator/schema.h"
@@ -119,12 +118,11 @@ class Connector {
     std::map<std::string, MessageCallback> schema_callback_pairs_;
 
     /// Members for the monitoring task for connection persistence
-    std::thread monitor_task_;
+    std::unique_ptr<std::thread> monitor_task_ptr_;
     std::mutex mutex_;
     std::condition_variable cond_var_;
     bool is_destructing_;
     bool is_monitoring_;
-    Timer monitor_timer_;
 
     void checkConnectionInitialization_();
 
