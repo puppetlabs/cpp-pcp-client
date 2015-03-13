@@ -301,7 +301,7 @@ void DataContainer::setValue<>(rapidjson::Value& jval, int new_value) {
 }
 
 template<>
-void DataContainer::setValue<>(rapidjson::Value& jval, std::string new_value) {
+void DataContainer::setValue<>(rapidjson::Value& jval, const std::string new_value) {
     jval.SetString(new_value.data(), new_value.size(), document_root_->GetAllocator());
 }
 

@@ -11,12 +11,25 @@ set(SOURCES
 )
 
 set(LIBS
+    ${LEATHERMAN_LIBRARIES}
     ${Boost_LIBRARIES}
+    ${OPENSSL_SSL_LIBRARY}
+    ${OPENSSL_CRYPTO_LIBRARY}
+    ${PTHREADS}
 )
 
-add_library(cthun-client ${SOURCES})
-target_link_libraries(cthun-client ${LIBS})
+if (WIN32)
+    set(LIBCTHUN_CLIENT_INSTALL_DESTINATION bin)
+else()
+    #   TODO: lib64 for certain operating systems?
+    set(LIBCTHUN_CLIENT_INSTALL_DESTINATION lib)
+endif()
 
-target_link_libraries(cthun-client)
 
-install(TARGETS cthun-client DESTINATION lib)
+add_library(libcthun-client-src OBJECT ${SOURCES})
+set_target_properties(libcthun-client-src PROPERTIES POSITION_INDEPENDENT_CODE true)
+add_library(libcthun-client SHARED $<TARGET_OBJECTS:libcthun-client-src>)
+target_link_libraries(libcthun-client PRIVATE ${LIBS})
+set_target_properties(libcthun-client  PROPERTIES PREFIX "" SUFFIX ".so" IMPORT_PREFIX "" IMPORT_SUFFIX ".so.a")
+
+install(TARGETS libcthun-client DESTINATION LIBCTHUN_CLIENT_INSTALL_DESTINATION)

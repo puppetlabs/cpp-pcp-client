@@ -26,7 +26,7 @@ include_directories(
 )
 
 add_executable(${test_BIN} ${SOURCES})
-target_link_libraries(${test_BIN} cthun-client)
+target_link_libraries(${test_BIN} libcthun-client)
 
 set(LIBS
     ${Boost_LIBRARIES}

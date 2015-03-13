@@ -12,17 +12,19 @@ list(APPEND CMAKE_MODULE_PATH ${VENDOR_DIRECTORY})
 
 if ("${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
   set(CTHUN_CLIENT_TOPLEVEL TRUE)
+  add_definitions(-DCTHUN_CLIENT_LOGGING_PREFIX="cthun.client")
 else ()
    set(CTHUN_CLIENT_TOPLEVEL FALSE)
 endif ()
 
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/vendor/leatherman/cmake")
 
 # Set compiler flags
 
 # Exclusions
 # - Wsign-compare (valijson)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -Wno-reorder -Wno-unused-parameter -Wno-deprecated-register -Wno-sign-compare")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -Wno-reorder -Wno-unused-parameter -Wno-deprecated-register -Wno-sign-compare -Wno-deprecated-declarations")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
     # NB: -pthread is needed for fedora20 (cmake does not add the library, even
@@ -32,24 +34,49 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
-# Include vendor libraries and directories
+# Leatherman it up
+include(options)
 
+ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
+set(LEATHERMAN_USE_LOCALE TRUE)
+set(LEATHERMAN_USE_NOWIDE TRUE)
+set(LEATHERMAN_USE_CATCH TRUE)
+set(LEATHERMAN_USE_LOGGING TRUE)
+add_subdirectory("vendor/leatherman")
+
+# Include vendor libraries and directories
 include(${VENDOR_DIRECTORY}/websocketpp.cmake)
 include(${VENDOR_DIRECTORY}/rapidjson.cmake)
 include(${VENDOR_DIRECTORY}/valijson.cmake)
 
 include_directories(
+    ${Boost_INCLUDE_DIRS}
     ${RAPIDJSON_INCLUDE_DIRS}
     ${VALIJSON_INCLUDE_DIRS}
     ${WEBSOCKETPP_INCLUDE_DIRS}
+    ${LEATHERMAN_INCLUDE_DIRS}
 )
 
-# Add src subdirectory
+link_directories(
+    ${Boost_LIBRARY_DIRS}
+)
 
+# Find libraries
+find_package(Boost 1.54 REQUIRED
+  COMPONENTS filesystem system date_time thread log regex random)
+
+find_package(OpenSSL REQUIRED)
+
+# prefer openssl from ports
+if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
+    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/local/lib)
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /opt/local/include)
+endif()
+
+# Add src subdirectory
 add_subdirectory(src)
 
 # Add the test suite
-
 if (CTHUN_CLIENT_TOPLEVEL)
     enable_testing()
     add_subdirectory(test)
@@ -57,49 +84,12 @@ if (CTHUN_CLIENT_TOPLEVEL)
     add_test(
       NAME "cthun-client\\ library\\ tests"
       COMMAND "${MAINFOLDER}/bin/cthun-client-unittests"
+
     )
 
-  # Add cpplint target
+    # Add cpplint target
+    FILE (GLOB_RECURSE ALL_SOURCES src/*.cpp src/*.h test/*.cpp test/*.h)
+    add_cpplint_files(${ALL_SOURCES})
+    enable_cpplint()
 
-  include(FindPythonInterp)
-  if (NOT PYTHONINTERP_FOUND)
-      message(STATUS "Python not found; 'cpplint' target will not be available")
-  else()
-      set(CPPLINT_FILTER
-          "-build/c++11"            # <thread>, <condvar>, etc...
-          "-whitespace/indent"      # We use 4 space indentation
-          "-build/include"          # Why?
-          "-build/namespaces"       # What's a namespace to do
-          "-legal/copyright"        # Not yet
-          "-runtime/references"     # Not sure about this religion
-          "-readability/streams"    # What?
-          "-readability/namespace"  # Ignore nested namespace comment formatting
-          "-whitespace/braces"      # Is there a k&r setting?
-          "-whitespace/line_length" # Well yeah, but ... not just now
-          "-runtime/arrays"         # Sizing an array with a 'const int' doesn't make it variable sized
-          "-readability/todo"       # Seriously? todo comments need to identify an owner? pffft
-          "-whitespace/empty_loop_body" # Can't handle do { ... } while(expr);
-          "-runtime/int"            # Some C types are needed for library interop
-          "-runtime/explicit"       # Using implicit conversion from string to regex for regex calls.
-          "-build/header_guard"     # Disable header guards (cpplint doesn't yet support enforcing #pragma once)
-      )
-
-      FILE (GLOB_RECURSE ALL_SOURCES src/*.cpp src/*.h test/*.cpp test/*.h)
-
-      set(CPPLINT_PATH "${MAINFOLDER}/ext/cpplint.py")
-
-      set(CPPLINT_ARGS "")
-      if (CPPLINT_FILTER)
-          string(REPLACE ";" "," CPPLINT_FILTER "${CPPLINT_FILTER}")
-          set(CPPLINT_ARGS "${CPPLINT_ARGS}--filter=${CPPLINT_FILTER}")
-      endif()
-      if (MSVC)
-          set(CPPLINT_ARGS "${CPPLINT_ARGS} --output=vs7")
-      endif()
-
-      ADD_CUSTOM_TARGET(cpplint
-          COMMAND ${PYTHON_EXECUTABLE} ${CPPLINT_PATH} ${CPPLINT_ARGS} ${ALL_SOURCES}
-          VERBATIM
-      )
-  endif()
 endif()

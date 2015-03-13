@@ -45,12 +45,6 @@ class index_error : public std::runtime_error  {
     explicit index_error(std::string const& msg) : std::runtime_error(msg) {}
 };
 
-/// Error thrown when trying to set or get invalid type.
-class data_type_error : public std::runtime_error  {
-  public:
-    explicit data_type_error(std::string const& msg) : std::runtime_error(msg) {}
-};
-
 // Usage:
 // NOTE SUPPORTED SCALARS
 // int, float, double, bool, std::string, nullptr
@@ -269,16 +263,6 @@ class DataContainer {
     template<typename T>
     void setValue(rapidjson::Value& jval, T new_value);
 };
-
-template<typename T>
-T DataContainer::getValue(const rapidjson::Value& Value) const {
-    throw data_type_error { "invalid type for DataContainer" };
-}
-
-template<typename T>
-void DataContainer::setValue(rapidjson::Value& jval, T new_value) {
-    throw data_type_error { "invalid type for DataContainer" };
-}
 
 template<>
 void DataContainer::setValue<>(rapidjson::Value& jval, const std::string& new_value);

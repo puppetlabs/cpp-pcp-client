@@ -97,10 +97,10 @@ class Message {
     MessageChunk data_chunk_;
     std::vector<MessageChunk> debug_chunks_;
 
-    void parseMessage_(const std::string& transport_msg);
+    void parseMessage(const std::string& transport_msg);
 
-    void validateVersion_(const uint8_t& version) const;
-    void validateChunk_(const MessageChunk& chunk) const;
+    void validateVersion(const uint8_t& version) const;
+    void validateChunk(const MessageChunk& chunk) const;
 };
 
 }  // namespace CthunClient
