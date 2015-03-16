@@ -82,11 +82,6 @@ bool DataContainer::isNotObject(const rapidjson::Value& jval,
     return (jval.HasMember(key) && !getValueInJson(jval, key)->IsObject());
 }
 
-bool DataContainer::isNotString(const rapidjson::Value& jval,
-                                const char* key) const {
-    return (jval.HasMember(key) && !getValueInJson(jval, key)->IsString());
-}
-
 rapidjson::Value* DataContainer::getValueInJson(const rapidjson::Value& jval,
                                                 const char* key) const {
     return const_cast<rapidjson::Value*>(&jval[key]);

@@ -32,13 +32,14 @@ namespace CthunClient {
 // TODO(ale): add data_ prefix to all error names; indicate what
 // exceptions are thrown in docstrings
 
-/// Error thrown when a message string is invalid.
+/// Error thrown when trying to parse an invalid JSON string.
 class parse_error : public std::runtime_error  {
   public:
     explicit parse_error(std::string const& msg) : std::runtime_error(msg) {}
 };
 
-/// Error thrown when a nested message index is invalid.
+/// Error thrown when a nested index is not a valid JSON object, so
+/// that it is not possible to iterate the tree.
 class index_error : public std::runtime_error  {
   public:
     explicit index_error(std::string const& msg) : std::runtime_error(msg) {}
@@ -139,15 +140,30 @@ class DataContainer {
     }
 
     template <typename T>
-    void set(const std::string& first, T new_value) {
+    void set(const std::string& key, T value) {
         set_<T>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
-                first.data(), new_value);
+                key.data(),
+                value);
     }
 
     template <typename T, typename ... Args>
-    void set(const std::string& first, std::string second, Args ... rest) {
-        set_<T>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
-                first.data(), second.data(), rest...);
+    void set(const std::string& first_key,
+             const std::string& second_key,
+             Args ... nested_keys_and_val) {
+        if (sizeof...(nested_keys_and_val) == 0) {
+            // In case we set() is called with two strings as args,
+            // the variadic overload may be used (refer to the unit
+            // tests; a second set call with the same key leds here);
+            // in that case, we must set the entry directly
+            set_<std::string>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
+                              first_key.data(),
+                              second_key);
+        } else {
+            set_<T>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
+                    first_key.data(),
+                    second_key.data(),
+                    nested_keys_and_val...);
+        }
     }
 
   private:
@@ -155,14 +171,13 @@ class DataContainer {
 
     bool hasKey(const rapidjson::Value& jval, const char* key) const;
     bool isNotObject(const rapidjson::Value& jval, const char* key) const;
-    bool isNotString(const rapidjson::Value& jval, const char* key) const;
     rapidjson::Value* getValueInJson(const rapidjson::Value& jval,
                                      const char* key) const;
     void createKeyInJson(const char* key, rapidjson::Value& jval);
 
     template <typename ... Args>
-    bool includes_(const rapidjson::Value& jval, const char * first) const {
-        if (hasKey(jval, first)) {
+    bool includes_(const rapidjson::Value& jval, const char * key) const {
+        if (hasKey(jval, key)) {
             return true;
         } else {
             return false;
@@ -170,27 +185,33 @@ class DataContainer {
     }
 
     template <typename ... Args>
-    bool includes_(const rapidjson::Value& jval, const char * first, Args ... rest) const {
-        if (hasKey(jval, first)) {
-            return includes_(*getValueInJson(jval, first), rest...);
+    bool includes_(const rapidjson::Value& jval,
+                   const char * first_key,
+                   Args ... nested_keys_and_val) const {
+        if (hasKey(jval, first_key)) {
+            return includes_(*getValueInJson(jval, first_key),
+                             nested_keys_and_val...);
         } else {
             return false;
         }
     }
 
     template <typename T>
-    T get_(const rapidjson::Value& jval, const char * first) const {
-        if (hasKey(jval, first)) {
-            return getValue<T>(*getValueInJson(jval, first));
+    T get_(const rapidjson::Value& jval, const char * first_key) const {
+        if (hasKey(jval, first_key)) {
+            return getValue<T>(*getValueInJson(jval, first_key));
         }
 
         return getValue<T>();
     }
 
     template <typename T, typename ... Args>
-    T get_(const rapidjson::Value& jval, const char * first, Args ... rest) const {
-        if (hasKey(jval, first)) {
-            return get_<T>(*getValueInJson(jval, first), rest...);
+    T get_(const rapidjson::Value& jval,
+           const char * first_key,
+           Args ... nested_keys_and_val) const {
+        if (hasKey(jval, first_key)) {
+            return get_<T>(*getValueInJson(jval, first_key),
+                           nested_keys_and_val...);
         }
 
         return getValue<T>();
@@ -203,11 +224,11 @@ class DataContainer {
     }
 
     template <typename T>
-    void set_(rapidjson::Value& jval, const char* first, T new_val) {
-        if (!hasKey(jval, first)) {
-            createKeyInJson(first, jval);
+    void set_(rapidjson::Value& jval, const char* key, T new_val) {
+        if (!hasKey(jval, key)) {
+            createKeyInJson(key, jval);
         }
-        setValue<T>(*getValueInJson(jval, first), new_val);
+        setValue<T>(*getValueInJson(jval, key), new_val);
     }
 
     // deal with the case where parameter pack is a tuple of only strings
@@ -219,23 +240,22 @@ class DataContainer {
     }
 
     template <typename T, typename ... Args>
-    void set_(rapidjson::Value& jval, const char* first, Args ... rest) {
-        if (sizeof...(rest) > 0) {
-            // TODO(ale): check the following isNoString() condition
-
-            if (isNotObject(jval, first) && isNotString(jval, first)) {
-                // TODO(ale): improve error message; add comment
-
-                throw index_error { "invalid message index supplied" };
+    void set_(rapidjson::Value& jval,
+              const char* current_key,
+              Args ... nested_keys_and_val) {
+        if (sizeof...(nested_keys_and_val) > 0) {
+            if (isNotObject(jval, current_key)) {
+                throw index_error { "invalid index supplied; cannot navigate "
+                                    "the provided path" };
             }
 
-            if (!hasKey(jval, first)) {
-                createKeyInJson(first, jval);
+            if (!hasKey(jval, current_key)) {
+                createKeyInJson(current_key, jval);
             }
 
-            set_<T>(*getValueInJson(jval, first), rest...);
+            set_<T>(*getValueInJson(jval, current_key), nested_keys_and_val...);
         } else {
-            set_string_<std::string>(jval, first);
+            set_string_<std::string>(jval, current_key);
             return;
         }
     }
