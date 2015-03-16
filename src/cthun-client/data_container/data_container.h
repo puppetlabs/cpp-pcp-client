@@ -151,10 +151,10 @@ class DataContainer {
              const std::string& second_key,
              Args ... nested_keys_and_val) {
         if (sizeof...(nested_keys_and_val) == 0) {
-            // In case we set() is called with two strings as args,
-            // the variadic overload may be used (refer to the unit
-            // tests; a second set call with the same key leds here);
-            // in that case, we must set the entry directly
+            // In case set() is called with two strings as args, the
+            // the variadic overload is called (the invocation of
+            // variadic templates is done by matching args in a greedy
+            // way); we deal with that by setting the entry directly
             set_<std::string>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
                               first_key.data(),
                               second_key);
