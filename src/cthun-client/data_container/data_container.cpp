@@ -40,7 +40,7 @@ DataContainer& DataContainer::operator=(DataContainer other) {
 
 // unique_ptr requires a complete type at time of destruction. this forces us to
 // either have an empty destructor or use a shared_ptr instead.
-DataContainer::~DataContainer() {};
+DataContainer::~DataContainer() {}
 
 rapidjson::Document DataContainer::getRaw() const {
     rapidjson::Document tmp;
@@ -77,7 +77,8 @@ bool DataContainer::hasKey(const rapidjson::Value& jval, const char* key) const 
     return (jval.IsObject() && jval.HasMember(key));
 }
 
-bool DataContainer::isNotObject(const rapidjson::Value& jval, const char* key) const {
+bool DataContainer::isNotObject(const rapidjson::Value& jval,
+                                const char* key) const {
     return (jval.HasMember(key) && !getValueInJson(jval, key)->IsObject());
 }
 
@@ -91,7 +92,6 @@ void DataContainer::createKeyInJson(const char* key,
     jval.AddMember(rapidjson::Value(key, document_root_->GetAllocator()).Move(),
                    rapidjson::Value(rapidjson::kObjectType).Move(),
                    document_root_->GetAllocator());
-
 }
 
 // getValue specialisations
