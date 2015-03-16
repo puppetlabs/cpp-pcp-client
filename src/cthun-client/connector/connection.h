@@ -4,14 +4,6 @@
 #include "./timings.h"
 #include "./client_metadata.h"
 
-
-//#include <websocketpp/common/connection_hdl.hpp>
-//#include <websocketpp/client.hpp>
-// NB: we must include asio_client.hpp even if CTHUN_CLIENT_SECURE_TRANSPORT
-// is not defined in order to define WS_Context_Ptr
-//#include <websocketpp/config/asio_client.hpp>
-//#include <websocketpp/config/asio_no_tls_client.hpp>
-
 #include <string>
 #include <vector>
 #include <memory>
@@ -26,7 +18,7 @@ namespace boost {
             struct context;
         }
     }
-}
+}  // namespace boost
 
 // Forward declarations for websocketpp
 namespace websocketpp {
@@ -52,7 +44,7 @@ namespace websocketpp {
     }
 
     using connection_hdl = std::weak_ptr<void>;
-}
+}  // namespace websocket
 
 namespace CthunClient {
 

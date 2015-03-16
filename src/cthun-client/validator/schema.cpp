@@ -83,7 +83,7 @@ const Schema::Schema(const std::string& name,
 
 // unique_ptr requires a complete type at time of destruction. this forces us to
 // either have an empty destructor or use a shared_ptr instead.
-Schema::~Schema() {};
+Schema::~Schema() {}
 
 void Schema::addConstraint(std::string field, TypeConstraint type, bool required) {
     checkAddConstraint();

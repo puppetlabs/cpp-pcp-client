@@ -18,14 +18,19 @@ namespace rapidjson {
     template <typename Encoding,
               typename Allocator,
               typename StackAllocator> class GenericDocument;
-    using Document = GenericDocument<UTF8<char>, MemoryPoolAllocator<CrtAllocator>, CrtAllocator>;
- }
+    using Document = GenericDocument<UTF8<char>,
+                                     MemoryPoolAllocator<CrtAllocator>,
+                                     CrtAllocator>;
+ }  // namespace rapidjson
 
 namespace CthunClient {
 
 // Data abstraction overlaying the raw JSON objects
 
 // Errors
+
+// TODO(ale): add data_ prefix to all error names; indicate what
+// exceptions are thrown in docstrings
 
 /// Error thrown when a message string is invalid.
 class parse_error : public std::runtime_error  {
@@ -150,7 +155,9 @@ class DataContainer {
 
     bool hasKey(const rapidjson::Value& jval, const char* key) const;
     bool isNotObject(const rapidjson::Value& jval, const char* key) const;
-    rapidjson::Value* getValueInJson(const rapidjson::Value& jval, const char* key) const;
+    bool isNotString(const rapidjson::Value& jval, const char* key) const;
+    rapidjson::Value* getValueInJson(const rapidjson::Value& jval,
+                                     const char* key) const;
     void createKeyInJson(const char* key, rapidjson::Value& jval);
 
     template <typename ... Args>
@@ -214,7 +221,11 @@ class DataContainer {
     template <typename T, typename ... Args>
     void set_(rapidjson::Value& jval, const char* first, Args ... rest) {
         if (sizeof...(rest) > 0) {
-            if (isNotObject(jval, first)) {
+            // TODO(ale): check the following isNoString() condition
+
+            if (isNotObject(jval, first) && isNotString(jval, first)) {
+                // TODO(ale): improve error message; add comment
+
                 throw index_error { "invalid message index supplied" };
             }
 
@@ -237,9 +248,7 @@ class DataContainer {
 
     template<typename T>
     void setValue(rapidjson::Value& jval, T new_value);
-
 };
-
 
 template<typename T>
 T DataContainer::getValue(const rapidjson::Value& Value) const {
