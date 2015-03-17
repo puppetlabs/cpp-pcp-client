@@ -11,10 +11,15 @@ list(APPEND CMAKE_MODULE_PATH ${VENDOR_DIRECTORY})
 
 if ("${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
   set(CTHUN_CLIENT_TOPLEVEL TRUE)
-  add_definitions(-DCTHUN_CLIENT_LOGGING_PREFIX="cthun.client")
 else ()
    set(CTHUN_CLIENT_TOPLEVEL FALSE)
 endif ()
+
+if ("${CTHUN_CLIENT_LOGGING_PREFIX}" STREQUAL "")
+  add_definitions(-DCTHUN_CLIENT_LOGGING_PREFIX="puppetlabs.cthun_client")
+else ()
+  add_definitions(-DCTHUN_CLIENT_LOGGING_PREFIX="${CTHUN_CLIENT_LOGGING_PREFIX}")
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/vendor/leatherman/cmake")
 
