@@ -18,7 +18,9 @@
 #include <websocketpp/client.hpp>
 #include <websocketpp/config/asio_client.hpp>
 
-// TODO(ale): include logging library and uncomment logging macros
+#define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".connection"
+
+#include <leatherman/logging/logging.hpp>
 
 #include <chrono>
 #include <cstdio>
@@ -76,15 +78,15 @@ Connection::Connection(const std::string& server_url,
         // Start the event loop thread
         endpoint_thread_.reset(new std::thread(&WS_Client_Type::run, endpoint_.get()));
     } catch (...) {
-        // LOG_DEBUG("Failed to configure the websocket endpoint; about to stop "
-        //           "the event loop");
-        cleanUp_();
+        LOG_DEBUG("Failed to configure the websocket endpoint; about to stop "
+                  "the event loop");
+        cleanUp();
         throw connection_config_error { "failed to initialize" };
     }
 }
 
 Connection::~Connection() {
-    cleanUp_();
+    cleanUp();
 }
 
 ConnectionState Connection::getConnectionState() {
@@ -104,8 +106,8 @@ void Connection::setOnMessageCallback(std::function<void(std::string msg)> c_b) 
 }
 
 void Connection::resetCallbacks() {
-    onOpen_callback = [](){};
-    onMessage_callback_ = [](std::string message){};
+    onOpen_callback = [](){};  // NOLINT [false positive readability/braces]
+    onMessage_callback_ = [](std::string message){};  // NOLINT [false positive readability/braces]
 }
 
 //
@@ -149,7 +151,7 @@ void Connection::connect(int max_connect_attempts) {
 
         case(ConnectionStateValues::open):
             if (previous_c_s != ConnectionStateValues::open) {
-                // LOG_INFO("Successfully established connection to Cthun server");
+                LOG_INFO("Successfully established connection to Cthun server");
                 connection_backoff_s_ = CONNECTION_BACKOFF_S;
             }
             return;
@@ -166,8 +168,8 @@ void Connection::connect(int max_connect_attempts) {
                 usleep(CONNECTION_MIN_INTERVAL);
                 previous_c_s = ConnectionStateValues::connecting;
             } else {
-                // LOG_INFO("Failed to connect; retrying in %1% seconds",
-                //          connection_backoff_s_);
+                LOG_INFO("Failed to connect; retrying in %1% seconds",
+                         connection_backoff_s_);
                 sleep(connection_backoff_s_);
                 connect_();
                 usleep(CONNECTION_MIN_INTERVAL);
@@ -219,7 +221,7 @@ void Connection::ping(const std::string& binary_payload) {
 }
 
 void Connection::close(CloseCode code, const std::string& reason) {
-    // LOG_DEBUG("About to close connection");
+    LOG_DEBUG("About to close connection");
     websocketpp::lib::error_code ec;
     endpoint_->close(connection_handle_, code, reason, ec);
     if (ec) {
@@ -232,13 +234,13 @@ void Connection::close(CloseCode code, const std::string& reason) {
 // Private interface
 //
 
-void Connection::cleanUp_() {
+void Connection::cleanUp() {
     endpoint_->stop_perpetual();
     if (connection_state_ == ConnectionStateValues::open) {
         try {
             close();
         } catch (connection_processing_error& e) {
-            // LOG_ERROR("Failed to close the connection: %1%", e.what());
+            LOG_ERROR("Failed to close the connection: %1%", e.what());
         }
     }
     if (endpoint_thread_ != nullptr && endpoint_thread_->joinable()) {
@@ -265,7 +267,7 @@ void Connection::connect_() {
 //
 
 WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
-    // LOG_TRACE("WebSocket TLS initialization event");
+    LOG_TRACE("WebSocket TLS initialization event");
     // NB: for TLS certificates, refer to:
     // www.boost.org/doc/libs/1_56_0/doc/html/boost_asio/reference/ssl__context.html
     WS_Context_Ptr ctx {
@@ -280,32 +282,32 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
                                   boost::asio::ssl::context::file_format::pem);
         ctx->load_verify_file(client_metadata_.ca);
     } catch (std::exception& e) {
-        // LOG_ERROR("Failed to configure TLS: %1%", e.what());
+        LOG_ERROR("Failed to configure TLS: %1%", e.what());
     }
     return ctx;
 }
 
 void Connection::onClose(WS_Connection_Handle hdl) {
     connection_timings_.close = std::chrono::high_resolution_clock::now();
-    // LOG_TRACE("WebSocket connection closed");
+    LOG_TRACE("WebSocket connection closed");
     connection_state_ = ConnectionStateValues::closed;
 }
 
 void Connection::onFail(WS_Connection_Handle hdl) {
     connection_timings_.close = std::chrono::high_resolution_clock::now();
     connection_timings_.connection_failed = true;
-    // LOG_DEBUG("WebSocket on fail event - %1%", connection_timings_.toString());
+    LOG_DEBUG("WebSocket on fail event - %1%", connection_timings_.toString());
     connection_state_ = ConnectionStateValues::closed;
 }
 
 bool Connection::onPing(WS_Connection_Handle hdl, std::string binary_payload) {
-    // LOG_TRACE("WebSocket onPing event - payload: %1%", binary_payload);
+    LOG_TRACE("WebSocket onPing event - payload: %1%", binary_payload);
     // Returning true so the transport layer will send back a pong
     return true;
 }
 
 void Connection::onPong(WS_Connection_Handle hdl, std::string binary_payload) {
-    // LOG_DEBUG("WebSocket onPong event");
+    LOG_DEBUG("WebSocket onPong event");
     if (consecutive_pong_timeouts_) {
         consecutive_pong_timeouts_ = 0;
     }
@@ -313,25 +315,25 @@ void Connection::onPong(WS_Connection_Handle hdl, std::string binary_payload) {
 
 void Connection::onPongTimeout(WS_Connection_Handle hdl,
                                std::string binary_payload) {
-    // LOG_WARNING("WebSocket onPongTimeout event (%1% consecutive)",
-    //             consecutive_pong_timeouts_++);
+    LOG_WARNING("WebSocket onPongTimeout event (%1% consecutive)",
+                consecutive_pong_timeouts_++);
 }
 
 void Connection::onPreTCPInit(WS_Connection_Handle hdl) {
     connection_timings_.tcp_pre_init = std::chrono::high_resolution_clock::now();
-    // LOG_TRACE("WebSocket pre-TCP initialization event");
+    LOG_TRACE("WebSocket pre-TCP initialization event");
 }
 
 void Connection::onPostTCPInit(WS_Connection_Handle hdl) {
     connection_timings_.tcp_post_init = std::chrono::high_resolution_clock::now();
-    // LOG_TRACE("WebSocket post-TCP initialization event");
+    LOG_TRACE("WebSocket post-TCP initialization event");
 }
 
 void Connection::onOpen(WS_Connection_Handle hdl) {
     connection_timings_.open = std::chrono::high_resolution_clock::now();
     connection_timings_.connection_started = true;
-    // LOG_DEBUG("WebSocket on open event - %1%", connection_timings_.toString());
-    // LOG_INFO("Cthun connection established");
+    LOG_DEBUG("WebSocket on open event - %1%", connection_timings_.toString());
+    LOG_INFO("Cthun connection established");
     connection_state_ = ConnectionStateValues::open;
 
     if (onOpen_callback) {
@@ -339,11 +341,11 @@ void Connection::onOpen(WS_Connection_Handle hdl) {
             onOpen_callback();
             return;
         } catch (std::exception&  e) {
-            // LOG_ERROR("onOpen callback failure: %1%; closing the "
-            //           "WebSocketconnection", e.what());
+            LOG_ERROR("onOpen callback failure: %1%; closing the "
+                      "WebSocketconnection", e.what());
         } catch (...) {
-            // LOG_ERROR("onOpen callback failure; closing the WebSocket "
-            //           "connection");
+            LOG_ERROR("onOpen callback failure; closing the WebSocket "
+                      "connection");
         }
 
         close(CloseCodeValues::normal, "onOpen callback failure");
@@ -358,9 +360,9 @@ void Connection::onMessage(WS_Connection_Handle hdl,
             // failure; it must be able to notify back the error...
             onMessage_callback_(msg->get_payload());
         } catch (std::exception&  e) {
-            // LOG_ERROR("onMessage callback failure: %1%", e.what());
+            LOG_ERROR("onMessage callback failure: %1%", e.what());
         } catch (...) {
-            // LOG_ERROR("onMessage callback failure: unexpected error");
+            LOG_ERROR("onMessage callback failure: unexpected error");
         }
     }
 }

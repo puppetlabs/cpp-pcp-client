@@ -15,7 +15,7 @@
 namespace boost {
     namespace asio {
         namespace ssl {
-            struct context;
+            class context;
         }
     }
 }  // namespace boost
@@ -179,7 +179,7 @@ class Connection {
     ConnectionTimings connection_timings_;
 
     /// Stop the event loop thread and perform the necessary clean up
-    void cleanUp_();
+    void cleanUp();
 
     // Connect the endpoint
     void connect_();

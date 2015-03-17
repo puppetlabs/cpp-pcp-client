@@ -124,31 +124,31 @@ class Connector {
     bool is_destructing_;
     bool is_monitoring_;
 
-    void checkConnectionInitialization_();
+    void checkConnectionInitialization();
 
-    void addEnvelopeSchemaToValidator_();
+    void addEnvelopeSchemaToValidator();
 
-    MessageChunk createEnvelope_(const std::vector<std::string>& endpoints,
-                                 const std::string& data_schema,
-                                 unsigned int timeout);
+    MessageChunk createEnvelope(const std::vector<std::string>& endpoints,
+                                const std::string& data_schema,
+                                unsigned int timeout);
 
-    void sendMessage_(const std::vector<std::string>& endpoints,
-                      const std::string& data_schema,
-                      unsigned int timeout,
-                      const std::string& data_txt,
-                      const std::vector<DataContainer>& debug);
+    void sendMessage(const std::vector<std::string>& endpoints,
+                     const std::string& data_schema,
+                     unsigned int timeout,
+                     const std::string& data_txt,
+                     const std::vector<DataContainer>& debug);
 
-    void sendLogin_();
+    void sendLogin();
 
 
     // Callback for the Connection instance to handle incoming
     // messages.
     // Parse and validate the passed message; execute the callback
     // associated with the schema specified in the envelope.
-    void processMessage_(const std::string& msg_txt);
+    void processMessage(const std::string& msg_txt);
 
     // Monitoring task
-    void monitorConnectionTask_(int max_connect_attempts);
+    void monitorConnectionTask(int max_connect_attempts);
 };
 
 }  // namespace CthunClient

@@ -1,7 +1,10 @@
 #include "./message.h"
 #include "../data_container/data_container.h"
 
-// TODO(ale): include logging library and uncomment logging macros
+#define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".message"
+
+
+#include <leatherman/logging/logging.hpp>
 
 #include <algorithm>  // find
 
@@ -53,7 +56,7 @@ Message::Message(const std::string& transport_msg) : version_ {},
                                                      envelope_chunk_ {},
                                                      data_chunk_ {},
                                                      debug_chunks_ {} {
-    parseMessage_(transport_msg);
+    parseMessage(transport_msg);
 }
 
 Message::Message(MessageChunk envelope_chunk)
@@ -61,7 +64,7 @@ Message::Message(MessageChunk envelope_chunk)
           envelope_chunk_ { envelope_chunk },
           data_chunk_ {},
           debug_chunks_ {} {
-    validateChunk_(envelope_chunk);
+    validateChunk(envelope_chunk);
 }
 
 Message::Message(MessageChunk envelope_chunk, MessageChunk data_chunk)
@@ -69,8 +72,8 @@ Message::Message(MessageChunk envelope_chunk, MessageChunk data_chunk)
           envelope_chunk_ { envelope_chunk },
           data_chunk_ { data_chunk },
           debug_chunks_ {} {
-    validateChunk_(envelope_chunk);
-    validateChunk_(data_chunk);
+    validateChunk(envelope_chunk);
+    validateChunk(data_chunk);
 }
 
 Message::Message(MessageChunk envelope_chunk, MessageChunk data_chunk,
@@ -79,25 +82,25 @@ Message::Message(MessageChunk envelope_chunk, MessageChunk data_chunk,
           envelope_chunk_ { envelope_chunk },
           data_chunk_ { data_chunk },
           debug_chunks_ { debug_chunk } {
-    validateChunk_(envelope_chunk);
-    validateChunk_(data_chunk);
-    validateChunk_(debug_chunk);
+    validateChunk(envelope_chunk);
+    validateChunk(data_chunk);
+    validateChunk(debug_chunk);
 }
 
 // Add chunks
 
 void Message::setDataChunk(MessageChunk data_chunk) {
-    validateChunk_(data_chunk);
+    validateChunk(data_chunk);
 
     if (hasData()) {
-        // LOG_WARNING("Resetting data chunk");
+        LOG_WARNING("Resetting data chunk");
     }
 
     data_chunk_ = data_chunk;
 }
 
 void Message::addDebugChunk(MessageChunk debug_chunk) {
-    validateChunk_(debug_chunk);
+    validateChunk(debug_chunk);
     debug_chunks_.push_back(debug_chunk);
 }
 
@@ -212,12 +215,12 @@ std::string Message::toString() const {
 // Message - private interface
 //
 
-void Message::parseMessage_(const std::string& transport_msg) {
+void Message::parseMessage(const std::string& transport_msg) {
     auto msg_size = transport_msg.size();
 
     if (msg_size < MIN_ENVELOPE_SIZE) {
-        // LOG_ERROR("Invalid msg; envelope is too small");
-        // LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
+        LOG_ERROR("Invalid msg; envelope is too small");
+        LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
         throw message_serialization_error { "invalid msg: envelope too small" };
     }
 
@@ -229,23 +232,23 @@ void Message::parseMessage_(const std::string& transport_msg) {
     // Version
 
     auto msg_version = deserialize<uint8_t>(1, next_itr);
-    validateVersion_(msg_version);
+    validateVersion(msg_version);
 
     // Envelope (mandatory chunk)
 
     auto envelope_desc = deserialize<uint8_t>(1, next_itr);
     auto envelope_desc_bit = envelope_desc & ChunkDescriptor::TYPE_MASK;
     if (envelope_desc_bit != ChunkDescriptor::ENVELOPE) {
-        // LOG_ERROR("Invalid msg; missing envelope descriptor");
-        // LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
+        LOG_ERROR("Invalid msg; missing envelope descriptor");
+        LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
         throw message_serialization_error { "invalid msg: no envelope "
                                             "descriptor" };
     }
 
     auto envelope_size = deserialize<uint32_t>(4, next_itr);
     if (msg_size < VERSION_FIELD_SIZE + CHUNK_METADATA_SIZE + envelope_size) {
-        // LOG_ERROR("Invalid msg; missing envelope content");
-        // LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
+        LOG_ERROR("Invalid msg; missing envelope content");
+        LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
         throw message_serialization_error { "invalid msg: no envelope" };
     }
 
@@ -262,22 +265,22 @@ void Message::parseMessage_(const std::string& transport_msg) {
 
         if (chunk_desc_bit != ChunkDescriptor::DATA
                 && chunk_desc_bit != ChunkDescriptor::DEBUG) {
-            // LOG_ERROR("Invalid msg; invalid chunk descriptor %1%",
-            //           static_cast<int>(chunk_desc));
-            // LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
+            LOG_ERROR("Invalid msg; invalid chunk descriptor %1%",
+                      static_cast<int>(chunk_desc));
+            LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
             throw message_serialization_error { "invalid msg: invalid "
                                                 "chunk descriptor" };
         }
 
         auto chunk_size = deserialize<uint32_t>(4, next_itr);
         if (chunk_size > still_to_parse - CHUNK_METADATA_SIZE) {
-            // LOG_ERROR("Invalid msg; missing part of the %1% chunk content (%2% "
-            //           "byte%3% declared - missing %4% byte%5%)",
-            //           ChunkDescriptor::names[chunk_desc_bit],
-            //           chunk_size, plural(chunk_size),
-            //           still_to_parse - CHUNK_METADATA_SIZE,
-            //           plural(still_to_parse - CHUNK_METADATA_SIZE));
-            // LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
+            LOG_ERROR("Invalid msg; missing part of the %1% chunk content (%2% "
+                      "byte%3% declared - missing %4% byte%5%)",
+                      ChunkDescriptor::names[chunk_desc_bit],
+                      chunk_size, plural(chunk_size),
+                      still_to_parse - CHUNK_METADATA_SIZE,
+                      plural(still_to_parse - CHUNK_METADATA_SIZE));
+            LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
             throw message_serialization_error { "invalid msg: missing chunk "
                                                 "content" };
         }
@@ -287,9 +290,9 @@ void Message::parseMessage_(const std::string& transport_msg) {
 
         if (chunk_desc_bit == ChunkDescriptor::DATA) {
             if (hasData()) {
-                // LOG_ERROR("Invalid msg; multiple data chunks");
-                // LOG_TRACE("Invalid msg content (unserialized): '%1%'",
-                //           transport_msg);
+                LOG_ERROR("Invalid msg; multiple data chunks");
+                LOG_TRACE("Invalid msg content (unserialized): '%1%'",
+                          transport_msg);
                 throw message_serialization_error { "invalid msg: multiple "
                                                     "data chunks" };
             }
@@ -303,10 +306,10 @@ void Message::parseMessage_(const std::string& transport_msg) {
     }
 
     if (still_to_parse > 0) {
-        // LOG_ERROR("Failed to parse the entire msg (ignoring last %1% byte%2%); "
-        //           "the msg will be processed anyway",
-        //           still_to_parse, plural(still_to_parse));
-        // LOG_TRACE("Msg content (unserialized): '%1%'", transport_msg);
+        LOG_ERROR("Failed to parse the entire msg (ignoring last %1% byte%2%); "
+                  "the msg will be processed anyway",
+                  still_to_parse, plural(still_to_parse));
+        LOG_TRACE("Msg content (unserialized): '%1%'", transport_msg);
     }
 
     version_ = msg_version;
@@ -315,30 +318,30 @@ void Message::parseMessage_(const std::string& transport_msg) {
                                       envelope_content };
 }
 
-void Message::validateVersion_(const uint8_t& version) const {
+void Message::validateVersion(const uint8_t& version) const {
     auto found = std::find(SUPPORTED_VERSIONS.begin(), SUPPORTED_VERSIONS.end(),
                            version);
     if (found == SUPPORTED_VERSIONS.end()) {
-        // LOG_ERROR("Unsupported message version: %1%", static_cast<int>(version));
+        LOG_ERROR("Unsupported message version: %1%", static_cast<int>(version));
         throw unsupported_version_error { "unsupported message version: "
                                           + std::to_string(version) };
     }
 }
 
-void Message::validateChunk_(const MessageChunk& chunk) const {
+void Message::validateChunk(const MessageChunk& chunk) const {
     auto desc_bit = chunk.descriptor & ChunkDescriptor::TYPE_MASK;
 
     if (ChunkDescriptor::names.find(desc_bit) == ChunkDescriptor::names.end()) {
-        // LOG_ERROR("Unknown chunk descriptor: %1%",
-        //           static_cast<int>(chunk.descriptor));
+        LOG_ERROR("Unknown chunk descriptor: %1%",
+                  static_cast<int>(chunk.descriptor));
         throw invalid_chunk_error { "unknown descriptor" };
     }
 
     if (chunk.size != static_cast<uint32_t>(chunk.content.size())) {
-        // LOG_ERROR("Incorrect size for %1% chunk; declared %2% byte%3%, "
-        //           "got %4% byte%5%", ChunkDescriptor::names[desc_bit],
-        //           chunk.size, plural(chunk.size),
-        //           chunk.content.size(), plural(chunk.content.size()));
+        LOG_ERROR("Incorrect size for %1% chunk; declared %2% byte%3%, "
+                  "got %4% byte%5%", ChunkDescriptor::names[desc_bit],
+                  chunk.size, plural(chunk.size),
+                  chunk.content.size(), plural(chunk.content.size()));
         throw invalid_chunk_error { "invalid size" };
     }
 }

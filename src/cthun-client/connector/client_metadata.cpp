@@ -1,6 +1,10 @@
 #include "./client_metadata.h"
 #include "./errors.h"
 
+#define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".client_metadata"
+
+#include <leatherman/logging/logging.hpp>
+
 #include <openssl/X509v3.h>
 #include <openssl/ssl.h>
 
@@ -44,7 +48,7 @@ ClientMetadata::ClientMetadata(const std::string& _type,
           crt { _crt },
           key { _key },
           id { getClientIdentityFromCert(_crt) } {
-    // TODO(ale): log the retrieved id at debug level
+    LOG_INFO("Obtained the client identity from %1%: %2%", _crt, id);
 }
 
 }  // namespace CthunClient
