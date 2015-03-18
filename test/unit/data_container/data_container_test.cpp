@@ -48,6 +48,10 @@ TEST_CASE("DataContainer::get", "[data]") {
         REQUIRE(tmp[1] == result[1]);
     }
 
+    SECTION("it can get the root object") {
+      REQUIRE(msg.get<DataContainer>().get<int>("goo") == 1);
+    }
+
     SECTION("it should behave correctly given a null value") {
         REQUIRE(msg.get<std::string>("null") == "");
         REQUIRE(msg.get<int>("null") == 0);
