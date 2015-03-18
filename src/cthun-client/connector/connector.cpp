@@ -11,9 +11,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <cstdio>
-#include <iostream>
 #include <chrono>
-
 namespace CthunClient {
 
 //
@@ -56,7 +54,6 @@ Connector::Connector(const std::string& server_url,
           connection_ptr_ { nullptr },
           validator_ {},
           schema_callback_pairs_ {},
-          monitor_task_ptr_ { nullptr },
           mutex_ {},
           cond_var_ {},
           is_destructing_ { false },
@@ -76,10 +73,6 @@ Connector::~Connector() {
         std::lock_guard<std::mutex> the_lock { mutex_ };
         is_destructing_ = true;
         cond_var_.notify_one();
-    }
-
-    if (monitor_task_ptr_ != nullptr && monitor_task_ptr_->joinable()) {
-        monitor_task_ptr_->join();
     }
 }
 
@@ -131,23 +124,14 @@ bool Connector::isConnected() const {
            && connection_ptr_->getConnectionState() == ConnectionStateValues::open;
 }
 
-void Connector::enablePersistence(int max_connect_attempts) {
+void Connector::monitorConnection(int max_connect_attempts) {
     checkConnectionInitialization();
 
     if (!is_monitoring_) {
-        if (monitor_task_ptr_ != nullptr && monitor_task_ptr_->joinable()) {
-            // Detach the old task
-            monitor_task_ptr_->detach();
-        }
-
         is_monitoring_ = true;
-        monitor_task_ptr_.reset(
-            new std::thread(&Connector::monitorConnectionTask,
-                            this,
-                            max_connect_attempts));
+        startMonitorTask(max_connect_attempts);
     } else {
-        LOG_WARNING("The monitoring task (persistence) is running; it won't "
-                    "be restarted");
+        LOG_WARNING("The monitorConnection has already been called");
     }
 }
 
@@ -179,10 +163,10 @@ void Connector::send(const std::vector<std::string>& endpoints,
                      const std::string& data_binary,
                      const std::vector<DataContainer>& debug) {
     sendMessage(endpoints,
-                 data_schema,
-                 timeout,
-                 data_binary,
-                 debug);
+                data_schema,
+                timeout,
+                data_binary,
+                debug);
 }
 
 //
@@ -305,12 +289,11 @@ void Connector::processMessage(const std::string& msg_txt) {
 
 // Monitor task
 
-void Connector::monitorConnectionTask(int max_connect_attempts) {
+void Connector::startMonitorTask(int max_connect_attempts) {
     assert(connection_ptr_ != nullptr);
 
     while (true) {
         std::unique_lock<std::mutex> the_lock { mutex_ };
-        // monitor_timer_.reset();
         auto now = std::chrono::system_clock::now();
 
         cond_var_.wait_until(the_lock,
@@ -318,7 +301,8 @@ void Connector::monitorConnectionTask(int max_connect_attempts) {
 
         if (is_destructing_) {
             // The dtor has been invoked
-            LOG_INFO("Stopping the monitor task (persistence)");
+            LOG_INFO("Stopping the monitor task");
+            is_monitoring_ = false;
             the_lock.unlock();
             return;
         }
@@ -332,17 +316,15 @@ void Connector::monitorConnectionTask(int max_connect_attempts) {
                 connection_ptr_->ping();
             }
         } catch (connection_processing_error& e) {
-            // Connection::connect_() failure - keep trying
-            LOG_ERROR("Monitoring task (persistence) failure: %1%", e.what());
+            // Connection::connect() or ping() failure - keep trying
+            LOG_ERROR("Connection monitor failure: %1%", e.what());
         } catch (connection_fatal_error& e) {
             // Failed to reconnect after max_connect_attempts - stop
-            LOG_ERROR("The monitoring task (persistence) will stop - "
-                      "failure: %1%", e.what());
-
-            // TODO(ale): evaluate exposing is_monitoring_ - update docs
-
+            LOG_ERROR("The connection monitor task will stop - failure: %1%",
+                      e.what());
             is_monitoring_ = false;
-            return;
+            the_lock.unlock();
+            throw;
         }
 
         the_lock.unlock();

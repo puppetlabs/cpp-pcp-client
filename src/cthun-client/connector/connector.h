@@ -15,7 +15,7 @@
 #include <memory>
 #include <string>
 #include <map>
-#include <thread>
+#include <thread>  // mutex
 #include <condition_variable>
 
 namespace CthunClient {
@@ -66,22 +66,30 @@ class Connector {
 
     bool isConnected() const;
 
-    // HERE(ale): enablePersistance assumes that the client will
+    // HERE(ale): monitorConnection assumes that the client will
     // still be logged in once the WebSocket connection is re-opened
 
-    /// Starts a parallel task that will periodically check the state
-    /// of the underlying connection - it will re-open it in case it
-    /// has dropped, otherwise it will send a ping mst to the server.
+    /// Periodically check the state of the underlying connection.
+    /// Re-establish the connection in case it has dropped, otherwise
+    /// send a ping mst to the server in order to keep the connection
+    /// alive.
     /// The max_connect_attempts parameters is used to reconnect; it
     /// works as for the above connect() function.
+    ///
+    /// Note that this is a blocking call; this task will not be
+    /// executed in a separate thread.
+    /// Also, monitorConnection simply returns in case of multiple
+    /// calls.
+    ///
+    /// It is safe to call monitorConnection in a multithreading
+    /// context; it will return as soon as the dtor has been invoked.
+    ///
+    /// Throw a connection_fatal_error if, in case of dropped
+    /// underlying connection, it fails to re-connect after the
+    /// specified maximum number of attempts.
     /// Throws a connection_not_init_error in case the connection has
     /// not been opened previously.
-    /// It simply returns in case of multiple enablePersistence calls.
-    void enablePersistence(int max_connect_attempts = 0);
-
-    // TODO(ale): since we allow to specify max_connect_attempts in
-    // enablePersistence(), should expose is_monitoring_ in addition
-    // to isConnected()?
+    void monitorConnection(int max_connect_attempts = 0);
 
     /// Send a message.
     /// Throw a connection_processing_error in case of failure.
@@ -117,12 +125,15 @@ class Connector {
     /// Schema - onMessage callback map
     std::map<std::string, MessageCallback> schema_callback_pairs_;
 
-    /// Members for the monitoring task for connection persistence
-    std::unique_ptr<std::thread> monitor_task_ptr_;
+    /// Flag; true if monitorConnection is executing
+    bool is_monitoring_;
+
+    /// To manage the monitoring task
     std::mutex mutex_;
     std::condition_variable cond_var_;
+
+    /// Flag; set to true if the dtor has been called
     bool is_destructing_;
-    bool is_monitoring_;
 
     void checkConnectionInitialization();
 
@@ -147,8 +158,8 @@ class Connector {
     // associated with the schema specified in the envelope.
     void processMessage(const std::string& msg_txt);
 
-    // Monitoring task
-    void monitorConnectionTask(int max_connect_attempts);
+    // Monitor the underlying connection; reconnect or keep it alive
+    void startMonitorTask(int max_connect_attempts);
 };
 
 }  // namespace CthunClient
