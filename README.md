@@ -232,25 +232,32 @@ And it can be used as follows:
     }
 ```
 
-By default a connection is non persistent. You can enable connection persistence
-by calling the _enablePersistence_ method. This will cause the connector to start
-a background thread which will send keepalive messages to the server and attempt
-to re-establish the connection if it should be terminated.
+By default a connection is non persistent. For instance, in case WebSocket is
+used as the underlying transport layer, ping messages must be sent periodically
+to keep the connection alive. Also, the connection may drop due to communication
+errors.  You can enable connection persistence by calling the _monitorConnection_
+method that will periodically check the state of the underlying connection. It
+will send keepalive messages to the server and attempt to re-establish the
+connection in case it has been dropped.
 
-_enablePersistence_ is defined as:
+_monitorConnection_ is defined as:
 
 ```
-    void enablePersistance(int max_connect_attempts = 0)
+    void monitorConnection(int max_connect_attempts = 0)
 ```
 
 The parameters are described as:
 
-- max_connect_attemps -The amount of times the Connector will try and establish
+- max_connect_attemps -The number of times the Connector will try to reconnect
  a connection to the Cthun server if a problem occurs. It will try to connect
  indefinately when set to 0. Defaults to 0.
 
 Note that if the Connector fails to re-establish the connection after the
-specified number of attempts, the background thread will stop executing.
+specified number of attempts, a _connection_fatal_error_ will be thrown.
+Also, calling _monitorConnection_ will block the execution thread as the
+monitoring task will not be executed on a separate thread. On the other hand,
+the caller can safely execute _monitorConnection_ on a separate thread since
+the function returns once the _Connector_ destructor is invoked.
 
 ```
     connector.enablePersistence(5);
@@ -432,7 +439,7 @@ The _send_ methods can throw the following exceptions:
     class connection_processing_error : public connection_error
 ```
 
-This exception is thrown when an error occurs during at the underlying websocket
+This exception is thrown when an error occurs during at the underlying WebSocket
 layer.
 
 ```
@@ -452,7 +459,7 @@ Example usage:
     } catch (connection_not_init_error e) {
       std::cout << "Cannot send message without being connected to the server" << std::endl;
     } catch (connection_processing_error e) {
-      std::cout << "An error occured at the websocket layer: " << e.what() << std::endl;
+      std::cout << "An error occured at the WebSocket layer: " << e.what() << std::endl;
    }
 ```
 
