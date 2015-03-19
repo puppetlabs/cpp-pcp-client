@@ -118,7 +118,7 @@ class DataContainer {
 
     template <typename T>
     T get() {
-        return getValue<T>(document_root_);
+        return getValue<T>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()));
     }
 
     template <typename T>
