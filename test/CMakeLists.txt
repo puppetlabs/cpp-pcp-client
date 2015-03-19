@@ -8,9 +8,12 @@ set(CATCH_DIRECTORY "${VENDOR_DIRECTORY}/catch")
 set(SOURCES
     main.cpp
 
+    unit/connector/client_metadata_test.cpp
+    unit/connector/connection_test.cpp
+    unit/connector/certs.cpp
+    unit/data_container/data_container_test.cpp
     unit/message/serialization_test.cpp
     unit/message/message_test.cpp
-    unit/data_container/data_container_test.cpp
     unit/validator/schema_test.cpp
     unit/validator/validator_test.cpp
 )

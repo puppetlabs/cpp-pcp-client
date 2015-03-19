@@ -10,7 +10,7 @@ extern std::string ROOT_PATH;
 
 namespace CthunClient {
 
-TEST_CASE("CthunAgent::serialize", "[message]") {
+TEST_CASE("CthunClient::serialize", "[message]") {
     SECTION("can serialize a string") {
         std::string s { "lalala" };
         SerializedMessage buffer;
@@ -111,7 +111,7 @@ TEST_CASE("CthunAgent::serialize", "[message]") {
     }
 }
 
-TEST_CASE("CthunAgent::deserialize", "[message]") {
+TEST_CASE("CthunClient::deserialize", "[message]") {
     SECTION("can deserialize a short integer") {
         // NB: better not use init. lists with vector ctor (S. Meyers)
         auto n_buffer = SerializedMessage({ 42 });
