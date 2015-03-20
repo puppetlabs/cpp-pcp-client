@@ -64,13 +64,13 @@ class Schema {
 
     Schema(const Schema& schema);
 
-    ~Schema();
-
     // Instantiate a Schema of type ContentType::Json by parsing the
     // JSON schema passed as a DataContainer object.
     // It won't be possible to add further constraints to such schema
     // Throw a schema_error in case of parsing failure.
     Schema(const std::string& name, const DataContainer json_schema);
+
+    ~Schema();
 
     // Add constraints to a JSON object schema.
     // Throw a schema_error in case the Schema instance is not of

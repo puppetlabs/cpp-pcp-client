@@ -7,6 +7,9 @@ messaging framework. It includes a collection of abstractions which can be used
 to initiate connections to a Cthun server, wrapping the Cthun message format and
 performing schema validation for message bodies.
 
+A tutorial on how to create a Cthun agent / controller pair with CthunClient is
+[here](https://github.com/puppetlabs/cthun-client/tree/master/tutorial).
+
 ## Building the library
 
 ### Requirements

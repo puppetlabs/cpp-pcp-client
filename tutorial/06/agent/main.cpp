@@ -1,0 +1,140 @@
+#include "../common.h"
+
+#include <cthun-client/connector/connector.h>  // Connector
+#include <cthun-client/connector/errors.h>     // connection_config_error
+
+#include <cthun-client/message/chunks.h>       // ParsedChunk
+
+#include <cthun-client/validator/schema.h>     // Schema, ContentType
+
+#include <string>
+#include <iostream>
+#include <memory>  // unique_ptr
+#include <vector>
+#include <stdexcept>
+
+namespace Tutorial {
+
+const std::string CA   { "../../resources/agent_certs/ca.pem" };
+const std::string CERT { "../../resources/agent_certs/crt.pem" };
+const std::string KEY  { "../../resources/agent_certs/key.pem" };
+
+//
+// agent_error
+//
+
+class agent_error : public std::runtime_error {
+  public:
+    explicit agent_error(std::string const& msg) : std::runtime_error(msg) {}
+};
+
+//
+// Agent
+//
+
+class Agent {
+  public:
+    Agent();
+    void start();
+
+  private:
+    int num_connect_attempts_;
+    CthunClient::Schema request_schema_;
+    std::unique_ptr<CthunClient::Connector> connector_ptr_;
+
+    void processRequest(const CthunClient::ParsedChunks& parsed_chunks);
+};
+
+Agent::Agent()
+    try
+        : num_connect_attempts_ { 4 },
+          request_schema_ { getRequestMessageSchema() },
+          connector_ptr_ { new CthunClient::Connector { SERVER_URL,
+                                                        AGENT_CLIENT_TYPE,
+                                                        CA,
+                                                        CERT,
+                                                        KEY } } {
+} catch (CthunClient::connection_config_error& e) {
+    std::cout << "Failed to configure the Cthun connector: "
+              << e.what() << "\n";
+    throw agent_error { "failed to configure the Cthun Connector" };
+}
+
+void Agent::start() {
+    // Connector::registerMessageCallback()
+
+    connector_ptr_->registerMessageCallback(
+        request_schema_,
+        [this](const CthunClient::ParsedChunks& parsed_chunks) {
+            processRequest(parsed_chunks);
+        });
+
+    // Connector::connect()
+
+    try {
+        connector_ptr_->connect(num_connect_attempts_);
+    } catch (CthunClient::connection_config_error& e) {
+        std::cout << "Failed to configure WebSocket: " << e.what() << "\n";
+        throw agent_error { "failed to configure WebSocket" };
+    } catch (CthunClient::connection_fatal_error& e) {
+        std::cout << "Failed to connect to " << SERVER_URL << " after "
+                  << num_connect_attempts_ << " attempts: " << e.what() << "\n";
+        throw agent_error { "failed to connect" };
+    }
+
+    // Connector::isConnected()
+
+    if (connector_ptr_->isConnected()) {
+        std::cout << "Successfully connected to " << SERVER_URL << "\n";
+    } else {
+        std::cout << "The connection has dropped; the monitoring task "
+                     "will take care of re-establishing it\n";
+    }
+
+    // Conneection::monitorConnection()
+
+    try {
+        connector_ptr_->monitorConnection(num_connect_attempts_);
+    } catch (CthunClient::connection_fatal_error& e) {
+        std::cout << "Failed to reconnect to " << SERVER_URL << " after "
+                  << num_connect_attempts_ << " attempts: " << e.what() << "\n";
+        throw agent_error { "failed to reconnect" };
+    }
+}
+
+void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
+    auto request_id = parsed_chunks.envelope.get<std::string>("id");
+    auto requester_endpoint = parsed_chunks.envelope.get<std::string>("sender");
+
+    std::cout << "Received message " << request_id
+              << " from " << requester_endpoint << ":\n"
+              << parsed_chunks.toString() << "\n";
+}
+
+//
+// main
+//
+
+int main(int argc, char *argv[]) {
+    std::unique_ptr<Agent> agent_ptr;
+
+    try {
+        agent_ptr.reset(new Agent {});
+    } catch (agent_error&) {
+        return 1;
+    }
+
+    try {
+        agent_ptr->start();
+    } catch (agent_error&) {
+        return 2;
+    }
+
+    return 0;
+}
+
+}  // namespace Tutorial
+
+int main(int argc, char** argv) {
+    return Tutorial::main(argc, argv);
+}
