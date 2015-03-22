@@ -50,8 +50,7 @@ std::string getClientIdentityFromCert(const std::string& client_crt_path,
     unsigned char* name_ptr = ASN1_STRING_data(asn1_name);
     int name_size = ASN1_STRING_length(asn1_name);
 
-    return "cth://" + std::string(name_ptr, name_ptr + name_size)
-           + "/cthun-" + type;
+    return "cth://" + std::string(name_ptr, name_ptr + name_size) + "/" + type;
 }
 
 #if defined(__APPLE__) && defined(__clang__)
