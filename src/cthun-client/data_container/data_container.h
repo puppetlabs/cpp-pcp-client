@@ -133,12 +133,12 @@ class DataContainer {
     }
 
     template <typename T>
-    T get() {
+    T get() const {
         return getValue<T>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()));
     }
 
     template <typename T>
-    T get(const DataContainerKey& key) {
+    T get(const DataContainerKey& key) const {
         rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
 
         if (hasKey(*jval, key.data())) {
@@ -149,7 +149,7 @@ class DataContainer {
     }
 
     template <typename T>
-    T get(std::vector<DataContainerKey> keys) {
+    T get(std::vector<DataContainerKey> keys) const {
         rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
 
         for (const auto& key : keys) {
