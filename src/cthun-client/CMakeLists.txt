@@ -18,6 +18,10 @@ set(LIBS
     ${PTHREADS}
 )
 
+if ("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+    set (PLATFORM_LIBRARIES rt)
+endif ()
+
 if (WIN32)
     set(LIBCTHUN_CLIENT_INSTALL_DESTINATION bin)
 else()
@@ -29,7 +33,7 @@ endif()
 add_library(libcthun-client-src OBJECT ${SOURCES})
 set_target_properties(libcthun-client-src PROPERTIES POSITION_INDEPENDENT_CODE true)
 add_library(libcthun-client SHARED $<TARGET_OBJECTS:libcthun-client-src>)
-target_link_libraries(libcthun-client PRIVATE ${LIBS})
+target_link_libraries(libcthun-client PRIVATE ${LIBS} ${PLATFORM_LIBRARIES})
 set_target_properties(libcthun-client  PROPERTIES PREFIX "" SUFFIX ".so" IMPORT_PREFIX "" IMPORT_SUFFIX ".so.a")
 
-install(TARGETS libcthun-client DESTINATION LIBCTHUN_CLIENT_INSTALL_DESTINATION)
+install(TARGETS libcthun-client DESTINATION "${LIBCTHUN_CLIENT_INSTALL_DESTINATION}")

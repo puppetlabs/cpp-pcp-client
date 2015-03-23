@@ -1,0 +1,19 @@
+This package was debianized by Pieter Loubser <pieter.loubser@puppetlabs.com> on
+Mon, 23 Mar 2015 15:08:35 +0000
+
+It was downloaded from https://github.com/puppetlabs/cthun-client
+
+Upstream Author:
+
+    Puppet Labs <info@puppetlabs.com>
+
+Copyright:
+
+    Copyright 2010-2011 Puppet Labs <info@puppetlabs.com>
+
+License: ASL-2
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    On a Debian system, the license can be found at
+    /usr/share/common-licenses/Apache-2.0 .
+

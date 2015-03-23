@@ -24,24 +24,13 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/vendor/leatherman/cmake")
 
 # Set compiler flags
-
-# Exclusions
-# - Wsign-compare (valijson)
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -Wno-reorder -Wno-unused-parameter -Wno-deprecated-register -Wno-sign-compare -Wno-deprecated-declarations")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-
-    # NB: -pthread is needed for fedora20 (cmake does not add the library, even
-    # afer finding it)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-sign-compare -Wno-reorder -lpthread -pthread -fPIC")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-endif()
+include(cflags)
+set(CTHUN_CLIENT_FLAGS "-Wno-deprecated-declarations -Wno-reorder -Wno-sign-compare")
+set(CMAKE_CXX_FLAGS "${LEATHERMAN_CXX_FLAGS} ${CTHUN_CLIENT_FLAGS}")
 
 # Leatherman it up
 include(options)
-
-ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
+option(BOOST_STATIC "Use Boost's static libraries" OFF)
 set(LEATHERMAN_USE_LOCALE TRUE)
 set(LEATHERMAN_USE_NOWIDE TRUE)
 set(LEATHERMAN_USE_CATCH TRUE)
@@ -77,8 +66,10 @@ include_directories(
     ${OPENSSL_INCLUDE_DIR}
 )
 
+
 link_directories(
     ${Boost_LIBRARY_DIRS}
+    ${OPENSSL_INCLUDE_DIR}
 )
 
 # Add src subdirectory
