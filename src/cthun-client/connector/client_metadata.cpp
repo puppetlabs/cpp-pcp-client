@@ -5,7 +5,7 @@
 
 #include <leatherman/logging/logging.hpp>
 
-#include <openssl/X509v3.h>
+#include <openssl/x509v3.h>
 #include <openssl/ssl.h>
 
 #include <stdio.h>  // std::fopen

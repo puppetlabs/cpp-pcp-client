@@ -74,17 +74,17 @@ The folling calls to the _get_ method will retrieve values from the DataContaine
 
 ```
     data.get<std::string>("module"); // == "puppet"
-    data.get<std::string>("params", "first"); // == "--module-path=/home/alice/modules"
+    data.get<std::string>({ "params", "first" }); // == "--module-path=/home/alice/modules"
 ```
 
-Note that the _get_ method is variadic and each additional argument is a level down
-in the JSON document.
+Note that when the _get_ method is invoked with an initialiser list it will use
+each argument to descend a level into the object tree.
 
 You can also set the value of fields and create new fields with the _set_ method.
 
 ```
     data.set<int>("foo", 42);
-    data.set<bool>("params", "second", false);
+    data.set<bool>({ "params", "second" }, false);
 ```
 
 This will change the internal JSON representation to
@@ -101,8 +101,8 @@ This will change the internal JSON representation to
     }
 ```
 
-Note that the _set_ method is also variadic with the depth in the object tree being
-determined by all but the last parameter, which is the value.
+Note that the _set_ method uses the initialiser list in the same way as the _get_
+method. Each argument to the list is one level to descend.
 
 The _get_ and _set_ methods can throw the following exceptions:
 

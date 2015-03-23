@@ -33,7 +33,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
     # NB: -pthread is needed for fedora20 (cmake does not add the library, even
     # afer finding it)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-sign-compare -lpthread -pthread")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-sign-compare -Wno-reorder -lpthread -pthread -fPIC")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
@@ -48,6 +48,21 @@ set(LEATHERMAN_USE_CATCH TRUE)
 set(LEATHERMAN_USE_LOGGING TRUE)
 add_subdirectory("vendor/leatherman")
 
+# Find libraries
+find_package(Boost 1.54 REQUIRED
+  COMPONENTS filesystem system date_time thread log regex random)
+
+find_package(OpenSSL REQUIRED)
+
+# prefer openssl from ports
+if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
+    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/local/lib)
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /opt/local/include)
+else()
+    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/lib)
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /usr/include)
+endif()
+
 # Include vendor libraries and directories
 include(${VENDOR_DIRECTORY}/websocketpp.cmake)
 include(${VENDOR_DIRECTORY}/rapidjson.cmake)
@@ -59,23 +74,12 @@ include_directories(
     ${VALIJSON_INCLUDE_DIRS}
     ${WEBSOCKETPP_INCLUDE_DIRS}
     ${LEATHERMAN_INCLUDE_DIRS}
+    ${OPENSSL_INCLUDE_DIR}
 )
 
 link_directories(
     ${Boost_LIBRARY_DIRS}
 )
-
-# Find libraries
-find_package(Boost 1.54 REQUIRED
-  COMPONENTS filesystem system date_time thread log regex random)
-
-find_package(OpenSSL REQUIRED)
-
-# prefer openssl from ports
-if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
-    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/local/lib)
-    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /opt/local/include)
-endif()
 
 # Add src subdirectory
 add_subdirectory(src)

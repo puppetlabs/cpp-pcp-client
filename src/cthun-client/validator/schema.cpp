@@ -65,8 +65,7 @@ Schema::Schema(const Schema& s)
             new V_C::RequiredConstraint::RequiredProperties(*s.required_properties_)} {
 }
 
-const Schema::Schema(const std::string& name,
-                     const DataContainer metadata)
+Schema::Schema(const std::string& name, const DataContainer metadata)
         try : name_ { name },
               content_type_ { ContentType::Json },
               parsed_json_schema_ { new valijson::Schema(parseSchema(metadata)) },
@@ -161,7 +160,7 @@ V_C::TypeConstraint Schema::getConstraint(TypeConstraint type) const {
             return V_C::TypeConstraint::kNumber;
         case TypeConstraint::Null :
             return V_C::TypeConstraint::kNull;
-        case TypeConstraint::Any :
+        default:
             return V_C::TypeConstraint::kAny;
     }
 }
