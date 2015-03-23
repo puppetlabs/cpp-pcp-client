@@ -6,6 +6,7 @@
 #include <iostream>
 #include <tuple>
 #include <typeinfo>
+#include <memory>
 
 // Forward declarations for rapidjson
 namespace rapidjson {
@@ -54,9 +55,7 @@ class index_error : public std::runtime_error  {
 //    x.set<std::string>(foo", "bar");
 //
 // To set a nested key to a scalar value in object x
-//    x.set<bool>("foo", "bar", "baz", true);
-//
-// NOTE THAT LOCATION IN STUCTURE IS A VARAIDIC ARGUMENT
+//    x.set<bool>({ "foo", "bar", "baz" }, true);
 //
 // To set a key to a vector value in object x
 //    std::vector<int> tmp { 1, 2, 3 };
@@ -70,7 +69,6 @@ class index_error : public std::runtime_error  {
 //    x.get<std::vector<float>>("foo");
 //
 // To get a result object (json object) from object x
-//    x.get<Message>("foo");
 //    x.get<Data>("foo");
 //
 // To get a null value from a key in object x
@@ -85,7 +83,14 @@ class index_error : public std::runtime_error  {
 //
 // To check if a key is set in object x
 //    x.includes("foo");
-//    x.includes("foo", "bar", "baz");
+//    x.includes({ "foo", "bar", "baz" });
+
+struct DataContainerKey : public std::string {
+    DataContainerKey(const std::string& value) : std::string(value) {}
+    DataContainerKey(std::string value) : std::string(value) {}
+    DataContainerKey(const char* value) : std::string(value) {}
+    DataContainerKey(std::initializer_list<char> il) = delete;
+};
 
 class DataContainer {
   public:
@@ -105,15 +110,26 @@ class DataContainer {
 
     std::string toString() const;
 
-    bool includes(const std::string& first) const {
-        return includes_(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
-                         first.data());
+    bool includes(const DataContainerKey& key) const {
+        rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+        if (hasKey(*jval, key.data())) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    template <typename ... Args>
-    bool includes(const std::string& first, Args... rest) const {
-        return includes_(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
-                         first.data(), rest...);
+    bool includes(std::vector<DataContainerKey> keys) const {
+        rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+        for (const auto& key : keys) {
+            if (!hasKey(*jval, key.data())) {
+                return false;
+            }
+            jval = getValueInJson(*jval, key.data());
+        }
+
+        return true;
     }
 
     template <typename T>
@@ -122,73 +138,75 @@ class DataContainer {
     }
 
     template <typename T>
-    T get(const std::string& first) const {
-        return get_<T>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
-                       first.data());
-    }
+    T get(const DataContainerKey& key) {
+        rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
 
-    template <typename T, typename ... Args>
-    T get(const std::string& first, Args ... rest) const {
-        return get_<T>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
-                       first.data(), rest...);
+        if (hasKey(*jval, key.data())) {
+            return getValue<T>(*getValueInJson(*jval, key.data()));
+        }
+
+        return getValue<T>();
     }
 
     template <typename T>
-    void set(const std::string& key, T value) {
-        set_<T>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
-                key.data(),
-                value);
+    T get(std::vector<DataContainerKey> keys) {
+        rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+        for (const auto& key : keys) {
+            if (!hasKey(*jval, key.data())) {
+                return getValue<T>();
+            }
+
+            jval = getValueInJson(*jval, key.data());
+        }
+
+        return getValue<T>(*jval);
     }
 
-    template <typename T, typename ... Args>
-    void set(const std::string& first_key,
-             const std::string& second_key,
-             Args ... nested_keys_and_val) {
-        if (sizeof...(nested_keys_and_val) == 0) {
-            // In case set() is called with two strings as args, the
-            // the variadic overload is called (the invocation of
-            // variadic templates is done by matching args in a greedy
-            // way); we deal with that by setting the entry directly
-            set_<std::string>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
-                              first_key.data(),
-                              second_key);
-        } else {
-            set_<T>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()),
-                    first_key.data(),
-                    second_key.data(),
-                    nested_keys_and_val...);
+    template <typename T>
+    void set(const DataContainerKey& key, T value) {
+        rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+        const char* key_data = key.data();
+
+        if (!isObject(*jval)) {
+            throw index_error { "invalid index supplied; cannot navigate "
+                                "the provided path" };
         }
+
+        if (!hasKey(*jval, key_data)) {
+            createKeyInJson(key_data, *jval);
+        }
+
+        setValue<T>(*getValueInJson(*jval, key_data), value);
+    }
+
+    template <typename T>
+    void set(std::vector<DataContainerKey> keys, T value) {
+        rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+        for (const auto& key : keys) {
+            const char* key_data = key.data();
+            if (!isObject(*jval)) {
+                throw index_error { "invalid index supplied; cannot navigate "
+                                    "the provided path" };
+            }
+            if (!hasKey(*jval, key_data)) {
+                createKeyInJson(key_data, *jval);
+            }
+            jval = getValueInJson(*jval, key_data);
+        }
+
+        setValue<T>(*jval, value);
     }
 
   private:
     std::unique_ptr<rapidjson::Document> document_root_;
 
     bool hasKey(const rapidjson::Value& jval, const char* key) const;
-    bool isNotObject(const rapidjson::Value& jval, const char* key) const;
+    bool isObject(const rapidjson::Value& jval) const;
     rapidjson::Value* getValueInJson(const rapidjson::Value& jval,
                                      const char* key) const;
     void createKeyInJson(const char* key, rapidjson::Value& jval);
-
-    template <typename ... Args>
-    bool includes_(const rapidjson::Value& jval, const char * key) const {
-        if (hasKey(jval, key)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    template <typename ... Args>
-    bool includes_(const rapidjson::Value& jval,
-                   const char * first_key,
-                   Args ... nested_keys_and_val) const {
-        if (hasKey(jval, first_key)) {
-            return includes_(*getValueInJson(jval, first_key),
-                             nested_keys_and_val...);
-        } else {
-            return false;
-        }
-    }
 
     template <typename T>
     T get_(const rapidjson::Value& jval, const char * first_key) const {
@@ -209,49 +227,6 @@ class DataContainer {
         }
 
         return getValue<T>();
-    }
-
-    // Last recursive call from the variadic template ends here
-    template<typename T>
-    void set_(rapidjson::Value& jval) {
-        return;
-    }
-
-    template <typename T>
-    void set_(rapidjson::Value& jval, const char* key, T new_val) {
-        if (!hasKey(jval, key)) {
-            createKeyInJson(key, jval);
-        }
-        setValue<T>(*getValueInJson(jval, key), new_val);
-    }
-
-    // deal with the case where parameter pack is a tuple of only strings
-    // we need this because varaidic templates are greedy and won't call the
-    // correct set_
-    template <typename T>
-    void set_string_(rapidjson::Value& jval, const char* new_val) {
-        setValue<T>(jval, new_val);
-    }
-
-    template <typename T, typename ... Args>
-    void set_(rapidjson::Value& jval,
-              const char* current_key,
-              Args ... nested_keys_and_val) {
-        if (sizeof...(nested_keys_and_val) > 0) {
-            if (isNotObject(jval, current_key)) {
-                throw index_error { "invalid index supplied; cannot navigate "
-                                    "the provided path" };
-            }
-
-            if (!hasKey(jval, current_key)) {
-                createKeyInJson(current_key, jval);
-            }
-
-            set_<T>(*getValueInJson(jval, current_key), nested_keys_and_val...);
-        } else {
-            set_string_<std::string>(jval, current_key);
-            return;
-        }
     }
 
     template<typename T>

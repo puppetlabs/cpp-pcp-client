@@ -26,7 +26,7 @@ TEST_CASE("DataContainer::get", "[data]") {
     }
 
     SECTION("it can get a nested value") {
-        REQUIRE(msg.get<int>("foo", "bar") == 2);
+        REQUIRE(msg.get<int>({"foo", "bar"}) == 2);
     }
 
     SECTION("it can get a bool value") {
@@ -61,8 +61,8 @@ TEST_CASE("DataContainer::get", "[data]") {
     SECTION("it returns a null like value when indexing something that "
             "doesn't exist") {
         REQUIRE(msg.get<std::string>("invalid") == "");
-        REQUIRE(msg.get<int>("goo", "1") == 0);
-        REQUIRE(msg.get<bool>("foo", "baz") == false);
+        REQUIRE(msg.get<int>({ "goo", "1" }) == 0);
+        REQUIRE(msg.get<bool>({ "foo", "baz" }) == false);
     }
 }
 
@@ -70,13 +70,13 @@ TEST_CASE("DataContainer::includes", "[data]") {
     SECTION("Document/object lookups") {
         DataContainer msg { JSON };
         REQUIRE(msg.includes("foo") == true);
-        REQUIRE(msg.includes("foo", "bar") == true);
-        REQUIRE(msg.includes("foo", "baz") == false);
+        REQUIRE(msg.includes({ "foo", "bar" }) == true);
+        REQUIRE(msg.includes({ "foo", "baz" }) == false);
     }
 
     SECTION("Non object/document lookups") {
         DataContainer msg { "\"foo\"" };
-        REQUIRE(msg.includes("bar", "bar") == false);
+        REQUIRE(msg.includes({ "bar", "bar" }) == false);
         REQUIRE(msg.includes("foo") == false);
     }
 }
@@ -90,13 +90,13 @@ TEST_CASE("DataContainer::set", "[data]") {
     }
 
     SECTION("it allows the creation of a nested structure") {
-        msg.set<int>("level1", "level21", 0);
+        msg.set<int>({"level1", "level21"}, 0);
         msg.set<bool>("bool1", true);
-        msg.set<std::string>("level1", "level22", "a string");
+        msg.set<std::string>({"level1", "level22"}, "a string");
         msg.set<std::string>("level11", "different string");
-        REQUIRE(msg.get<int>("level1", "level21") == 0);
+        REQUIRE(msg.get<int>({ "level1", "level21" }) == 0);
         REQUIRE(msg.get<bool>("bool1") == true);
-        REQUIRE(msg.get<std::string>("level1", "level22") == "a string");
+        REQUIRE(msg.get<std::string>({"level1", "level22"}) == "a string");
         REQUIRE(msg.get<std::string>("level11") == "different string");
     }
 
