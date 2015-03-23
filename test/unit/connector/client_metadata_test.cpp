@@ -12,7 +12,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("retrieves correctly the client identity from the certificate") {
         std::string type { "test" };
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath() };
-        std::string expected_id { "cth://cthun-client/cthun-" + type };
+        std::string expected_id { "cth://cthun-client/" + type };
 
         REQUIRE(c_m.id == expected_id);
     }
