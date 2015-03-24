@@ -11,9 +11,9 @@ const std::string SERVER_URL { "wss://127.0.0.1:8090/cthun/" };
 
 const std::string AGENT_CLIENT_TYPE { "tutorial_agent" };
 
-const std::string CA   { "../../resources/ca_crt.pem" };
-const std::string CERT { "../../resources/test_crt.pem" };
-const std::string KEY  { "../../resources/test_key.pem" };
+const std::string CA   { "../../resources/agent_certs/ca.pem" };
+const std::string CERT { "../../resources/agent_certs/crt.pem" };
+const std::string KEY  { "../../resources/agent_certs/key.pem" };
 
 int main(int argc, char *argv[]) {
     std::unique_ptr<CthunClient::Connector> connector_ptr;

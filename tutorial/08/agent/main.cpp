@@ -67,9 +67,8 @@ Agent::Agent()
 
     validator_.registerSchema(song_schema);
 } catch (CthunClient::connection_config_error& e) {
-    std::cout << "Failed to configure the Cthun connector: "
-              << e.what() << "\n";
-    throw agent_error { "failed to configure the Cthun Connector" };
+    std::string err_msg { "failed to configure the Cthun Connector: " };
+    throw agent_error { err_msg + e.what() };
 }
 
 void Agent::start() {
@@ -86,12 +85,13 @@ void Agent::start() {
     try {
         connector_ptr_->connect(num_connect_attempts_);
     } catch (CthunClient::connection_config_error& e) {
-        std::cout << "Failed to configure WebSocket: " << e.what() << "\n";
-        throw agent_error { "failed to configure WebSocket" };
+        std::string err_msg { "failed to configure WebSocket: " };
+        throw agent_error { err_msg + e.what() };
     } catch (CthunClient::connection_fatal_error& e) {
-        std::cout << "Failed to connect to " << SERVER_URL << " after "
-                  << num_connect_attempts_ << " attempts: " << e.what() << "\n";
-        throw agent_error { "failed to connect" };
+        std::string err_msg { "failed to connect to " + SERVER_URL + " after "
+                              + std::to_string(num_connect_attempts_)
+                              + "attempts: " };
+        throw agent_error { err_msg + e.what() };
     }
 
     // Connector::isConnected()
@@ -108,9 +108,8 @@ void Agent::start() {
     try {
         connector_ptr_->monitorConnection(num_connect_attempts_);
     } catch (CthunClient::connection_fatal_error& e) {
-        std::cout << "Failed to reconnect to " << SERVER_URL << " after "
-                  << num_connect_attempts_ << " attempts: " << e.what() << "\n";
-        throw agent_error { "failed to reconnect" };
+        std::string err_msg { "failed to reconnect to " + SERVER_URL + ": " };
+        throw agent_error { err_msg + e.what() };
     }
 }
 
@@ -144,7 +143,8 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
         } catch (CthunClient::connection_processing_error& e) {
             std::cout << "Failed to send the error message: "
                       << e.what() << "\n";
-            // NB: as below, we don't want to throw anything here
+            // NB: as below, we don't want to throw anything here; we
+            // must not stop the event handler thread
         }
 
         return;
@@ -191,8 +191,7 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
         std::cout << "Failed to send the response message: "
                   << e.what() << "\n";
 
-        // NB: we don't want to throw anything here; we must not stop
-        // the event handler thread for sending error
+        // NB: as above, we don't want to throw anything here
     }
 }
 
@@ -201,18 +200,18 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
 //
 
 int main(int argc, char *argv[]) {
-    std::unique_ptr<Agent> agent_ptr;
-
     try {
-        agent_ptr.reset(new Agent {});
-    } catch (agent_error&) {
+        Agent agent {};
+
+        try {
+            agent.start();
+        } catch (agent_error& e) {
+            std::cout << "Failed to start the agent: " << e.what() << std::endl;
+            return 2;
+        }
+    } catch (agent_error& e) {
+        std::cout << "Failed to initialize the agent: " << e.what() << std::endl;
         return 1;
-    }
-
-    try {
-        agent_ptr->start();
-    } catch (agent_error&) {
-        return 2;
     }
 
     return 0;

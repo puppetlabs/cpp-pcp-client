@@ -31,7 +31,7 @@ class controller_error : public std::runtime_error {
 class Controller {
   public:
     Controller();
-    void start();
+    void sendRequest();
 
   private:
     int num_connect_attempts_;
@@ -47,23 +47,23 @@ Controller::Controller()
                                                         CERT,
                                                         KEY } } {
 } catch (CthunClient::connection_config_error& e) {
-    std::cout << "Failed to configure the Cthun connector: "
-              << e.what() << "\n";
-    throw controller_error { "failed to configure the Cthun Connector" };
+    std::string err_msg { "failed to configure the Cthun Connector: " };
+    throw controller_error { err_msg + e.what() };
 }
 
-void Controller::start() {
+void Controller::sendRequest() {
     // Connector::connect()
 
     try {
         connector_ptr_->connect(num_connect_attempts_);
     } catch (CthunClient::connection_config_error& e) {
-        std::cout << "Failed to configure WebSocket: " << e.what() << "\n";
-        throw controller_error { "failed to configure WebSocket" };
+        std::string err_msg { "failed to configure WebSocket: " };
+        throw controller_error { err_msg + e.what() };
     } catch (CthunClient::connection_fatal_error& e) {
-        std::cout << "Failed to connect to " << SERVER_URL << " after "
-                  << num_connect_attempts_ << " attempts: " << e.what() << "\n";
-        throw controller_error { "failed to connect" };
+        std::string err_msg { "failed to connect to " + SERVER_URL + " after "
+                              + std::to_string(num_connect_attempts_)
+                              + "attempts: " };
+        throw controller_error { err_msg + e.what() };
     }
 
     // Connector::isConnected()
@@ -71,7 +71,7 @@ void Controller::start() {
     if (connector_ptr_->isConnected()) {
         std::cout << "Successfully connected to " << SERVER_URL << "\n";
     } else {
-        std::cout << "The connection has dropped; we can't send anything :(\n";
+        // The connection has dropped; we can't send anything
         throw controller_error { "connection dropped" };
     }
 
@@ -91,8 +91,8 @@ void Controller::start() {
                              data_entries);
         std::cout << "Request message sent\n";
     } catch (CthunClient::connection_processing_error& e) {
-        std::cout << "Failed to send the request message: " << e.what() << "\n";
-        throw controller_error { "failed to send" };
+        std::string err_msg { "failed to send the request message: " };
+        throw controller_error { err_msg + e.what() };
     }
 }
 
@@ -101,18 +101,19 @@ void Controller::start() {
 //
 
 int main(int argc, char *argv[]) {
-    std::unique_ptr<Controller> controller_ptr;
-
     try {
-        controller_ptr.reset(new Controller {});
-    } catch (controller_error&) {
+        Controller controller {};
+
+        try {
+            controller.sendRequest();
+        } catch (controller_error& e) {
+            std::cout << "Failed to process requests: " << e.what() << std::endl;
+            return 2;
+        }
+    } catch (controller_error& e) {
+        std::cout << "Failed to initialize the controller: " << e.what()
+                  << std::endl;
         return 1;
-    }
-
-    try {
-        controller_ptr->start();
-    } catch (controller_error&) {
-        return 2;
     }
 
     return 0;
