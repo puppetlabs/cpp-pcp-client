@@ -6,16 +6,15 @@ include_directories("${SOURCE_DIR}")
 set(CATCH_DIRECTORY "${VENDOR_DIRECTORY}/catch")
 
 set(SOURCES
-    main.cpp
-
-    unit/connector/client_metadata_test.cpp
-    unit/connector/connection_test.cpp
-    unit/connector/certs.cpp
-    unit/data_container/data_container_test.cpp
-    unit/message/serialization_test.cpp
-    unit/message/message_test.cpp
-    unit/validator/schema_test.cpp
-    unit/validator/validator_test.cpp
+    main.cc
+    unit/connector/client_metadata_test.cc
+    unit/connector/connection_test.cc
+    unit/connector/certs.cc
+    unit/data_container/data_container_test.cc
+    unit/message/serialization_test.cc
+    unit/message/message_test.cc
+    unit/validator/schema_test.cc
+    unit/validator/validator_test.cc
 )
 
 set(test_BIN cthun-client-unittests)

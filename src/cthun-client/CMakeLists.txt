@@ -1,13 +1,13 @@
 set(SOURCES
-    connector/client_metadata.cpp
-    connector/connection.cpp
-    connector/connector.cpp
-    connector/timings.cpp
-    data_container/data_container.cpp
-    message/chunks.cpp
-    message/message.cpp
-    validator/schema.cpp
-    validator/validator.cpp
+    connector/client_metadata.cc
+    connector/connection.cc
+    connector/connector.cc
+    connector/timings.cc
+    data_container/data_container.cc
+    message/chunks.cc
+    message/message.cc
+    validator/schema.cc
+    validator/validator.cc
 )
 
 set(LIBS
