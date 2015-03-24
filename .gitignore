@@ -1,6 +1,5 @@
 *.o
 /build/
 /bin/
-/lib/
 /test-resources/
 /ext/packaging
