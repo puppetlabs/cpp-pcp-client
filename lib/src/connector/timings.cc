@@ -1,4 +1,4 @@
-#include <cthun-client/connector/timings.h>
+#include <cthun-client/connector/timings.hpp>
 
 #include <sstream>
 

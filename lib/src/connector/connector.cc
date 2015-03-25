@@ -1,7 +1,7 @@
-#include <cthun-client/connector/connector.h>
-#include <cthun-client/connector/errors.h>
-#include <cthun-client/connector/uuid.h>
-#include <cthun-client/message/message.h>
+#include <cthun-client/connector/connector.hpp>
+#include <cthun-client/connector/errors.hpp>
+#include <cthun-client/connector/uuid.hpp>
+#include <cthun-client/message/message.hpp>
 
 #define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".connector"
 

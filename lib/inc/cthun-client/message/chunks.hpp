@@ -1,10 +1,9 @@
 #ifndef CTHUN_CLIENT_SRC_CHUNKS_H_
 #define CTHUN_CLIENT_SRC_CHUNKS_H_
 
-#include "./serialization.h"  // SerializedMessage
-
-#include "../validator/schema.h"  // ContentType
-#include "../data_container/data_container.h"
+#include <cthun-client/message/serialization.hpp>
+#include <cthun-client/validator/schema.hpp>
+#include <cthun-client/data_container/data_container.hpp>
 
 #include <string>
 #include <stdint.h>  // uint8_t

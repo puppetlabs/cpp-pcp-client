@@ -1,16 +1,13 @@
 #ifndef CTHUN_CLIENT_SRC_CONNECTOR_CONNECTOR_H_
 #define CTHUN_CLIENT_SRC_CONNECTOR_CONNECTOR_H_
 
-#include "./connection.h"
-#include "./client_metadata.h"
-
-#include "../validator/validator.h"
-#include "../validator/schema.h"
-
-#include "../message/chunks.h"
-#include "../message/message.h"
-
-#include "../data_container/data_container.h"
+#include <cthun-client/connector/connection.hpp>
+#include <cthun-client/connector/client_metadata.hpp>
+#include <cthun-client/validator/validator.hpp>
+#include <cthun-client/validator/schema.hpp>
+#include <cthun-client/message/chunks.hpp>
+#include <cthun-client/message/message.hpp>
+#include <cthun-client/data_container/data_container.hpp>
 
 #include <memory>
 #include <string>

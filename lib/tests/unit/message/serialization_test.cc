@@ -1,6 +1,6 @@
-#include "tests/test.h"
+#include "tests/test.hpp"
 
-#include <cthun-client/message/serialization.h>
+#include <cthun-client/message/serialization.hpp>
 
 #include <iostream>
 #include <string>

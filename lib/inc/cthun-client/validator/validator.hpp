@@ -1,8 +1,8 @@
 #ifndef CTHUN_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
 #define CTHUN_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
 
-#include "schema.h"
-#include "../data_container/data_container.h"
+#include <cthun-client/validator/schema.hpp>
+#include <cthun-client/data_container/data_container.hpp>
 
 #include <map>
 #include <mutex>

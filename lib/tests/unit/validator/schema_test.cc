@@ -1,7 +1,7 @@
-#include "tests/test.h"
+#include "tests/test.hpp"
 
-#include <cthun-client/validator/schema.h>
-#include <cthun-client/data_container/data_container.h>
+#include <cthun-client/validator/schema.hpp>
+#include <cthun-client/data_container/data_container.hpp>
 
 #include <valijson/adapters/rapidjson_adapter.hpp>
 #include <valijson/schema_parser.hpp>

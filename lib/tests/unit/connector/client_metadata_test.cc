@@ -1,8 +1,8 @@
-#include "tests/test.h"
-#include "certs.h"
+#include "tests/test.hpp"
+#include "certs.hpp"
 
-#include <cthun-client/connector/client_metadata.h>
-#include <cthun-client/connector/errors.h>
+#include <cthun-client/connector/client_metadata.hpp>
+#include <cthun-client/connector/errors.hpp>
 
 #include <string>
 

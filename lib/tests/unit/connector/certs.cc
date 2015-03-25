@@ -1,5 +1,5 @@
-#include "tests/test.h"
-#include "tests/unit/connector/certs.h"
+#include "tests/test.hpp"
+#include "tests/unit/connector/certs.hpp"
 
 std::string getCaPath() {
     static const std::string ca {

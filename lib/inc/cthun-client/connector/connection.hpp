@@ -1,8 +1,8 @@
 #ifndef CTHUN_CLIENT_SRC_CONNECTOR_CONNECTION_H_
 #define CTHUN_CLIENT_SRC_CONNECTOR_CONNECTION_H_
 
-#include "./timings.h"
-#include "./client_metadata.h"
+#include <cthun-client/connector/timings.hpp>
+#include <cthun-client/connector/client_metadata.hpp>
 
 #include <string>
 #include <vector>

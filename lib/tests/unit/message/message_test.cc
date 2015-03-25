@@ -1,7 +1,7 @@
-#include "tests/test.h"
+#include "tests/test.hpp"
 
-#include <cthun-client/message/message.h>
-#include <cthun-client/message/errors.h>
+#include <cthun-client/message/message.hpp>
+#include <cthun-client/message/errors.hpp>
 
 #include <iostream>
 #include <vector>

@@ -1,5 +1,5 @@
-#include <cthun-client/connector/client_metadata.h>
-#include <cthun-client/connector/errors.h>
+#include <cthun-client/connector/client_metadata.hpp>
+#include <cthun-client/connector/errors.hpp>
 
 #define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".client_metadata"
 

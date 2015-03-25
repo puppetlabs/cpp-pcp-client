@@ -1,7 +1,7 @@
 #ifndef CTHUN_CLIENT_SRC_VALIDATOR_SCHEMA_H_
 #define CTHUN_CLIENT_SRC_VALIDATOR_SCHEMA_H_
 
-#include "../data_container/data_container.h"
+#include <cthun-client/data_container/data_container.hpp>
 
 #include <map>
 #include <string>

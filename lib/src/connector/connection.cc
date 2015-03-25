@@ -7,10 +7,10 @@
 #define _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
 #define _WEBSOCKETPP_CPP11_THREAD_
 
-#include <cthun-client/connector/connection.h>
-#include <cthun-client/connector/errors.h>
-#include <cthun-client/data_container/data_container.h>
-#include <cthun-client/message/message.h>
+#include <cthun-client/connector/connection.hpp>
+#include <cthun-client/connector/errors.hpp>
+#include <cthun-client/data_container/data_container.hpp>
+#include <cthun-client/message/message.hpp>
 
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/client.hpp>

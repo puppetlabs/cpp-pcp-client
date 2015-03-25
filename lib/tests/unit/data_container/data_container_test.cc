@@ -1,6 +1,6 @@
-#include "tests/test.h"
+#include "tests/test.hpp"
 
-#include <cthun-client/data_container/data_container.h>
+#include <cthun-client/data_container/data_container.hpp>
 
 #include <iostream>
 

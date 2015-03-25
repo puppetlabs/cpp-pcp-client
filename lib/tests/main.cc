@@ -2,7 +2,7 @@
 // for providing our own main function to Catch
 #define CATCH_CONFIG_RUNNER
 
-#include "test.h"
+#include "test.hpp"
 
 #define LEATHERMAN_LOGGING_NAMESPACE "puppetlabs.cthun_agent.test"
 #include <leatherman/logging/logging.hpp>

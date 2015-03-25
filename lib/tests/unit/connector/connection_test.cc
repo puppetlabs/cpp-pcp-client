@@ -1,9 +1,9 @@
-#include "tests/test.h"
-#include "tests/unit/connector/certs.h"
+#include "tests/test.hpp"
+#include "tests/unit/connector/certs.hpp"
 
-#include <cthun-client/connector/connection.h>
-#include <cthun-client/connector/client_metadata.h>
-#include <cthun-client/connector/errors.h>
+#include <cthun-client/connector/connection.hpp>
+#include <cthun-client/connector/client_metadata.hpp>
+#include <cthun-client/connector/errors.hpp>
 
 namespace CthunClient {
 

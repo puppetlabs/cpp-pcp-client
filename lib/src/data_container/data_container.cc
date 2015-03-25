@@ -1,4 +1,4 @@
-#include <cthun-client/data_container/data_container.h>
+#include <cthun-client/data_container/data_container.hpp>
 
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>

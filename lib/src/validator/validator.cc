@@ -1,4 +1,4 @@
-#include <cthun-client/validator/validator.h>
+#include <cthun-client/validator/validator.hpp>
 
 #include <valijson/adapters/rapidjson_adapter.hpp>
 #include <valijson/schema_parser.hpp>

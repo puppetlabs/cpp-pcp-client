@@ -1,7 +1,7 @@
 #ifndef CTHUN_CLIENT_SRC_MESSAGE_SERIALIZATION_H_
 #define CTHUN_CLIENT_SRC_MESSAGE_SERIALIZATION_H_
 
-#include "./errors.h"
+#include <cthun-client/message/errors.hpp>
 
 #include <boost/detail/endian.hpp>
 

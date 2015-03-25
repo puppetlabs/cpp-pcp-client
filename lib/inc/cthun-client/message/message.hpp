@@ -1,13 +1,11 @@
 #ifndef CTHUN_CLIENT_SRC_MESSAGE_MESSAGE_H_
 #define CTHUN_CLIENT_SRC_MESSAGE_MESSAGE_H_
 
-#include "./chunks.h"
-#include "./errors.h"
-#include "./serialization.h"
-
-#include "../data_container/data_container.h"
-
-#include "../validator/validator.h"
+#include <cthun-client/message/chunks.hpp>
+#include <cthun-client/message/errors.hpp>
+#include <cthun-client/message/serialization.hpp>
+#include <cthun-client/data_container/data_container.hpp>
+#include <cthun-client/validator/validator.hpp>
 
 #include <string>
 #include <vector>
