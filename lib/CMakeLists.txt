@@ -47,5 +47,6 @@ target_link_libraries(libcthun-client PRIVATE ${LIBS} ${PLATFORM_LIBRARIES})
 set_target_properties(libcthun-client  PROPERTIES PREFIX "" SUFFIX ".so" IMPORT_PREFIX "" IMPORT_SUFFIX ".so.a")
 
 install(TARGETS libcthun-client DESTINATION "${LIBCTHUN_CLIENT_INSTALL_DESTINATION}")
+install(DIRECTORY inc/cthun-client DESTINATION include)
 
 add_subdirectory(tests)
