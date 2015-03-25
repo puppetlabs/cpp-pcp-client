@@ -1,6 +1,6 @@
 #include <string>
 
-#include <cthun-client/validator/schema.h>     // Schema, ContentType
+#include <cthun-client/validator/schema.hpp>     // Schema, ContentType
 
 namespace Tutorial {
 

@@ -1,9 +1,9 @@
 #include "../common.h"
 
-#include <cthun-client/connector/connector.h>  // Connector
-#include <cthun-client/connector/errors.h>     // connection_config_error
+#include <cthun-client/connector/connector.hpp>  // Connector
+#include <cthun-client/connector/errors.hpp>     // connection_config_error
 
-#include <cthun-client/data_container/data_container.h>  // DataContainer
+#include <cthun-client/data_container/data_container.hpp>  // DataContainer
 
 #include <string>
 #include <iostream>

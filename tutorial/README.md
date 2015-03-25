@@ -4,7 +4,7 @@ This tutorial shows how to create a Cthun agent / controller pair with
 CthunClient.
 
 To build on OS X:
-`g++ -std=c++11 -o agent -L /usr/local/lib  -lcthun-client -I ../../../src  main.cpp`
+`g++ -std=c++11 -o agent -L /usr/local/lib  -lcthun-client -I ../../../lib/inc main.cpp`
 
 You need to install CthunClient before that: `make` then `make install`; the
 `libcthun-client.so` file should be then in /usr/local/lib, otherwise you must

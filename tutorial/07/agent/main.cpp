@@ -1,11 +1,11 @@
 #include "../common.h"
 
-#include <cthun-client/connector/connector.h>  // Connector
-#include <cthun-client/connector/errors.h>     // connection_config_error
+#include <cthun-client/connector/connector.hpp>  // Connector
+#include <cthun-client/connector/errors.hpp>     // connection_config_error
 
-#include <cthun-client/message/chunks.h>       // ParsedChunk
+#include <cthun-client/message/chunks.hpp>       // ParsedChunk
 
-#include <cthun-client/validator/schema.h>     // Schema, ContentType
+#include <cthun-client/validator/schema.hpp>     // Schema, ContentType
 
 #include <string>
 #include <iostream>
