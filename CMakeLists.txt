@@ -5,7 +5,7 @@ project(cthun-client)
 
 set(MAINFOLDER ${PROJECT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH "${MAINFOLDER}/bin")
-set(LIBRARY_OUTPUT_PATH "${MAINFOLDER}/lib")
+set(LIBRARY_OUTPUT_PATH "${MAINFOLDER}/bin")
 set(VENDOR_DIRECTORY "${PROJECT_SOURCE_DIR}/vendor")
 list(APPEND CMAKE_MODULE_PATH ${VENDOR_DIRECTORY})
 
@@ -57,33 +57,21 @@ include(${VENDOR_DIRECTORY}/websocketpp.cmake)
 include(${VENDOR_DIRECTORY}/rapidjson.cmake)
 include(${VENDOR_DIRECTORY}/valijson.cmake)
 
-include_directories(
-    ${Boost_INCLUDE_DIRS}
-    ${RAPIDJSON_INCLUDE_DIRS}
-    ${VALIJSON_INCLUDE_DIRS}
-    ${WEBSOCKETPP_INCLUDE_DIRS}
-    ${LEATHERMAN_INCLUDE_DIRS}
-    ${OPENSSL_INCLUDE_DIR}
-)
-
-
 link_directories(
     ${Boost_LIBRARY_DIRS}
     ${OPENSSL_INCLUDE_DIR}
 )
 
 # Add src subdirectory
-add_subdirectory(src)
+add_subdirectory(lib)
 
 # Add the test suite
 if (CTHUN_CLIENT_TOPLEVEL)
     enable_testing()
-    add_subdirectory(test)
 
     add_test(
       NAME "cthun-client\\ library\\ tests"
       COMMAND "${MAINFOLDER}/bin/cthun-client-unittests"
-
     )
 
     # Add cpplint target

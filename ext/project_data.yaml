@@ -6,7 +6,7 @@ homepage: 'https://github.com/puppetlabs/cthun-client'
 summary: 'C++ library for interacting with a Cthun server'
 description: 'C++ library for interacting with a Cthun server'
 # files to be packaged into a tarball and released with deb/rpm
-files: '[A-Z]* ext src vendor cmake test'
+files: '[A-Z]* bin lib vendor cmake'
 # space separated list of files to *exclude* from the tarball
 # note that each listing in files, above, is recursively copied into the tarball, so
 # 'tar\_excludes' only needs to include any undesired subdirectories/files of the 'files'
