@@ -23,7 +23,7 @@ find_package(Boost 1.54 REQUIRED
   COMPONENTS filesystem system date_time thread log regex random)
 
 include_directories(
-    ${CATCH_DIRECTORY}
+    ${LEATHERMAN_CATCH_INCLUDE}
     SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
