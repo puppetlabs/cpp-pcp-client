@@ -49,15 +49,16 @@ More in detail, calling Connector::registerMessageCallback() ensures that all
 received messages with a `data_schema` entry equals to `"tutorial_request_schema"`
 (which is the name we gave to the request Schema object) are processed by
 Agent::processRequest; `data_schema` is  required entry of envelope chunks
-(refer to the Cthun specs).
+(refer to the [Cthun specs](https://github.com/puppetlabs/cthun-specifications)).
 
 ### Step 5
 
  - Create a controller, similar to the agent. At this point, two different
  executables should be built.
- - The Controller connects to server, sends a request to the Agent, and logs the
- received responses messages. The request is sent by specifying the message
- entries; the connector will then take care of creating message chunks.
+ - The Controller 1) connects to server, 2) sends a request to the Agent, and
+ 3) logs the received responses messages. The request is sent by simply
+ specifying the message entries; the connector will then take care of creating
+ message chunks.
 
 Note that Connector::send has different overloads.
 
@@ -73,7 +74,7 @@ Create a Controller class and refactor common code.
  - Register a Controller::processResponse callback that will notify received
  responses.
 
- Note that the controller will simply wait for a predifined time interval; no
+ Note that the controller will simply wait for a predefined time interval; no
  concurrency logic will be employed to manage the asynchronous callbacks.
 
 ### Step 8
@@ -84,3 +85,10 @@ Create a Controller class and refactor common code.
  - In case the request content is invalid, the agent will respond to the
  controller with an error message.
  - Add a callback to the Controller to process error messages.
+
+### Step 9
+
+The controller retrieves the list of the agent nodes connected to the message
+fabric by relying on the inventory service provided by the server. This is done
+by 1) registering a response message callback for processing and displaying
+inventory responses and 2) sending an inventory request to the server.
