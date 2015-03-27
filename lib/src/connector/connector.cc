@@ -233,6 +233,7 @@ void Connector::sendMessage(const std::vector<std::string>& endpoints,
 
 void Connector::sendLogin() {
     // Envelope
+    // TODO(ale): use the complete server URI once we apply the specs
     auto envelope = createEnvelope(std::vector<std::string> { "cth://server" },
                                    CTHUN_LOGIN_SCHEMA_NAME,
                                    DEFAULT_MSG_TIMEOUT);
