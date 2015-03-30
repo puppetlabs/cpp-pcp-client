@@ -86,7 +86,7 @@ class index_error : public std::runtime_error  {
 //    x.includes({ "foo", "bar", "baz" });
 
 struct DataContainerKey : public std::string {
-    DataContainerKey(const std::string& value) : std::string(value) {}
+    DataContainerKey(std::string& value) : std::string(value) {}
     DataContainerKey(std::string value) : std::string(value) {}
     DataContainerKey(const char* value) : std::string(value) {}
     DataContainerKey(std::initializer_list<char> il) = delete;
