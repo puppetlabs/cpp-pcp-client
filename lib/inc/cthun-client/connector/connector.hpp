@@ -3,6 +3,7 @@
 
 #include <cthun-client/connector/connection.hpp>
 #include <cthun-client/connector/client_metadata.hpp>
+#include <cthun-client/connector/errors.hpp>
 #include <cthun-client/validator/validator.hpp>
 #include <cthun-client/validator/schema.hpp>
 #include <cthun-client/message/chunks.hpp>
