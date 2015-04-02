@@ -1,5 +1,4 @@
 #include <cthun-client/connector/connector.hpp>
-#include <cthun-client/connector/errors.hpp>
 #include <cthun-client/connector/uuid.hpp>
 #include <cthun-client/message/message.hpp>
 
