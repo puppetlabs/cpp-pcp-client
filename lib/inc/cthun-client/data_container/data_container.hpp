@@ -8,6 +8,10 @@
 #include <typeinfo>
 #include <memory>
 
+// TODO(ale): build this on Linux
+
+// TODO(ale): do we need forward declarations for rapidjson::Type?
+
 // Forward declarations for rapidjson
 namespace rapidjson {
     class CrtAllocator;
@@ -26,8 +30,6 @@ namespace rapidjson {
 
 namespace CthunClient {
 
-// Data abstraction overlaying the raw JSON objects
-
 // Errors
 
 /// Error thrown when trying to parse an invalid JSON string.
@@ -42,18 +44,26 @@ class data_key_error : public std::runtime_error  {
     explicit data_key_error(std::string const& msg) : std::runtime_error(msg) {}
 };
 
+// Types
+
+enum DataType { Object, Array, String, Int, Bool, Double, Null };
+
 // TODO(ale): check: we don't support float nor nullptr scalars...
+// Should we?
 
 // TODO(ale): check: replacing 'index' with 'key'; having both terms
 // is confusing - the users specify keys; they don't care about
 // internal trees
 
+//
+// DataContainer - data abstraction overlaying the raw JSON objects
+//
 // Usage:
 //
 // NOTE SUPPORTED SCALARS
 // int, double, bool, std::string
 //
-//  == set
+// == set
 //
 // To set a key to a scalar value in object x
 //    x.set<int>("foo", 1);
@@ -66,7 +76,7 @@ class data_key_error : public std::runtime_error  {
 //    std::vector<int> tmp { 1, 2, 3 };
 //    x.set<std::vector<int>>("foo", tmp);
 //
-//  == get
+// == get
 //
 // To get a scalar value from a key in object x
 //    x.get<std::string>("foo");
@@ -116,7 +126,7 @@ struct DataContainerKey : public std::string {
 class DataContainer {
   public:
     DataContainer();
-    /// Throw a data_parse_error in case of invalid JSON.
+    /// Throw a data_parse_error in case of invalid JSON text.
     explicit DataContainer(const std::string& json_txt);
     explicit DataContainer(const rapidjson::Value& value);
     DataContainer(const DataContainer& data);
@@ -131,8 +141,18 @@ class DataContainer {
 
     std::string toString() const;
 
+    // TODO(ale): see if it's possible to use const for all
+    // 'std::vector<DataContainerKey> keys' parameters
+
     bool includes(const DataContainerKey& key) const;
     bool includes(std::vector<DataContainerKey> keys) const;
+
+    /// Throw a data_key_error in case the specified key is unknown.
+    DataType type(const DataContainerKey& key) const;
+
+    /// Throw a data_key_error if any one of the specified keys is
+    /// unknown.
+    DataType type(std::vector<DataContainerKey> keys) const;
 
     template <typename T>
     T get() const {
@@ -188,9 +208,9 @@ class DataContainer {
         setValue<T>(*getValueInJson(*jval, key_data), value);
     }
 
-    /// Throw a data_key_error if any one of the nested keys is not
-    /// associated with a valid JSON object, so that it is not
-    /// possible to iterate the remaining keys.
+    /// Throw a data_key_error if any nested key is not associated
+    /// with a valid JSON object, so that it is not  possible to
+    /// iterate the remaining keys.
     template <typename T>
     void set(std::vector<DataContainerKey> keys, T value) {
         rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
@@ -213,6 +233,7 @@ class DataContainer {
   private:
     std::unique_ptr<rapidjson::Document> document_root_;
 
+    DataType getValueType(const rapidjson::Value& jval) const;
     bool hasKey(const rapidjson::Value& jval, const char* key) const;
     bool isObject(const rapidjson::Value& jval) const;
     rapidjson::Value* getValueInJson(const rapidjson::Value& jval,

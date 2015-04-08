@@ -203,4 +203,101 @@ TEST_CASE("DataContainer::keys", "[data]") {
     }
 }
 
+TEST_CASE("DataContainer::type", "[data]") {
+    DataContainer data {};
+
+    SECTION("When a single key is passed") {
+        SECTION("it throws a data_key_error if the key is unknown") {
+            REQUIRE_THROWS_AS(data.type("foo"),
+                              data_key_error);
+        }
+
+        SECTION("it can distinguish a Bool (false) value") {
+            data.set<bool>("b_entry", false);
+            REQUIRE(data.type("b_entry") == DataType::Bool);
+        }
+
+        SECTION("it can distinguish a Bool (true) value") {
+            data.set<bool>("b_entry", true);
+            REQUIRE(data.type("b_entry") == DataType::Bool);
+        }
+
+        SECTION("it can distinguish an Object (DataContainer) value") {
+            DataContainer tmp {};
+            tmp.set<std::string>("eggs", "spam");
+            data.set<DataContainer>("obj_entry", tmp);
+            REQUIRE(data.type("obj_entry") == DataType::Object);
+        }
+
+        SECTION("it can distinguish an Array value") {
+            std::vector<std::string> tmp { "one", "two", "three" };
+            data.set<std::vector<std::string>>("array_entry", tmp);
+            REQUIRE(data.type("array_entry") == DataType::Array);
+        }
+
+        SECTION("it can distinguish a String value") {
+            data.set<std::string>("eggs", "spam");
+            REQUIRE(data.type("eggs") == DataType::String);
+        }
+
+        SECTION("it can distinguish an Int value") {
+            data.set<int>("int_entry", 42);
+            REQUIRE(data.type("int_entry") == DataType::Int);
+        }
+
+        SECTION("it can distinguish a Double value") {
+            data.set<double>("d_entry", 2.71828);
+            REQUIRE(data.type("d_entry") == DataType::Double);
+        }
+    }
+
+    SECTION("When multiple keys are passed") {
+        DataContainer tmp {};
+        data.set<DataContainer>("stuff", tmp);
+
+        SECTION("it throws a data_key_error if a key is unknown") {
+            REQUIRE_THROWS_AS(data.type({ "stuff", "bar" }),
+                              data_key_error);
+        }
+
+        SECTION("it can distinguish a Bool (false) value") {
+            data.set<bool>({ "stuff", "b_entry" }, false);
+            REQUIRE(data.type({ "stuff", "b_entry" }) == DataType::Bool);
+        }
+
+        SECTION("it can distinguish a Bool (true) value") {
+            data.set<bool>({ "stuff", "b_entry" }, true);
+            REQUIRE(data.type({ "stuff", "b_entry" }) == DataType::Bool);
+        }
+
+        SECTION("it can distinguish an Object (DataContainer) value") {
+            DataContainer tmp {};
+            tmp.set<std::string>("eggs", "spam");
+            data.set<DataContainer>({ "stuff", "obj_entry" }, tmp);
+            REQUIRE(data.type({ "stuff", "obj_entry" }) == DataType::Object);
+        }
+
+        SECTION("it can distinguish an Array value") {
+            std::vector<std::string> tmp { "one", "two", "three" };
+            data.set<std::vector<std::string>>({ "stuff", "array_entry" }, tmp);
+            REQUIRE(data.type({ "stuff", "array_entry" }) == DataType::Array);
+        }
+
+        SECTION("it can distinguish a String value") {
+            data.set<std::string>({ "stuff", "eggs" }, "spam");
+            REQUIRE(data.type({ "stuff", "eggs" }) == DataType::String);
+        }
+
+        SECTION("it can distinguish an Int value") {
+            data.set<int>({ "stuff", "int_entry" }, 42);
+            REQUIRE(data.type({ "stuff", "int_entry" }) == DataType::Int);
+        }
+
+        SECTION("it can distinguish a Double value") {
+            data.set<double>({ "stuff", "d_entry" }, 2.71828);
+            REQUIRE(data.type({ "stuff", "d_entry" }) == DataType::Double);
+        }
+    }
+}
+
 }  // namespace CthunClient

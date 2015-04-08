@@ -4,6 +4,7 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/allocators.h>
+#include <rapidjson/rapidjson.h>  // rapidjson::Type
 
 namespace CthunClient {
 
@@ -93,7 +94,58 @@ bool DataContainer::includes(std::vector<DataContainerKey> keys) const {
     return true;
 }
 
+DataType DataContainer::type(const DataContainerKey& key) const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+    if (!hasKey(*jval, key.data())) {
+        throw data_key_error { "unknown key: " + key };
+    }
+
+    jval = getValueInJson(*jval, key.data());
+
+    return getValueType(*jval);
+}
+
+DataType DataContainer::type(std::vector<DataContainerKey> keys) const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+    for (const auto& key : keys) {
+        if (!hasKey(*jval, key.data())) {
+            throw data_key_error { "unknown key: " + key };
+        }
+        jval = getValueInJson(*jval, key.data());
+    }
+
+    return getValueType(*jval);
+}
+
 // Private functions
+
+DataType DataContainer::getValueType(const rapidjson::Value& jval) const {
+    switch (jval.GetType()) {
+        case rapidjson::Type::kNullType:
+            return DataType::Null;
+        case rapidjson::Type::kFalseType:
+            return DataType::Bool;
+        case rapidjson::Type::kTrueType:
+            return DataType::Bool;
+        case rapidjson::Type::kObjectType:
+            return DataType::Object;
+        case rapidjson::Type::kArrayType:
+            return DataType::Array;
+        case rapidjson::Type::kStringType:
+            return DataType::String;
+        case rapidjson::Type::kNumberType:
+            if (jval.IsDouble()) {
+                return DataType::Double;
+            } else {
+                return DataType::Int;
+            }
+        default:
+            // This is unexpected as for rapidjson docs
+            return DataType::Null;
+    }
+}
 
 bool DataContainer::hasKey(const rapidjson::Value& jval, const char* key) const {
     return (jval.IsObject() && jval.HasMember(key));
