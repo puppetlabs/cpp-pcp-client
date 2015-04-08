@@ -72,6 +72,20 @@ std::string DataContainer::toString() const {
     return buffer.GetString();
 }
 
+bool DataContainer::empty() const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+    auto data_type = getValueType(*jval);
+
+    if (data_type == DataType::Object) {
+        return jval->ObjectEmpty();
+    } else if (data_type == DataType::Array) {
+        return jval->Empty();
+    } else {
+        // This is unexpected
+        return false;
+    }
+}
+
 bool DataContainer::includes(const DataContainerKey& key) const {
     rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
 

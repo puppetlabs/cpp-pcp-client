@@ -143,6 +143,10 @@ class DataContainer {
 
     std::string toString() const;
 
+    /// Returns true if the root is an empty JSON array or an empty
+    /// JSON object, false otherwise.
+    bool empty() const;
+
     // TODO(ale): see if it's possible to use const for all
     // 'std::vector<DataContainerKey> keys' parameters
 

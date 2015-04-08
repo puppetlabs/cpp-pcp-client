@@ -68,8 +68,31 @@ TEST_CASE("DataContainer::get", "[data]") {
     }
 }
 
+TEST_CASE("DataContainer::empty", "[data]") {
+    SECTION("works correctly for an empty DataContainer instance") {
+        DataContainer data {};
+        REQUIRE(data.empty());
+    }
+
+    SECTION("works correctly if the root is an empty array") {
+        DataContainer data {  "[]" };
+        REQUIRE(data.empty());
+    }
+
+    SECTION("works correctly for an non-empty DataContainer instance") {
+        DataContainer data {};
+        data.set<int>("spam", 1);
+        REQUIRE_FALSE(data.empty());
+    }
+
+    SECTION("works correctly if the root is an non-empty array") {
+        DataContainer data {  "[1, 2, 3]" };
+        REQUIRE_FALSE(data.empty());
+    }
+}
+
 TEST_CASE("DataContainer::includes", "[data]") {
-    SECTION("does not throw for an empty instance") {
+    SECTION("does not throw for an empty DataContainer instance") {
         DataContainer data {};
         REQUIRE_FALSE(data.includes("foo"));
     }
