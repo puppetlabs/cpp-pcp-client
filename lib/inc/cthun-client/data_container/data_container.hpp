@@ -30,26 +30,23 @@ namespace CthunClient {
 
 // Errors
 
-// TODO(ale): add data_ prefix to all error names; indicate what
-// exceptions are thrown in docstrings
-
 /// Error thrown when trying to parse an invalid JSON string.
-class parse_error : public std::runtime_error  {
+class data_parse_error : public std::runtime_error  {
   public:
-    explicit parse_error(std::string const& msg) : std::runtime_error(msg) {}
+    explicit data_parse_error(std::string const& msg) : std::runtime_error(msg) {}
 };
 
-/// Error thrown when a nested index is not a valid JSON object, so
-/// that it is not possible to iterate the tree.
-class index_error : public std::runtime_error  {
+/// Error due to a key operation failure.
+class data_key_error : public std::runtime_error  {
   public:
-    explicit index_error(std::string const& msg) : std::runtime_error(msg) {}
+    explicit data_key_error(std::string const& msg) : std::runtime_error(msg) {}
 };
 
 // TODO(ale): check: we don't support float nor nullptr scalars...
 
-// TODO(ale): consider replacing 'index' with 'key'; having both terms
-// is confusing
+// TODO(ale): check: replacing 'index' with 'key'; having both terms
+// is confusing - the users specify keys; they don't care about
+// internal trees
 
 // Usage:
 //
@@ -119,6 +116,7 @@ struct DataContainerKey : public std::string {
 class DataContainer {
   public:
     DataContainer();
+    /// Throw a data_parse_error in case of invalid JSON.
     explicit DataContainer(const std::string& json_txt);
     explicit DataContainer(const rapidjson::Value& value);
     DataContainer(const DataContainer& data);
@@ -167,14 +165,20 @@ class DataContainer {
         return getValue<T>(*jval);
     }
 
+    /// Throw a data_key_error in case the root is not a valid JSON
+    /// object, so that is not possible to set the entry.
     template <typename T>
     void set(const DataContainerKey& key, T value) {
         rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
         const char* key_data = key.data();
 
         if (!isObject(*jval)) {
-            throw index_error { "invalid index supplied; cannot navigate "
-                                "the provided path" };
+            // TODO(ale): check this error message; we can have any JSON value
+            // in the root; in case it's not an object, we can't set a key/value
+            // pair, but the problem is not the provided key... Also, replace
+            // index with key (see above todo) and chek the method docstring
+
+            throw data_key_error { "root is not a valid JSON object" };
         }
 
         if (!hasKey(*jval, key_data)) {
@@ -184,6 +188,9 @@ class DataContainer {
         setValue<T>(*getValueInJson(*jval, key_data), value);
     }
 
+    /// Throw a data_key_error if any one of the nested keys is not
+    /// associated with a valid JSON object, so that it is not
+    /// possible to iterate the remaining keys.
     template <typename T>
     void set(std::vector<DataContainerKey> keys, T value) {
         rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
@@ -191,8 +198,8 @@ class DataContainer {
         for (const auto& key : keys) {
             const char* key_data = key.data();
             if (!isObject(*jval)) {
-                throw index_error { "invalid index supplied; cannot navigate "
-                                    "the provided path" };
+                throw data_key_error { "invalid key supplied; cannot "
+                                       "navigate the provided path" };
             }
             if (!hasKey(*jval, key_data)) {
                 createKeyInJson(key_data, *jval);

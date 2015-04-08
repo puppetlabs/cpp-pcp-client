@@ -73,7 +73,7 @@ You can construct a DataContainer as follows:
 
 The DataContainer's constructor can throw the following exception:
 
- - parse_error - This error is thrown when invalid JSON is passed to the constructor.
+ - data_parse_error - This error is thrown when invalid JSON is passed to the constructor.
 
 The following calls to the _get_ method will retrieve values from the DataContainer.
 
@@ -110,11 +110,17 @@ Note that the _set_ method uses the initialiser list in the same way as the _get
 method. Each argument to the list is one level to descend.
 
 TODO(ale): document what happens in case of get() with unknown key
+TODO(ale): check: we don't have any data_type_error
+TODO(ale): check: _get_ does not throw anything
 
-The _get_ and _set_ methods can throw the following exceptions:
+The _set_ methods can throw the following exception:
 
- - index_error - thrown when a nested message index is invalid
- - data_type_error - thrown when trying to set or get invalid type
+ - data_key_error - thrown when a nested message key is invalid (i.e. the
+ associated value is not a valid JSON object, so that is not possible to
+ iterate the remaining nested keys) or when the root element is not a valid
+ JSON object, so that is not possible to set the specified key-value entry.
+
+ TODO(ale): document type() errors
 
 __ParsedChunks__
 

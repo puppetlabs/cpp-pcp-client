@@ -15,7 +15,7 @@ DataContainer::DataContainer(const std::string& json_text) : DataContainer() {
     document_root_->Parse(json_text.data());
 
     if (document_root_->HasParseError()) {
-        throw parse_error { "invalid json" };
+        throw data_parse_error { "invalid json" };
     }
 }
 
@@ -116,6 +116,7 @@ void DataContainer::createKeyInJson(const char* key,
 }
 
 // getValue specialisations
+
 template<>
 int DataContainer::getValue<>() const {
     return 0;
@@ -311,6 +312,7 @@ std::vector<DataContainer> DataContainer::getValue<>(const rapidjson::Value& val
 }
 
 // setValue specialisations
+
 template<>
 void DataContainer::setValue<>(rapidjson::Value& jval, bool new_value) {
     jval.SetBool(new_value);
