@@ -74,6 +74,7 @@ std::string DataContainer::toString() const {
 
 bool DataContainer::includes(const DataContainerKey& key) const {
     rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
     if (hasKey(*jval, key.data())) {
         return true;
     } else {

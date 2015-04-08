@@ -50,6 +50,8 @@ enum DataType { Object, Array, String, Int, Bool, Double, Null };
 
 // TODO(ale): check: we don't support float nor nullptr scalars...
 // Should we?
+// Also, we don't support long int - it could be useful.
+// Also, we cannot use set() to add null values (what's its type?)
 
 // TODO(ale): check: replacing 'index' with 'key'; having both terms
 // is confusing - the users specify keys; they don't care about

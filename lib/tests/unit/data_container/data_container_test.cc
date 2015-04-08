@@ -69,6 +69,16 @@ TEST_CASE("DataContainer::get", "[data]") {
 }
 
 TEST_CASE("DataContainer::includes", "[data]") {
+    SECTION("does not throw for an empty instance") {
+        DataContainer data {};
+        REQUIRE_FALSE(data.includes("foo"));
+    }
+
+    SECTION("it should not throw if the root is not a JSON object") {
+        DataContainer data { "[1, 2, 3]" };
+        REQUIRE_FALSE(data.includes("foo"));
+    }
+
     SECTION("Document/object lookups") {
         DataContainer msg { JSON };
         REQUIRE(msg.includes("foo") == true);
@@ -249,6 +259,11 @@ TEST_CASE("DataContainer::type", "[data]") {
             data.set<double>("d_entry", 2.71828);
             REQUIRE(data.type("d_entry") == DataType::Double);
         }
+
+        SECTION("it can distinguish a null value") {
+            DataContainer data_with_null { "{\"the_null\" : null}" };
+            REQUIRE(data_with_null.type("the_null") == DataType::Null);
+        }
     }
 
     SECTION("When multiple keys are passed") {
@@ -296,6 +311,13 @@ TEST_CASE("DataContainer::type", "[data]") {
         SECTION("it can distinguish a Double value") {
             data.set<double>({ "stuff", "d_entry" }, 2.71828);
             REQUIRE(data.type({ "stuff", "d_entry" }) == DataType::Double);
+        }
+
+        SECTION("it can distinguish a null value") {
+            DataContainer data_with_null { "{\"the_null\" : null}" };
+            data.set<DataContainer>({ "stuff", "more_stuff" }, data_with_null);
+            auto data_type = data.type({ "stuff", "more_stuff", "the_null" });
+            REQUIRE(data_type == DataType::Null);
         }
     }
 }
