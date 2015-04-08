@@ -51,6 +51,8 @@ abstraction around complex JSON c++ libraries. It has the following constructors
     DataContainer() // Creates an empty container
     DataContainer(std::string json_txt) // creates a DataContainer from a JSON string
 
+TODO(ale): document supported value types
+
 Consider the following JSON string wrapped in a DataContainer object, data.
 
 ```
@@ -73,7 +75,7 @@ The DataContainer's constructor can throw the following exception:
 
  - parse_error - This error is thrown when invalid JSON is passed to the constructor.
 
-The folling calls to the _get_ method will retrieve values from the DataContainer.
+The following calls to the _get_ method will retrieve values from the DataContainer.
 
 ```
     data.get<std::string>("module"); // == "puppet"
@@ -106,6 +108,8 @@ This will change the internal JSON representation to
 
 Note that the _set_ method uses the initialiser list in the same way as the _get_
 method. Each argument to the list is one level to descend.
+
+TODO(ale): document what happens in case of get() with unknown key
 
 The _get_ and _set_ methods can throw the following exceptions:
 

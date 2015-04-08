@@ -18,6 +18,8 @@ static const std::string JSON = "{\"foo\" : {\"bar\" : 2},"
 
 namespace CthunClient {
 
+// TODO: test errors
+
 TEST_CASE("DataContainer::get", "[data]") {
     DataContainer msg { JSON };
 

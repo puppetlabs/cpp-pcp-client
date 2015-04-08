@@ -46,9 +46,17 @@ class index_error : public std::runtime_error  {
     explicit index_error(std::string const& msg) : std::runtime_error(msg) {}
 };
 
+// TODO(ale): check: we don't support float nor nullptr scalars...
+
+// TODO(ale): consider replacing 'index' with 'key'; having both terms
+// is confusing
+
 // Usage:
+//
 // NOTE SUPPORTED SCALARS
-// int, float, double, bool, std::string, nullptr
+// int, double, bool, std::string
+//
+//  == set
 //
 // To set a key to a scalar value in object x
 //    x.set<int>("foo", 1);
@@ -61,6 +69,8 @@ class index_error : public std::runtime_error  {
 //    std::vector<int> tmp { 1, 2, 3 };
 //    x.set<std::vector<int>>("foo", tmp);
 //
+//  == get
+//
 // To get a scalar value from a key in object x
 //    x.get<std::string>("foo");
 //    x.get<int>("bar");
@@ -69,7 +79,7 @@ class index_error : public std::runtime_error  {
 //    x.get<std::vector<float>>("foo");
 //
 // To get a result object (json object) from object x
-//    x.get<Data>("foo");
+//    x.get<DataContainer>("foo");
 //
 // To get a null value from a key in object x
 //    x.get<std::string>("foo") == "";
@@ -81,9 +91,24 @@ class index_error : public std::runtime_error  {
 // To get a json string representation of object x
 //    x.toString();
 //
+// == includes
+//
 // To check if a key is set in object x
 //    x.includes("foo");
 //    x.includes({ "foo", "bar", "baz" });
+//
+// == keys
+//
+//  TODO
+//
+// == type
+//
+//  TODO
+//
+// == empty
+//
+//  TODO
+//
 
 struct DataContainerKey : public std::string {
     DataContainerKey(const std::string& value) : std::string(value) {}
@@ -99,37 +124,17 @@ class DataContainer {
     DataContainer(const DataContainer& data);
     DataContainer(const DataContainer&& data);
     DataContainer& operator=(DataContainer other);
+
     ~DataContainer();
 
     std::vector<std::string> keys();
-
-    // TODO(ale): add an empty() method
 
     rapidjson::Document getRaw() const;
 
     std::string toString() const;
 
-    bool includes(const DataContainerKey& key) const {
-        rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
-        if (hasKey(*jval, key.data())) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    bool includes(std::vector<DataContainerKey> keys) const {
-        rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
-
-        for (const auto& key : keys) {
-            if (!hasKey(*jval, key.data())) {
-                return false;
-            }
-            jval = getValueInJson(*jval, key.data());
-        }
-
-        return true;
-    }
+    bool includes(const DataContainerKey& key) const;
+    bool includes(std::vector<DataContainerKey> keys) const;
 
     template <typename T>
     T get() const {

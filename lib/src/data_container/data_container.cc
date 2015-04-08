@@ -71,6 +71,28 @@ std::string DataContainer::toString() const {
     return buffer.GetString();
 }
 
+bool DataContainer::includes(const DataContainerKey& key) const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+    if (hasKey(*jval, key.data())) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool DataContainer::includes(std::vector<DataContainerKey> keys) const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+    for (const auto& key : keys) {
+        if (!hasKey(*jval, key.data())) {
+            return false;
+        }
+        jval = getValueInJson(*jval, key.data());
+    }
+
+    return true;
+}
+
 // Private functions
 
 bool DataContainer::hasKey(const rapidjson::Value& jval, const char* key) const {
