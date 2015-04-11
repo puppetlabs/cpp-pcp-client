@@ -75,7 +75,7 @@ if (CTHUN_CLIENT_TOPLEVEL)
     )
 
     # Add cpplint target
-    FILE (GLOB_RECURSE ALL_SOURCES src/*.cpp src/*.h test/*.cpp test/*.h)
+    FILE (GLOB_RECURSE ALL_SOURCES lib/*.cc lib/*.hpp)
     add_cpplint_files(${ALL_SOURCES})
     enable_cpplint()
 

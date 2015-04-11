@@ -8,8 +8,6 @@
 #include <typeinfo>
 #include <memory>
 
-// TODO(ale): build this on Linux
-
 // TODO(ale): do we need forward declarations for rapidjson::Type?
 
 // Forward declarations for rapidjson
