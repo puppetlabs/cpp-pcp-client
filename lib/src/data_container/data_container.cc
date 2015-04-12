@@ -81,7 +81,6 @@ bool DataContainer::empty() const {
     } else if (data_type == DataType::Array) {
         return jval->Empty();
     } else {
-        // This is unexpected
         return false;
     }
 }

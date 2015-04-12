@@ -36,7 +36,7 @@ class data_parse_error : public std::runtime_error  {
     explicit data_parse_error(std::string const& msg) : std::runtime_error(msg) {}
 };
 
-/// Error due to a key operation failure.
+/// Error due to an operation involving a key.
 class data_key_error : public std::runtime_error  {
   public:
     explicit data_key_error(std::string const& msg) : std::runtime_error(msg) {}
@@ -51,17 +51,13 @@ enum DataType { Object, Array, String, Int, Bool, Double, Null };
 // Also, we don't support long int - it could be useful.
 // Also, we cannot use set() to add null values (what's its type?)
 
-// TODO(ale): check: replacing 'index' with 'key'; having both terms
-// is confusing - the users specify keys; they don't care about
-// internal trees
-
 //
 // DataContainer - data abstraction overlaying the raw JSON objects
 //
 // Usage:
 //
 // NOTE SUPPORTED SCALARS
-// int, double, bool, std::string
+// int, double, bool, std::string, and DataContainer
 //
 // == set
 //
@@ -95,6 +91,10 @@ enum DataType { Object, Array, String, Int, Bool, Double, Null };
 //    x.get<float>("foo") == 0.0f;
 //    x.get<double>("foo") == 0.0;
 //
+// TODO: document get() with no args
+//
+// == toString
+//
 // To get a json string representation of object x
 //    x.toString();
 //
@@ -106,15 +106,18 @@ enum DataType { Object, Array, String, Int, Bool, Double, Null };
 //
 // == keys
 //
-//  TODO
+// To retrieve the list of keys of object x
+//    x.keys();
 //
 // == type
 //
-//  TODO
+// To retrieve the type of a value, as a DataType value
+//    x.type({ "foo", "bar" });
 //
 // == empty
 //
-//  TODO
+// To check if object x stores an empty array or JSON object
+//    x.empty();
 //
 
 struct DataContainerKey : public std::string {
@@ -154,8 +157,7 @@ class DataContainer {
     /// Throw a data_key_error in case the specified key is unknown.
     DataType type(const DataContainerKey& key) const;
 
-    /// Throw a data_key_error if any one of the specified keys is
-    /// unknown.
+    /// Throw a data_key_error in case of unknown keys.
     DataType type(std::vector<DataContainerKey> keys) const;
 
     template <typename T>
