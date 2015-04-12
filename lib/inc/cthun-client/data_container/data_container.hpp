@@ -46,8 +46,8 @@ class data_key_error : public std::runtime_error  {
 
 enum DataType { Object, Array, String, Int, Bool, Double, Null };
 
-// TODO(ale): check: we don't support float nor nullptr scalars...
-// Should we?
+// TODO(ale): check: we don't support float nor nullptr scalars as
+// originally stated in the comments below. Should we?
 // Also, we don't support long int - it could be useful.
 // Also, we cannot use set() to add null values (what's its type?)
 
@@ -90,8 +90,6 @@ enum DataType { Object, Array, String, Int, Bool, Double, Null };
 //    x.get<bool>("foo") == false;
 //    x.get<float>("foo") == 0.0f;
 //    x.get<double>("foo") == 0.0;
-//
-// TODO: document get() with no args
 //
 // == toString
 //
@@ -160,10 +158,16 @@ class DataContainer {
     /// Throw a data_key_error in case of unknown keys.
     DataType type(std::vector<DataContainerKey> keys) const;
 
+    // TODO(ale): get<T>() is not documented nor tested
+
     template <typename T>
     T get() const {
         return getValue<T>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()));
     }
+
+    // TODO(ale): calling get<T>(key) with the wrong type leads to an
+    // assertion error; can we avoid that and perhaps throw a
+    // data_key_error?
 
     template <typename T>
     T get(const DataContainerKey& key) const {
@@ -214,7 +218,7 @@ class DataContainer {
         setValue<T>(*getValueInJson(*jval, key_data), value);
     }
 
-    /// Throw a data_key_error if any nested key is not associated
+    /// Throw a data_key_error if a known nested key is not associated
     /// with a valid JSON object, so that it is not  possible to
     /// iterate the remaining keys.
     template <typename T>

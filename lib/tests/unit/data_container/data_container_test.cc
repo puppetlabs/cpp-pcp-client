@@ -18,7 +18,70 @@ static const std::string JSON = "{\"foo\" : {\"bar\" : 2},"
 
 namespace CthunClient {
 
-// TODO: test errors
+TEST_CASE("DataContainer::DataContainer - passing JSON string", "[data]") {
+    std::string json_value {};
+
+    SECTION("it should instantiate by passing any JSON value") {
+        SECTION("object") {
+            REQUIRE_NOTHROW(DataContainer(JSON));
+        }
+
+        SECTION("array") {
+            json_value = "[1, 2, 3]";
+            REQUIRE_NOTHROW(DataContainer(json_array));
+        }
+        SECTION("string") {
+            json_value = "\"foo\"";
+            REQUIRE_NOTHROW(DataContainer(json_value));
+        }
+
+        SECTION("number - int") {
+            json_value = "42";
+            REQUIRE_NOTHROW(DataContainer(json_value));
+        }
+
+        SECTION("number - float") {
+            json_value = "3.14159";
+            REQUIRE_NOTHROW(DataContainer(json_value));
+        }
+
+        SECTION("boolean - true") {
+            json_value = "true";
+            REQUIRE_NOTHROW(DataContainer(json_value));
+        }
+        SECTION("boolean - false") {
+            json_value = "false";
+            REQUIRE_NOTHROW(DataContainer(json_value));
+        }
+        SECTION("null") {
+            json_value = "null";
+            REQUIRE_NOTHROW(DataContainer(json_value));
+        }
+    }
+
+    SECTION("it should throw a data_parse_error in case of invalid JSON") {
+        auto ctor =
+            [](std::string& json_txt) { DataContainer d { json_txt }; };  // NOLINT
+
+        SECTION("bad object") {
+            json_value = "{\"foo\" : \"bar\", 42}";
+            REQUIRE_THROWS_AS(ctor(json_value),
+                              data_parse_error);
+        }
+
+        SECTION("bad key") {
+            json_value = "{42 : \"bar\"}";
+            REQUIRE_THROWS_AS(ctor(json_value),
+                              data_parse_error);
+        }
+
+        SECTION("bad array") {
+            json_value = "1, 2, 3";
+            REQUIRE_THROWS_AS(ctor(json_value),
+                              data_parse_error);
+        }
+    }
+}
 
 TEST_CASE("DataContainer::get", "[data]") {
     DataContainer msg { JSON };
@@ -220,6 +283,22 @@ TEST_CASE("DataContainer::set", "[data]") {
 
         REQUIRE(msg.get<std::vector<double>>("dv")[0] == 0.00);
         REQUIRE(msg.get<std::vector<double>>("dv")[1] == 9.99);
+    }
+
+    SECTION("it should throw a data_key_error in case root is not an object") {
+        std::string json_array { "[1, 2, 3]" };
+        DataContainer data_array { json_array };
+
+        REQUIRE_THROWS_AS(data_array.set<std::string>("foo", "bar"),
+                          data_key_error);
+    }
+
+    SECTION("it should throw a data_key_error in case a known inner key is not "
+            "associated with a JSON object") {
+        DataContainer d_c { JSON };
+
+        REQUIRE_THROWS_AS(d_c.set<std::string>({ "vec", "foo" }, "bar"),
+                          data_key_error);
     }
 }
 
