@@ -18,6 +18,64 @@ static const std::string JSON = "{\"foo\" : {\"bar\" : 2},"
 
 namespace CthunClient {
 
+auto ctor = [](std::string& json_txt) { DataContainer d { json_txt }; };  // NOLINT
+
+TEST_CASE("DataContainer::DataContainer - passing JSON string", "[data]") {
+    std::string json_value {};
+
+    SECTION("it should instantiate by passing any JSON value") {
+        SECTION("object") {
+            json_value = JSON;
+        }
+
+        SECTION("array") {
+            json_value = "[1, 2, 3]";
+        }
+
+        SECTION("string") {
+            json_value = "\"foo\"";
+        }
+
+        SECTION("number - int") {
+            json_value = "42";
+        }
+
+        SECTION("number - float") {
+            json_value = "3.14159";
+        }
+
+        SECTION("boolean - true") {
+            json_value = "true";
+        }
+
+        SECTION("boolean - false") {
+            json_value = "false";
+        }
+
+        SECTION("null") {
+            json_value = "null";
+        }
+
+        REQUIRE_NOTHROW(ctor(json_value));
+    }
+
+    SECTION("it should throw a data_parse_error in case of invalid JSON") {
+        SECTION("bad object") {
+            json_value = "{\"foo\" : \"bar\", 42}";
+        }
+
+        SECTION("bad key") {
+            json_value = "{42 : \"bar\"}";
+        }
+
+        SECTION("bad array") {
+            json_value = "1, 2, 3";
+        }
+
+        REQUIRE_THROWS_AS(ctor(json_value), data_parse_error);
+    }
+}
+
 TEST_CASE("DataContainer::get", "[data]") {
     DataContainer msg { JSON };
 
@@ -64,9 +122,65 @@ TEST_CASE("DataContainer::get", "[data]") {
         REQUIRE(msg.get<int>({ "goo", "1" }) == 0);
         REQUIRE(msg.get<bool>({ "foo", "baz" }) == false);
     }
+
+    SECTION("it can get the root") {
+        SECTION("array") {
+            DataContainer data_array { "[1, 2, 3]" };
+            auto array = data_array.get<std::vector<int>>();
+            std::vector<int> expected_array { 1, 2, 3 };
+
+            REQUIRE(array == expected_array);
+        }
+
+        SECTION("object") {
+            auto object = msg.get<DataContainer>();
+
+            REQUIRE(object.get<int>("goo") == 1);
+        }
+
+        SECTION("number") {
+            DataContainer data_number { "42" };
+            auto number = data_number.get<int>();
+
+            REQUIRE(number == 42);
+        }
+    }
+}
+
+TEST_CASE("DataContainer::empty", "[data]") {
+    SECTION("works correctly for an empty DataContainer instance") {
+        DataContainer data {};
+        REQUIRE(data.empty());
+    }
+
+    SECTION("works correctly if the root is an empty array") {
+        DataContainer data {  "[]" };
+        REQUIRE(data.empty());
+    }
+
+    SECTION("works correctly for an non-empty DataContainer instance") {
+        DataContainer data {};
+        data.set<int>("spam", 1);
+        REQUIRE_FALSE(data.empty());
+    }
+
+    SECTION("works correctly if the root is an non-empty array") {
+        DataContainer data {  "[1, 2, 3]" };
+        REQUIRE_FALSE(data.empty());
+    }
 }
 
 TEST_CASE("DataContainer::includes", "[data]") {
+    SECTION("does not throw for an empty DataContainer instance") {
+        DataContainer data {};
+        REQUIRE_FALSE(data.includes("foo"));
+    }
+
+    SECTION("it should not throw if the root is not a JSON object") {
+        DataContainer data { "[1, 2, 3]" };
+        REQUIRE_FALSE(data.includes("foo"));
+    }
+
     SECTION("Document/object lookups") {
         DataContainer msg { JSON };
         REQUIRE(msg.includes("foo") == true);
@@ -186,6 +300,22 @@ TEST_CASE("DataContainer::set", "[data]") {
         REQUIRE(msg.get<std::vector<double>>("dv")[0] == 0.00);
         REQUIRE(msg.get<std::vector<double>>("dv")[1] == 9.99);
     }
+
+    SECTION("it should throw a data_key_error in case root is not an object") {
+        std::string json_array { "[1, 2, 3]" };
+        DataContainer data_array { json_array };
+
+        REQUIRE_THROWS_AS(data_array.set<std::string>("foo", "bar"),
+                          data_key_error);
+    }
+
+    SECTION("it should throw a data_key_error in case a known inner key is not "
+            "associated with a JSON object") {
+        DataContainer d_c { JSON };
+
+        REQUIRE_THROWS_AS(d_c.set<std::string>({ "vec", "foo" }, "bar"),
+                          data_key_error);
+    }
 }
 
 TEST_CASE("DataContainer::keys", "[data]") {
@@ -198,6 +328,115 @@ TEST_CASE("DataContainer::keys", "[data]") {
     SECTION("It returns an empty vector when the DataContainer is empty") {
         DataContainer data {};
         REQUIRE(data.keys().size() == 0);
+    }
+}
+
+TEST_CASE("DataContainer::type", "[data]") {
+    DataContainer data {};
+
+    SECTION("When a single key is passed") {
+        SECTION("it throws a data_key_error if the key is unknown") {
+            REQUIRE_THROWS_AS(data.type("foo"),
+                              data_key_error);
+        }
+
+        SECTION("it can distinguish a Bool (false) value") {
+            data.set<bool>("b_entry", false);
+            REQUIRE(data.type("b_entry") == DataType::Bool);
+        }
+
+        SECTION("it can distinguish a Bool (true) value") {
+            data.set<bool>("b_entry", true);
+            REQUIRE(data.type("b_entry") == DataType::Bool);
+        }
+
+        SECTION("it can distinguish an Object (DataContainer) value") {
+            DataContainer tmp {};
+            tmp.set<std::string>("eggs", "spam");
+            data.set<DataContainer>("obj_entry", tmp);
+            REQUIRE(data.type("obj_entry") == DataType::Object);
+        }
+
+        SECTION("it can distinguish an Array value") {
+            std::vector<std::string> tmp { "one", "two", "three" };
+            data.set<std::vector<std::string>>("array_entry", tmp);
+            REQUIRE(data.type("array_entry") == DataType::Array);
+        }
+
+        SECTION("it can distinguish a String value") {
+            data.set<std::string>("eggs", "spam");
+            REQUIRE(data.type("eggs") == DataType::String);
+        }
+
+        SECTION("it can distinguish an Int value") {
+            data.set<int>("int_entry", 42);
+            REQUIRE(data.type("int_entry") == DataType::Int);
+        }
+
+        SECTION("it can distinguish a Double value") {
+            data.set<double>("d_entry", 2.71828);
+            REQUIRE(data.type("d_entry") == DataType::Double);
+        }
+
+        SECTION("it can distinguish a null value") {
+            DataContainer data_with_null { "{\"the_null\" : null}" };
+            REQUIRE(data_with_null.type("the_null") == DataType::Null);
+        }
+    }
+
+    SECTION("When multiple keys are passed") {
+        DataContainer tmp {};
+        data.set<DataContainer>("stuff", tmp);
+
+        SECTION("it throws a data_key_error if a key is unknown") {
+            REQUIRE_THROWS_AS(data.type({ "stuff", "bar" }),
+                              data_key_error);
+        }
+
+        SECTION("it can distinguish a Bool (false) value") {
+            data.set<bool>({ "stuff", "b_entry" }, false);
+            REQUIRE(data.type({ "stuff", "b_entry" }) == DataType::Bool);
+        }
+
+        SECTION("it can distinguish a Bool (true) value") {
+            data.set<bool>({ "stuff", "b_entry" }, true);
+            REQUIRE(data.type({ "stuff", "b_entry" }) == DataType::Bool);
+        }
+
+        SECTION("it can distinguish an Object (DataContainer) value") {
+            DataContainer tmp {};
+            tmp.set<std::string>("eggs", "spam");
+            data.set<DataContainer>({ "stuff", "obj_entry" }, tmp);
+            REQUIRE(data.type({ "stuff", "obj_entry" }) == DataType::Object);
+        }
+
+        SECTION("it can distinguish an Array value") {
+            std::vector<std::string> tmp { "one", "two", "three" };
+            data.set<std::vector<std::string>>({ "stuff", "array_entry" }, tmp);
+            REQUIRE(data.type({ "stuff", "array_entry" }) == DataType::Array);
+        }
+
+        SECTION("it can distinguish a String value") {
+            data.set<std::string>({ "stuff", "eggs" }, "spam");
+            REQUIRE(data.type({ "stuff", "eggs" }) == DataType::String);
+        }
+
+        SECTION("it can distinguish an Int value") {
+            data.set<int>({ "stuff", "int_entry" }, 42);
+            REQUIRE(data.type({ "stuff", "int_entry" }) == DataType::Int);
+        }
+
+        SECTION("it can distinguish a Double value") {
+            data.set<double>({ "stuff", "d_entry" }, 2.71828);
+            REQUIRE(data.type({ "stuff", "d_entry" }) == DataType::Double);
+        }
+
+        SECTION("it can distinguish a null value") {
+            DataContainer data_with_null { "{\"the_null\" : null}" };
+            data.set<DataContainer>({ "stuff", "more_stuff" }, data_with_null);
+            auto data_type = data.type({ "stuff", "more_stuff", "the_null" });
+            REQUIRE(data_type == DataType::Null);
+        }
     }
 }
 

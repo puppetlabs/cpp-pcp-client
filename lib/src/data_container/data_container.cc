@@ -4,6 +4,7 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/allocators.h>
+#include <rapidjson/rapidjson.h>  // rapidjson::Type
 
 namespace CthunClient {
 
@@ -15,7 +16,7 @@ DataContainer::DataContainer(const std::string& json_text) : DataContainer() {
     document_root_->Parse(json_text.data());
 
     if (document_root_->HasParseError()) {
-        throw parse_error { "invalid json" };
+        throw data_parse_error { "invalid json" };
     }
 }
 
@@ -71,7 +72,94 @@ std::string DataContainer::toString() const {
     return buffer.GetString();
 }
 
+bool DataContainer::empty() const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+    auto data_type = getValueType(*jval);
+
+    if (data_type == DataType::Object) {
+        return jval->ObjectEmpty();
+    } else if (data_type == DataType::Array) {
+        return jval->Empty();
+    } else {
+        return false;
+    }
+}
+
+bool DataContainer::includes(const DataContainerKey& key) const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+    if (hasKey(*jval, key.data())) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool DataContainer::includes(std::vector<DataContainerKey> keys) const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+    for (const auto& key : keys) {
+        if (!hasKey(*jval, key.data())) {
+            return false;
+        }
+        jval = getValueInJson(*jval, key.data());
+    }
+
+    return true;
+}
+
+DataType DataContainer::type(const DataContainerKey& key) const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+    if (!hasKey(*jval, key.data())) {
+        throw data_key_error { "unknown key: " + key };
+    }
+
+    jval = getValueInJson(*jval, key.data());
+
+    return getValueType(*jval);
+}
+
+DataType DataContainer::type(std::vector<DataContainerKey> keys) const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+    for (const auto& key : keys) {
+        if (!hasKey(*jval, key.data())) {
+            throw data_key_error { "unknown key: " + key };
+        }
+        jval = getValueInJson(*jval, key.data());
+    }
+
+    return getValueType(*jval);
+}
+
 // Private functions
+
+DataType DataContainer::getValueType(const rapidjson::Value& jval) const {
+    switch (jval.GetType()) {
+        case rapidjson::Type::kNullType:
+            return DataType::Null;
+        case rapidjson::Type::kFalseType:
+            return DataType::Bool;
+        case rapidjson::Type::kTrueType:
+            return DataType::Bool;
+        case rapidjson::Type::kObjectType:
+            return DataType::Object;
+        case rapidjson::Type::kArrayType:
+            return DataType::Array;
+        case rapidjson::Type::kStringType:
+            return DataType::String;
+        case rapidjson::Type::kNumberType:
+            if (jval.IsDouble()) {
+                return DataType::Double;
+            } else {
+                return DataType::Int;
+            }
+        default:
+            // This is unexpected as for rapidjson docs
+            return DataType::Null;
+    }
+}
 
 bool DataContainer::hasKey(const rapidjson::Value& jval, const char* key) const {
     return (jval.IsObject() && jval.HasMember(key));
@@ -94,6 +182,7 @@ void DataContainer::createKeyInJson(const char* key,
 }
 
 // getValue specialisations
+
 template<>
 int DataContainer::getValue<>() const {
     return 0;
@@ -289,6 +378,7 @@ std::vector<DataContainer> DataContainer::getValue<>(const rapidjson::Value& val
 }
 
 // setValue specialisations
+
 template<>
 void DataContainer::setValue<>(rapidjson::Value& jval, bool new_value) {
     jval.SetBool(new_value);
