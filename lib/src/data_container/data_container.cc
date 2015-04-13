@@ -108,6 +108,11 @@ bool DataContainer::includes(std::vector<DataContainerKey> keys) const {
     return true;
 }
 
+DataType DataContainer::type() const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+    return getValueType(*jval);
+}
+
 DataType DataContainer::type(const DataContainerKey& key) const {
     rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
 

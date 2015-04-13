@@ -148,6 +148,8 @@ class DataContainer {
     // NOTE(ale): we don't use const for the arg below for gcc issues
     bool includes(std::vector<DataContainerKey> keys) const;
 
+    DataType type() const;
+
     /// Throw a data_key_error in case the specified key is unknown.
     DataType type(const DataContainerKey& key) const;
 
