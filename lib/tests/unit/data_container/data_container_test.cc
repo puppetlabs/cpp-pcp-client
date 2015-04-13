@@ -122,6 +122,29 @@ TEST_CASE("DataContainer::get", "[data]") {
         REQUIRE(msg.get<int>({ "goo", "1" }) == 0);
         REQUIRE(msg.get<bool>({ "foo", "baz" }) == false);
     }
+
+    SECTION("it can get the root") {
+        SECTION("array") {
+            DataContainer data_array { "[1, 2, 3]" };
+            auto array = data_array.get<std::vector<int>>();
+            std::vector<int> expected_array { 1, 2, 3 };
+
+            REQUIRE(array == expected_array);
+        }
+
+        SECTION("object") {
+            auto object = msg.get<DataContainer>();
+
+            REQUIRE(object.get<int>("goo") == 1);
+        }
+
+        SECTION("number") {
+            DataContainer data_number { "42" };
+            auto number = data_number.get<int>();
+
+            REQUIRE(number == 42);
+        }
+    }
 }
 
 TEST_CASE("DataContainer::empty", "[data]") {
