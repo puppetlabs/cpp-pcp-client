@@ -334,6 +334,23 @@ TEST_CASE("DataContainer::keys", "[data]") {
 TEST_CASE("DataContainer::type", "[data]") {
     DataContainer data {};
 
+    SECTION("When no key is passed it retrieves the type of the root value") {
+        SECTION("array") {
+            DataContainer data_array { "[1, 2, 3]" };
+            REQUIRE(data_array.type() == DataType::Array);
+        }
+
+        SECTION("object") {
+            data.set<bool>("b_entry", false);
+            REQUIRE(data.type() == DataType::Object);
+        }
+
+        SECTION("number") {
+            DataContainer data_number { "42" };
+            REQUIRE(data_number.type() == DataType::Int);
+        }
+    }
+
     SECTION("When a single key is passed") {
         SECTION("it throws a data_key_error if the key is unknown") {
             REQUIRE_THROWS_AS(data.type("foo"),
