@@ -18,68 +18,61 @@ static const std::string JSON = "{\"foo\" : {\"bar\" : 2},"
 
 namespace CthunClient {
 
+auto ctor = [](std::string& json_txt) { DataContainer d { json_txt }; };  // NOLINT
+
 TEST_CASE("DataContainer::DataContainer - passing JSON string", "[data]") {
     std::string json_value {};
 
     SECTION("it should instantiate by passing any JSON value") {
         SECTION("object") {
-            REQUIRE_NOTHROW(DataContainer(JSON));
+            json_value = JSON;
         }
 
         SECTION("array") {
             json_value = "[1, 2, 3]";
-            REQUIRE_NOTHROW(DataContainer(json_array));
         }
+
         SECTION("string") {
             json_value = "\"foo\"";
-            REQUIRE_NOTHROW(DataContainer(json_value));
         }
 
         SECTION("number - int") {
             json_value = "42";
-            REQUIRE_NOTHROW(DataContainer(json_value));
         }
 
         SECTION("number - float") {
             json_value = "3.14159";
-            REQUIRE_NOTHROW(DataContainer(json_value));
         }
 
         SECTION("boolean - true") {
             json_value = "true";
-            REQUIRE_NOTHROW(DataContainer(json_value));
         }
+
         SECTION("boolean - false") {
             json_value = "false";
-            REQUIRE_NOTHROW(DataContainer(json_value));
         }
+
         SECTION("null") {
             json_value = "null";
-            REQUIRE_NOTHROW(DataContainer(json_value));
         }
+
+        REQUIRE_NOTHROW(ctor(json_value));
     }
 
     SECTION("it should throw a data_parse_error in case of invalid JSON") {
-        auto ctor =
-            [](std::string& json_txt) { DataContainer d { json_txt }; };  // NOLINT
-
         SECTION("bad object") {
             json_value = "{\"foo\" : \"bar\", 42}";
-            REQUIRE_THROWS_AS(ctor(json_value),
-                              data_parse_error);
         }
 
         SECTION("bad key") {
             json_value = "{42 : \"bar\"}";
-            REQUIRE_THROWS_AS(ctor(json_value),
-                              data_parse_error);
         }
 
         SECTION("bad array") {
             json_value = "1, 2, 3";
-            REQUIRE_THROWS_AS(ctor(json_value),
-                              data_parse_error);
         }
+
+        REQUIRE_THROWS_AS(ctor(json_value), data_parse_error);
     }
 }
 
