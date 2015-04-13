@@ -50,7 +50,7 @@ rapidjson::Document DataContainer::getRaw() const {
     return tmp;
 }
 
-std::vector<std::string> DataContainer::keys() {
+std::vector<std::string> DataContainer::keys() const {
     std::vector<std::string> k;
     rapidjson::Value* v = reinterpret_cast<rapidjson::Value*>(document_root_.get());
 
