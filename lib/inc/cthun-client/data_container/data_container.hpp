@@ -8,8 +8,6 @@
 #include <typeinfo>
 #include <memory>
 
-// TODO(ale): do we need forward declarations for rapidjson::Type?
-
 // Forward declarations for rapidjson
 namespace rapidjson {
     class CrtAllocator;
@@ -46,18 +44,16 @@ class data_key_error : public std::runtime_error  {
 
 enum DataType { Object, Array, String, Int, Bool, Double, Null };
 
-// TODO(ale): check: we don't support float nor nullptr scalars as
-// originally stated in the comments below. Should we?
-// Also, we don't support long int - it could be useful.
-// Also, we cannot use set() to add null values (what's its type?)
+// TODO(ale): support nullptr scalars
 
 //
 // DataContainer - data abstraction overlaying the raw JSON objects
 //
 // Usage:
 //
-// NOTE SUPPORTED SCALARS
-// int, double, bool, std::string, and DataContainer
+// == supported types
+//
+//    int, double, bool, std::string, and DataContainer
 //
 // == set
 //
@@ -79,7 +75,7 @@ enum DataType { Object, Array, String, Int, Bool, Double, Null };
 //    x.get<int>("bar");
 //
 // To get a vector from a key in object x
-//    x.get<std::vector<float>>("foo");
+//    x.get<std::vector<int>>("foo");
 //
 // To get a result object (json object) from object x
 //    x.get<DataContainer>("foo");
@@ -88,8 +84,10 @@ enum DataType { Object, Array, String, Int, Bool, Double, Null };
 //    x.get<std::string>("foo") == "";
 //    x.get<int>("foo") == 0;
 //    x.get<bool>("foo") == false;
-//    x.get<float>("foo") == 0.0f;
 //    x.get<double>("foo") == 0.0;
+//
+// To get the root value from object x
+//    x.get<DataContainer>();
 //
 // == toString
 //
@@ -146,10 +144,8 @@ class DataContainer {
     /// JSON object, false otherwise.
     bool empty() const;
 
-    // TODO(ale): see if it's possible to use const for all
-    // 'std::vector<DataContainerKey> keys' parameters
-
     bool includes(const DataContainerKey& key) const;
+    // NOTE(ale): we don't use const for the arg below for gcc issues
     bool includes(std::vector<DataContainerKey> keys) const;
 
     /// Throw a data_key_error in case the specified key is unknown.
@@ -158,17 +154,13 @@ class DataContainer {
     /// Throw a data_key_error in case of unknown keys.
     DataType type(std::vector<DataContainerKey> keys) const;
 
-    // TODO(ale): get<T>() is not documented nor tested
-
     template <typename T>
     T get() const {
         return getValue<T>(*reinterpret_cast<rapidjson::Value*>(document_root_.get()));
     }
 
-    // TODO(ale): calling get<T>(key) with the wrong type leads to an
-    // assertion error; can we avoid that and perhaps throw a
-    // data_key_error?
-
+    /// Throw an assertion error in case the type T doesn't match the
+    /// one of the specified value.
     template <typename T>
     T get(const DataContainerKey& key) const {
         rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
@@ -180,6 +172,8 @@ class DataContainer {
         return getValue<T>();
     }
 
+    /// Throw an assertion error in case the type T doesn't match the
+    /// one of the specified value.
     template <typename T>
     T get(std::vector<DataContainerKey> keys) const {
         rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
@@ -203,11 +197,6 @@ class DataContainer {
         const char* key_data = key.data();
 
         if (!isObject(*jval)) {
-            // TODO(ale): check this error message; we can have any JSON value
-            // in the root; in case it's not an object, we can't set a key/value
-            // pair, but the problem is not the provided key... Also, replace
-            // index with key (see above todo) and chek the method docstring
-
             throw data_key_error { "root is not a valid JSON object" };
         }
 

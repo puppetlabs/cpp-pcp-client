@@ -97,6 +97,10 @@ on the requested value type, the method returns:
  - an empty DataContainer
  - an empty std::vector of the requested type
 
+The _get_ method throws an assertion error in case the specified type does not
+match the one of the requested value. You can verify if the type is correct by
+using the _type_ method (see below).
+
 You can also set the value of fields and create new fields with the _set_ method.
 ```
     data.set<int>("foo", 42);
