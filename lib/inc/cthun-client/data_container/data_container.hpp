@@ -134,7 +134,7 @@ class DataContainer {
 
     ~DataContainer();
 
-    std::vector<std::string> keys();
+    std::vector<std::string> keys() const;
 
     rapidjson::Document getRaw() const;
 
