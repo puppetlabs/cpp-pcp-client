@@ -11,6 +11,17 @@ namespace CthunClient {
 const size_t DEFAULT_LEFT_PADDING { 4 };
 const size_t LEFT_PADDING_INCREMENT { 2 };
 
+// free functions
+
+std::string valueToString(rapidjson::Value& jval) {
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer { buffer };
+    jval.Accept(writer);
+    return buffer.GetString();
+}
+
+// public interface
+
 DataContainer::DataContainer() : document_root_ { new rapidjson::Document() } {
     document_root_->SetObject();
 }
@@ -69,10 +80,18 @@ rapidjson::Document DataContainer::getRaw() const {
 }
 
 std::string DataContainer::toString() const {
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    document_root_->Accept(writer);
-    return buffer.GetString();
+    return valueToString(*document_root_);
+}
+
+std::string DataContainer::toString(const DataContainerKey& key) const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+    if (!hasKey(*jval, key.data())) {
+        throw data_key_error { "unknown key: " + key };
+    }
+
+    jval = getValueInJson(*jval, key.data());
+    return valueToString(*jval);
 }
 
 std::string DataContainer::toFormat(size_t left_padding) const {
@@ -99,11 +118,7 @@ std::string DataContainer::toFormat(size_t left_padding) const {
                         left_padding + LEFT_PADDING_INCREMENT);
                     break;
                 case DataType::Array:
-                    formatted_data += "[ ";
-                    for (const auto& idx : get<std::vector<std::string>>(key)) {
-                        formatted_data += idx + " ";
-                    }
-                    formatted_data += "]\n";
+                    formatted_data += toString(key);
                     break;
                 case DataType::String:
                     formatted_data += get<std::string>(key);

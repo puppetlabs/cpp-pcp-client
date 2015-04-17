@@ -140,6 +140,9 @@ class DataContainer {
 
     std::string toString() const;
 
+    // Throws a data_key_error in case the specified key is unknown.
+    std::string toString (const DataContainerKey& key) const;
+
     std::string toFormat(size_t left_padding) const;
     std::string toFormat() const;
 

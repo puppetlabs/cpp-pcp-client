@@ -147,6 +147,25 @@ TEST_CASE("DataContainer::get", "[data]") {
     }
 }
 
+TEST_CASE("DataContainer::toFormat", "[data]") {
+    SECTION("does not throw when the root is") {
+        SECTION("a string") {
+            DataContainer data_s { "\"some text\"" };
+            REQUIRE_NOTHROW(data_s.toFormat());
+        }
+
+        SECTION("an array") {
+            DataContainer data_a { "[1, 2, 3]" };
+            REQUIRE_NOTHROW(data_a.toFormat());
+        }
+
+        SECTION("an object") {
+            DataContainer data_o { JSON };
+            REQUIRE_NOTHROW(data_o.toFormat());
+        }
+    }
+}
+
 TEST_CASE("DataContainer::empty", "[data]") {
     SECTION("works correctly for an empty DataContainer instance") {
         DataContainer data {};
