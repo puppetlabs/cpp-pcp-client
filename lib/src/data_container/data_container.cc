@@ -43,13 +43,6 @@ DataContainer& DataContainer::operator=(DataContainer other) {
 // either have an empty destructor or use a shared_ptr instead.
 DataContainer::~DataContainer() {}
 
-rapidjson::Document DataContainer::getRaw() const {
-    rapidjson::Document tmp;
-    auto& a_t = document_root_->GetAllocator();
-    tmp.CopyFrom(*document_root_, a_t);
-    return tmp;
-}
-
 std::vector<std::string> DataContainer::keys() const {
     std::vector<std::string> k;
     rapidjson::Value* v = reinterpret_cast<rapidjson::Value*>(document_root_.get());
@@ -63,6 +56,13 @@ std::vector<std::string> DataContainer::keys() const {
 
     // Return an empty vector if the document type isn't an object
     return k;
+}
+
+rapidjson::Document DataContainer::getRaw() const {
+    rapidjson::Document tmp;
+    auto& a_t = document_root_->GetAllocator();
+    tmp.CopyFrom(*document_root_, a_t);
+    return tmp;
 }
 
 std::string DataContainer::toString() const {
