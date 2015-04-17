@@ -114,10 +114,13 @@ std::string DataContainer::toFormat(size_t left_padding) const {
             formatted_data += key + " : ";
             switch (type(key)) {
                 case DataType::Object:
+                    // Inner objedt: add new line, increment padding
+                    formatted_data += "\n";
                     formatted_data += get<DataContainer>(key).toFormat(
                         left_padding + LEFT_PADDING_INCREMENT);
                     break;
                 case DataType::Array:
+                    // Array: add raw string, regardless of its items
                     formatted_data += toString(key);
                     break;
                 case DataType::String:
