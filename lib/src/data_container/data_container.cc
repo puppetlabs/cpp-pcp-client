@@ -13,7 +13,7 @@ const size_t LEFT_PADDING_INCREMENT { 2 };
 
 // free functions
 
-std::string valueToString(rapidjson::Value& jval) {
+std::string valueToString(const rapidjson::Value& jval) {
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer { buffer };
     jval.Accept(writer);
