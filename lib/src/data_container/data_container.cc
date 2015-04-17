@@ -8,6 +8,9 @@
 
 namespace CthunClient {
 
+const size_t DEFAULT_LEFT_PADDING { 4 };
+const size_t LEFT_PADDING_INCREMENT { 2 };
+
 DataContainer::DataContainer() : document_root_ { new rapidjson::Document() } {
     document_root_->SetObject();
 }
@@ -70,6 +73,68 @@ std::string DataContainer::toString() const {
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     document_root_->Accept(writer);
     return buffer.GetString();
+}
+
+std::string DataContainer::toFormat(size_t left_padding) const {
+    if (empty()) {
+        switch (type()) {
+            case DataType::Object:
+                return "{}";
+            case DataType::Array:
+                return "[]";
+            default:
+                return "\"\"";
+         }
+    }
+
+    std::string formatted_data {};
+
+    if (type() == DataType::Object) {
+        for (const auto& key : keys()) {
+            formatted_data += std::string(left_padding, ' ');
+            formatted_data += key + " : ";
+            switch (type(key)) {
+                case DataType::Object:
+                    formatted_data += get<DataContainer>(key).toFormat(
+                        left_padding + LEFT_PADDING_INCREMENT);
+                    break;
+                case DataType::Array:
+                    formatted_data += "[ ";
+                    for (const auto& idx : get<std::vector<std::string>>(key)) {
+                        formatted_data += idx + " ";
+                    }
+                    formatted_data += "]\n";
+                    break;
+                case DataType::String:
+                    formatted_data += get<std::string>(key);
+                    break;
+                case DataType::Int:
+                    formatted_data += std::to_string(get<int>(key));
+                    break;
+                case DataType::Bool:
+                    if (get<bool>(key)) {
+                        formatted_data += "true";
+                    } else {
+                        formatted_data += "false";
+                    }
+                    break;
+                case DataType::Double:
+                    formatted_data += std::to_string(get<double>(key));
+                    break;
+                default:
+                    formatted_data += "NULL";
+            }
+            formatted_data += "\n";
+        }
+    } else {
+        formatted_data += toString();
+    }
+
+    return formatted_data;
+}
+
+std::string DataContainer::toFormat() const {
+    return toFormat(DEFAULT_LEFT_PADDING);
 }
 
 bool DataContainer::empty() const {

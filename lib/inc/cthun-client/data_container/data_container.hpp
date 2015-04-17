@@ -140,6 +140,9 @@ class DataContainer {
 
     std::string toString() const;
 
+    std::string toFormat(size_t left_padding) const;
+    std::string toFormat() const;
+
     /// Returns true if the root is an empty JSON array or an empty
     /// JSON object, false otherwise.
     bool empty() const;
