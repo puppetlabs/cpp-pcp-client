@@ -151,6 +151,7 @@ void Connector::send(const std::vector<std::string>& endpoints,
     sendMessage(endpoints,
                 data_schema,
                 timeout,
+                false,
                 data_json.toString(),
                 debug);
 }
@@ -163,6 +164,35 @@ void Connector::send(const std::vector<std::string>& endpoints,
     sendMessage(endpoints,
                 data_schema,
                 timeout,
+                false,
+                data_binary,
+                debug);
+}
+
+void Connector::send(const std::vector<std::string>& endpoints,
+                     const std::string& data_schema,
+                     unsigned int timeout,
+                     bool destination_report,
+                     const DataContainer& data_json,
+                     const std::vector<DataContainer>& debug) {
+    sendMessage(endpoints,
+                data_schema,
+                timeout,
+                destination_report,
+                data_json.toString(),
+                debug);
+}
+
+void Connector::send(const std::vector<std::string>& endpoints,
+                     const std::string& data_schema,
+                     unsigned int timeout,
+                     bool destination_report,
+                     const std::string& data_binary,
+                     const std::vector<DataContainer>& debug) {
+    sendMessage(endpoints,
+                data_schema,
+                timeout,
+                destination_report,
                 data_binary,
                 debug);
 }
@@ -194,7 +224,8 @@ void Connector::addEnvelopeSchemaToValidator() {
 
 MessageChunk Connector::createEnvelope(const std::vector<std::string>& endpoints,
                                        const std::string& data_schema,
-                                       unsigned int timeout) {
+                                       unsigned int timeout,
+                                       bool destination_report) {
     auto msg_id = UUID::getUUID();
     auto expires = getISO8601Time(timeout);
     LOG_INFO("Creating message with id %1% for %2% receiver%3%",
@@ -208,15 +239,20 @@ MessageChunk Connector::createEnvelope(const std::vector<std::string>& endpoints
     envelope_content.set<std::string>("data_schema", data_schema);
     envelope_content.set<std::vector<std::string>>("endpoints", endpoints);
 
+    if (destination_report) {
+        envelope_content.set<bool>("destination_report", true);
+    }
+
     return MessageChunk { ChunkDescriptor::ENVELOPE, envelope_content.toString() };
 }
 
 void Connector::sendMessage(const std::vector<std::string>& endpoints,
                             const std::string& data_schema,
                             unsigned int timeout,
+                            bool destination_report,
                             const std::string& data_txt,
                             const std::vector<DataContainer>& debug) {
-    auto envelope_chunk = createEnvelope(endpoints, data_schema, timeout);
+    auto envelope_chunk = createEnvelope(endpoints, data_schema, timeout, destination_report);
     MessageChunk data_chunk { ChunkDescriptor::DATA, data_txt };
     Message msg { envelope_chunk, data_chunk };
 
@@ -235,7 +271,8 @@ void Connector::sendLogin() {
     // TODO(ale): use the complete server URI once we apply the specs
     auto envelope = createEnvelope(std::vector<std::string> { "cth://server" },
                                    CTHUN_LOGIN_SCHEMA_NAME,
-                                   DEFAULT_MSG_TIMEOUT);
+                                   DEFAULT_MSG_TIMEOUT,
+                                   false);
 
     // Data
     DataContainer data_entries {};
