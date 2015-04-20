@@ -147,6 +147,39 @@ TEST_CASE("DataContainer::get", "[data]") {
     }
 }
 
+TEST_CASE("DataContainer::toPrettyString", "[data]") {
+    SECTION("does not throw when the root is") {
+        SECTION("a string") {
+            DataContainer data_s { "\"some text\"" };
+            REQUIRE_NOTHROW(data_s.toPrettyString());
+        }
+
+        SECTION("an array") {
+            DataContainer data_a { "[1, 2, 3]" };
+            REQUIRE_NOTHROW(data_a.toPrettyString());
+        }
+
+        SECTION("an object") {
+            DataContainer data_o { JSON };
+            REQUIRE_NOTHROW(data_o.toPrettyString());
+        }
+
+        SECTION("an object containing nested objects with an array") {
+            DataContainer data_ooa {};
+            DataContainer tmp {};
+            tmp.set<std::vector<int>>("bar", { 1, 2, 3 });
+            DataContainer tmp_two {};
+            tmp_two.set<DataContainer>("spam", tmp);
+            tmp_two.set<std::vector<int>>("beans", { 55, 56, 57 });
+            DataContainer tmp_three {};
+            tmp_three.set<DataContainer>("eggs", tmp_two);
+            data_ooa.set<DataContainer>("foo", tmp_three);
+
+            REQUIRE_NOTHROW(data_ooa.toPrettyString());
+        }
+    }
+}
+
 TEST_CASE("DataContainer::empty", "[data]") {
     SECTION("works correctly for an empty DataContainer instance") {
         DataContainer data {};

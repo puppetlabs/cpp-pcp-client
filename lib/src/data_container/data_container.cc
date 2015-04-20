@@ -8,6 +8,20 @@
 
 namespace CthunClient {
 
+const size_t DEFAULT_LEFT_PADDING { 4 };
+const size_t LEFT_PADDING_INCREMENT { 2 };
+
+// free functions
+
+std::string valueToString(const rapidjson::Value& jval) {
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer { buffer };
+    jval.Accept(writer);
+    return buffer.GetString();
+}
+
+// public interface
+
 DataContainer::DataContainer() : document_root_ { new rapidjson::Document() } {
     document_root_->SetObject();
 }
@@ -43,13 +57,6 @@ DataContainer& DataContainer::operator=(DataContainer other) {
 // either have an empty destructor or use a shared_ptr instead.
 DataContainer::~DataContainer() {}
 
-rapidjson::Document DataContainer::getRaw() const {
-    rapidjson::Document tmp;
-    auto& a_t = document_root_->GetAllocator();
-    tmp.CopyFrom(*document_root_, a_t);
-    return tmp;
-}
-
 std::vector<std::string> DataContainer::keys() const {
     std::vector<std::string> k;
     rapidjson::Value* v = reinterpret_cast<rapidjson::Value*>(document_root_.get());
@@ -65,11 +72,87 @@ std::vector<std::string> DataContainer::keys() const {
     return k;
 }
 
+rapidjson::Document DataContainer::getRaw() const {
+    rapidjson::Document tmp;
+    auto& a_t = document_root_->GetAllocator();
+    tmp.CopyFrom(*document_root_, a_t);
+    return tmp;
+}
+
 std::string DataContainer::toString() const {
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    document_root_->Accept(writer);
-    return buffer.GetString();
+    return valueToString(*document_root_);
+}
+
+std::string DataContainer::toString(const DataContainerKey& key) const {
+    rapidjson::Value* jval = reinterpret_cast<rapidjson::Value*>(document_root_.get());
+
+    if (!hasKey(*jval, key.data())) {
+        throw data_key_error { "unknown key: " + key };
+    }
+
+    jval = getValueInJson(*jval, key.data());
+    return valueToString(*jval);
+}
+
+std::string DataContainer::toPrettyString(size_t left_padding) const {
+    if (empty()) {
+        switch (type()) {
+            case DataType::Object:
+                return "{}";
+            case DataType::Array:
+                return "[]";
+            default:
+                return "\"\"";
+         }
+    }
+
+    std::string formatted_data {};
+
+    if (type() == DataType::Object) {
+        for (const auto& key : keys()) {
+            formatted_data += std::string(left_padding, ' ');
+            formatted_data += key + " : ";
+            switch (type(key)) {
+                case DataType::Object:
+                    // Inner object: add new line, increment padding
+                    formatted_data += "\n";
+                    formatted_data += get<DataContainer>(key).toPrettyString(
+                        left_padding + LEFT_PADDING_INCREMENT);
+                    break;
+                case DataType::Array:
+                    // Array: add raw string, regardless of its items
+                    formatted_data += toString(key);
+                    break;
+                case DataType::String:
+                    formatted_data += get<std::string>(key);
+                    break;
+                case DataType::Int:
+                    formatted_data += std::to_string(get<int>(key));
+                    break;
+                case DataType::Bool:
+                    if (get<bool>(key)) {
+                        formatted_data += "true";
+                    } else {
+                        formatted_data += "false";
+                    }
+                    break;
+                case DataType::Double:
+                    formatted_data += std::to_string(get<double>(key));
+                    break;
+                default:
+                    formatted_data += "NULL";
+            }
+            formatted_data += "\n";
+        }
+    } else {
+        formatted_data += toString();
+    }
+
+    return formatted_data;
+}
+
+std::string DataContainer::toPrettyString() const {
+    return toPrettyString(DEFAULT_LEFT_PADDING);
 }
 
 bool DataContainer::empty() const {
