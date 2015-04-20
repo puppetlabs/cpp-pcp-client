@@ -94,7 +94,7 @@ std::string DataContainer::toString(const DataContainerKey& key) const {
     return valueToString(*jval);
 }
 
-std::string DataContainer::toFormat(size_t left_padding) const {
+std::string DataContainer::toPrettyString(size_t left_padding) const {
     if (empty()) {
         switch (type()) {
             case DataType::Object:
@@ -116,7 +116,7 @@ std::string DataContainer::toFormat(size_t left_padding) const {
                 case DataType::Object:
                     // Inner object: add new line, increment padding
                     formatted_data += "\n";
-                    formatted_data += get<DataContainer>(key).toFormat(
+                    formatted_data += get<DataContainer>(key).toPrettyString(
                         left_padding + LEFT_PADDING_INCREMENT);
                     break;
                 case DataType::Array:
@@ -151,8 +151,8 @@ std::string DataContainer::toFormat(size_t left_padding) const {
     return formatted_data;
 }
 
-std::string DataContainer::toFormat() const {
-    return toFormat(DEFAULT_LEFT_PADDING);
+std::string DataContainer::toPrettyString() const {
+    return toPrettyString(DEFAULT_LEFT_PADDING);
 }
 
 bool DataContainer::empty() const {
