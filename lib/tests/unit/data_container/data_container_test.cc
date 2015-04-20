@@ -163,6 +163,20 @@ TEST_CASE("DataContainer::toFormat", "[data]") {
             DataContainer data_o { JSON };
             REQUIRE_NOTHROW(data_o.toFormat());
         }
+
+        SECTION("an object containing nested objects with an array") {
+            DataContainer data_ooa {};
+            DataContainer tmp {};
+            tmp.set<std::vector<int>>("bar", { 1, 2, 3 });
+            DataContainer tmp_two {};
+            tmp_two.set<DataContainer>("spam", tmp);
+            tmp_two.set<std::vector<int>>("beans", { 55, 56, 57 });
+            DataContainer tmp_three {};
+            tmp_three.set<DataContainer>("eggs", tmp_two);
+            data_ooa.set<DataContainer>("foo", tmp_three);
+
+            REQUIRE_NOTHROW(data_ooa.toFormat());
+        }
     }
 }
 
