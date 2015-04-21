@@ -107,6 +107,20 @@ class Connector {
               const std::string& data_binary,
               const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
 
+    void send(const std::vector<std::string>& endpoints,
+              const std::string& data_schema,
+              unsigned int timeout,
+              bool destination_report,
+              const DataContainer& data_json,
+              const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
+
+    void send(const std::vector<std::string>& endpoints,
+              const std::string& data_schema,
+              unsigned int timeout,
+              bool destination_report,
+              const std::string& data_binary,
+              const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
+
   private:
     /// Cthun server url
     std::string server_url_;
@@ -139,11 +153,13 @@ class Connector {
 
     MessageChunk createEnvelope(const std::vector<std::string>& endpoints,
                                 const std::string& data_schema,
-                                unsigned int timeout);
+                                unsigned int timeout,
+                                bool destination_report);
 
     void sendMessage(const std::vector<std::string>& endpoints,
                      const std::string& data_schema,
                      unsigned int timeout,
+                     bool destination_report,
                      const std::string& data_txt,
                      const std::vector<DataContainer>& debug);
 
