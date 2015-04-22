@@ -3,7 +3,7 @@
 #include <cthun-client/connector/connector.hpp>  // Connector
 #include <cthun-client/connector/errors.hpp>     // connection_config_error
 
-#include <cthun-client/message/chunks.hpp>       // ParsedChunk
+#include <cthun-client/protocol/chunks.hpp>       // ParsedChunk
 
 #include <cthun-client/validator/schema.hpp>     // Schema, ContentType
 #include <cthun-client/validator/validator.hpp>  // Validator
