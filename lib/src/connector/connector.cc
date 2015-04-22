@@ -1,6 +1,7 @@
 #include <cthun-client/connector/connector.hpp>
 #include <cthun-client/connector/uuid.hpp>
 #include <cthun-client/protocol/message.hpp>
+#include <cthun-client/protocol/schemas.hpp>
 
 #define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".connector"
 
@@ -210,15 +211,7 @@ void Connector::checkConnectionInitialization() {
 }
 
 void Connector::addEnvelopeSchemaToValidator() {
-    Schema schema { ENVELOPE_SCHEMA_NAME, ContentType::Json };
-
-    schema.addConstraint("id", TypeConstraint::String, true);
-    schema.addConstraint("expires", TypeConstraint::String, true);
-    schema.addConstraint("sender", TypeConstraint::String, true);
-    schema.addConstraint("endpoints", TypeConstraint::Array, true);
-    schema.addConstraint("data_schema", TypeConstraint::String, true);
-    schema.addConstraint("destination_report", TypeConstraint::Bool, false);
-
+    auto schema = Protocol::getEnvelopeSchema();
     validator_.registerSchema(schema);
 }
 
