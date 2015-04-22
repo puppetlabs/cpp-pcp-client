@@ -4,8 +4,8 @@
 
 namespace CthunClient {
 
-TEST_CASE("getAssociateResponseSchema", "[message]") {
-    REQUIRE_NOTHROW(Protocol::getAssociateResponseSchema());
+TEST_CASE("AssociateResponseSchema", "[message]") {
+    REQUIRE_NOTHROW(Protocol::AssociateResponseSchema());
 }
 
 }  // namespace CthunClient

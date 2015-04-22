@@ -211,7 +211,7 @@ void Connector::checkConnectionInitialization() {
 }
 
 void Connector::addEnvelopeSchemaToValidator() {
-    auto schema = Protocol::getEnvelopeSchema();
+    auto schema = Protocol::EnvelopeSchema();
     validator_.registerSchema(schema);
 }
 

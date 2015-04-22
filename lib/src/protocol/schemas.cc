@@ -6,7 +6,7 @@ namespace Protocol {
 // HERE(ale): this must be kept up to date with
 // https://github.com/puppetlabs/cthun-specifications
 
-Schema getEnvelopeSchema() {
+Schema EnvelopeSchema() {
     Schema schema { ENVELOPE_SCHEMA_NAME, ContentType::Json };
     schema.addConstraint("id", TypeConstraint::String, true);
     schema.addConstraint("message_type", TypeConstraint::String, true);
@@ -18,7 +18,7 @@ Schema getEnvelopeSchema() {
     return schema;
 }
 
-Schema getAssociateResponseSchema() {
+Schema AssociateResponseSchema() {
     Schema schema { ASSOCIATE_RESP_TYPE, ContentType::Json };
     schema.addConstraint("id", TypeConstraint::String, true);
     schema.addConstraint("success", TypeConstraint::Bool, true);
@@ -26,20 +26,20 @@ Schema getAssociateResponseSchema() {
     return schema;
 }
 
-Schema getInventoryRequestSchema() {
+Schema InventoryRequestSchema() {
     Schema schema { INVENTORY_REQ_TYPE, ContentType::Json };
     schema.addConstraint("query", TypeConstraint::String, true);
     return schema;
 }
 
-Schema getInventoryResponseSchema() {
+Schema InventoryResponseSchema() {
     Schema schema { INVENTORY_RESP_TYPE, ContentType::Json };
     // TODO(ale): add array item constraint once implemented in Schema
     schema.addConstraint("uris", TypeConstraint::Array, true);
     return schema;
 }
 
-Schema getErrorSchema() {
+Schema ErrorSchema() {
     Schema schema { ERROR_TYPE, ContentType::Json };
     schema.addConstraint("id", TypeConstraint::String, true);
     schema.addConstraint("message_type", TypeConstraint::String, true);
@@ -47,7 +47,7 @@ Schema getErrorSchema() {
     return schema;
 }
 
-Schema getDebugSchema() {
+Schema DebugSchema() {
     Schema schema { DEBUG_SCHEMA_NAME, ContentType::Json };
     schema.addConstraint("server", TypeConstraint::String, true);
     schema.addConstraint("stage", TypeConstraint::String, true);

@@ -11,7 +11,7 @@ namespace Protocol {
 //
 
 static const std::string ENVELOPE_SCHEMA_NAME { "envelope_schema" };
-Schema getEnvelopeSchema();
+Schema EnvelopeSchema();
 
 //
 // data
@@ -21,24 +21,24 @@ Schema getEnvelopeSchema();
 static const std::string ASSOCIATE_REQ_TYPE  { "http://puppetlabs.com/associate_request" };
 static const std::string ASSOCIATE_RESP_TYPE { "http://puppetlabs.com/associate_response" };
 // NB: associate requests don't have a data chunk
-Schema getAssociateResponseSchema();
+Schema AssociateResponseSchema();
 
 // inventory
 static const std::string INVENTORY_REQ_TYPE  { "http://puppetlabs.com/inventory_request" };
 static const std::string INVENTORY_RESP_TYPE { "http://puppetlabs.com/inventory_response" };
-Schema getInventoryRequestSchema();
-Schema getInventoryResponseSchema();
+Schema InventoryRequestSchema();
+Schema InventoryResponseSchema();
 
 // error
 static const std::string ERROR_TYPE { "http://puppetlabs.com/errorschema" };
-Schema getErrorSchema();
+Schema ErrorSchema();
 
 //
 // debug
 //
 
 static const std::string DEBUG_SCHEMA_NAME { "debug_schema" };
-Schema getDebugSchema();
+Schema DebugSchema();
 
 }  // namespace Protocol
 }  // namespace CthunClient
