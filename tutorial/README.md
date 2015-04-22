@@ -79,7 +79,7 @@ Create a Controller class and refactor common code.
 
 ### Step 8
 
- - Define the error message schema.
+ - Use the error message schema defined in protocol/schemas.
  - For each incoming request message, the Agent::processRequest callback will
  validate the content of the request by using CthunClient::Validator.
  - In case the request content is invalid, the agent will respond to the

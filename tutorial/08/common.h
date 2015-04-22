@@ -11,7 +11,6 @@ static const std::string SERVER_URL { "wss://127.0.0.1:8090/cthun/" };
 
 static const std::string REQUEST_SCHEMA_NAME { "http://puppetlabs.com/tutorial_request_schema" };
 static const std::string RESPONSE_SCHEMA_NAME { "http://puppetlabs.com/tutorial_response_schema" };
-static const std::string ERROR_SCHEMA_NAME { "http://puppetlabs.com/tutorial_error_schema" };
 
 static const int MSG_TIMEOUT_S { 10 };
 
@@ -30,15 +29,6 @@ static CthunClient::Schema getResponseMessageSchema() {
     CthunClient::Schema schema { RESPONSE_SCHEMA_NAME,
                                  CthunClient::ContentType::Json };
     schema.addConstraint("response", T_C::String, true); // mandatory
-    return schema;
-}
-
-static CthunClient::Schema getErrorMessageSchema() {
-    CthunClient::Schema schema { ERROR_SCHEMA_NAME,
-                                 CthunClient::ContentType::Json };
-    schema.addConstraint("message", T_C::String, true); // mandatory
-    // id of the message that caused the error - optional
-    schema.addConstraint("id", T_C::String, false);
     return schema;
 }
 

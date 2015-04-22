@@ -1,4 +1,4 @@
-#include <cthun-client/message/message.hpp>
+#include <cthun-client/protocol/message.hpp>
 #include <cthun-client/data_container/data_container.hpp>
 
 #define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".message"
