@@ -16,6 +16,7 @@ set(SOURCES
     src/data_container/data_container.cc
     src/protocol/chunks.cc
     src/protocol/message.cc
+    src/protocol/schemas.cc
     src/validator/schema.cc
     src/validator/validator.cc
 )
