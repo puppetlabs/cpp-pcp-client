@@ -1,6 +1,6 @@
 #include <cthun-client/connector/connector.hpp>
 #include <cthun-client/connector/uuid.hpp>
-#include <cthun-client/message/message.hpp>
+#include <cthun-client/protocol/message.hpp>
 
 #define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".connector"
 

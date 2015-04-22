@@ -1,7 +1,7 @@
-#ifndef CTHUN_CLIENT_SRC_MESSAGE_SERIALIZATION_H_
-#define CTHUN_CLIENT_SRC_MESSAGE_SERIALIZATION_H_
+#ifndef CTHUN_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
+#define CTHUN_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
 
-#include <cthun-client/message/errors.hpp>
+#include <cthun-client/protocol/errors.hpp>
 
 #include <boost/detail/endian.hpp>
 
@@ -159,4 +159,4 @@ inline uint32_t deserialize(size_t thing_size,
 
 }  // namespace CthunClient
 
-#endif  // CTHUN_CLIENT_SRC_MESSAGE_SERIALIZATION_H_
+#endif  // CTHUN_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_

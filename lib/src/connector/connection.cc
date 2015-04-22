@@ -10,7 +10,7 @@
 #include <cthun-client/connector/connection.hpp>
 #include <cthun-client/connector/errors.hpp>
 #include <cthun-client/data_container/data_container.hpp>
-#include <cthun-client/message/message.hpp>
+#include <cthun-client/protocol/message.hpp>
 
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/client.hpp>

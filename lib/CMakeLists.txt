@@ -14,8 +14,8 @@ set(SOURCES
     src/connector/connector.cc
     src/connector/timings.cc
     src/data_container/data_container.cc
-    src/message/chunks.cc
-    src/message/message.cc
+    src/protocol/chunks.cc
+    src/protocol/message.cc
     src/validator/schema.cc
     src/validator/validator.cc
 )

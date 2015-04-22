@@ -1,7 +1,7 @@
-#ifndef CTHUN_CLIENT_SRC_CHUNKS_H_
-#define CTHUN_CLIENT_SRC_CHUNKS_H_
+#ifndef CTHUN_CLIENT_SRC_PROTOCOL_CHUNKS_H_
+#define CTHUN_CLIENT_SRC_PROTOCOL_CHUNKS_H_
 
-#include <cthun-client/message/serialization.hpp>
+#include <cthun-client/protocol/serialization.hpp>
 #include <cthun-client/validator/schema.hpp>
 #include <cthun-client/data_container/data_container.hpp>
 
@@ -89,4 +89,4 @@ struct ParsedChunks {
 
 }  // namespace CthunClient
 
-#endif  // CTHUN_CLIENT_SRC_CHUNKS_H_
+#endif  // CTHUN_CLIENT_SRC_PROTOCOL_CHUNKS_H_

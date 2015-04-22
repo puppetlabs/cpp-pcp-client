@@ -11,8 +11,8 @@ set(SOURCES
     unit/connector/connection_test.cc
     unit/connector/certs.cc
     unit/data_container/data_container_test.cc
-    unit/message/serialization_test.cc
-    unit/message/message_test.cc
+    unit/protocol/serialization_test.cc
+    unit/protocol/message_test.cc
     unit/validator/schema_test.cc
     unit/validator/validator_test.cc
 )
