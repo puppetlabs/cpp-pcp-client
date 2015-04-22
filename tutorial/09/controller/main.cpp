@@ -4,6 +4,7 @@
 #include <cthun-client/connector/errors.hpp>     // connection_config_error
 
 #include <cthun-client/data_container/data_container.hpp>  // DataContainer
+#include <cthun-client/protocol/schemas.hpp>     // Protocol::
 
 #include <string>
 #include <iostream>
@@ -50,8 +51,9 @@ Controller::Controller()
     try
         : num_connect_attempts_ { 2 },
           response_schema_ { getResponseMessageSchema() },
-          error_schema_ { getErrorMessageSchema() },
-          inventory_response_schema_ { getInventoryResponseMessageSchema() },
+          error_schema_ { CthunClient::Protocol::ErrorSchema() },
+          inventory_response_schema_ {
+                CthunClient::Protocol::InventoryResponseSchema() },
           connector_ptr_ { new CthunClient::Connector { SERVER_URL,
                                                         CONTROLLER_CLIENT_TYPE,
                                                         CA,
@@ -153,7 +155,7 @@ void Controller::sendRequests() {
 
     try {
         connector_ptr_->send(std::vector<std::string> { "cth://server" },
-                             INVENTORY_REQ_SCHEMA_NAME,
+                             CthunClient::Protocol::INVENTORY_REQ_TYPE,
                              MSG_TIMEOUT_S,
                              inventory_request);
         std::cout << "Inventory request message sent\n";
