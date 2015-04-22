@@ -6,8 +6,8 @@
 #include <cthun-client/connector/errors.hpp>
 #include <cthun-client/validator/validator.hpp>
 #include <cthun-client/validator/schema.hpp>
-#include <cthun-client/message/chunks.hpp>
-#include <cthun-client/message/message.hpp>
+#include <cthun-client/protocol/chunks.hpp>
+#include <cthun-client/protocol/message.hpp>
 #include <cthun-client/data_container/data_container.hpp>
 
 #include <memory>

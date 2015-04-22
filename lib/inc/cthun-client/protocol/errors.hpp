@@ -1,5 +1,5 @@
-#ifndef CTHUN_CLIENT_SRC_MESSAGE_ERRORS_H_
-#define CTHUN_CLIENT_SRC_MESSAGE_ERRORS_H_
+#ifndef CTHUN_CLIENT_SRC_PROTOCOL_ERRORS_H_
+#define CTHUN_CLIENT_SRC_PROTOCOL_ERRORS_H_
 
 #include <stdexcept>
 #include <string>
@@ -36,4 +36,4 @@ class invalid_chunk_error : public message_error {
 
 }  // namespace CthunClient
 
-#endif  // CTHUN_CLIENT_SRC_MESSAGE_ERRORS_H_
+#endif  // CTHUN_CLIENT_SRC_PROTOCOL_ERRORS_H_
