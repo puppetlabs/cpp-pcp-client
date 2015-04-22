@@ -1,4 +1,4 @@
-#include <cthun-client/message/chunks.hpp>
+#include <cthun-client/protocol/chunks.hpp>
 
 namespace CthunClient {
 
