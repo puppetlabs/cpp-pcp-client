@@ -9,12 +9,20 @@
 namespace CthunClient {
 
 TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
-    SECTION("retrieves correctly the client identity from the certificate") {
+    SECTION("retrieves correctly the client common name from the certificate") {
         std::string type { "test" };
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath() };
         std::string expected_id { "cth://cthun-client/" + type };
 
-        REQUIRE(c_m.id == expected_id);
+        REQUIRE(c_m.common_name == "cthun-client");
+    }
+
+    SECTION("determines correctly the client URI") {
+        std::string type { "test" };
+        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath() };
+        std::string expected_uri { "cth://cthun-client/" + type };
+
+        REQUIRE(c_m.uri == expected_uri);
     }
 
     SECTION("throws a connection_config_error if the provided certificate "

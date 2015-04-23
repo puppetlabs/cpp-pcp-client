@@ -56,8 +56,6 @@ struct MessageChunk {
 // ParsedChunks
 //
 
-// TODO(ale): update the parsed debug format once we define specs
-
 struct ParsedChunks {
     // Envelope
     DataContainer envelope;
@@ -69,20 +67,20 @@ struct ParsedChunks {
     std::string binary_data;
 
     // Debug
-    std::vector<std::string> debug;
+    std::vector<DataContainer> debug;
 
     ParsedChunks();
 
     ParsedChunks(DataContainer _envelope,
-                 std::vector<std::string> _debug);
+                 std::vector<DataContainer> _debug);
 
     ParsedChunks(DataContainer _envelope,
                  DataContainer _data,
-                 std::vector<std::string> _debug);
+                 std::vector<DataContainer> _debug);
 
     ParsedChunks(DataContainer _envelope,
                  std::string _binary_data,
-                 std::vector<std::string> _debug);
+                 std::vector<DataContainer> _debug);
 
     std::string toString() const;
 };

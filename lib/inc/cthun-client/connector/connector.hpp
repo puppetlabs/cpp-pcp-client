@@ -31,7 +31,7 @@ class Connector {
     /// Throws a connection_config_error in case it fails to retrieve
     /// the client identity from its certificate.
     Connector(const std::string& server_url,
-              const std::string& type,
+              const std::string& client_type,
               const std::string& ca_crt_path,
               const std::string& client_crt_path,
               const std::string& client_key_path);
@@ -60,12 +60,9 @@ class Connector {
     /// NB: the function is not thread safe
     void connect(int max_connect_attempts = 0);
 
-    // TODO(ale): logged-in flag to be set after a login response
+    // TODO(ale): set associated flag after associate response
 
     bool isConnected() const;
-
-    // HERE(ale): monitorConnection assumes that the client will
-    // still be logged in once the WebSocket connection is re-opened
 
     /// Periodically check the state of the underlying connection.
     /// Re-establish the connection in case it has dropped, otherwise
@@ -95,27 +92,27 @@ class Connector {
     /// not been opened previously.
     void send(const Message& msg);
 
-    void send(const std::vector<std::string>& endpoints,
-              const std::string& data_schema,
+    void send(const std::vector<std::string>& targets,
+              const std::string& message_type,
               unsigned int timeout,
               const DataContainer& data_json,
               const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
 
-    void send(const std::vector<std::string>& endpoints,
-              const std::string& data_schema,
+    void send(const std::vector<std::string>& targets,
+              const std::string& message_type,
               unsigned int timeout,
               const std::string& data_binary,
               const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
 
-    void send(const std::vector<std::string>& endpoints,
-              const std::string& data_schema,
+    void send(const std::vector<std::string>& targets,
+              const std::string& message_type,
               unsigned int timeout,
               bool destination_report,
               const DataContainer& data_json,
               const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
 
-    void send(const std::vector<std::string>& endpoints,
-              const std::string& data_schema,
+    void send(const std::vector<std::string>& targets,
+              const std::string& message_type,
               unsigned int timeout,
               bool destination_report,
               const std::string& data_binary,
@@ -151,20 +148,19 @@ class Connector {
 
     void addEnvelopeSchemaToValidator();
 
-    MessageChunk createEnvelope(const std::vector<std::string>& endpoints,
-                                const std::string& data_schema,
+    MessageChunk createEnvelope(const std::vector<std::string>& targets,
+                                const std::string& message_type,
                                 unsigned int timeout,
                                 bool destination_report);
 
-    void sendMessage(const std::vector<std::string>& endpoints,
-                     const std::string& data_schema,
+    void sendMessage(const std::vector<std::string>& targets,
+                     const std::string& message_type,
                      unsigned int timeout,
                      bool destination_report,
                      const std::string& data_txt,
                      const std::vector<DataContainer>& debug);
 
-    void sendLogin();
-
+    void associateSession();
 
     // Callback for the Connection instance to handle incoming
     // messages.

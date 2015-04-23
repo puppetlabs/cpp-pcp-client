@@ -56,7 +56,7 @@ ParsedChunks::ParsedChunks()
 
 // No data ctor
 ParsedChunks::ParsedChunks(DataContainer _envelope,
-                           std::vector<std::string> _debug)
+                           std::vector<DataContainer> _debug)
         : envelope { _envelope },
           has_data { false },
           data_type { ContentType::Json },
@@ -68,7 +68,7 @@ ParsedChunks::ParsedChunks(DataContainer _envelope,
 // JSON data ctor
 ParsedChunks::ParsedChunks(DataContainer _envelope,
                            DataContainer _data,
-                           std::vector<std::string> _debug)
+                           std::vector<DataContainer> _debug)
         : envelope { _envelope },
           has_data { true },
           data_type { ContentType::Json },
@@ -80,7 +80,7 @@ ParsedChunks::ParsedChunks(DataContainer _envelope,
 // Binary data ctor
 ParsedChunks::ParsedChunks(DataContainer _envelope,
                            std::string _binary_data,
-                           std::vector<std::string> _debug)
+                           std::vector<DataContainer> _debug)
         : envelope { _envelope },
           has_data { true },
           data_type { ContentType::Binary },
@@ -102,7 +102,7 @@ std::string ParsedChunks::toString() const {
     }
 
     for (auto& d : debug) {
-        s += ("\nDEBUG: " + d);
+        s += ("\nDEBUG: " + d.toString());
     }
 
     return s;

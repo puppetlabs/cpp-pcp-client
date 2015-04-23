@@ -1,4 +1,5 @@
 #include <cthun-client/protocol/message.hpp>
+#include <cthun-client/protocol/schemas.hpp>
 #include <cthun-client/data_container/data_container.hpp>
 
 #define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".message"
@@ -157,32 +158,33 @@ SerializedMessage Message::getSerialized() const {
     return buffer;
 }
 
-// Parse, validate, and return the content of chunks
+// Parse JSON, validate schema, and return the content of chunks
 
 ParsedChunks Message::getParsedChunks(const Validator& validator) const {
     // Envelope
     DataContainer envelope_content { envelope_chunk_.content };
-    validator.validate(envelope_content, ENVELOPE_SCHEMA_NAME);
+    validator.validate(envelope_content, Protocol::ENVELOPE_SCHEMA_NAME);
 
     // Debug
-    std::vector<std::string> debug_content {};
+    std::vector<DataContainer> debug_content {};
     for (const auto& d_c : debug_chunks_) {
-        // Directly add the raw chunk content
-        debug_content.push_back(d_c.content);
+        DataContainer parsed_debug { d_c.content };
+        validator.validate(parsed_debug, Protocol::DEBUG_SCHEMA_NAME);
+        debug_content.push_back(parsed_debug);
     }
 
     // Data
     if (hasData()) {
-        auto schema_name = envelope_content.get<std::string>("data_schema");
-        auto data_type = validator.getSchemaContentType(schema_name);
+        auto message_type = envelope_content.get<std::string>("message_type");
+        auto content_type = validator.getSchemaContentType(message_type);
 
-        if (data_type == ContentType::Json) {
+        if (content_type == ContentType::Json) {
             DataContainer data_content_json { data_chunk_.content };
-            validator.validate(data_content_json, schema_name);
+            validator.validate(data_content_json, message_type);
             return ParsedChunks { envelope_content,
                                   data_content_json,
                                   debug_content };
-        } else if (data_type == ContentType::Binary) {
+        } else if (content_type == ContentType::Binary) {
             auto data_content_binary = data_chunk_.content;
             return ParsedChunks { envelope_content,
                                   data_content_binary,

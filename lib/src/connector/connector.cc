@@ -20,6 +20,8 @@ namespace CthunClient {
 static const uint CONNECTION_CHECK_S { 15 };  // [s]
 static const int DEFAULT_MSG_TIMEOUT { 10 };  // [s]
 
+static const std::string MY_SERVER_URI { "cth:///server" };
+
 //
 // Utility functions
 //
@@ -44,12 +46,15 @@ std::string plural(int num_of_things) {
 //
 
 Connector::Connector(const std::string& server_url,
-                     const std::string& type,
+                     const std::string& client_type,
                      const std::string& ca_crt_path,
                      const std::string& client_crt_path,
                      const std::string& client_key_path)
         : server_url_ { server_url },
-          client_metadata_ { type, ca_crt_path, client_crt_path, client_key_path },
+          client_metadata_ { client_type,
+                             ca_crt_path,
+                             client_crt_path,
+                             client_key_path },
           connection_ptr_ { nullptr },
           validator_ {},
           schema_callback_pairs_ {},
@@ -98,7 +103,7 @@ void Connector::connect(int max_connect_attempts) {
 
         connection_ptr_->setOnOpenCallback(
             [this]() {
-                sendLogin();
+                associateSession();
             });
     }
 
@@ -116,8 +121,8 @@ void Connector::connect(int max_connect_attempts) {
 }
 
 bool Connector::isConnected() const {
-    // TODO(ale): make this consistent with the login transaction as
-    // specified in the protocol specs (perhaps with a logged-in flag)
+    // TODO(ale): make this consistent with the associate transaction
+    // as in the protocol specs (perhaps with an associated flag)
 
     return connection_ptr_ != nullptr
            && connection_ptr_->getConnectionState() == ConnectionStateValues::open;
@@ -144,54 +149,54 @@ void Connector::send(const Message& msg) {
     connection_ptr_->send(&serialized_msg[0], serialized_msg.size());
 }
 
-void Connector::send(const std::vector<std::string>& endpoints,
-                     const std::string& data_schema,
+void Connector::send(const std::vector<std::string>& targets,
+                     const std::string& message_type,
                      unsigned int timeout,
                      const DataContainer& data_json,
                      const std::vector<DataContainer>& debug) {
-    sendMessage(endpoints,
-                data_schema,
+    sendMessage(targets,
+                message_type,
                 timeout,
                 false,
                 data_json.toString(),
                 debug);
 }
 
-void Connector::send(const std::vector<std::string>& endpoints,
-                     const std::string& data_schema,
+void Connector::send(const std::vector<std::string>& targets,
+                     const std::string& message_type,
                      unsigned int timeout,
                      const std::string& data_binary,
                      const std::vector<DataContainer>& debug) {
-    sendMessage(endpoints,
-                data_schema,
+    sendMessage(targets,
+                message_type,
                 timeout,
                 false,
                 data_binary,
                 debug);
 }
 
-void Connector::send(const std::vector<std::string>& endpoints,
-                     const std::string& data_schema,
+void Connector::send(const std::vector<std::string>& targets,
+                     const std::string& message_type,
                      unsigned int timeout,
                      bool destination_report,
                      const DataContainer& data_json,
                      const std::vector<DataContainer>& debug) {
-    sendMessage(endpoints,
-                data_schema,
+    sendMessage(targets,
+                message_type,
                 timeout,
                 destination_report,
                 data_json.toString(),
                 debug);
 }
 
-void Connector::send(const std::vector<std::string>& endpoints,
-                     const std::string& data_schema,
+void Connector::send(const std::vector<std::string>& targets,
+                     const std::string& message_type,
                      unsigned int timeout,
                      bool destination_report,
                      const std::string& data_binary,
                      const std::vector<DataContainer>& debug) {
-    sendMessage(endpoints,
-                data_schema,
+    sendMessage(targets,
+                message_type,
                 timeout,
                 destination_report,
                 data_binary,
@@ -215,22 +220,22 @@ void Connector::addEnvelopeSchemaToValidator() {
     validator_.registerSchema(schema);
 }
 
-MessageChunk Connector::createEnvelope(const std::vector<std::string>& endpoints,
-                                       const std::string& data_schema,
+MessageChunk Connector::createEnvelope(const std::vector<std::string>& targets,
+                                       const std::string& message_type,
                                        unsigned int timeout,
                                        bool destination_report) {
     auto msg_id = UUID::getUUID();
     auto expires = getISO8601Time(timeout);
     LOG_INFO("Creating message with id %1% for %2% receiver%3%",
-             msg_id, endpoints.size(), plural(endpoints.size()));
+             msg_id, targets.size(), plural(targets.size()));
 
     DataContainer envelope_content {};
 
     envelope_content.set<std::string>("id", msg_id);
+    envelope_content.set<std::string>("message_type", message_type);
+    envelope_content.set<std::vector<std::string>>("targets", targets);
     envelope_content.set<std::string>("expires", expires);
-    envelope_content.set<std::string>("sender", client_metadata_.id);
-    envelope_content.set<std::string>("data_schema", data_schema);
-    envelope_content.set<std::vector<std::string>>("endpoints", endpoints);
+    envelope_content.set<std::string>("sender", client_metadata_.uri);
 
     if (destination_report) {
         envelope_content.set<bool>("destination_report", true);
@@ -239,13 +244,13 @@ MessageChunk Connector::createEnvelope(const std::vector<std::string>& endpoints
     return MessageChunk { ChunkDescriptor::ENVELOPE, envelope_content.toString() };
 }
 
-void Connector::sendMessage(const std::vector<std::string>& endpoints,
-                            const std::string& data_schema,
+void Connector::sendMessage(const std::vector<std::string>& targets,
+                            const std::string& message_type,
                             unsigned int timeout,
                             bool destination_report,
                             const std::string& data_txt,
                             const std::vector<DataContainer>& debug) {
-    auto envelope_chunk = createEnvelope(endpoints, data_schema, timeout, destination_report);
+    auto envelope_chunk = createEnvelope(targets, message_type, timeout, destination_report);
     MessageChunk data_chunk { ChunkDescriptor::DATA, data_txt };
     Message msg { envelope_chunk, data_chunk };
 
@@ -259,23 +264,16 @@ void Connector::sendMessage(const std::vector<std::string>& endpoints,
 
 // Login
 
-void Connector::sendLogin() {
+void Connector::associateSession() {
     // Envelope
-    // TODO(ale): use the complete server URI once we apply the specs
-    auto envelope = createEnvelope(std::vector<std::string> { "cth://server" },
-                                   CTHUN_LOGIN_SCHEMA_NAME,
+    auto envelope = createEnvelope(std::vector<std::string> { MY_SERVER_URI },
+                                   Protocol::ASSOCIATE_REQ_TYPE,
                                    DEFAULT_MSG_TIMEOUT,
                                    false);
 
-    // Data
-    DataContainer data_entries {};
-    data_entries.set<std::string>("type", client_metadata_.type);
-    MessageChunk data { ChunkDescriptor::DATA, data_entries.toString() };
-
     // Create and send message
-    Message msg { envelope, data };
-    LOG_INFO("Sending login message");
-    LOG_DEBUG("Login message data: %1%", data.content);
+    Message msg { envelope };
+    LOG_INFO("Sending Associate Session request");
     send(msg);
 }
 
@@ -303,7 +301,7 @@ void Connector::processMessage(const std::string& msg_txt) {
     }
 
     // Execute the callback associated with the data schema
-    auto schema_name = parsed_chunks.envelope.get<std::string>("data_schema");
+    auto schema_name = parsed_chunks.envelope.get<std::string>("message_type");
 
     if (schema_callback_pairs_.find(schema_name) != schema_callback_pairs_.end()) {
         auto c_b = schema_callback_pairs_.at(schema_name);
