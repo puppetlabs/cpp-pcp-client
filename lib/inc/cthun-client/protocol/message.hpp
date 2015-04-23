@@ -19,7 +19,7 @@ namespace CthunClient {
 // Constants
 //
 
-static const std::string ENVELOPE_SCHEMA_NAME { "envelope" };
+// TODO(ale): move these defs
 
 static const std::string CTHUN_LOGIN_SCHEMA_NAME { "http://puppetlabs.com/loginschema" };
 static const std::string CTHUN_REQUEST_SCHEMA_NAME { "http://puppetlabs.com/cnc_request" };
@@ -78,9 +78,10 @@ class Message {
     // memory for the buffer.
     SerializedMessage getSerialized() const;
 
-    // Parse, validate, and return the content of chunks by using
-    // the specified validator; the data chunk will be validated
-    // with the schema indicated in the envelope.
+    // Parse JSON content, validate its schema, and return the content
+    // of chunks by using the specified validator; the data chunk will
+    // be validated with the schema indicated in the envelope.
+    // Throw a data_parse_error in case of invalid JSON content.
     // Throw a schema_not_found_error in case the schema indicated in
     // the envelope is not registred in the validator.
     // Throw a validation_error in case of invalid message.
