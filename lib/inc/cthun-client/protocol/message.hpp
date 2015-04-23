@@ -16,16 +16,6 @@
 namespace CthunClient {
 
 //
-// Constants
-//
-
-// TODO(ale): move these defs
-
-static const std::string CTHUN_LOGIN_SCHEMA_NAME { "http://puppetlabs.com/loginschema" };
-static const std::string CTHUN_REQUEST_SCHEMA_NAME { "http://puppetlabs.com/cnc_request" };
-static const std::string CTHUN_RESPONSE_SCHEMA_NAME { "http://puppetlabs.com/cnc_response" };
-
-//
 // Message
 //
 

@@ -18,8 +18,9 @@ namespace CthunClient {
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-std::string getClientIdentityFromCert(const std::string& client_crt_path,
-                                      const std::string& type) {
+static const std::string CTHUN_URI_SCHEME { "cth://" };
+
+std::string getCommonNameFromCert(const std::string& client_crt_path) {
     LOG_INFO("Retrieving the client identity from %1%", client_crt_path);
 
     std::unique_ptr<std::FILE, int(*)(std::FILE*)> fp {
@@ -50,23 +51,25 @@ std::string getClientIdentityFromCert(const std::string& client_crt_path,
     unsigned char* name_ptr = ASN1_STRING_data(asn1_name);
     int name_size = ASN1_STRING_length(asn1_name);
 
-    return "cth://" + std::string(name_ptr, name_ptr + name_size) + "/" + type;
+    return std::string { name_ptr, name_ptr + name_size };
 }
 
 #if defined(__APPLE__) && defined(__clang__)
 #pragma clang diagnostic pop
 #endif
 
-ClientMetadata::ClientMetadata(const std::string& _type,
+ClientMetadata::ClientMetadata(const std::string& _client_type,
                                const std::string& _ca,
                                const std::string& _crt,
                                const std::string& _key)
-        : type { _type },
-          ca { _ca },
+        : ca { _ca },
           crt { _crt },
           key { _key },
-          id { getClientIdentityFromCert(_crt, _type) } {
-    LOG_INFO("Obtained the client identity from %1%: %2%", _crt, id);
+          client_type { _client_type },
+          common_name { getCommonNameFromCert(crt) },
+          uri { CTHUN_URI_SCHEME + common_name + "/" + client_type } {
+    LOG_INFO("Retrieved common name from %1% and determined client URI: %2%",
+             _crt, uri);
 }
 
 }  // namespace CthunClient
