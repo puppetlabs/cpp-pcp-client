@@ -22,7 +22,7 @@ Schema AssociateResponseSchema() {
     Schema schema { ASSOCIATE_RESP_TYPE, ContentType::Json };
     schema.addConstraint("id", TypeConstraint::String, true);
     schema.addConstraint("success", TypeConstraint::Bool, true);
-    schema.addConstraint("reason", TypeConstraint::String, true);
+    schema.addConstraint("reason", TypeConstraint::String, false);
     return schema;
 }
 
