@@ -331,7 +331,7 @@ void Connection::onOpen(WS_Connection_Handle hdl) {
     connection_timings_.open = std::chrono::high_resolution_clock::now();
     connection_timings_.connection_started = true;
     LOG_DEBUG("WebSocket on open event - %1%", connection_timings_.toString());
-    LOG_INFO("Cthun connection established");
+    LOG_INFO("WebSocket connection established");
     connection_state_ = ConnectionStateValues::open;
 
     if (onOpen_callback) {
