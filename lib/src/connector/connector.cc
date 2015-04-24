@@ -296,7 +296,13 @@ void Connector::processMessage(const std::string& msg_txt) {
     try {
         parsed_chunks = msg_ptr->getParsedChunks(validator_);
     } catch (validator_error& e) {
-        LOG_ERROR("Invalid message: %1%", e.what());
+        LOG_ERROR("Invalid message - content not conform to schema: %1%", e.what());
+        return;
+    } catch (data_parse_error& e) {
+        LOG_ERROR("Invalid message - invalid JSON content: %1%", e.what());
+        return;
+    } catch (schema_not_found_error& e) {
+        LOG_ERROR("Invalid message - unknown schema: %1%", e.what());
         return;
     }
 
