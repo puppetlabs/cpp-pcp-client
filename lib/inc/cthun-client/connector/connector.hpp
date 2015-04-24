@@ -146,7 +146,7 @@ class Connector {
 
     void checkConnectionInitialization();
 
-    void addEnvelopeSchemaToValidator();
+    void addSchemasToValidator();
 
     MessageChunk createEnvelope(const std::vector<std::string>& targets,
                                 const std::string& message_type,

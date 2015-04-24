@@ -62,7 +62,7 @@ Connector::Connector(const std::string& server_url,
           cond_var_ {},
           is_destructing_ { false },
           is_monitoring_ { false } {
-    addEnvelopeSchemaToValidator();
+    addSchemasToValidator();
 }
 
 Connector::~Connector() {
@@ -215,9 +215,9 @@ void Connector::checkConnectionInitialization() {
     }
 }
 
-void Connector::addEnvelopeSchemaToValidator() {
-    auto schema = Protocol::EnvelopeSchema();
-    validator_.registerSchema(schema);
+void Connector::addSchemasToValidator() {
+    validator_.registerSchema(Protocol::EnvelopeSchema());
+    validator_.registerSchema(Protocol::DebugSchema());
 }
 
 MessageChunk Connector::createEnvelope(const std::vector<std::string>& targets,
