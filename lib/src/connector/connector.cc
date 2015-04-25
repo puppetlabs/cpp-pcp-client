@@ -250,7 +250,8 @@ void Connector::sendMessage(const std::vector<std::string>& targets,
                             bool destination_report,
                             const std::string& data_txt,
                             const std::vector<DataContainer>& debug) {
-    auto envelope_chunk = createEnvelope(targets, message_type, timeout, destination_report);
+    auto envelope_chunk = createEnvelope(targets, message_type, timeout,
+                                         destination_report);
     MessageChunk data_chunk { ChunkDescriptor::DATA, data_txt };
     Message msg { envelope_chunk, data_chunk };
 
