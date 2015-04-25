@@ -38,7 +38,6 @@ class Controller {
   private:
     int num_connect_attempts_;
     CthunClient::Schema response_schema_;
-    CthunClient::Schema error_schema_;
     CthunClient::Schema inventory_response_schema_;
     std::unique_ptr<CthunClient::Connector> connector_ptr_;
 
@@ -51,7 +50,6 @@ Controller::Controller()
     try
         : num_connect_attempts_ { 2 },
           response_schema_ { getResponseMessageSchema() },
-          error_schema_ { CthunClient::Protocol::ErrorMessageSchema() },
           inventory_response_schema_ {
                 CthunClient::Protocol::InventoryResponseSchema() },
           connector_ptr_ { new CthunClient::Connector { SERVER_URL,
@@ -65,12 +63,6 @@ Controller::Controller()
         response_schema_,
         [this](const CthunClient::ParsedChunks& parsed_chunks) {
             processResponse(parsed_chunks);
-        });
-
-    connector_ptr_->registerMessageCallback(
-        error_schema_,
-        [this](const CthunClient::ParsedChunks& parsed_chunks) {
-            processError(parsed_chunks);
         });
 
     connector_ptr_->registerMessageCallback(
@@ -175,22 +167,6 @@ void Controller::processResponse(const CthunClient::ParsedChunks& parsed_chunks)
     std::cout << "Received response " << response_id
               << " from " << agent_endpoint << ":\n  "
               << parsed_chunks.data.get<std::string>("response") << "\n";
-}
-
-void Controller::processError(const CthunClient::ParsedChunks& parsed_chunks) {
-    auto response_id = parsed_chunks.envelope.get<std::string>("id");
-    auto agent_endpoint = parsed_chunks.envelope.get<std::string>("sender");
-
-    std::cout << "Received error " << response_id
-              << " from " << agent_endpoint;
-
-    if (parsed_chunks.data.includes("id")) {
-        std::cout << " for request "
-                  << parsed_chunks.data.get<std::string>("id");
-    }
-
-    std::cout << ":\n  "
-              << parsed_chunks.data.get<std::string>("message") << "\n";
 }
 
 void Controller::processInventoryResponse(

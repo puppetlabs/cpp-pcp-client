@@ -132,7 +132,7 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
         err += e.what();
         std::cout << err << "\n";
         CthunClient::DataContainer err_data {};
-        err_data.set<std::string>("message", err);
+        err_data.set<std::string>("description", err);
         err_data.set<std::string>("id", request_id);
 
         try {
