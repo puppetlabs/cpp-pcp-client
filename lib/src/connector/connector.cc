@@ -11,6 +11,12 @@
 
 #include <cstdio>
 #include <chrono>
+
+// TODO(ale): disable assert() once we're confident with the code...
+// To disable assert()
+// #define NDEBUG
+#include <cassert>
+
 namespace CthunClient {
 
 //
@@ -61,8 +67,18 @@ Connector::Connector(const std::string& server_url,
           mutex_ {},
           cond_var_ {},
           is_destructing_ { false },
-          is_monitoring_ { false } {
-    addSchemasToValidator();
+          is_monitoring_ { false },
+          is_associated_ { false } {
+    // Add Cthun schemas to the Validator instance member
+    validator_.registerSchema(Protocol::EnvelopeSchema());
+    validator_.registerSchema(Protocol::DebugSchema());
+
+    // Register Cthun callbacks
+    registerMessageCallback(
+        Protocol::AssociateResponseSchema(),
+        [this](const ParsedChunks& parsed_chunks) {
+            associateResponseCallback(parsed_chunks);
+        });
 }
 
 Connector::~Connector() {
@@ -122,11 +138,12 @@ void Connector::connect(int max_connect_attempts) {
 }
 
 bool Connector::isConnected() const {
-    // TODO(ale): make this consistent with the associate transaction
-    // as in the protocol specs (perhaps with an associated flag)
-
     return connection_ptr_ != nullptr
            && connection_ptr_->getConnectionState() == ConnectionStateValues::open;
+}
+
+bool Connector::isAssociated() const {
+    return isConnected() && is_associated_.load();
 }
 
 void Connector::monitorConnection(int max_connect_attempts) {
@@ -214,11 +231,6 @@ void Connector::checkConnectionInitialization() {
     if (connection_ptr_ == nullptr) {
         throw connection_not_init_error { "connection not initialized" };
     }
-}
-
-void Connector::addSchemasToValidator() {
-    validator_.registerSchema(Protocol::EnvelopeSchema());
-    validator_.registerSchema(Protocol::DebugSchema());
 }
 
 MessageChunk Connector::createEnvelope(const std::vector<std::string>& targets,
@@ -320,6 +332,34 @@ void Connector::processMessage(const std::string& msg_txt) {
     } else {
         LOG_WARNING("No message callback has be registered for '%1%' schema",
                     schema_name);
+    }
+}
+
+// Associate session response callback
+
+void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
+    assert(parsed_chunks.has_data);
+    assert(parsed_chunks.data_type == CthunClient::ContentType::Json);
+
+    auto response_id = parsed_chunks.envelope.get<std::string>("id");
+    auto server_uri = parsed_chunks.envelope.get<std::string>("sender");
+
+    auto request_id = parsed_chunks.data.get<std::string>("id");
+    auto success = parsed_chunks.data.get<bool>("success");
+
+    std::string msg { "Received associate session response " + response_id
+                      + " from " + server_uri + " for request " + request_id };
+
+    if (success) {
+        LOG_INFO("%1%: success", msg);
+        is_associated_ = true;
+    } else {
+        if (parsed_chunks.data.includes("reason")) {
+            auto reason = parsed_chunks.data.get<std::string>("reason");
+            LOG_WARNING("%1%: failure - %2%", msg, reason);
+        } else {
+            LOG_WARNING("%1%: failure", msg);
+        }
     }
 }
 

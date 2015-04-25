@@ -15,6 +15,7 @@
 #include <map>
 #include <thread>  // mutex
 #include <condition_variable>
+#include <atomic>
 
 namespace CthunClient {
 
@@ -60,9 +61,14 @@ class Connector {
     /// NB: the function is not thread safe
     void connect(int max_connect_attempts = 0);
 
-    // TODO(ale): set associated flag after associate response
-
+    /// Returns true if the underlying connection is currently open,
+    /// false otherwise.
     bool isConnected() const;
+
+    /// Returns true if a successful associate response has been
+    /// received and the underlying connection did not drop since
+    /// then, false otherwise.
+    bool isAssociated() const;
 
     /// Periodically check the state of the underlying connection.
     /// Re-establish the connection in case it has dropped, otherwise
@@ -144,9 +150,12 @@ class Connector {
     /// Flag; set to true if the dtor has been called
     bool is_destructing_;
 
-    void checkConnectionInitialization();
+    /// Flag; set to true when a successful associate response is
+    /// received, set to false by the ctor or when the underlying
+    /// connection drops.
+    std::atomic<bool> is_associated_;
 
-    void addSchemasToValidator();
+    void checkConnectionInitialization();
 
     MessageChunk createEnvelope(const std::vector<std::string>& targets,
                                 const std::string& message_type,
@@ -170,7 +179,13 @@ class Connector {
     // associated with the schema specified in the envelope.
     void processMessage(const std::string& msg_txt);
 
-    // Monitor the underlying connection; reconnect or keep it alive
+    // Cthun Callback executed by processMessage in case of an
+    // associate session response.
+    void associateResponseCallback(const CthunClient::ParsedChunks& parsed_chunks);
+
+    // Monitor the underlying connection; reconnect or keep it alive.
+    // If the underlying connection is dropped, unset the
+    // is_associated_ flag.
     void startMonitorTask(int max_connect_attempts);
 };
 
