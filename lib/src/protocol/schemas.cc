@@ -41,8 +41,8 @@ Schema InventoryResponseSchema() {
 
 Schema ErrorMessageSchema() {
     Schema schema { ERROR_MSG_TYPE, ContentType::Json };
-    schema.addConstraint("id", TypeConstraint::String, true);
     schema.addConstraint("description", TypeConstraint::String, true);
+    schema.addConstraint("id", TypeConstraint::String, false);
     return schema;
 }
 
