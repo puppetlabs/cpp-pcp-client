@@ -5,7 +5,7 @@
 
 #include <cthun-client/data_container/data_container.hpp>  // DataContainer
 
-#include <cthun-client/protocol/schemas.hpp>     // Protocol::ErrorSchema
+#include <cthun-client/protocol/schemas.hpp>     // Protocol::ErrorMessageSchema
 
 #include <string>
 #include <iostream>
@@ -50,7 +50,7 @@ Controller::Controller()
     try
         : num_connect_attempts_ { 2 },
           response_schema_ { getResponseMessageSchema() },
-          error_schema_ { CthunClient::Protocol::ErrorSchema() },
+          error_schema_ { CthunClient::Protocol::ErrorMessageSchema() },
           connector_ptr_ { new CthunClient::Connector { SERVER_URL,
                                                         CONTROLLER_CLIENT_TYPE,
                                                         CA,

@@ -3,8 +3,8 @@
 #include <cthun-client/connector/connector.hpp>  // Connector
 #include <cthun-client/connector/errors.hpp>     // connection_config_error
 
-#include <cthun-client/protocol/chunks.hpp>       // ParsedChunk
-#include <cthun-client/protocol/schemas.hpp>     // Protocol::ErrorType
+#include <cthun-client/protocol/chunks.hpp>      // ParsedChunk
+#include <cthun-client/protocol/schemas.hpp>     // Protocol::ErrorMessageSchema
 
 #include <cthun-client/validator/schema.hpp>     // Schema, ContentType
 #include <cthun-client/validator/validator.hpp>  // Validator
@@ -137,7 +137,7 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
 
         try {
             connector_ptr_->send(std::vector<std::string> { requester_endpoint },
-                                 CthunClient::Protocol::ERROR_TYPE,
+                                 CthunClient::Protocol::ERROR_MSG_TYPE,
                                  MSG_TIMEOUT_S,
                                  err_data);
             std::cout << "Error message sent to " << requester_endpoint << "\n";
