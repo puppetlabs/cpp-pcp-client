@@ -48,15 +48,15 @@ class Connector {
     /// Try to reopen for max_connect_attempts times or idefinetely,
     /// in case that parameter is 0 (as by default). This is done by
     /// following an exponential backoff.
-    /// Once the underlying connection is open, send a login message
-    /// to the server.
+    /// Once the underlying connection is open, send an associate
+    /// session request to the server.
     /// Throw a connection_config_error if it fails to set up the
     /// underlying communications layer (ex. invalid certificates).
     /// Throw a connection_fatal_error if it fails to open the
     /// underlying connection after the specified number of attempts
-    /// or if it fails to send the login message.
-    /// NB: the function does not wait for the login response; it
-    ///     returns right after sending the login request
+    /// or if it fails to send the associate session request.
+    /// NB: the function does not wait for the associate response; it
+    ///     returns right after sending the associate request
     /// NB: the function is not thread safe
     void connect(int max_connect_attempts = 0);
 
@@ -160,10 +160,12 @@ class Connector {
                      const std::string& data_txt,
                      const std::vector<DataContainer>& debug);
 
+    // WebSocket Callback for the Connection instance to be triggered
+    // on an onOpen event.
     void associateSession();
 
-    // Callback for the Connection instance to handle incoming
-    // messages.
+    // WebSocket Callback for the Connection instance to handle all
+    // incoming messages.
     // Parse and validate the passed message; execute the callback
     // associated with the schema specified in the envelope.
     void processMessage(const std::string& msg_txt);

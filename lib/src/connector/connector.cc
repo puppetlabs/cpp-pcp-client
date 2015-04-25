@@ -96,6 +96,7 @@ void Connector::connect(int max_connect_attempts) {
         // Initialize the WebSocket connection
         connection_ptr_.reset(new Connection(server_url_, client_metadata_));
 
+        // Set WebSocket callbacks
         connection_ptr_->setOnMessageCallback(
             [this](std::string message) {
                 processMessage(message);
@@ -263,7 +264,7 @@ void Connector::sendMessage(const std::vector<std::string>& targets,
     send(msg);
 }
 
-// Login
+// WebSocket onOpen callback - will send the associate session request
 
 void Connector::associateSession() {
     // Envelope
@@ -281,7 +282,8 @@ void Connector::associateSession() {
 // WebSocket onMessage callback
 
 void Connector::processMessage(const std::string& msg_txt) {
-    LOG_DEBUG("Received message of %1% bytes:\n%2%", msg_txt.size(), msg_txt);
+    LOG_DEBUG("Received message of %1% bytes - raw message:\n%2%",
+              msg_txt.size(), msg_txt);
 
     // Deserialize the incoming message
     std::unique_ptr<Message> msg_ptr;
@@ -343,7 +345,8 @@ void Connector::startMonitorTask(int max_connect_attempts) {
 
         try {
             if (!isConnected()) {
-                LOG_WARNING("Connection to Cthun server lost; retrying");
+                LOG_WARNING("WebSocket connection to Cthun server lost; retrying");
+                is_associated_ = false;
                 connection_ptr_->connect(max_connect_attempts);
             } else {
                 LOG_DEBUG("Sending heartbeat ping");

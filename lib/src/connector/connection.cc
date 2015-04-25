@@ -76,7 +76,7 @@ Connection::Connection(const std::string& server_url,
         // Start the event loop thread
         endpoint_thread_.reset(new std::thread(&WS_Client_Type::run, endpoint_.get()));
     } catch (...) {
-        LOG_DEBUG("Failed to configure the websocket endpoint; about to stop "
+        LOG_DEBUG("Failed to configure the WebSocket endpoint; about to stop "
                   "the event loop");
         cleanUp();
         throw connection_config_error { "failed to initialize" };
@@ -149,7 +149,8 @@ void Connection::connect(int max_connect_attempts) {
 
         case(ConnectionStateValues::open):
             if (previous_c_s != ConnectionStateValues::open) {
-                LOG_INFO("Successfully established connection to Cthun server");
+                LOG_INFO("Successfully established a WebSocket connection to "
+                         "the Cthun server");
                 connection_backoff_s_ = CONNECTION_BACKOFF_S;
             }
             return;
@@ -166,8 +167,8 @@ void Connection::connect(int max_connect_attempts) {
                 usleep(CONNECTION_MIN_INTERVAL);
                 previous_c_s = ConnectionStateValues::connecting;
             } else {
-                LOG_INFO("Failed to connect; retrying in %1% seconds",
-                         connection_backoff_s_);
+                LOG_INFO("Failed to establish a WebSocket connection; "
+                         "retrying in %1% seconds", connection_backoff_s_);
                 sleep(connection_backoff_s_);
                 connect_();
                 usleep(CONNECTION_MIN_INTERVAL);
@@ -180,8 +181,8 @@ void Connection::connect(int max_connect_attempts) {
     } while (try_again);
 
     connection_backoff_s_ = CONNECTION_BACKOFF_S;
-    throw connection_fatal_error { "failed to connect after "
-                                   + std::to_string(idx) + " attempt"
+    throw connection_fatal_error { "failed to establish a WebSocket connection "
+                                   "after " + std::to_string(idx) + " attempt"
                                    + (idx > 1 ? "s" : "") };
 }
 
@@ -214,7 +215,8 @@ void Connection::ping(const std::string& binary_payload) {
     websocketpp::lib::error_code ec;
     endpoint_->ping(connection_handle_, binary_payload, ec);
     if (ec) {
-        throw connection_processing_error { "failed to ping: " + ec.message() };
+        throw connection_processing_error { "failed to send WebSocket ping: "
+                                            + ec.message() };
     }
 }
 
@@ -223,8 +225,8 @@ void Connection::close(CloseCode code, const std::string& reason) {
     websocketpp::lib::error_code ec;
     endpoint_->close(connection_handle_, code, reason, ec);
     if (ec) {
-        throw connection_processing_error { "failed to close connetion: "
-                                            + ec.message() };
+        throw connection_processing_error { "failed to close WebSocket "
+                                            "connection: " + ec.message() };
     }
 }
 
@@ -238,7 +240,7 @@ void Connection::cleanUp() {
         try {
             close();
         } catch (connection_processing_error& e) {
-            LOG_ERROR("Failed to close the connection: %1%", e.what());
+            LOG_ERROR("Failed to close the WebSocket connection: %1%", e.what());
         }
     }
     if (endpoint_thread_ != nullptr && endpoint_thread_->joinable()) {
@@ -253,7 +255,8 @@ void Connection::connect_() {
     WS_Client_Type::connection_ptr connection_ptr {
         endpoint_->get_connection(server_url_, ec) };
     if (ec) {
-        throw connection_processing_error { "failed to connect to " + server_url_
+        throw connection_processing_error { "failed to establish the WebSocket "
+                                            "connection to " + server_url_
                                             + ": " + ec.message() };
     }
     connection_handle_ = connection_ptr->get_handle();
@@ -340,7 +343,7 @@ void Connection::onOpen(WS_Connection_Handle hdl) {
             return;
         } catch (std::exception&  e) {
             LOG_ERROR("onOpen callback failure: %1%; closing the "
-                      "WebSocketconnection", e.what());
+                      "WebSocket connection", e.what());
         } catch (...) {
             LOG_ERROR("onOpen callback failure; closing the WebSocket "
                       "connection");
@@ -358,9 +361,9 @@ void Connection::onMessage(WS_Connection_Handle hdl,
             // failure; it must be able to notify back the error...
             onMessage_callback_(msg->get_payload());
         } catch (std::exception&  e) {
-            LOG_ERROR("onMessage callback failure: %1%", e.what());
+            LOG_ERROR("onMessage WebSocket callback failure: %1%", e.what());
         } catch (...) {
-            LOG_ERROR("onMessage callback failure: unexpected error");
+            LOG_ERROR("onMessage WebSocket callback failure: unexpected error");
         }
     }
 }
