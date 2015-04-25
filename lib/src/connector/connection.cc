@@ -149,7 +149,7 @@ void Connection::connect(int max_connect_attempts) {
 
         case(ConnectionStateValues::open):
             if (previous_c_s != ConnectionStateValues::open) {
-                LOG_INFO("Successfully established a WebSocket connection to "
+                LOG_INFO("Successfully established a WebSocket connection with "
                          "the Cthun server");
                 connection_backoff_s_ = CONNECTION_BACKOFF_S;
             }
@@ -256,7 +256,7 @@ void Connection::connect_() {
         endpoint_->get_connection(server_url_, ec) };
     if (ec) {
         throw connection_processing_error { "failed to establish the WebSocket "
-                                            "connection to " + server_url_
+                                            "connection with " + server_url_
                                             + ": " + ec.message() };
     }
     connection_handle_ = connection_ptr->get_handle();
