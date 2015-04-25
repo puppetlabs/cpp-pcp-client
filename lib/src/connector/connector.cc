@@ -79,6 +79,12 @@ Connector::Connector(const std::string& server_url,
         [this](const ParsedChunks& parsed_chunks) {
             associateResponseCallback(parsed_chunks);
         });
+
+    registerMessageCallback(
+        Protocol::ErrorMessageSchema(),
+        [this](const ParsedChunks& parsed_chunks) {
+            errorMessageCallback(parsed_chunks);
+        });
 }
 
 Connector::~Connector() {
@@ -360,6 +366,28 @@ void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
         } else {
             LOG_WARNING("%1%: failure", msg);
         }
+    }
+}
+
+// Cthun error message callback
+
+void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
+    assert(parsed_chunks.has_data);
+    assert(parsed_chunks.data_type == CthunClient::ContentType::Json);
+
+    auto error_id = parsed_chunks.envelope.get<std::string>("id");
+    auto server_uri = parsed_chunks.envelope.get<std::string>("sender");
+
+    auto description = parsed_chunks.data.get<std::string>("description");
+
+    std::string msg { "Received error " + error_id + " from " + server_uri };
+
+    if (parsed_chunks.data.includes("id")) {
+        auto cause_id = parsed_chunks.data.get<std::string>("id");
+        LOG_WARNING("%1% caused by message %2%: %3%", msg, cause_id, description);
+    } else {
+        LOG_WARNING("%1% (the id of the message that caused it is unknown): %2%",
+                    msg, description);
     }
 }
 

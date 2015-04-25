@@ -183,6 +183,10 @@ class Connector {
     // associate session response.
     void associateResponseCallback(const CthunClient::ParsedChunks& parsed_chunks);
 
+    // Cthun Callback executed by processMessage when an error message
+    // is received.
+    void errorMessageCallback(const CthunClient::ParsedChunks& parsed_chunks);
+
     // Monitor the underlying connection; reconnect or keep it alive.
     // If the underlying connection is dropped, unset the
     // is_associated_ flag.
