@@ -43,6 +43,9 @@ Schema DestinationReportSchema();
 
 static const std::string DEBUG_SCHEMA_NAME { "debug_schema" };
 Schema DebugSchema();
+// TODO(ale): remove this once we implement array item constraints
+static const std::string DEBUG_ITEM_SCHEMA_NAME { "debug_item_schema" };
+Schema DebugItemSchema();
 
 }  // namespace Protocol
 }  // namespace CthunClient
