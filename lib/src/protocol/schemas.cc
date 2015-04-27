@@ -22,7 +22,7 @@ Schema AssociateResponseSchema() {
     Schema schema { ASSOCIATE_RESP_TYPE, ContentType::Json };
     schema.addConstraint("id", TypeConstraint::String, true);
     schema.addConstraint("success", TypeConstraint::Bool, true);
-    schema.addConstraint("reason", TypeConstraint::String, true);
+    schema.addConstraint("reason", TypeConstraint::String, false);
     return schema;
 }
 
@@ -39,10 +39,18 @@ Schema InventoryResponseSchema() {
     return schema;
 }
 
-Schema ErrorSchema() {
-    Schema schema { ERROR_TYPE, ContentType::Json };
-    schema.addConstraint("id", TypeConstraint::String, true);
+Schema ErrorMessageSchema() {
+    Schema schema { ERROR_MSG_TYPE, ContentType::Json };
     schema.addConstraint("description", TypeConstraint::String, true);
+    schema.addConstraint("id", TypeConstraint::String, false);
+    return schema;
+}
+
+Schema DestinationReportSchema() {
+    Schema schema { DESTINATION_REPORT_TYPE, ContentType::Json };
+    schema.addConstraint("id", TypeConstraint::String, true);
+    // TODO(ale): add array item constraint once implemented in Schema
+    schema.addConstraint("targets", TypeConstraint::Array, true);
     return schema;
 }
 

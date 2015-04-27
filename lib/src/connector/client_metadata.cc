@@ -21,7 +21,7 @@ namespace CthunClient {
 static const std::string CTHUN_URI_SCHEME { "cth://" };
 
 std::string getCommonNameFromCert(const std::string& client_crt_path) {
-    LOG_INFO("Retrieving the client identity from %1%", client_crt_path);
+    LOG_INFO("Retrieving the common name from certificate %1%", client_crt_path);
 
     std::unique_ptr<std::FILE, int(*)(std::FILE*)> fp {
         std::fopen(client_crt_path.data(), "r"), std::fclose };
@@ -43,8 +43,8 @@ std::string getCommonNameFromCert(const std::string& client_crt_path) {
     X509_NAME_ENTRY* name_entry = X509_NAME_get_entry(subj, 0);
 
     if (name_entry == nullptr) {
-        throw connection_config_error { "failed to retrieve the client name "
-                                        "from " + client_crt_path };
+        throw connection_config_error { "failed to retrieve the client common "
+                                        "name from " + client_crt_path };
     }
 
     ASN1_STRING* asn1_name = X509_NAME_ENTRY_get_data(name_entry);
@@ -68,8 +68,8 @@ ClientMetadata::ClientMetadata(const std::string& _client_type,
           client_type { _client_type },
           common_name { getCommonNameFromCert(crt) },
           uri { CTHUN_URI_SCHEME + common_name + "/" + client_type } {
-    LOG_INFO("Retrieved common name from %1% and determined client URI: %2%",
-             _crt, uri);
+    LOG_INFO("Retrieved common name from the certificate and determined "
+             "the client URI: %1%", uri);
 }
 
 }  // namespace CthunClient

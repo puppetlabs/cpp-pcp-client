@@ -30,8 +30,12 @@ Schema InventoryRequestSchema();
 Schema InventoryResponseSchema();
 
 // error
-static const std::string ERROR_TYPE { "http://puppetlabs.com/error_message" };
-Schema ErrorSchema();
+static const std::string ERROR_MSG_TYPE { "http://puppetlabs.com/error_message" };
+Schema ErrorMessageSchema();
+
+// destination report
+static const std::string DESTINATION_REPORT_TYPE { "http://puppetlabs.com/destination_report" };
+Schema DestinationReportSchema();
 
 //
 // debug

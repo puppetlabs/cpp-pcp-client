@@ -11,6 +11,12 @@
 
 #include <cstdio>
 #include <chrono>
+
+// TODO(ale): disable assert() once we're confident with the code...
+// To disable assert()
+// #define NDEBUG
+#include <cassert>
+
 namespace CthunClient {
 
 //
@@ -61,8 +67,24 @@ Connector::Connector(const std::string& server_url,
           mutex_ {},
           cond_var_ {},
           is_destructing_ { false },
-          is_monitoring_ { false } {
-    addEnvelopeSchemaToValidator();
+          is_monitoring_ { false },
+          is_associated_ { false } {
+    // Add Cthun schemas to the Validator instance member
+    validator_.registerSchema(Protocol::EnvelopeSchema());
+    validator_.registerSchema(Protocol::DebugSchema());
+
+    // Register Cthun callbacks
+    registerMessageCallback(
+        Protocol::AssociateResponseSchema(),
+        [this](const ParsedChunks& parsed_chunks) {
+            associateResponseCallback(parsed_chunks);
+        });
+
+    registerMessageCallback(
+        Protocol::ErrorMessageSchema(),
+        [this](const ParsedChunks& parsed_chunks) {
+            errorMessageCallback(parsed_chunks);
+        });
 }
 
 Connector::~Connector() {
@@ -96,6 +118,7 @@ void Connector::connect(int max_connect_attempts) {
         // Initialize the WebSocket connection
         connection_ptr_.reset(new Connection(server_url_, client_metadata_));
 
+        // Set WebSocket callbacks
         connection_ptr_->setOnMessageCallback(
             [this](std::string message) {
                 processMessage(message);
@@ -121,11 +144,12 @@ void Connector::connect(int max_connect_attempts) {
 }
 
 bool Connector::isConnected() const {
-    // TODO(ale): make this consistent with the associate transaction
-    // as in the protocol specs (perhaps with an associated flag)
-
     return connection_ptr_ != nullptr
            && connection_ptr_->getConnectionState() == ConnectionStateValues::open;
+}
+
+bool Connector::isAssociated() const {
+    return isConnected() && is_associated_.load();
 }
 
 void Connector::monitorConnection(int max_connect_attempts) {
@@ -215,11 +239,6 @@ void Connector::checkConnectionInitialization() {
     }
 }
 
-void Connector::addEnvelopeSchemaToValidator() {
-    auto schema = Protocol::EnvelopeSchema();
-    validator_.registerSchema(schema);
-}
-
 MessageChunk Connector::createEnvelope(const std::vector<std::string>& targets,
                                        const std::string& message_type,
                                        unsigned int timeout,
@@ -250,7 +269,8 @@ void Connector::sendMessage(const std::vector<std::string>& targets,
                             bool destination_report,
                             const std::string& data_txt,
                             const std::vector<DataContainer>& debug) {
-    auto envelope_chunk = createEnvelope(targets, message_type, timeout, destination_report);
+    auto envelope_chunk = createEnvelope(targets, message_type, timeout,
+                                         destination_report);
     MessageChunk data_chunk { ChunkDescriptor::DATA, data_txt };
     Message msg { envelope_chunk, data_chunk };
 
@@ -262,7 +282,7 @@ void Connector::sendMessage(const std::vector<std::string>& targets,
     send(msg);
 }
 
-// Login
+// WebSocket onOpen callback - will send the associate session request
 
 void Connector::associateSession() {
     // Envelope
@@ -280,7 +300,8 @@ void Connector::associateSession() {
 // WebSocket onMessage callback
 
 void Connector::processMessage(const std::string& msg_txt) {
-    LOG_DEBUG("Received message of %1% bytes:\n%2%", msg_txt.size(), msg_txt);
+    LOG_DEBUG("Received message of %1% bytes - raw message:\n%2%",
+              msg_txt.size(), msg_txt);
 
     // Deserialize the incoming message
     std::unique_ptr<Message> msg_ptr;
@@ -295,8 +316,8 @@ void Connector::processMessage(const std::string& msg_txt) {
     ParsedChunks parsed_chunks;
     try {
         parsed_chunks = msg_ptr->getParsedChunks(validator_);
-    } catch (validator_error& e) {
-        LOG_ERROR("Invalid message - content not conform to schema: %1%", e.what());
+    } catch (validation_error& e) {
+        LOG_ERROR("Invalid message - bad content: %1%", e.what());
         return;
     } catch (data_parse_error& e) {
         LOG_ERROR("Invalid message - invalid JSON content: %1%", e.what());
@@ -317,6 +338,56 @@ void Connector::processMessage(const std::string& msg_txt) {
     } else {
         LOG_WARNING("No message callback has be registered for '%1%' schema",
                     schema_name);
+    }
+}
+
+// Associate session response callback
+
+void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
+    assert(parsed_chunks.has_data);
+    assert(parsed_chunks.data_type == CthunClient::ContentType::Json);
+
+    auto response_id = parsed_chunks.envelope.get<std::string>("id");
+    auto server_uri = parsed_chunks.envelope.get<std::string>("sender");
+
+    auto request_id = parsed_chunks.data.get<std::string>("id");
+    auto success = parsed_chunks.data.get<bool>("success");
+
+    std::string msg { "Received associate session response " + response_id
+                      + " from " + server_uri + " for request " + request_id };
+
+    if (success) {
+        LOG_INFO("%1%: success", msg);
+        is_associated_ = true;
+    } else {
+        if (parsed_chunks.data.includes("reason")) {
+            auto reason = parsed_chunks.data.get<std::string>("reason");
+            LOG_WARNING("%1%: failure - %2%", msg, reason);
+        } else {
+            LOG_WARNING("%1%: failure", msg);
+        }
+    }
+}
+
+// Cthun error message callback
+
+void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
+    assert(parsed_chunks.has_data);
+    assert(parsed_chunks.data_type == CthunClient::ContentType::Json);
+
+    auto error_id = parsed_chunks.envelope.get<std::string>("id");
+    auto server_uri = parsed_chunks.envelope.get<std::string>("sender");
+
+    auto description = parsed_chunks.data.get<std::string>("description");
+
+    std::string msg { "Received error " + error_id + " from " + server_uri };
+
+    if (parsed_chunks.data.includes("id")) {
+        auto cause_id = parsed_chunks.data.get<std::string>("id");
+        LOG_WARNING("%1% caused by message %2%: %3%", msg, cause_id, description);
+    } else {
+        LOG_WARNING("%1% (the id of the message that caused it is unknown): %2%",
+                    msg, description);
     }
 }
 
@@ -342,7 +413,8 @@ void Connector::startMonitorTask(int max_connect_attempts) {
 
         try {
             if (!isConnected()) {
-                LOG_WARNING("Connection to Cthun server lost; retrying");
+                LOG_WARNING("WebSocket connection to Cthun server lost; retrying");
+                is_associated_ = false;
                 connection_ptr_->connect(max_connect_attempts);
             } else {
                 LOG_DEBUG("Sending heartbeat ping");
