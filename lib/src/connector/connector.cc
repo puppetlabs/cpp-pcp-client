@@ -72,6 +72,7 @@ Connector::Connector(const std::string& server_url,
     // Add Cthun schemas to the Validator instance member
     validator_.registerSchema(Protocol::EnvelopeSchema());
     validator_.registerSchema(Protocol::DebugSchema());
+    validator_.registerSchema(Protocol::DebugItemSchema());
 
     // Register Cthun callbacks
     registerMessageCallback(

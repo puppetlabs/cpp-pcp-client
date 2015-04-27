@@ -56,9 +56,15 @@ Schema DestinationReportSchema() {
 
 Schema DebugSchema() {
     Schema schema { DEBUG_SCHEMA_NAME, ContentType::Json };
+    schema.addConstraint("hops", TypeConstraint::Array, true);
+    return schema;
+}
+
+Schema DebugItemSchema() {
+    Schema schema { DEBUG_ITEM_SCHEMA_NAME, ContentType::Json };
     schema.addConstraint("server", TypeConstraint::String, true);
-    schema.addConstraint("stage", TypeConstraint::String, true);
     schema.addConstraint("time", TypeConstraint::String, true);
+    schema.addConstraint("stage", TypeConstraint::String, false);
     return schema;
 }
 

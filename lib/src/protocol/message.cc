@@ -170,9 +170,14 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
     for (const auto& d_c : debug_chunks_) {
         DataContainer parsed_debug { d_c.content };
 
-        // TODO(ale): validate debug once server is fixed
+        // Validate entire content (array)
+        validator.validate(parsed_debug, Protocol::DEBUG_SCHEMA_NAME);
 
-        // validator.validate(parsed_debug, Protocol::DEBUG_SCHEMA_NAME);
+        // Validate each hop entry
+        for (auto &hop : parsed_debug.get<std::vector<DataContainer>>("hops")) {
+            validator.validate(hop, Protocol::DEBUG_ITEM_SCHEMA_NAME);
+        }
+
         debug_content.push_back(parsed_debug);
     }
 
