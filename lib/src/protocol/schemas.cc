@@ -46,6 +46,14 @@ Schema ErrorMessageSchema() {
     return schema;
 }
 
+Schema DestinationReportSchema() {
+    Schema schema { DESTINATION_REPORT_TYPE, ContentType::Json };
+    schema.addConstraint("id", TypeConstraint::String, true);
+    // TODO(ale): add array item constraint once implemented in Schema
+    schema.addConstraint("targets", TypeConstraint::Array, true);
+    return schema;
+}
+
 Schema DebugSchema() {
     Schema schema { DEBUG_SCHEMA_NAME, ContentType::Json };
     schema.addConstraint("server", TypeConstraint::String, true);
