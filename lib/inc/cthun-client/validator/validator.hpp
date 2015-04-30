@@ -65,8 +65,6 @@ class Validator {
   private:
     std::map<std::string, Schema> schema_map_;
     mutable std::mutex lookup_mutex_;
-
-    bool validateDataContainer(DataContainer& data, const Schema& schema) const;
 };
 
 }  // namespace CthunClient
