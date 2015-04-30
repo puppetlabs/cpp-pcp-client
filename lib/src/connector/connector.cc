@@ -318,13 +318,14 @@ void Connector::processMessage(const std::string& msg_txt) {
     try {
         parsed_chunks = msg_ptr->getParsedChunks(validator_);
     } catch (validation_error& e) {
-        LOG_ERROR("Invalid message - bad content: %1%", e.what());
+        LOG_ERROR("Invalid envelope - bad content: %1%", e.what());
         return;
     } catch (data_parse_error& e) {
-        LOG_ERROR("Invalid message - invalid JSON content: %1%", e.what());
+        LOG_ERROR("Invalid envelope - invalid JSON content: %1%", e.what());
         return;
     } catch (schema_not_found_error& e) {
-        LOG_ERROR("Invalid message - unknown schema: %1%", e.what());
+        // This is unexpected
+        LOG_ERROR("Missing envelope schema: %1%", e.what());
         return;
     }
 

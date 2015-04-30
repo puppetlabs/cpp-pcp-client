@@ -62,25 +62,35 @@ struct ParsedChunks {
 
     // Data
     bool has_data;
+    bool invalid_data;
     ContentType data_type;
     DataContainer data;
     std::string binary_data;
 
     // Debug
     std::vector<DataContainer> debug;
+    unsigned int num_invalid_debug;
 
     ParsedChunks();
 
     ParsedChunks(DataContainer _envelope,
-                 std::vector<DataContainer> _debug);
+                 std::vector<DataContainer> _debug,
+                 unsigned int _num_invalid_debug);
 
     ParsedChunks(DataContainer _envelope,
-                 DataContainer _data,
-                 std::vector<DataContainer> _debug);
+                 bool _invalid_data,                // invalid data
+                 std::vector<DataContainer> _debug,
+                 unsigned int _num_invalid_debug);
 
     ParsedChunks(DataContainer _envelope,
-                 std::string _binary_data,
-                 std::vector<DataContainer> _debug);
+                 DataContainer _data,               // JSON data
+                 std::vector<DataContainer> _debug,
+                 unsigned int _num_invalid_debug);
+
+    ParsedChunks(DataContainer _envelope,
+                 std::string _binary_data,          // binary data
+                 std::vector<DataContainer> _debug,
+                 unsigned int _num_invalid_debug);
 
     std::string toString() const;
 };
