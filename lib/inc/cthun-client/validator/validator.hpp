@@ -51,7 +51,14 @@ class Validator {
     Validator(Validator&& other_validator);
 
     void registerSchema(const Schema& schema);
+
+    // Validates data with the specified schema.
+    // Throw a schema_not_found error in case the specified schema
+    // was not registered.
+    // Throw a validation_error in case the data does not match the
+    // specified schema.
     void validate(DataContainer& data, std::string schema_name) const;
+
     bool includesSchema(std::string schema_name) const;
     ContentType getSchemaContentType(std::string schema_name) const;
 
