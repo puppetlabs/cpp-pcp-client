@@ -164,21 +164,32 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
     // Envelope
     DataContainer envelope_content { envelope_chunk_.content };
     validator.validate(envelope_content, Protocol::ENVELOPE_SCHEMA_NAME);
+    auto msg_id = envelope_content.get<std::string>("id");
 
     // Debug
     std::vector<DataContainer> debug_content {};
+    unsigned int num_invalid_debug { 0 };
     for (const auto& d_c : debug_chunks_) {
-        DataContainer parsed_debug { d_c.content };
+        try {
+            // Parse the JSON text
+            DataContainer parsed_debug { d_c.content };
 
-        // Validate entire content (array)
-        validator.validate(parsed_debug, Protocol::DEBUG_SCHEMA_NAME);
+            // Validate entire content (array)
+            validator.validate(parsed_debug, Protocol::DEBUG_SCHEMA_NAME);
 
-        // Validate each hop entry
-        for (auto &hop : parsed_debug.get<std::vector<DataContainer>>("hops")) {
-            validator.validate(hop, Protocol::DEBUG_ITEM_SCHEMA_NAME);
+            // Validate each hop entry
+            for (auto &hop : parsed_debug.get<std::vector<DataContainer>>("hops")) {
+                validator.validate(hop, Protocol::DEBUG_ITEM_SCHEMA_NAME);
+            }
+
+            debug_content.push_back(parsed_debug);
+        } catch (data_parse_error& e) {
+            num_invalid_debug++;
+            LOG_DEBUG("Invalid debug in message %1%: %2%", msg_id, e.what());
+        } catch (validator_error& e) {
+            num_invalid_debug++;
+            LOG_DEBUG("Invalid debug in message %1%: %2%", msg_id, e.what());
         }
-
-        debug_content.push_back(parsed_debug);
     }
 
     // Data
@@ -187,22 +198,43 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
         auto content_type = validator.getSchemaContentType(message_type);
 
         if (content_type == ContentType::Json) {
-            DataContainer data_content_json { data_chunk_.content };
-            validator.validate(data_content_json, message_type);
+            std::string err_msg {};
+            try {
+                DataContainer data_content_json { data_chunk_.content };
+                validator.validate(data_content_json, message_type);
+
+                // Valid JSON data content
+                return ParsedChunks { envelope_content,
+                                      data_content_json,
+                                      debug_content,
+                                      num_invalid_debug };
+            } catch (data_parse_error& e) {
+                err_msg = e.what();
+            } catch (validator_error& e) {
+                err_msg = e.what();
+            }
+
+            LOG_DEBUG("Invalid data in message %1%: %2%", msg_id, e.what());
+
+            // Bad JSON data content
             return ParsedChunks { envelope_content,
-                                  data_content_json,
-                                  debug_content };
+                                  true,
+                                  debug_content,
+                                  num_invalid_debug };
         } else if (content_type == ContentType::Binary) {
             auto data_content_binary = data_chunk_.content;
+
+            // Binary data content
             return ParsedChunks { envelope_content,
                                   data_content_binary,
-                                  debug_content };
+                                  debug_content,
+                                  num_invalid_debug };
         } else {
             assert(false);
         }
     }
 
-    return ParsedChunks { envelope_content, debug_content };
+    return ParsedChunks { envelope_content, debug_content, num_invalid_debug };
 }
 
 // toString

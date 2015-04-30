@@ -68,13 +68,19 @@ class Message {
     // memory for the buffer.
     SerializedMessage getSerialized() const;
 
-    // Parse JSON content, validate its schema, and return the content
-    // of chunks by using the specified validator; the data chunk will
-    // be validated with the schema indicated in the envelope.
-    // Throw a data_parse_error in case of invalid JSON content.
-    // Throw a schema_not_found_error in case the schema indicated in
-    // the envelope is not registred in the validator.
-    // Throw a validation_error in case of invalid message.
+    // Parse the content of all message chunks, validate, and return
+    // them as a ParsedChunks instance. The data chunk will be
+    // validated with the schema indicated in the envelope.
+    //
+    // Throw a data_parse_error in case the envelope content contains
+    // invalid JSON text.
+    // Throw a validation_error in case the envelope content does
+    // not match the envelope schema (as in cthun-specifications).
+    // Throw a schema_not_found_error in case the envelope schema
+    // was not registered.
+    //
+    // Note that bad debug/data chunks are reported in the returned
+    // ParsedChunks objects; no error will will be propagated.
     ParsedChunks getParsedChunks(const Validator& validator) const;
 
     // Return a string representation of all message fields.

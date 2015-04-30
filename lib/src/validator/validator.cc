@@ -1,5 +1,8 @@
 #include <cthun-client/validator/validator.hpp>
 
+#define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".validator"
+#include <leatherman/logging/logging.hpp>
+
 #include <valijson/adapters/rapidjson_adapter.hpp>
 #include <valijson/schema_parser.hpp>
 #include <valijson/validation_results.hpp>
@@ -7,6 +10,43 @@
 
 namespace CthunClient {
 
+///
+/// Auxiliary functions
+///
+
+std::string getValidationError(valijson::ValidationResults& validation_results) {
+    std::string err_msg {};
+    valijson::ValidationResults::Error error;
+    unsigned int err_idx { 0 };
+
+    while (validation_results.popError(error)) {
+        if (!err_msg.empty()) {
+            err_msg += "  - ";
+        }
+        err_idx++;
+        err_msg += "ERROR " + std::to_string(err_idx) + ":";
+        for (const auto& context_element : error.context) {
+            err_msg += " " + context_element;
+        }
+    }
+
+    return  err_msg;
+}
+
+bool validateDataContainer(DataContainer& data, const Schema& schema) {
+    valijson::Validator validator { schema.getRaw() };
+    valijson::adapters::RapidJsonAdapter adapted_document { data.getRaw() };
+    valijson::ValidationResults validation_results;
+
+    auto success = validator.validate(adapted_document, &validation_results);
+
+    if (!success) {
+        auto err_msg = getValidationError(validation_results);
+        LOG_DEBUG("Schema validation failure: %1%", err_msg);
+    }
+
+    return success;
+}
 
 ///
 /// Public API
@@ -45,10 +85,7 @@ void Validator::validate(DataContainer& data, std::string schema_name) const {
     // we can freely unlock. When a schema has been set it cannot be modified
 
     if (!validateDataContainer(data, schema_map_.at(schema_name))) {
-        // TODO(ploubser): Log valijson eror string when logging at debug level
-        // but we've got to wait for leatherman
-        throw validation_error { data.toString() + " does not match schema: '" +
-                                 schema_name + "'" };
+        throw validation_error { "does not match schema: '" + schema_name + "'" };
     }
 }
 
@@ -65,19 +102,6 @@ ContentType Validator::getSchemaContentType(std::string schema_name) const {
     lock.unlock();
 
     return schema_map_.at(schema_name).getContentType();
-}
-
-///
-/// Private methods
-///
-
-bool Validator::validateDataContainer(DataContainer& data,
-                                      const Schema& schema) const {
-    valijson::Validator validator { schema.getRaw() };
-    valijson::adapters::RapidJsonAdapter adapted_document { data.getRaw() };
-    valijson::ValidationResults validation_results;
-
-    return validator.validate(adapted_document, &validation_results);
 }
 
 }  // namespace CthunClient
