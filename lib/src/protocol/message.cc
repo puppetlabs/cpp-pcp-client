@@ -214,7 +214,7 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
                 err_msg = e.what();
             }
 
-            LOG_DEBUG("Invalid data in message %1%: %2%", msg_id, e.what());
+            LOG_DEBUG("Invalid data in message %1%: %2%", msg_id, err_msg);
 
             // Bad JSON data content
             return ParsedChunks { envelope_content,
