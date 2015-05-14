@@ -4,7 +4,7 @@
 
 #include "test.hpp"
 
-#define LEATHERMAN_LOGGING_NAMESPACE "puppetlabs.cthun_agent.test"
+#define LEATHERMAN_LOGGING_NAMESPACE "puppetlabs.cthun_client.test"
 #include <leatherman/logging/logging.hpp>
 
 #include <boost/filesystem/operations.hpp>
