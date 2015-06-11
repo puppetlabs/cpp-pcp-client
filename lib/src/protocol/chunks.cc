@@ -2,6 +2,8 @@
 
 namespace CthunClient {
 
+namespace LTH_JC = leatherman::json_container;
+
 //
 // MessageChunk
 //
@@ -57,8 +59,8 @@ ParsedChunks::ParsedChunks()
 }
 
 // No data ctor
-ParsedChunks::ParsedChunks(DataContainer _envelope,
-                           std::vector<DataContainer> _debug,
+ParsedChunks::ParsedChunks(LTH_JC::JsonContainer _envelope,
+                           std::vector<LTH_JC::JsonContainer> _debug,
                            unsigned int _num_invalid_debug)
         : envelope { _envelope },
           has_data { false },
@@ -71,9 +73,9 @@ ParsedChunks::ParsedChunks(DataContainer _envelope,
 }
 
 // Invalid data ctor
-ParsedChunks::ParsedChunks(DataContainer _envelope,
+ParsedChunks::ParsedChunks(LTH_JC::JsonContainer _envelope,
                            bool _invalid_data,
-                           std::vector<DataContainer> _debug,
+                           std::vector<LTH_JC::JsonContainer> _debug,
                            unsigned int _num_invalid_debug)
         : envelope { _envelope },
           has_data { _invalid_data },
@@ -86,9 +88,9 @@ ParsedChunks::ParsedChunks(DataContainer _envelope,
 }
 
 // JSON data ctor
-ParsedChunks::ParsedChunks(DataContainer _envelope,
-                           DataContainer _data,
-                           std::vector<DataContainer> _debug,
+ParsedChunks::ParsedChunks(LTH_JC::JsonContainer _envelope,
+                           LTH_JC::JsonContainer _data,
+                           std::vector<LTH_JC::JsonContainer> _debug,
                            unsigned int _num_invalid_debug)
         : envelope { _envelope },
           has_data { true },
@@ -101,9 +103,9 @@ ParsedChunks::ParsedChunks(DataContainer _envelope,
 }
 
 // Binary data ctor
-ParsedChunks::ParsedChunks(DataContainer _envelope,
+ParsedChunks::ParsedChunks(LTH_JC::JsonContainer _envelope,
                            std::string _binary_data,
-                           std::vector<DataContainer> _debug,
+                           std::vector<LTH_JC::JsonContainer> _debug,
                            unsigned int _num_invalid_debug)
         : envelope { _envelope },
           has_data { true },

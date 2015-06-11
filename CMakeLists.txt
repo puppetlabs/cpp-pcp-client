@@ -35,6 +35,8 @@ set(LEATHERMAN_USE_LOCALE TRUE)
 set(LEATHERMAN_USE_NOWIDE TRUE)
 set(LEATHERMAN_USE_CATCH TRUE)
 set(LEATHERMAN_USE_LOGGING TRUE)
+set(LEATHERMAN_USE_RAPIDJSON TRUE)
+set(LEATHERMAN_USE_JSON_CONTAINER TRUE)
 leatherman_logging_line_numbers()
 add_subdirectory("vendor/leatherman")
 
@@ -55,7 +57,6 @@ endif()
 
 # Include vendor libraries and directories
 include(${VENDOR_DIRECTORY}/websocketpp.cmake)
-include(${VENDOR_DIRECTORY}/rapidjson.cmake)
 include(${VENDOR_DIRECTORY}/valijson.cmake)
 
 link_directories(

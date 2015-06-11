@@ -4,7 +4,6 @@
 #include <cthun-client/protocol/chunks.hpp>
 #include <cthun-client/protocol/errors.hpp>
 #include <cthun-client/protocol/serialization.hpp>
-#include <cthun-client/data_container/data_container.hpp>
 #include <cthun-client/validator/validator.hpp>
 
 #include <string>

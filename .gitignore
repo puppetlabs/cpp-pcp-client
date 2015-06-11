@@ -3,3 +3,7 @@
 /bin/
 /test-resources/
 /ext/packaging
+.DS_Store
+
+#Generated files
+/.idea/

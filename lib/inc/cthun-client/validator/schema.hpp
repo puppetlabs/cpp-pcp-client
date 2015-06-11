@@ -1,7 +1,7 @@
 #ifndef CTHUN_CLIENT_SRC_VALIDATOR_SCHEMA_H_
 #define CTHUN_CLIENT_SRC_VALIDATOR_SCHEMA_H_
 
-#include <cthun-client/data_container/data_container.hpp>
+#include <leatherman/json_container/json_container.hpp>
 
 #include <map>
 #include <string>
@@ -33,6 +33,7 @@ namespace valijson {
 namespace CthunClient {
 
 namespace V_C = valijson::constraints;
+namespace LTH_JC = leatherman::json_container;
 
 enum class TypeConstraint { Object, Array, String, Int, Bool, Double, Null, Any };
 enum class ContentType { Json, Binary };
@@ -65,10 +66,10 @@ class Schema {
     Schema(const Schema& schema);
 
     // Instantiate a Schema of type ContentType::Json by parsing the
-    // JSON schema passed as a DataContainer object.
+    // JSON schema passed as a JsonContainer object.
     // It won't be possible to add further constraints to such schema
     // Throw a schema_error in case of parsing failure.
-    Schema(const std::string& name, const DataContainer json_schema);
+    Schema(const std::string& name, const LTH_JC::JsonContainer json_schema);
 
     ~Schema();
 
