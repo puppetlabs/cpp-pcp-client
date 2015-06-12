@@ -14,7 +14,7 @@ static const std::string ENVELOPE_SCHEMA_NAME { "envelope_schema" };
 Schema EnvelopeSchema();
 
 //
-// data
+// data - protocol layer
 //
 
 // associate session
@@ -36,6 +36,28 @@ Schema ErrorMessageSchema();
 // destination report
 static const std::string DESTINATION_REPORT_TYPE { "http://puppetlabs.com/destination_report" };
 Schema DestinationReportSchema();
+
+//
+// data - RPC layer
+//
+
+// RPC blocking transaction
+static const std::string BLOCKING_REQUEST_TYPE  { "http://puppetlabs.com/rpc_blocking_request" };
+static const std::string BLOCKING_RESPONSE_TYPE { "http://puppetlabs.com/rpc_blocking_response" };
+Schema BlockingRequestSchema();
+Schema BlockingResponseSchema();
+
+// RPC non blocking transaction
+static const std::string NON_BLOCKING_REQUEST_TYPE  { "http://puppetlabs.com/rpc_non_blocking_request" };
+static const std::string NON_BLOCKING_RESPONSE_TYPE { "http://puppetlabs.com/rpc_non_blocking_response" };
+static const std::string PROVISIONAL_RESPONSE_TYPE  { "http://puppetlabs.com/rpc_provisional_response" };
+Schema NonBlockingRequestSchema();
+Schema NonBlockingResponseSchema();
+Schema ProvisionalResponseSchema();
+
+// RPC error
+static const std::string RPC_ERROR_MSG_TYPE { "http://puppetlabs.com/rpc_error_message" };
+Schema RPCErrorSchema();
 
 //
 // debug
