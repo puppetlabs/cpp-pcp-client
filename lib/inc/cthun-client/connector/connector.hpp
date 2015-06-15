@@ -8,7 +8,6 @@
 #include <cthun-client/validator/schema.hpp>
 #include <cthun-client/protocol/chunks.hpp>
 #include <cthun-client/protocol/message.hpp>
-#include <cthun-client/data_container/data_container.hpp>
 
 #include <memory>
 #include <string>
@@ -22,6 +21,7 @@ namespace CthunClient {
 //
 // Connector
 //
+namespace LTH_JC = leatherman::json_container;
 
 class Connector {
   public:
@@ -101,28 +101,28 @@ class Connector {
     void send(const std::vector<std::string>& targets,
               const std::string& message_type,
               unsigned int timeout,
-              const DataContainer& data_json,
-              const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
+              const LTH_JC::JsonContainer& data_json,
+              const std::vector<LTH_JC::JsonContainer>& debug = std::vector<LTH_JC::JsonContainer> {});
 
     void send(const std::vector<std::string>& targets,
               const std::string& message_type,
               unsigned int timeout,
               const std::string& data_binary,
-              const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
+              const std::vector<LTH_JC::JsonContainer>& debug = std::vector<LTH_JC::JsonContainer> {});
 
     void send(const std::vector<std::string>& targets,
               const std::string& message_type,
               unsigned int timeout,
               bool destination_report,
-              const DataContainer& data_json,
-              const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
+              const LTH_JC::JsonContainer& data_json,
+              const std::vector<LTH_JC::JsonContainer>& debug = std::vector<LTH_JC::JsonContainer> {});
 
     void send(const std::vector<std::string>& targets,
               const std::string& message_type,
               unsigned int timeout,
               bool destination_report,
               const std::string& data_binary,
-              const std::vector<DataContainer>& debug = std::vector<DataContainer> {});
+              const std::vector<LTH_JC::JsonContainer>& debug = std::vector<LTH_JC::JsonContainer> {});
 
   private:
     /// Cthun server url
@@ -167,7 +167,7 @@ class Connector {
                      unsigned int timeout,
                      bool destination_report,
                      const std::string& data_txt,
-                     const std::vector<DataContainer>& debug);
+                     const std::vector<LTH_JC::JsonContainer>& debug);
 
     // WebSocket Callback for the Connection instance to be triggered
     // on an onOpen event.

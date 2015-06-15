@@ -10,6 +10,8 @@
 
 namespace CthunClient {
 
+namespace LTH_JC = leatherman::json_container;
+
 ///
 /// Auxiliary functions
 ///
@@ -33,7 +35,7 @@ std::string getValidationError(valijson::ValidationResults& validation_results) 
     return  err_msg;
 }
 
-bool validateDataContainer(DataContainer& data, const Schema& schema) {
+bool validateJsonContainer(LTH_JC::JsonContainer& data, const Schema& schema) {
     valijson::Validator validator { schema.getRaw() };
     valijson::adapters::RapidJsonAdapter adapted_document { data.getRaw() };
     valijson::ValidationResults validation_results;
@@ -74,7 +76,7 @@ void Validator::registerSchema(const Schema& schema) {
     schema_map_.insert(p);
 }
 
-void Validator::validate(DataContainer& data, std::string schema_name) const {
+void Validator::validate(LTH_JC::JsonContainer& data, std::string schema_name) const {
     std::unique_lock<std::mutex> lock(lookup_mutex_);
     if (!includesSchema(schema_name)) {
         throw schema_not_found_error { "'" + schema_name
@@ -84,7 +86,7 @@ void Validator::validate(DataContainer& data, std::string schema_name) const {
 
     // we can freely unlock. When a schema has been set it cannot be modified
 
-    if (!validateDataContainer(data, schema_map_.at(schema_name))) {
+    if (!validateJsonContainer(data, schema_map_.at(schema_name))) {
         throw validation_error { "does not match schema: '" + schema_name + "'" };
     }
 }

@@ -10,7 +10,6 @@ set(SOURCES
     unit/connector/client_metadata_test.cc
     unit/connector/connection_test.cc
     unit/connector/certs.cc
-    unit/data_container/data_container_test.cc
     unit/protocol/serialization_test.cc
     unit/protocol/message_test.cc
     unit/protocol/schemas_test.cc

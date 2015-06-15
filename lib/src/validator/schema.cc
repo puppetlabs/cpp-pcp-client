@@ -7,11 +7,13 @@
 
 namespace CthunClient {
 
+namespace LTH_JC = leatherman::json_container;
+
 //
 // Free functions
 //
 
-valijson::Schema parseSchema(const DataContainer& metadata) {
+valijson::Schema parseSchema(const LTH_JC::JsonContainer& metadata) {
     valijson::Schema schema {};
     valijson::SchemaParser parser {};
     valijson::adapters::RapidJsonAdapter r_j_schema { metadata.getRaw() };
@@ -65,7 +67,7 @@ Schema::Schema(const Schema& s)
             new V_C::RequiredConstraint::RequiredProperties(*s.required_properties_)} {
 }
 
-Schema::Schema(const std::string& name, const DataContainer metadata)
+Schema::Schema(const std::string& name, const LTH_JC::JsonContainer metadata)
         try : name_ { name },
               content_type_ { ContentType::Json },
               parsed_json_schema_ { new valijson::Schema(parseSchema(metadata)) },

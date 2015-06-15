@@ -2,7 +2,6 @@
 #define CTHUN_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
 
 #include <cthun-client/validator/schema.hpp>
-#include <cthun-client/data_container/data_container.hpp>
 
 #include <map>
 #include <mutex>
@@ -42,6 +41,8 @@ class validation_error : public validator_error {
 // Validator
 //
 
+namespace LTH_JC = leatherman::json_container;
+
 class Validator {
   public:
     Validator();
@@ -57,7 +58,7 @@ class Validator {
     // was not registered.
     // Throw a validation_error in case the data does not match the
     // specified schema.
-    void validate(DataContainer& data, std::string schema_name) const;
+    void validate(LTH_JC::JsonContainer& data, std::string schema_name) const;
 
     bool includesSchema(std::string schema_name) const;
     ContentType getSchemaContentType(std::string schema_name) const;

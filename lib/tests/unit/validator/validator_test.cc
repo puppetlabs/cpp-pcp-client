@@ -2,9 +2,10 @@
 
 #include <cthun-client/validator/validator.hpp>
 #include <cthun-client/validator/schema.hpp>
-#include <cthun-client/data_container/data_container.hpp>
 
 namespace CthunClient {
+
+namespace LTH_JC = leatherman::json_container;
 
 TEST_CASE("Validator::registerSchema", "[validation]") {
     Validator validator {};
@@ -22,7 +23,7 @@ TEST_CASE("Validator::registerSchema", "[validation]") {
 }
 
 TEST_CASE("Validator::validate", "[validation]") {
-    DataContainer data {};
+    LTH_JC::JsonContainer data {};
     Schema schema { "test-schema" };
     Validator validator {};
 

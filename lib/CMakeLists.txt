@@ -1,7 +1,6 @@
 include_directories(
     inc
     ${Boost_INCLUDE_DIRS}
-    ${RAPIDJSON_INCLUDE_DIRS}
     ${VALIJSON_INCLUDE_DIRS}
     ${WEBSOCKETPP_INCLUDE_DIRS}
     ${LEATHERMAN_INCLUDE_DIRS}
@@ -13,7 +12,6 @@ set(SOURCES
     src/connector/connection.cc
     src/connector/connector.cc
     src/connector/timings.cc
-    src/data_container/data_container.cc
     src/protocol/chunks.cc
     src/protocol/message.cc
     src/protocol/schemas.cc
