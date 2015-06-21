@@ -329,7 +329,7 @@ void Connector::processMessage(const std::string& msg_txt) {
         return;
     } catch (schema_not_found_error& e) {
         // This is unexpected
-        LOG_ERROR("Missing envelope schema: %1%", e.what());
+        LOG_ERROR("Unknown schema: %1%", e.what());
         return;
     }
 
