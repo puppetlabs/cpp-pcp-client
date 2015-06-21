@@ -66,6 +66,8 @@ Connector::Connector(const std::string& server_url,
           connection_ptr_ { nullptr },
           validator_ {},
           schema_callback_pairs_ {},
+          error_callback_ {},
+          associate_response_callback_ {},
           mutex_ {},
           cond_var_ {},
           is_destructing_ { false },
@@ -371,6 +373,10 @@ void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
             LOG_WARNING("%1%: failure", msg);
         }
     }
+
+    if (associate_response_callback_) {
+        associate_response_callback_(parsed_chunks);
+    }
 }
 
 // Cthun error message callback
@@ -392,6 +398,10 @@ void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
     } else {
         LOG_WARNING("%1% (the id of the message that caused it is unknown): %2%",
                     msg, description);
+    }
+
+    if (associate_response_callback_) {
+        associate_response_callback_(parsed_chunks);
     }
 }
 
