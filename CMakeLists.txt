@@ -4,8 +4,8 @@ project(cthun-client)
 # Project paths
 
 set(MAINFOLDER ${PROJECT_SOURCE_DIR})
-set(EXECUTABLE_OUTPUT_PATH "${MAINFOLDER}/bin")
-set(LIBRARY_OUTPUT_PATH "${MAINFOLDER}/bin")
+set(EXECUTABLE_OUTPUT_PATH "${MAINFOLDER}/build/bin")
+set(LIBRARY_OUTPUT_PATH "${MAINFOLDER}/build/bin")
 set(VENDOR_DIRECTORY "${PROJECT_SOURCE_DIR}/vendor")
 list(APPEND CMAKE_MODULE_PATH ${VENDOR_DIRECTORY})
 
@@ -22,6 +22,11 @@ else ()
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/vendor/leatherman/cmake")
+
+# Set the root path macro and expand related template
+set(ROOT_PATH "${MAINFOLDER}")
+configure_file(templates/root_path.hpp ${CMAKE_BINARY_DIR}/generated/root_path.hpp)
+include_directories(${CMAKE_BINARY_DIR}/generated)
 
 # Set compiler flags
 include(cflags)
@@ -73,7 +78,7 @@ if (CTHUN_CLIENT_TOPLEVEL)
 
     add_test(
       NAME "cthun-client\\ library\\ tests"
-      COMMAND "${MAINFOLDER}/bin/cthun-client-unittests"
+      COMMAND "${EXECUTABLE_OUTPUT_PATH}/cthun-client-unittests"
     )
 
     # Add cpplint target
