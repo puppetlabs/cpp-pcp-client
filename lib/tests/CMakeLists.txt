@@ -37,7 +37,7 @@ set(LIBS
 target_link_libraries(${test_BIN} ${LIBS})
 
 add_custom_target(check
-    "${MAINFOLDER}/bin/${test_BIN}"
+    "${EXECUTABLE_OUTPUT_PATH}/${test_BIN}"
     DEPENDS ${test_BIN}
     COMMENT "Executing unit tests..."
     VERBATIM
