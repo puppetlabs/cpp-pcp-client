@@ -58,7 +58,7 @@ class Validator {
     // was not registered.
     // Throw a validation_error in case the data does not match the
     // specified schema.
-    void validate(LTH_JC::JsonContainer& data, std::string schema_name) const;
+    void validate(const LTH_JC::JsonContainer& data, std::string schema_name) const;
 
     bool includesSchema(std::string schema_name) const;
     ContentType getSchemaContentType(std::string schema_name) const;

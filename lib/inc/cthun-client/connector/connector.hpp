@@ -44,6 +44,16 @@ class Connector {
     void registerMessageCallback(const Schema schema,
                                  MessageCallback callback);
 
+    /// Throw a schema_redefinition_error if the specified schema has
+    /// been already registred.
+    void registerCthunErrorCallback(const Schema schema,
+                                    MessageCallback callback);
+
+    /// Throw a schema_redefinition_error if the specified schema has
+    /// been already registred.
+    void registerAssociateCallback(const Schema schema,
+                                   MessageCallback callback);
+
     /// Check the state of the underlying connection (WebSocket); in
     /// case it's not open, try to re-open it.
     /// Try to reopen for max_connect_attempts times or idefinetely,
@@ -139,6 +149,12 @@ class Connector {
 
     /// Schema - onMessage callback map
     std::map<std::string, MessageCallback> schema_callback_pairs_;
+
+    /// Error callback
+    MessageCallback error_callback_;
+
+    /// Associate response callback
+    MessageCallback associate_response_callback_;
 
     /// Flag; true if monitorConnection is executing
     bool is_monitoring_;
