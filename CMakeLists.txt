@@ -23,6 +23,11 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/vendor/leatherman/cmake")
 
+# Set the root path macro and expand related template
+set(ROOT_PATH "${MAINFOLDER}")
+configure_file(templates/root_path.hpp ${CMAKE_BINARY_DIR}/generated/root_path.hpp)
+include_directories(${CMAKE_BINARY_DIR}/generated)
+
 # Set compiler flags
 include(cflags)
 set(CTHUN_CLIENT_FLAGS "-Wno-deprecated-declarations -Wno-reorder -Wno-sign-compare")

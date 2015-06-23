@@ -6,8 +6,6 @@
 #include <string>
 #include <stdint.h>
 
-extern std::string ROOT_PATH;
-
 namespace CthunClient {
 
 TEST_CASE("CthunClient::serialize", "[message]") {
