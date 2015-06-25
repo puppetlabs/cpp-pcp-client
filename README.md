@@ -43,112 +43,15 @@ Tests can be run with:
 Before we start to look at creating connections and sending/receiving messages, it
 is important to look at some of the data structures used by CthunClient.
 
-__DataContainer__
+__leatherman::json_container::JsonContainer__
 
-The DataContainer class is used frequently by the CthunClient library as a simplified
-abstraction around complex JSON c++ libraries. It has the following constructors:
-
-    DataContainer() // Creates an empty container
-    DataContainer(std::string json_txt) // creates a DataContainer from a JSON string
-
-Consider the following JSON string wrapped in a DataContainer object, data.
-
-```
-    {
-      "module" : "puppet",
-      "action" : "run",
-      "params" : {
-        "first" : "--module-path=/home/alice/modules"
-      }
-    }
-```
-
-You can construct a DataContainer as follows:
-
-```
-    DataContainer data { jsons_string };
-```
-
-The DataContainer's constructor can throw the following exception:
-
- - data_parse_error - This error is thrown when invalid JSON is passed to the constructor.
-
-The following calls to the _get_ method will retrieve values from the DataContainer.
-
-```
-    data.get<std::string>("module"); // == "puppet"
-    data.get<std::string>({ "params", "first" }); // == "--module-path=/home/alice/modules"
-```
-
-Note that when the _get_ method is invoked with an initialiser list it will use
-each argument to descend a level into the object tree.
-
-The supported scalar types are: int, double, bool, std::string, and DataContainer.
-Elements of such types can be grouped in an array, represented by a std::vector
-instance.
-
-In case _get_ is invoked with an unknown key, no exception is thrown; depending
-on the requested value type, the method returns:
-
- - 0 (int)
- - 0.0 (double)
- - false (bool)
- - an empty std::string
- - an empty DataContainer
- - an empty std::vector of the requested type
-
-The _get_ method throws an assertion error in case the specified type does not
-match the one of the requested value. You can verify if the type is correct by
-using the _type_ method (see below).
-
-You can also set the value of fields and create new fields with the _set_ method.
-```
-    data.set<int>("foo", 42);
-    data.set<bool>({ "params", "second" }, false);
-```
-
-This will change the internal JSON representation to
-
-```
-    {
-      "module" : "puppet",
-      "action" : "run",
-      "params" : {
-        "first" : "--module-path=/home/alice/modules",
-        "second" : false
-      },
-      "foo" : 42
-    }
-```
-
-Note that the _set_ method uses the initialiser list in the same way as the _get_
-method. Each argument to the list is one level to descend.
-
-The _set_ method can throw the following exception:
-
- - data_key_error - thrown when a nested message key is invalid (i.e. the
- associated value is not a valid JSON object, so that is not possible to
- iterate the remaining nested keys) or when the root element is not a valid
- JSON object, so that is not possible to set the specified key-value entry.
-
-You can use the _type_ method to retrieve the type of a given value. As done for
-_get_ and _set_, you can specify the value's key with an initialiser list, in
-order to navigate multiple levels within a JSON object.
-
-The _type_ method returns a value of the DataType enumeration, defined as:
-
-```
-    enum DataType { Object, Array, String, Int, Bool, Double, Null };
-```
-
-The _type_ method can throw the following exception:
-
- - data_key_error - thrown when the specified key is unknown.
+The [JsonContainer][3] class is used frequently by the CthunClient library as a
+simplified abstraction around complex JSON c++ libraries.
 
 __ParsedChunks__
 
 The _Parsed_Chunks_ struct is a simplification of a parsed Cthun message. It allows
-for direct access of a message's Envelope, Data and Debug chunks as DataContainer
+for direct access of a message's Envelope, Data and Debug chunks as JsonContainer
 or string objects.
 
 The ParsedChunks struct is defined as:
@@ -156,16 +59,16 @@ The ParsedChunks struct is defined as:
 ```
     struct ParsedChunks {
         // Envelope
-        DataContainer envelope;
+        JsonContainer envelope;
 
         // Data
         bool got_data;
         ContentType data_type;
-        DataContainer data;
+        JsonContainer data;
         std::string binary_data;
 
         // Debug
-        std::vector<DataContainer> debug;
+        std::vector<JsonContainer> debug;
     }
 ```
 
@@ -439,8 +342,8 @@ defined as:
     void send(std::vector<std::string> targets,
               std::string data_schema,
               unsigned int timeout,
-              DataContainer data_json,
-              std::vector<DataContainer> debug = std::vector<DataContainer> {})
+              JsonContainer data_json,
+              std::vector<JsonContainer> debug = std::vector<JsonContainer> {})
                         throws (connection_processing_error, connection_not_init_error)
 ```
 
@@ -449,7 +352,7 @@ With the parameters are described as follows:
  - targets - A vector of the destinations the message will be sent to
  - data_schema - The Schema that identifies the message type
  - timeout - Duration the message will be valid on the fabric
- - data_json - A DataContainer representing the data chunk of the message
+ - data_json - A JsonContainer representing the data chunk of the message
  - debug - A vector of strings representing the debug chunks of the message (defaults to empty)
 
 
@@ -458,7 +361,7 @@ With the parameters are described as follows:
               std::string data_schema,
               unsigned int timeout,
               std::string data_binary,
-              std::vector<DataContainer> debug = std::vector<DataContainer> {})
+              std::vector<JsonContainer> debug = std::vector<JsonContainer> {})
                         throws (connection_processing_error, connection_not_init_error)
 
 ```
@@ -490,7 +393,7 @@ connection to the server.
 Example usage:
 
 ```
-    DataContainer data {};
+    JsonContainer data {};
     data.set<std::string>("foo", "bar");
     try {
       connector.send({"cth://*/potato"}, "potato_schema", 42, data);
@@ -527,15 +430,15 @@ The parameters are described as follows:
  - schema - A schema object that desribes a set of constraints.
 
 When a Schema has been registered you can use the _validate_ method to validate
-a DataContainer object. The _validate_ method is defined as follows:
+a JsonContainer object. The _validate_ method is defined as follows:
 
 ```
-    void validate(DataContainer& data, std::string schema_name) const throws (validation_error)
+    void validate(JsonContainer& data, std::string schema_name) const throws (validation_error)
 ```
 
 The parameters are described as follows:
 
- - data - A DataContainer you want to validate.
+ - data - A JsonContainer you want to validate.
  - schema_name - The name of the schema you want to validate against.
 
 Example usage:
@@ -546,7 +449,7 @@ Example usage:
     s.addConstraint("foo", TypeConstraint::Int);
     validator.registerSchema(s);
 
-    DataContainer d {};
+    JsonContainer d {};
     d.set<int>("foo", 42);
 
     try {
@@ -558,3 +461,4 @@ Example usage:
 
 [1]: https://github.com/puppetlabs/cthun-client/tree/master/tutorial
 [2]: https://github.com/puppetlabs/cthun-specifications
+[3]: https://github.com/puppetlabs/leatherman/tree/master/json_container
