@@ -9,6 +9,8 @@
 #include <cthun-client/validator/schema.hpp>     // Schema, ContentType
 #include <cthun-client/validator/validator.hpp>  // Validator
 
+#include  <leatherman/json_container/json_container.hpp>  // JsonContainer
+
 #include <string>
 #include <iostream>
 #include <memory>  // unique_ptr
@@ -117,7 +119,8 @@ void Agent::start() {
 void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
     auto request_id = parsed_chunks.envelope.get<std::string>("id");
     auto requester_endpoint = parsed_chunks.envelope.get<std::string>("sender");
-    auto request = parsed_chunks.data.get<CthunClient::DataContainer>("request");
+    auto& d = parsed_chunks.data;
+    auto request = d.get<leatherman::json_container::JsonContainer>("request");
 
     std::cout << "Received message " << request_id
               << " from " << requester_endpoint << ":\n"
@@ -131,7 +134,7 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
         std::string err { "Failed to validate request: " };
         err += e.what();
         std::cout << err << "\n";
-        CthunClient::DataContainer err_data {};
+        leatherman::json_container::JsonContainer err_data {};
         err_data.set<std::string>("description", err);
         err_data.set<std::string>("id", request_id);
 
@@ -169,13 +172,13 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
         response_txt += std::string { " (details: \"" + details_txt + "\")" };
     }
 
-    CthunClient::DataContainer response_data {};
+    leatherman::json_container::JsonContainer response_data {};
     response_data.set<std::string>("response", response_txt);
 
     // Prepare debug chunk
-    std::vector<CthunClient::DataContainer> response_debug {};
+    std::vector<leatherman::json_container::JsonContainer> response_debug {};
     for (auto& debug_txt : parsed_chunks.debug) {
-        CthunClient::DataContainer debug_entry {};
+        leatherman::json_container::JsonContainer debug_entry {};
         response_debug.push_back(debug_entry);
     }
 

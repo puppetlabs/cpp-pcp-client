@@ -3,9 +3,9 @@
 #include <cthun-client/connector/connector.hpp>  // Connector
 #include <cthun-client/connector/errors.hpp>     // connection_config_error
 
-#include <cthun-client/data_container/data_container.hpp>  // DataContainer
-
 #include <cthun-client/protocol/schemas.hpp>     // Protocol::ErrorMessageSchema
+
+#include  <leatherman/json_container/json_container.hpp>  // JsonContainer
 
 #include <string>
 #include <iostream>
@@ -61,6 +61,11 @@ Controller::Controller()
         [this](const CthunClient::ParsedChunks& parsed_chunks) {
             processResponse(parsed_chunks);
         });
+
+    connector_ptr_->setCthunErrorCallback(
+        [this](const CthunClient::ParsedChunks& parsed_chunks) {
+            processError(parsed_chunks);
+        });
 } catch (CthunClient::connection_config_error& e) {
     std::string err_msg { "failed to configure the Cthun Connector: " };
     throw controller_error { err_msg + e.what() };
@@ -92,9 +97,10 @@ void Controller::sendRequests() {
 
     // Send a valid request - a response is expected
 
-    CthunClient::DataContainer track { "{\"artist\" : \"Captain Beefheart\"}" };
-    CthunClient::DataContainer data_entries {};
-    data_entries.set<CthunClient::DataContainer>("request", track);
+    leatherman::json_container::JsonContainer track {
+        "{\"artist\" : \"Captain Beefheart\"}" };
+    leatherman::json_container::JsonContainer data_entries {};
+    data_entries.set<leatherman::json_container::JsonContainer>("request", track);
     data_entries.set<std::string>("details", "please send some good music");
 
     std::vector<std::string> endpoints { "cth://*/" + AGENT_CLIENT_TYPE };
@@ -112,9 +118,11 @@ void Controller::sendRequests() {
 
     // Send an invalid request - an error message should arrive
 
-    CthunClient::DataContainer bad_json { "{\"genre\" : \"experimental rock\"}" };
-    CthunClient::DataContainer bad_data_entries {};
-    bad_data_entries.set<CthunClient::DataContainer>("request", bad_json);
+    leatherman::json_container::JsonContainer bad_json {
+        "{\"genre\" : \"experimental rock\"}" };
+    leatherman::json_container::JsonContainer bad_data_entries {};
+    bad_data_entries.set<leatherman::json_container::JsonContainer>("request",
+                                                                    bad_json);
     bad_data_entries.set<std::string>("details", "I'm not sure about this");
 
     try {
@@ -139,6 +147,18 @@ void Controller::processResponse(const CthunClient::ParsedChunks& parsed_chunks)
     std::cout << "Received response " << response_id
               << " from " << agent_endpoint << ":\n  "
               << parsed_chunks.data.get<std::string>("response") << "\n";
+}
+
+void Controller::processError(const CthunClient::ParsedChunks& parsed_chunks) {
+    auto response_id = parsed_chunks.envelope.get<std::string>("id");
+    auto agent_endpoint = parsed_chunks.envelope.get<std::string>("sender");
+
+    auto request_id = parsed_chunks.data.get<std::string>("id");
+    auto error_description = parsed_chunks.data.get<std::string>("description");
+
+    std::cout << "Received error " << response_id
+              << " from " << agent_endpoint << " for request " << request_id
+              <<  ":\n  " << error_description << "\n";
 }
 
 //

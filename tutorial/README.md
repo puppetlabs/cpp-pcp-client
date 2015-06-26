@@ -4,16 +4,20 @@ This tutorial shows how to create a Cthun agent / controller pair with
 CthunClient.
 
 To build on OS X:
-`g++ -std=c++11 -o agent -L /usr/local/lib  -lcthun-client -I ../../../lib/inc main.cpp`
+```
+    g++ -std=c++11 -o agent -L /usr/local/lib -lcthun-client \
+    -lleatherman_json_container -I ../../../lib/inc main.cpp
+```
 
-You need to install CthunClient before that: `make` then `make install`; the
-`libcthun-client.so` file should be then in /usr/local/lib, otherwise you must
-modify the above -L option argument appropriately.
+You need to install CthunClient and [leatherman][1] before that: `make` then
+`sudo make install`; `libcthun-client.so` and `libleatherman_json_container.a`
+should be then in /usr/local/lib, otherwise you must modify the above -L option
+argument appropriately.
 
 To test the agent / controller pair you will need a running Cthun server.
-Please refer to the [Cthun server repo](https://github.com/puppetlabs/cthun) for
-setting the required SSL certificates infrastructure; the certificates located
-in the tutorial/resources directory will not work out of the box.
+Please refer to the [Cthun server repo][2] for setting the required SSL
+certificates infrastructure; the certificates located in the tutorial/resources
+directory will not work out of the box.
 
 ### Step 1
 
@@ -49,7 +53,7 @@ More in detail, calling Connector::registerMessageCallback() ensures that all
 received messages with a `data_schema` entry equals to `"tutorial_request_schema"`
 (which is the name we gave to the request Schema object) are processed by
 Agent::processRequest; `data_schema` is  required entry of envelope chunks
-(refer to the [Cthun specs](https://github.com/puppetlabs/cthun-specifications)).
+(refer to the [Cthun specs][3].
 
 ### Step 5
 
@@ -89,6 +93,10 @@ Create a Controller class and refactor common code.
 ### Step 9
 
 The controller retrieves the list of the agent nodes connected to the message
-fabric by relying on the inventory service provided by the server. This is done
-by 1) registering a response message callback for processing and displaying
-inventory responses and 2) sending an inventory request to the server.
+fabric (inventory) by relying on the associate response sent by the server. This
+is done by 1) registering an associate response callback for processing and
+displaying the inventory list and 2) sending an inventory request to the server.
+
+[1]: https://github.com/puppetlabs/leatherman
+[2]: https://github.com/puppetlabs/cthun
+[3]: https://github.com/puppetlabs/cthun-specifications

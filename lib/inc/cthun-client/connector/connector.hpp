@@ -44,15 +44,11 @@ class Connector {
     void registerMessageCallback(const Schema schema,
                                  MessageCallback callback);
 
-    /// Throw a schema_redefinition_error if the specified schema has
-    /// been already registred.
-    void registerCthunErrorCallback(const Schema schema,
-                                    MessageCallback callback);
+    /// Set an optional callback for error messages
+    void setCthunErrorCallback(MessageCallback callback);
 
-    /// Throw a schema_redefinition_error if the specified schema has
-    /// been already registred.
-    void registerAssociateCallback(const Schema schema,
-                                   MessageCallback callback);
+    /// Set an optional callback for associate responses
+    void setAssociateCallback(MessageCallback callback);
 
     /// Check the state of the underlying connection (WebSocket); in
     /// case it's not open, try to re-open it.

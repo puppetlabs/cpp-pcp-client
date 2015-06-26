@@ -1,7 +1,7 @@
 #include <cthun-client/connector/connector.hpp>  // Connector
 #include <cthun-client/connector/errors.hpp>     // connection_config_error
 
-#include <cthun-client/data_container/data_container.hpp>  // DataContainer
+#include  <leatherman/json_container/json_container.hpp>  // JsonContainer
 
 #include <string>
 #include <iostream>
@@ -14,9 +14,9 @@ const std::string SERVER_URL { "wss://127.0.0.1:8090/cthun/" };
 const std::string AGENT_CLIENT_TYPE { "tutorial_agent" };
 const std::string CONTROLLER_CLIENT_TYPE { "tutorial_controller" };
 
-const std::string CA   { "../../../test/resources/ca_crt.pem" };
-const std::string CERT { "../../../test/resources/test_crt.pem" };
-const std::string KEY  { "../../../test/resources/test_key.pem" };
+const std::string CA   { "../../resources/controller_certs/ca.pem" };
+const std::string CERT { "../../resources/controller_certs/crt.pem" };
+const std::string KEY  { "../../resources/controller_certs/key.pem" };
 
 const std::string REQUEST_SCHEMA_NAME { "tutorial_request_schema" };
 const int MSG_TIMEOUT_S { 10 };
@@ -65,9 +65,10 @@ int main(int argc, char *argv[]) {
 
     // Connector::send() - specify message fields
 
-    CthunClient::DataContainer track { "{\"artist\" : \"Captain Beefheart\"}" };
-    CthunClient::DataContainer data_entries {};
-    data_entries.set<CthunClient::DataContainer>("request", track);
+    leatherman::json_container::JsonContainer track {
+        "{\"artist\" : \"Captain Beefheart\"}" };
+    leatherman::json_container::JsonContainer data_entries {};
+    data_entries.set<leatherman::json_container::JsonContainer>("request", track);
     data_entries.set<std::string>("details", "please send some good music");
 
     std::vector<std::string> endpoints { "cth://*/" + AGENT_CLIENT_TYPE };

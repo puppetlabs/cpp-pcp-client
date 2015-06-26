@@ -3,9 +3,11 @@
 #include <cthun-client/connector/connector.hpp>  // Connector
 #include <cthun-client/connector/errors.hpp>     // connection_config_error
 
-#include <cthun-client/protocol/chunks.hpp>       // ParsedChunk
+#include <cthun-client/protocol/chunks.hpp>      // ParsedChunk
 
 #include <cthun-client/validator/schema.hpp>     // Schema, ContentType
+
+#include  <leatherman/json_container/json_container.hpp>  // JsonContainer
 
 #include <string>
 #include <iostream>
@@ -114,7 +116,8 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
     // 'request message schema'; we know that it contains a JSON
     // 'request' entry (mandatory) and possibly a string 'details'.
     std::string response_txt;
-    auto request = parsed_chunks.data.get<CthunClient::DataContainer>("request");
+    auto& d = parsed_chunks.data;
+    auto request = d.get<leatherman::json_container::JsonContainer>("request");
 
     if (request.includes("artist")) {
         auto artist = request.get<std::string>("artist");
@@ -130,13 +133,13 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
         response_txt += std::string { " (details: \"" + details_txt + "\")" };
     }
 
-    CthunClient::DataContainer response_data {};
+    leatherman::json_container::JsonContainer response_data {};
     response_data.set<std::string>("response", response_txt);
 
     // Prepare debug chunk
-    std::vector<CthunClient::DataContainer> response_debug {};
+    std::vector<leatherman::json_container::JsonContainer> response_debug {};
     for (auto& debug_txt : parsed_chunks.debug) {
-        CthunClient::DataContainer debug_entry {};
+        leatherman::json_container::JsonContainer debug_entry {};
         response_debug.push_back(debug_entry);
     }
 
