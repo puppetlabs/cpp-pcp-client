@@ -108,13 +108,23 @@ Connector::~Connector() {
 }
 
 // Register schemas and onMessage callbacks
-
 void Connector::registerMessageCallback(const Schema schema,
                                         MessageCallback callback) {
     validator_.registerSchema(schema);
     auto p = std::pair<std::string, MessageCallback>(schema.getName(), callback);
     schema_callback_pairs_.insert(p);
 }
+
+// Set an optional callback for error messages
+void Connector::setCthunErrorCallback(MessageCallback callback) {
+    error_callback_ = callback;
+}
+
+// Set an optional callback for associate responses
+void Connector::setAssociateCallback(MessageCallback callback) {
+    associate_response_callback_ = callback;
+}
+
 
 // Manage the connection state
 
@@ -400,8 +410,8 @@ void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
                     msg, description);
     }
 
-    if (associate_response_callback_) {
-        associate_response_callback_(parsed_chunks);
+    if (error_callback_) {
+        error_callback_(parsed_chunks);
     }
 }
 
