@@ -3,8 +3,9 @@
 #include <cthun-client/connector/connector.hpp>  // Connector
 #include <cthun-client/connector/errors.hpp>     // connection_config_error
 
-#include <cthun-client/data_container/data_container.hpp>  // DataContainer
 #include <cthun-client/protocol/schemas.hpp>     // Protocol::
+
+#include  <leatherman/json_container/json_container.hpp>  // JsonContainer
 
 #include <string>
 #include <iostream>
@@ -106,9 +107,10 @@ void Controller::sendRequests() {
 
     // Send a valid request - a response is expected
 
-    CthunClient::DataContainer track { "{\"artist\" : \"Captain Beefheart\"}" };
-    CthunClient::DataContainer valid_request {};
-    valid_request.set<CthunClient::DataContainer>("request", track);
+    leatherman::json_container::JsonContainer track {
+        "{\"artist\" : \"Captain Beefheart\"}" };
+    leatherman::json_container::JsonContainer valid_request {};
+    valid_request.set<leatherman::json_container::JsonContainer>("request", track);
     valid_request.set<std::string>("details", "please send some good music");
 
     std::vector<std::string> endpoints { "cth://*/" + AGENT_CLIENT_TYPE };
@@ -126,9 +128,10 @@ void Controller::sendRequests() {
 
     // Send an invalid request - an error message should arrive
 
-    CthunClient::DataContainer bad_json { "{\"genre\" : \"experimental rock\"}" };
-    CthunClient::DataContainer bad_request {};
-    bad_request.set<CthunClient::DataContainer>("request", bad_json);
+    leatherman::json_container::JsonContainer bad_json {
+        "{\"genre\" : \"experimental rock\"}" };
+    leatherman::json_container::JsonContainer bad_request {};
+    bad_request.set<leatherman::json_container::JsonContainer>("request", bad_json);
     bad_request.set<std::string>("details", "I'm not sure about this");
 
     try {
@@ -144,7 +147,7 @@ void Controller::sendRequests() {
 
     // Send an inventory request to the server
 
-    CthunClient::DataContainer inventory_request {};
+    leatherman::json_container::JsonContainer inventory_request {};
     std::vector<std::string> query { "cth://*/" + AGENT_CLIENT_TYPE };
     inventory_request.set<std::vector<std::string>>("query", query);
 

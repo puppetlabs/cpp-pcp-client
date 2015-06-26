@@ -3,7 +3,7 @@
 #include <cthun-client/connector/connector.hpp>  // Connector
 #include <cthun-client/connector/errors.hpp>     // connection_config_error
 
-#include <cthun-client/data_container/data_container.hpp>  // DataContainer
+#include  <leatherman/json_container/json_container.hpp>  // JsonContainer
 
 #include <string>
 #include <iostream>
@@ -75,11 +75,12 @@ void Controller::sendRequest() {
         throw controller_error { "connection dropped" };
     }
 
-    // Connector::send() - specify message fields; use DataContainer
+    // Connector::send() - specify message fields; use JsonContainer
 
-    CthunClient::DataContainer track { "{\"artist\" : \"Captain Beefheart\"}" };
-    CthunClient::DataContainer data_entries {};
-    data_entries.set<CthunClient::DataContainer>("request", track);
+    leatherman::json_container::JsonContainer track {
+        "{\"artist\" : \"Captain Beefheart\"}" };
+    leatherman::json_container::JsonContainer data_entries {};
+    data_entries.set<leatherman::json_container::JsonContainer>("request", track);
     data_entries.set<std::string>("details", "please send some good music");
 
     std::vector<std::string> endpoints { "cth://*/" + AGENT_CLIENT_TYPE };
