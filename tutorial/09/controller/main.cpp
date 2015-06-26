@@ -65,6 +65,11 @@ Controller::Controller()
             processResponse(parsed_chunks);
         });
 
+    connector_ptr_->setCthunErrorCallback(
+        [this](const CthunClient::ParsedChunks& parsed_chunks) {
+            processError(parsed_chunks);
+        });
+
     connector_ptr_->registerMessageCallback(
         inventory_response_schema_,
         [this](const CthunClient::ParsedChunks& parsed_chunks) {
@@ -167,6 +172,18 @@ void Controller::processResponse(const CthunClient::ParsedChunks& parsed_chunks)
     std::cout << "Received response " << response_id
               << " from " << agent_endpoint << ":\n  "
               << parsed_chunks.data.get<std::string>("response") << "\n";
+}
+
+void Controller::processError(const CthunClient::ParsedChunks& parsed_chunks) {
+    auto response_id = parsed_chunks.envelope.get<std::string>("id");
+    auto agent_endpoint = parsed_chunks.envelope.get<std::string>("sender");
+
+    auto request_id = parsed_chunks.data.get<std::string>("id");
+    auto error_description = parsed_chunks.data.get<std::string>("description");
+
+    std::cout << "Received error " << response_id
+              << " from " << agent_endpoint << " for request " << request_id
+              <<  ":\n  " << error_description << "\n";
 }
 
 void Controller::processInventoryResponse(

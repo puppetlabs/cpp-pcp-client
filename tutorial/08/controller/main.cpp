@@ -61,6 +61,11 @@ Controller::Controller()
         [this](const CthunClient::ParsedChunks& parsed_chunks) {
             processResponse(parsed_chunks);
         });
+
+    connector_ptr_->setCthunErrorCallback(
+        [this](const CthunClient::ParsedChunks& parsed_chunks) {
+            processError(parsed_chunks);
+        });
 } catch (CthunClient::connection_config_error& e) {
     std::string err_msg { "failed to configure the Cthun Connector: " };
     throw controller_error { err_msg + e.what() };
@@ -139,6 +144,18 @@ void Controller::processResponse(const CthunClient::ParsedChunks& parsed_chunks)
     std::cout << "Received response " << response_id
               << " from " << agent_endpoint << ":\n  "
               << parsed_chunks.data.get<std::string>("response") << "\n";
+}
+
+void Controller::processError(const CthunClient::ParsedChunks& parsed_chunks) {
+    auto response_id = parsed_chunks.envelope.get<std::string>("id");
+    auto agent_endpoint = parsed_chunks.envelope.get<std::string>("sender");
+
+    auto request_id = parsed_chunks.data.get<std::string>("id");
+    auto error_description = parsed_chunks.data.get<std::string>("description");
+
+    std::cout << "Received error " << response_id
+              << " from " << agent_endpoint << " for request " << request_id
+              <<  ":\n  " << error_description << "\n";
 }
 
 //
