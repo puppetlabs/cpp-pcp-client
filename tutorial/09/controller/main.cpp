@@ -154,7 +154,8 @@ void Controller::sendRequests() {
     // TODO(ale): use the complete server URI once we apply the specs
 
     try {
-        connector_ptr_->send(std::vector<std::string> { "cth://server" },
+        // NB: use "cth:///server" with 3 '/' as the server URI
+        connector_ptr_->send(std::vector<std::string> { "cth:///server" },
                              CthunClient::Protocol::INVENTORY_REQ_TYPE,
                              MSG_TIMEOUT_S,
                              inventory_request);
