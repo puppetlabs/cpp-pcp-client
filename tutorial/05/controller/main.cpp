@@ -14,9 +14,9 @@ const std::string SERVER_URL { "wss://127.0.0.1:8090/cthun/" };
 const std::string AGENT_CLIENT_TYPE { "tutorial_agent" };
 const std::string CONTROLLER_CLIENT_TYPE { "tutorial_controller" };
 
-const std::string CA   { "../../../test/resources/ca_crt.pem" };
-const std::string CERT { "../../../test/resources/test_crt.pem" };
-const std::string KEY  { "../../../test/resources/test_key.pem" };
+const std::string CA   { "../../resources/controller_certs/ca.pem" };
+const std::string CERT { "../../resources/controller_certs/crt.pem" };
+const std::string KEY  { "../../resources/controller_certs/key.pem" };
 
 const std::string REQUEST_SCHEMA_NAME { "tutorial_request_schema" };
 const int MSG_TIMEOUT_S { 10 };
