@@ -60,17 +60,18 @@ Connection::Connection(const std::string& server_url,
 
     try {
         // Bind the event handlers
-        using websocketpp::lib::bind;
-        endpoint_->set_tls_init_handler(bind(&Connection::onTlsInit, this, ::_1));
-        endpoint_->set_open_handler(bind(&Connection::onOpen, this, ::_1));
-        endpoint_->set_close_handler(bind(&Connection::onClose, this, ::_1));
-        endpoint_->set_fail_handler(bind(&Connection::onFail, this, ::_1));
-        endpoint_->set_message_handler(bind(&Connection::onMessage, this, ::_1, ::_2));
-        endpoint_->set_ping_handler(bind(&Connection::onPing, this, ::_1, ::_2));
-        endpoint_->set_pong_handler(bind(&Connection::onPong, this, ::_1, ::_2));
-        endpoint_->set_pong_timeout_handler(bind(&Connection::onPongTimeout, this, ::_1, ::_2));
-        endpoint_->set_tcp_pre_init_handler(bind(&Connection::onPreTCPInit, this, ::_1));
-        endpoint_->set_tcp_post_init_handler(bind(&Connection::onPostTCPInit, this, ::_1));
+        using namespace std::placeholders;
+
+        endpoint_->set_tls_init_handler(std::bind(&Connection::onTlsInit, this, _1));
+        endpoint_->set_open_handler(std::bind(&Connection::onOpen, this, _1));
+        endpoint_->set_close_handler(std::bind(&Connection::onClose, this, _1));
+        endpoint_->set_fail_handler(std::bind(&Connection::onFail, this, _1));
+        endpoint_->set_message_handler(std::bind(&Connection::onMessage, this, _1, _2));
+        endpoint_->set_ping_handler(std::bind(&Connection::onPing, this, _1, _2));
+        endpoint_->set_pong_handler(std::bind(&Connection::onPong, this, _1, _2));
+        endpoint_->set_pong_timeout_handler(std::bind(&Connection::onPongTimeout, this, _1, _2));
+        endpoint_->set_tcp_pre_init_handler(std::bind(&Connection::onPreTCPInit, this, _1));
+        endpoint_->set_tcp_post_init_handler(std::bind(&Connection::onPostTCPInit, this, _1));
 
         // Start the event loop thread
         endpoint_thread_.reset(new std::thread(&WS_Client_Type::run, endpoint_.get()));
