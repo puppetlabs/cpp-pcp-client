@@ -98,10 +98,20 @@ class Connector {
     /// not been opened previously.
     void monitorConnection(int max_connect_attempts = 0);
 
-    /// Send a message.
-    /// Throw a connection_processing_error in case of failure.
-    /// Throw a connection_not_init_error in case the connection has
-    /// not been opened previously.
+    /// Send the specified message.
+    ///
+    /// Other overloads may specify:
+    ///   - targets: list of Cthun URI strings
+    ///   - message_type: schema name that identifies the message type
+    ///   - timeout: expires entry in seconds
+    ///   - destination_report: bool; the client must flag it in case
+    ///     he wants to receive a destination report from the server
+    ///   - data: in binary (string)
+    ///
+    /// All methods:
+    ///   - throw a connection_processing_error in case of failure;
+    ///   - throw a connection_not_init_error in case the connection
+    ///     has not been opened previously.
     void send(const Message& msg);
 
     void send(const std::vector<std::string>& targets,
