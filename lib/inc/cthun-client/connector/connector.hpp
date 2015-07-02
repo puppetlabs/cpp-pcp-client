@@ -118,27 +118,31 @@ class Connector {
               const std::string& message_type,
               unsigned int timeout,
               const LTH_JC::JsonContainer& data_json,
-              const std::vector<LTH_JC::JsonContainer>& debug = std::vector<LTH_JC::JsonContainer> {});
+              const std::vector<LTH_JC::JsonContainer>& debug
+                        = std::vector<LTH_JC::JsonContainer> {});
 
     void send(const std::vector<std::string>& targets,
               const std::string& message_type,
               unsigned int timeout,
               const std::string& data_binary,
-              const std::vector<LTH_JC::JsonContainer>& debug = std::vector<LTH_JC::JsonContainer> {});
+              const std::vector<LTH_JC::JsonContainer>& debug
+                        = std::vector<LTH_JC::JsonContainer> {});
 
     void send(const std::vector<std::string>& targets,
               const std::string& message_type,
               unsigned int timeout,
               bool destination_report,
               const LTH_JC::JsonContainer& data_json,
-              const std::vector<LTH_JC::JsonContainer>& debug = std::vector<LTH_JC::JsonContainer> {});
+              const std::vector<LTH_JC::JsonContainer>& debug
+                        = std::vector<LTH_JC::JsonContainer> {});
 
     void send(const std::vector<std::string>& targets,
               const std::string& message_type,
               unsigned int timeout,
               bool destination_report,
               const std::string& data_binary,
-              const std::vector<LTH_JC::JsonContainer>& debug = std::vector<LTH_JC::JsonContainer> {});
+              const std::vector<LTH_JC::JsonContainer>& debug
+                        = std::vector<LTH_JC::JsonContainer> {});
 
   private:
     /// Cthun server url
