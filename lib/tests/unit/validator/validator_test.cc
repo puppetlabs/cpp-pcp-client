@@ -5,7 +5,7 @@
 
 namespace CthunClient {
 
-namespace LTH_JC = leatherman::json_container;
+namespace lth_jc = leatherman::json_container;
 
 TEST_CASE("Validator::registerSchema", "[validation]") {
     Validator validator {};
@@ -23,7 +23,7 @@ TEST_CASE("Validator::registerSchema", "[validation]") {
 }
 
 TEST_CASE("Validator::validate", "[validation]") {
-    LTH_JC::JsonContainer data {};
+    lth_jc::JsonContainer data {};
     Schema schema { "test-schema" };
     Validator validator {};
 

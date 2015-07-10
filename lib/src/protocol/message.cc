@@ -16,7 +16,7 @@
 
 namespace CthunClient {
 
-namespace LTH_JC = leatherman::json_container;
+namespace lth_jc = leatherman::json_container;
 namespace lth_util = leatherman::util;
 
 //
@@ -152,23 +152,23 @@ SerializedMessage Message::getSerialized() const {
 
 ParsedChunks Message::getParsedChunks(const Validator& validator) const {
     // Envelope
-    LTH_JC::JsonContainer envelope_content { envelope_chunk_.content };
+    lth_jc::JsonContainer envelope_content { envelope_chunk_.content };
     validator.validate(envelope_content, Protocol::ENVELOPE_SCHEMA_NAME);
     auto msg_id = envelope_content.get<std::string>("id");
 
     // Debug
-    std::vector<LTH_JC::JsonContainer> debug_content {};
+    std::vector<lth_jc::JsonContainer> debug_content {};
     unsigned int num_invalid_debug { 0 };
     for (const auto& d_c : debug_chunks_) {
         try {
             // Parse the JSON text
-            LTH_JC::JsonContainer parsed_debug { d_c.content };
+            lth_jc::JsonContainer parsed_debug { d_c.content };
 
             // Validate entire content (array)
             validator.validate(parsed_debug, Protocol::DEBUG_SCHEMA_NAME);
 
             // Validate each hop entry
-            for (auto &hop : parsed_debug.get<std::vector<LTH_JC::JsonContainer>>("hops")) {
+            for (auto &hop : parsed_debug.get<std::vector<lth_jc::JsonContainer>>("hops")) {
                 validator.validate(hop, Protocol::DEBUG_ITEM_SCHEMA_NAME);
             }
 
@@ -190,7 +190,7 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
         if (content_type == ContentType::Json) {
             std::string err_msg {};
             try {
-                LTH_JC::JsonContainer data_content_json { data_chunk_.content };
+                lth_jc::JsonContainer data_content_json { data_chunk_.content };
                 validator.validate(data_content_json, message_type);
 
                 // Valid JSON data content

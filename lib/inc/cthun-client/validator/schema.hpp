@@ -33,7 +33,7 @@ namespace valijson {
 namespace CthunClient {
 
 namespace V_C = valijson::constraints;
-namespace LTH_JC = leatherman::json_container;
+namespace lth_jc = leatherman::json_container;
 
 enum class TypeConstraint { Object, Array, String, Int, Bool, Double, Null, Any };
 enum class ContentType { Json, Binary };
@@ -69,7 +69,7 @@ class Schema {
     // JSON schema passed as a JsonContainer object.
     // It won't be possible to add further constraints to such schema
     // Throw a schema_error in case of parsing failure.
-    Schema(const std::string& name, const LTH_JC::JsonContainer json_schema);
+    Schema(const std::string& name, const lth_jc::JsonContainer json_schema);
 
     ~Schema();
 

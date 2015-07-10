@@ -2,7 +2,7 @@
 
 namespace CthunClient {
 
-namespace LTH_JC = leatherman::json_container;
+namespace lth_jc = leatherman::json_container;
 
 //
 // MessageChunk
@@ -59,8 +59,8 @@ ParsedChunks::ParsedChunks()
 }
 
 // No data ctor
-ParsedChunks::ParsedChunks(LTH_JC::JsonContainer _envelope,
-                           std::vector<LTH_JC::JsonContainer> _debug,
+ParsedChunks::ParsedChunks(lth_jc::JsonContainer _envelope,
+                           std::vector<lth_jc::JsonContainer> _debug,
                            unsigned int _num_invalid_debug)
         : envelope { _envelope },
           has_data { false },
@@ -73,9 +73,9 @@ ParsedChunks::ParsedChunks(LTH_JC::JsonContainer _envelope,
 }
 
 // Invalid data ctor
-ParsedChunks::ParsedChunks(LTH_JC::JsonContainer _envelope,
+ParsedChunks::ParsedChunks(lth_jc::JsonContainer _envelope,
                            bool _invalid_data,
-                           std::vector<LTH_JC::JsonContainer> _debug,
+                           std::vector<lth_jc::JsonContainer> _debug,
                            unsigned int _num_invalid_debug)
         : envelope { _envelope },
           has_data { _invalid_data },
@@ -88,9 +88,9 @@ ParsedChunks::ParsedChunks(LTH_JC::JsonContainer _envelope,
 }
 
 // JSON data ctor
-ParsedChunks::ParsedChunks(LTH_JC::JsonContainer _envelope,
-                           LTH_JC::JsonContainer _data,
-                           std::vector<LTH_JC::JsonContainer> _debug,
+ParsedChunks::ParsedChunks(lth_jc::JsonContainer _envelope,
+                           lth_jc::JsonContainer _data,
+                           std::vector<lth_jc::JsonContainer> _debug,
                            unsigned int _num_invalid_debug)
         : envelope { _envelope },
           has_data { true },
@@ -103,9 +103,9 @@ ParsedChunks::ParsedChunks(LTH_JC::JsonContainer _envelope,
 }
 
 // Binary data ctor
-ParsedChunks::ParsedChunks(LTH_JC::JsonContainer _envelope,
+ParsedChunks::ParsedChunks(lth_jc::JsonContainer _envelope,
                            std::string _binary_data,
-                           std::vector<LTH_JC::JsonContainer> _debug,
+                           std::vector<lth_jc::JsonContainer> _debug,
                            unsigned int _num_invalid_debug)
         : envelope { _envelope },
           has_data { true },

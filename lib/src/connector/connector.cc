@@ -20,7 +20,7 @@
 
 namespace CthunClient {
 
-namespace LTH_JC = leatherman::json_container;
+namespace lth_jc = leatherman::json_container;
 namespace lth_util = leatherman::util;
 
 //
@@ -175,8 +175,8 @@ void Connector::send(const Message& msg) {
 void Connector::send(const std::vector<std::string>& targets,
                      const std::string& message_type,
                      unsigned int timeout,
-                     const LTH_JC::JsonContainer& data_json,
-                     const std::vector<LTH_JC::JsonContainer>& debug) {
+                     const lth_jc::JsonContainer& data_json,
+                     const std::vector<lth_jc::JsonContainer>& debug) {
     sendMessage(targets,
                 message_type,
                 timeout,
@@ -189,7 +189,7 @@ void Connector::send(const std::vector<std::string>& targets,
                      const std::string& message_type,
                      unsigned int timeout,
                      const std::string& data_binary,
-                     const std::vector<LTH_JC::JsonContainer>& debug) {
+                     const std::vector<lth_jc::JsonContainer>& debug) {
     sendMessage(targets,
                 message_type,
                 timeout,
@@ -202,8 +202,8 @@ void Connector::send(const std::vector<std::string>& targets,
                      const std::string& message_type,
                      unsigned int timeout,
                      bool destination_report,
-                     const LTH_JC::JsonContainer& data_json,
-                     const std::vector<LTH_JC::JsonContainer>& debug) {
+                     const lth_jc::JsonContainer& data_json,
+                     const std::vector<lth_jc::JsonContainer>& debug) {
     sendMessage(targets,
                 message_type,
                 timeout,
@@ -217,7 +217,7 @@ void Connector::send(const std::vector<std::string>& targets,
                      unsigned int timeout,
                      bool destination_report,
                      const std::string& data_binary,
-                     const std::vector<LTH_JC::JsonContainer>& debug) {
+                     const std::vector<lth_jc::JsonContainer>& debug) {
     sendMessage(targets,
                 message_type,
                 timeout,
@@ -247,7 +247,7 @@ MessageChunk Connector::createEnvelope(const std::vector<std::string>& targets,
     LOG_INFO("Creating message with id %1% for %2% receiver%3%",
              msg_id, targets.size(), lth_util::plural(targets.size()));
 
-    LTH_JC::JsonContainer envelope_content {};
+    lth_jc::JsonContainer envelope_content {};
 
     envelope_content.set<std::string>("id", msg_id);
     envelope_content.set<std::string>("message_type", message_type);
@@ -267,7 +267,7 @@ void Connector::sendMessage(const std::vector<std::string>& targets,
                             unsigned int timeout,
                             bool destination_report,
                             const std::string& data_txt,
-                            const std::vector<LTH_JC::JsonContainer>& debug) {
+                            const std::vector<lth_jc::JsonContainer>& debug) {
     auto envelope_chunk = createEnvelope(targets, message_type, timeout,
                                          destination_report);
     MessageChunk data_chunk { ChunkDescriptor::DATA, data_txt };
@@ -318,7 +318,7 @@ void Connector::processMessage(const std::string& msg_txt) {
     } catch (validation_error& e) {
         LOG_ERROR("Invalid envelope - bad content: %1%", e.what());
         return;
-    } catch (LTH_JC::data_parse_error& e) {
+    } catch (lth_jc::data_parse_error& e) {
         LOG_ERROR("Invalid envelope - invalid JSON content: %1%", e.what());
         return;
     } catch (schema_not_found_error& e) {
