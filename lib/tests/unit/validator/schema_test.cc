@@ -9,9 +9,9 @@
 
 namespace CthunClient {
 
-namespace LTH_JC = leatherman::json_container;
+namespace lth_jc = leatherman::json_container;
 
-bool validateTest(LTH_JC::JsonContainer document, Schema schema) {
+bool validateTest(lth_jc::JsonContainer document, Schema schema) {
     valijson::Validator validator { schema.getRaw() };
     valijson::adapters::RapidJsonAdapter adapted_document { document.getRaw() };
     valijson::ValidationResults validation_results;
@@ -63,18 +63,18 @@ TEST_CASE("Schema::Schema", "[validation]") {
     }
 
     SECTION("can instantiate by parsing a JSON schema") {
-        LTH_JC::JsonContainer json_schema { "{\"spam\" : {\"type\" : \"object\"}}" };
+        lth_jc::JsonContainer json_schema { "{\"spam\" : {\"type\" : \"object\"}}" };
         REQUIRE_NOTHROW(Schema("spam", json_schema));
     }
 
     SECTION("throw schema_error if parsing an invalid schema", "[validation]") {
-        LTH_JC::JsonContainer json_schema { "[\"un\", \"deux\"]" };
+        lth_jc::JsonContainer json_schema { "[\"un\", \"deux\"]" };
         REQUIRE_THROWS_AS(Schema("eggs", json_schema),
                           schema_error);
     }
 
     SECTION("instantiate correctly by parsing a JSON schema") {
-        LTH_JC::JsonContainer song_json_schema { song_schema_txt };
+        lth_jc::JsonContainer song_json_schema { song_schema_txt };
         Schema song_schema { "song", song_json_schema };
 
         SECTION("it validates valid data") {
@@ -83,7 +83,7 @@ TEST_CASE("Schema::Schema", "[validation]") {
                 "   \"title\" : \"Bobby Brown\","
                 "   \"album\" : \"Sheik Yerbouti\","
                 "   \"year\"  : 1979 }" };
-            LTH_JC::JsonContainer good_song { good_song_txt };
+            lth_jc::JsonContainer good_song { good_song_txt };
 
             REQUIRE(validateTest(good_song, song_schema));
         }
@@ -96,7 +96,7 @@ TEST_CASE("Schema::Schema", "[validation]") {
                 "   \"year\"  : 1977"
                 " }" };
 
-            LTH_JC::JsonContainer bad_song { bad_song_txt };
+            lth_jc::JsonContainer bad_song { bad_song_txt };
             REQUIRE_FALSE(validateTest(bad_song, song_schema));
         }
 
@@ -109,7 +109,7 @@ TEST_CASE("Schema::Schema", "[validation]") {
                 "   \"year\"  : 1977"
                 " }" };
 
-            LTH_JC::JsonContainer bad_song { bad_song_txt };
+            lth_jc::JsonContainer bad_song { bad_song_txt };
             REQUIRE_FALSE(validateTest(bad_song, song_schema));
         }
 
@@ -123,14 +123,14 @@ TEST_CASE("Schema::Schema", "[validation]") {
                 "   \"duration\" : 138"
                 " }" };
 
-            LTH_JC::JsonContainer bad_song { bad_song_txt };
+            lth_jc::JsonContainer bad_song { bad_song_txt };
             REQUIRE_FALSE(validateTest(bad_song, song_schema));
         }
 
         SECTION("it validates data with undefined entries when allowed") {
-            LTH_JC::JsonContainer json_schema { trivial_schema_txt };
+            lth_jc::JsonContainer json_schema { trivial_schema_txt };
             Schema schema { "parsed schema", json_schema };
-            LTH_JC::JsonContainer data {};
+            lth_jc::JsonContainer data {};
 
             // Missing index
             REQUIRE_FALSE(validateTest(data, schema));
@@ -153,7 +153,7 @@ TEST_CASE("Schema::getName", "[validation]") {
 
 TEST_CASE("Schema::addConstraint(type)", "[validation]") {
     SECTION("it throws a schem_error for parsed schemas") {
-        LTH_JC::JsonContainer json_schema { trivial_schema_txt };
+        lth_jc::JsonContainer json_schema { trivial_schema_txt };
         Schema parsed_schema { "parsed schema", json_schema };
         REQUIRE_THROWS_AS(parsed_schema.addConstraint("foo", TypeConstraint::Int),
                           schema_error);
@@ -162,8 +162,8 @@ TEST_CASE("Schema::addConstraint(type)", "[validation]") {
     Schema schema { "spam" };
 
     SECTION("it creates an interger constraint") {
-        LTH_JC::JsonContainer data { "{\"foo\" : 2}" };
-        LTH_JC::JsonContainer bad_data { "{\"foo\" : \"two\"}" };
+        lth_jc::JsonContainer data { "{\"foo\" : 2}" };
+        lth_jc::JsonContainer bad_data { "{\"foo\" : \"two\"}" };
         schema.addConstraint("foo", TypeConstraint::Int, true);
 
         REQUIRE(validateTest(data, schema));
@@ -171,55 +171,55 @@ TEST_CASE("Schema::addConstraint(type)", "[validation]") {
     }
 
     SECTION("it creates an string constraint") {
-        LTH_JC::JsonContainer data { "{\"foo\" : \"bar\"}" };
+        lth_jc::JsonContainer data { "{\"foo\" : \"bar\"}" };
         schema.addConstraint("foo", TypeConstraint::String, true);
         REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an double constraint") {
-        LTH_JC::JsonContainer data { "{\"foo\" : 0.0 }" };
+        lth_jc::JsonContainer data { "{\"foo\" : 0.0 }" };
         schema.addConstraint("foo", TypeConstraint::Double, true);
         REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an boolean constraint") {
-        LTH_JC::JsonContainer data { "{\"foo\" : true }" };
+        lth_jc::JsonContainer data { "{\"foo\" : true }" };
         schema.addConstraint("foo", TypeConstraint::Bool, true);
         REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an array constraint") {
-        LTH_JC::JsonContainer data { "{\"foo\" : []}" };
+        lth_jc::JsonContainer data { "{\"foo\" : []}" };
         schema.addConstraint("foo", TypeConstraint::Array, true);
         REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an string constraint") {
-        LTH_JC::JsonContainer data { "{\"foo\" : {}}" };
+        lth_jc::JsonContainer data { "{\"foo\" : {}}" };
         schema.addConstraint("foo", TypeConstraint::Object, true);
         REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an string constraint") {
-        LTH_JC::JsonContainer data { "{\"foo\" : null}" };
+        lth_jc::JsonContainer data { "{\"foo\" : null}" };
         schema.addConstraint("foo", TypeConstraint::Null, true);
         REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates an any constraint") {
-        LTH_JC::JsonContainer data { "{\"foo\" : 1}" };
+        lth_jc::JsonContainer data { "{\"foo\" : 1}" };
         schema.addConstraint("foo", TypeConstraint::Any, true);
         REQUIRE(validateTest(data, schema));
     }
 
    SECTION("it creates optional constraint") {
-       LTH_JC::JsonContainer data { "{}" };
+       lth_jc::JsonContainer data { "{}" };
         schema.addConstraint("foo", TypeConstraint::Int, false);
         REQUIRE(validateTest(data, schema));
     }
 
     SECTION("it creates multiple constraint") {
-        LTH_JC::JsonContainer data { "{\"foo\" : \"bar\","
+        lth_jc::JsonContainer data { "{\"foo\" : \"bar\","
                              " \"baz\" : 1 }" };
         schema.addConstraint("foo", TypeConstraint::String, true);
         schema.addConstraint("baz", TypeConstraint::Int, true);
@@ -227,7 +227,7 @@ TEST_CASE("Schema::addConstraint(type)", "[validation]") {
     }
 
     SECTION("it can be modified after use") {
-        LTH_JC::JsonContainer data { "{\"foo\" : \"bar\"}" };
+        lth_jc::JsonContainer data { "{\"foo\" : \"bar\"}" };
         schema.addConstraint("foo", TypeConstraint::String, true);
 
         REQUIRE(validateTest(data, schema));
@@ -235,7 +235,7 @@ TEST_CASE("Schema::addConstraint(type)", "[validation]") {
         schema.addConstraint("baz", TypeConstraint::Int, true);
         REQUIRE_FALSE(validateTest(data, schema));
 
-        LTH_JC::JsonContainer data2 { "{\"foo\" : \"bar\","
+        lth_jc::JsonContainer data2 { "{\"foo\" : \"bar\","
                               "\"baz\" : 1 }" };
 
         REQUIRE(validateTest(data2, schema));
@@ -253,7 +253,7 @@ TEST_CASE("Schema::addConstraint(subschema)", "[validation]") {
         Schema subschema { "subschema" };
         subschema.addConstraint("foo", TypeConstraint::String, true);
 
-        LTH_JC::JsonContainer json_schema { trivial_schema_txt };
+        lth_jc::JsonContainer json_schema { trivial_schema_txt };
         Schema parsed_schema { "parsed schema", json_schema };
         REQUIRE_THROWS_AS(parsed_schema.addConstraint("foo", subschema, true),
                           schema_error);
@@ -271,7 +271,7 @@ TEST_CASE("Schema::addConstraint(subschema)", "[validation]") {
     Schema schema { "spam" };
 
     SECTION("it creates a sub schema constraint") {
-        LTH_JC::JsonContainer data {"{\"root\" : "
+        lth_jc::JsonContainer data {"{\"root\" : "
                                 "{\"foo\" : \"bar\","
                                 "\"baz\" : 1 }}" };
         Schema subschema { "subschema" };

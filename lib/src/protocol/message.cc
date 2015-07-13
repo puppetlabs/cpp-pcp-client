@@ -5,6 +5,7 @@
 
 
 #include <leatherman/logging/logging.hpp>
+#include <leatherman/util/strings.hpp>
 
 #include <algorithm>  // find
 
@@ -13,22 +14,10 @@
 // #define NDEBUG
 #include <cassert>
 
-// TODO(ale): move plural from the common StringUtils in leatherman
-template<typename T>
-std::string plural(std::vector<T> things);
-
-std::string plural(int num_of_things) {
-    return num_of_things > 1 ? "s" : "";
-}
-
-template<>
-std::string plural<std::string>(std::vector<std::string> things) {
-    return plural(things.size());
-}
-
 namespace CthunClient {
 
-namespace LTH_JC = leatherman::json_container;
+namespace lth_jc = leatherman::json_container;
+namespace lth_util = leatherman::util;
 
 //
 // Constants
@@ -163,23 +152,23 @@ SerializedMessage Message::getSerialized() const {
 
 ParsedChunks Message::getParsedChunks(const Validator& validator) const {
     // Envelope
-    LTH_JC::JsonContainer envelope_content { envelope_chunk_.content };
+    lth_jc::JsonContainer envelope_content { envelope_chunk_.content };
     validator.validate(envelope_content, Protocol::ENVELOPE_SCHEMA_NAME);
     auto msg_id = envelope_content.get<std::string>("id");
 
     // Debug
-    std::vector<LTH_JC::JsonContainer> debug_content {};
+    std::vector<lth_jc::JsonContainer> debug_content {};
     unsigned int num_invalid_debug { 0 };
     for (const auto& d_c : debug_chunks_) {
         try {
             // Parse the JSON text
-            LTH_JC::JsonContainer parsed_debug { d_c.content };
+            lth_jc::JsonContainer parsed_debug { d_c.content };
 
             // Validate entire content (array)
             validator.validate(parsed_debug, Protocol::DEBUG_SCHEMA_NAME);
 
             // Validate each hop entry
-            for (auto &hop : parsed_debug.get<std::vector<LTH_JC::JsonContainer>>("hops")) {
+            for (auto &hop : parsed_debug.get<std::vector<lth_jc::JsonContainer>>("hops")) {
                 validator.validate(hop, Protocol::DEBUG_ITEM_SCHEMA_NAME);
             }
 
@@ -201,7 +190,7 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
         if (content_type == ContentType::Json) {
             std::string err_msg {};
             try {
-                LTH_JC::JsonContainer data_content_json { data_chunk_.content };
+                lth_jc::JsonContainer data_content_json { data_chunk_.content };
                 validator.validate(data_content_json, message_type);
 
                 // Valid JSON data content
@@ -320,9 +309,9 @@ void Message::parseMessage(const std::string& transport_msg) {
             LOG_ERROR("Invalid msg; missing part of the %1% chunk content (%2% "
                       "byte%3% declared - missing %4% byte%5%)",
                       ChunkDescriptor::names[chunk_desc_bit],
-                      chunk_size, plural(chunk_size),
+                      chunk_size, lth_util::plural(chunk_size),
                       still_to_parse - CHUNK_METADATA_SIZE,
-                      plural(still_to_parse - CHUNK_METADATA_SIZE));
+                      lth_util::plural(still_to_parse - CHUNK_METADATA_SIZE));
             LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
             throw message_serialization_error { "invalid msg: missing chunk "
                                                 "content" };
@@ -351,7 +340,7 @@ void Message::parseMessage(const std::string& transport_msg) {
     if (still_to_parse > 0) {
         LOG_ERROR("Failed to parse the entire msg (ignoring last %1% byte%2%); "
                   "the msg will be processed anyway",
-                  still_to_parse, plural(still_to_parse));
+                  still_to_parse, lth_util::plural(still_to_parse));
         LOG_TRACE("Msg content (unserialized): '%1%'", transport_msg);
     }
 
@@ -383,8 +372,8 @@ void Message::validateChunk(const MessageChunk& chunk) const {
     if (chunk.size != static_cast<uint32_t>(chunk.content.size())) {
         LOG_ERROR("Incorrect size for %1% chunk; declared %2% byte%3%, "
                   "got %4% byte%5%", ChunkDescriptor::names[desc_bit],
-                  chunk.size, plural(chunk.size),
-                  chunk.content.size(), plural(chunk.content.size()));
+                  chunk.size, lth_util::plural(chunk.size),
+                  chunk.content.size(), lth_util::plural(chunk.content.size()));
         throw invalid_chunk_error { "invalid size" };
     }
 }

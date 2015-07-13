@@ -12,7 +12,7 @@ namespace CthunClient {
 //
 // ChunkDescriptor
 //
-namespace LTH_JC = leatherman::json_container;
+namespace lth_jc = leatherman::json_container;
 
 namespace ChunkDescriptor {
     // Filter the chunk type bits (envelope, data, debug)
@@ -58,38 +58,38 @@ struct MessageChunk {
 
 struct ParsedChunks {
     // Envelope
-    LTH_JC::JsonContainer envelope;
+    lth_jc::JsonContainer envelope;
 
     // Data
     bool has_data;
     bool invalid_data;
     ContentType data_type;
-    LTH_JC::JsonContainer data;
+    lth_jc::JsonContainer data;
     std::string binary_data;
 
     // Debug
-    std::vector<LTH_JC::JsonContainer> debug;
+    std::vector<lth_jc::JsonContainer> debug;
     unsigned int num_invalid_debug;
 
     ParsedChunks();
 
-    ParsedChunks(LTH_JC::JsonContainer _envelope,
-                 std::vector<LTH_JC::JsonContainer> _debug,
+    ParsedChunks(lth_jc::JsonContainer _envelope,
+                 std::vector<lth_jc::JsonContainer> _debug,
                  unsigned int _num_invalid_debug);
 
-    ParsedChunks(LTH_JC::JsonContainer _envelope,
+    ParsedChunks(lth_jc::JsonContainer _envelope,
                  bool _invalid_data,                // invalid data
-                 std::vector<LTH_JC::JsonContainer> _debug,
+                 std::vector<lth_jc::JsonContainer> _debug,
                  unsigned int _num_invalid_debug);
 
-    ParsedChunks(LTH_JC::JsonContainer _envelope,
-                 LTH_JC::JsonContainer _data,               // JSON data
-                 std::vector<LTH_JC::JsonContainer> _debug,
+    ParsedChunks(lth_jc::JsonContainer _envelope,
+                 lth_jc::JsonContainer _data,               // JSON data
+                 std::vector<lth_jc::JsonContainer> _debug,
                  unsigned int _num_invalid_debug);
 
-    ParsedChunks(LTH_JC::JsonContainer _envelope,
+    ParsedChunks(lth_jc::JsonContainer _envelope,
                  std::string _binary_data,          // binary data
-                 std::vector<LTH_JC::JsonContainer> _debug,
+                 std::vector<lth_jc::JsonContainer> _debug,
                  unsigned int _num_invalid_debug);
 
     std::string toString() const;

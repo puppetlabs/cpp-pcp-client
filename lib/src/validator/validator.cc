@@ -10,7 +10,7 @@
 
 namespace CthunClient {
 
-namespace LTH_JC = leatherman::json_container;
+namespace lth_jc = leatherman::json_container;
 
 ///
 /// Auxiliary functions
@@ -35,7 +35,7 @@ std::string getValidationError(valijson::ValidationResults& validation_results) 
     return  err_msg;
 }
 
-bool validateJsonContainer(const LTH_JC::JsonContainer& data, const Schema& schema) {
+bool validateJsonContainer(const lth_jc::JsonContainer& data, const Schema& schema) {
     valijson::Validator validator { schema.getRaw() };
     valijson::adapters::RapidJsonAdapter adapted_document { data.getRaw() };
     valijson::ValidationResults validation_results;
@@ -76,7 +76,7 @@ void Validator::registerSchema(const Schema& schema) {
     schema_map_.insert(p);
 }
 
-void Validator::validate(const LTH_JC::JsonContainer& data,
+void Validator::validate(const lth_jc::JsonContainer& data,
                          std::string schema_name) const {
     std::unique_lock<std::mutex> lock(lookup_mutex_);
     if (!includesSchema(schema_name)) {

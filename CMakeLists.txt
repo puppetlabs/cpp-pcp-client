@@ -41,6 +41,7 @@ set(LEATHERMAN_USE_CATCH TRUE)
 set(LEATHERMAN_USE_LOGGING TRUE)
 set(LEATHERMAN_USE_RAPIDJSON TRUE)
 set(LEATHERMAN_USE_JSON_CONTAINER TRUE)
+set(LEATHERMAN_USE_UTIL TRUE)
 leatherman_logging_line_numbers()
 add_subdirectory("vendor/leatherman")
 
