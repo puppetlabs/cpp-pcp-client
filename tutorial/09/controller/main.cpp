@@ -194,17 +194,14 @@ void Controller::processInventoryResponse(
             const CthunClient::ParsedChunks& parsed_chunks) {
     auto response_id = parsed_chunks.envelope.get<std::string>("id");
     auto server_endpoint = parsed_chunks.envelope.get<std::string>("sender");
-    auto inventoried_nodes =
-        parsed_chunks.data.get<std::vector<std::string>>("endpoints");
-
+    auto uris = parsed_chunks.data.get<std::vector<std::string>>("uris");
 
     std::cout << "Received inventory response " << response_id
               << " from " << server_endpoint << " -  number of nodes: "
-              << inventoried_nodes.size();
+              << uris.size();
 
-    for (auto& node : inventoried_nodes) {
-        std::cout << "\n  " << node;
-    }
+    for (auto& uri : uris)
+        std::cout << "\n  " << uri;
 
     std::cout << "\n";
 }
