@@ -37,6 +37,10 @@ Schema ErrorMessageSchema();
 static const std::string DESTINATION_REPORT_TYPE { "http://puppetlabs.com/destination_report" };
 Schema DestinationReportSchema();
 
+// ttl expired
+static const std::string TTL_EXPIRED_TYPE { "http://puppetlabs.com/ttl_expired" };
+CthunClient::Schema TTLExpiredSchema();
+
 //
 // debug
 //
