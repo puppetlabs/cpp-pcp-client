@@ -54,6 +54,13 @@ Schema DestinationReportSchema() {
     return schema;
 }
 
+CthunClient::Schema TTLExpiredSchema() {
+    CthunClient::Schema schema { TTL_EXPIRED_TYPE, ContentType::Json };
+    // NB: additionalProperties = false
+    schema.addConstraint("id", TypeConstraint::String, true);
+    return schema;
+}
+
 Schema DebugSchema() {
     Schema schema { DEBUG_SCHEMA_NAME, ContentType::Json };
     schema.addConstraint("hops", TypeConstraint::Array, true);
