@@ -1,4 +1,4 @@
-#include <cthun-client/protocol/schemas.hpp>
+#include <cpp-pcp-client/protocol/schemas.hpp>
 
 namespace CthunClient {
 namespace Protocol {

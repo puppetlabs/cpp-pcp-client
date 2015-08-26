@@ -32,20 +32,20 @@ if ("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
 endif ()
 
 if (WIN32)
-    set(LIBCTHUN_CLIENT_INSTALL_DESTINATION bin)
+    set(LIBCPP_PCP_CLIENT_INSTALL_DESTINATION bin)
 else()
     #   TODO: lib64 for certain operating systems?
-    set(LIBCTHUN_CLIENT_INSTALL_DESTINATION lib)
+    set(LIBCPP_PCP_CLIENT_INSTALL_DESTINATION lib)
 endif()
 
 
-add_library(libcthun-client-src OBJECT ${SOURCES})
-set_target_properties(libcthun-client-src PROPERTIES POSITION_INDEPENDENT_CODE true)
-add_library(libcthun-client SHARED $<TARGET_OBJECTS:libcthun-client-src>)
-target_link_libraries(libcthun-client PRIVATE ${LIBS} ${PLATFORM_LIBRARIES})
-set_target_properties(libcthun-client  PROPERTIES PREFIX "" SUFFIX ".so" IMPORT_PREFIX "" IMPORT_SUFFIX ".so.a")
+add_library(libcpp-pcp-client-src OBJECT ${SOURCES})
+set_target_properties(libcpp-pcp-client-src PROPERTIES POSITION_INDEPENDENT_CODE true)
+add_library(libcpp-pcp-client SHARED $<TARGET_OBJECTS:libcpp-pcp-client-src>)
+target_link_libraries(libcpp-pcp-client PRIVATE ${LIBS} ${PLATFORM_LIBRARIES})
+set_target_properties(libcpp-pcp-client  PROPERTIES PREFIX "" SUFFIX ".so" IMPORT_PREFIX "" IMPORT_SUFFIX ".so.a")
 
-install(TARGETS libcthun-client DESTINATION "${LIBCTHUN_CLIENT_INSTALL_DESTINATION}")
-install(DIRECTORY inc/cthun-client DESTINATION include)
+install(TARGETS libcpp-pcp-client DESTINATION "${LIBCPP_PCP_CLIENT_INSTALL_DESTINATION}")
+install(DIRECTORY inc/cpp-pcp-client DESTINATION include)
 
 add_subdirectory(tests)

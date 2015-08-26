@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(cthun-client)
+project(cpp-pcp-client)
 
 # Project paths
 
@@ -9,15 +9,15 @@ set(VENDOR_DIRECTORY ${PROJECT_SOURCE_DIR}/vendor)
 list(APPEND CMAKE_MODULE_PATH ${VENDOR_DIRECTORY})
 
 if ("${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
-  set(CTHUN_CLIENT_TOPLEVEL TRUE)
+  set(CPP_PCP_CLIENT_TOPLEVEL TRUE)
 else ()
-   set(CTHUN_CLIENT_TOPLEVEL FALSE)
+   set(CPP_PCP_CLIENT_TOPLEVEL FALSE)
 endif ()
 
-if ("${CTHUN_CLIENT_LOGGING_PREFIX}" STREQUAL "")
-  add_definitions(-DCTHUN_CLIENT_LOGGING_PREFIX="puppetlabs.cthun_client")
+if ("${CPP_PCP_CLIENT_LOGGING_PREFIX}" STREQUAL "")
+  add_definitions(-DCPP_PCP_CLIENT_LOGGING_PREFIX="puppetlabs.cpp_pcp_client")
 else ()
-  add_definitions(-DCTHUN_CLIENT_LOGGING_PREFIX="${CTHUN_CLIENT_LOGGING_PREFIX}")
+  add_definitions(-DCPP_PCP_CLIENT_LOGGING_PREFIX="${CPP_PCP_CLIENT_LOGGING_PREFIX}")
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/vendor/leatherman/cmake")
@@ -29,8 +29,8 @@ include_directories(${CMAKE_BINARY_DIR}/generated)
 
 # Set compiler flags
 include(cflags)
-set(CTHUN_CLIENT_FLAGS "-Wno-deprecated-declarations -Wno-reorder -Wno-sign-compare")
-set(CMAKE_CXX_FLAGS "${LEATHERMAN_CXX_FLAGS} ${CTHUN_CLIENT_FLAGS}")
+set(CPP_PCP_CLIENT_FLAGS "-Wno-deprecated-declarations -Wno-reorder -Wno-sign-compare")
+set(CMAKE_CXX_FLAGS "${LEATHERMAN_CXX_FLAGS} ${CPP_PCP_CLIENT_FLAGS}")
 
 # Leatherman it up
 include(options)
@@ -73,12 +73,12 @@ link_directories(
 add_subdirectory(lib)
 
 # Add the test suite
-if (CTHUN_CLIENT_TOPLEVEL)
+if (CPP_PCP_CLIENT_TOPLEVEL)
     enable_testing()
 
     add_test(
-      NAME "cthun-client\\ library\\ tests"
-      COMMAND "${EXECUTABLE_OUTPUT_PATH}/cthun-client-unittests"
+      NAME "cpp-pcp-client\\ library\\ tests"
+      COMMAND "${EXECUTABLE_OUTPUT_PATH}/cpp-pcp-client-unittests"
     )
 
     # Add cpplint target

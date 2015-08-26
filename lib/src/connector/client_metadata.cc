@@ -1,7 +1,7 @@
-#include <cthun-client/connector/client_metadata.hpp>
-#include <cthun-client/connector/errors.hpp>
+#include <cpp-pcp-client/connector/client_metadata.hpp>
+#include <cpp-pcp-client/connector/errors.hpp>
 
-#define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".client_metadata"
+#define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".client_metadata"
 
 #include <leatherman/logging/logging.hpp>
 

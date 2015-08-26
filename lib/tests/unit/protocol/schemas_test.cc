@@ -1,6 +1,6 @@
 #include "tests/test.hpp"
 
-#include <cthun-client/protocol/schemas.hpp>
+#include <cpp-pcp-client/protocol/schemas.hpp>
 
 namespace CthunClient {
 

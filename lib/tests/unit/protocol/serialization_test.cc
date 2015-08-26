@@ -1,6 +1,6 @@
 #include "tests/test.hpp"
 
-#include <cthun-client/protocol/serialization.hpp>
+#include <cpp-pcp-client/protocol/serialization.hpp>
 
 #include <iostream>
 #include <string>

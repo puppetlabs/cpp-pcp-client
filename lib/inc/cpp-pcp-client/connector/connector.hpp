@@ -1,13 +1,13 @@
 #ifndef CTHUN_CLIENT_SRC_CONNECTOR_CONNECTOR_H_
 #define CTHUN_CLIENT_SRC_CONNECTOR_CONNECTOR_H_
 
-#include <cthun-client/connector/connection.hpp>
-#include <cthun-client/connector/client_metadata.hpp>
-#include <cthun-client/connector/errors.hpp>
-#include <cthun-client/validator/validator.hpp>
-#include <cthun-client/validator/schema.hpp>
-#include <cthun-client/protocol/chunks.hpp>
-#include <cthun-client/protocol/message.hpp>
+#include <cpp-pcp-client/connector/connection.hpp>
+#include <cpp-pcp-client/connector/client_metadata.hpp>
+#include <cpp-pcp-client/connector/errors.hpp>
+#include <cpp-pcp-client/validator/validator.hpp>
+#include <cpp-pcp-client/validator/schema.hpp>
+#include <cpp-pcp-client/protocol/chunks.hpp>
+#include <cpp-pcp-client/protocol/message.hpp>
 
 #include <memory>
 #include <string>

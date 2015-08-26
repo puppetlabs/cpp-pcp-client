@@ -17,7 +17,7 @@ set(SOURCES
     unit/validator/validator_test.cc
 )
 
-set(test_BIN cthun-client-unittests)
+set(test_BIN cpp-pcp-client-unittests)
 
 find_package(Boost 1.54 REQUIRED
   COMPONENTS filesystem system date_time thread log regex random)
@@ -28,7 +28,7 @@ include_directories(
 )
 
 add_executable(${test_BIN} ${SOURCES})
-target_link_libraries(${test_BIN} libcthun-client)
+target_link_libraries(${test_BIN} libcpp-pcp-client)
 
 set(LIBS
     ${Boost_LIBRARIES}

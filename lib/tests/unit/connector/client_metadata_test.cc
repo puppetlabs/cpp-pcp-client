@@ -1,8 +1,8 @@
 #include "tests/test.hpp"
 #include "certs.hpp"
 
-#include <cthun-client/connector/client_metadata.hpp>
-#include <cthun-client/connector/errors.hpp>
+#include <cpp-pcp-client/connector/client_metadata.hpp>
+#include <cpp-pcp-client/connector/errors.hpp>
 
 #include <string>
 

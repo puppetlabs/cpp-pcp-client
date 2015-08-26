@@ -1,7 +1,7 @@
 #ifndef CTHUN_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
 #define CTHUN_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
 
-#include <cthun-client/protocol/errors.hpp>
+#include <cpp-pcp-client/protocol/errors.hpp>
 
 #include <boost/detail/endian.hpp>
 

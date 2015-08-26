@@ -1,8 +1,8 @@
 #ifndef CTHUN_CLIENT_SRC_PROTOCOL_CHUNKS_H_
 #define CTHUN_CLIENT_SRC_PROTOCOL_CHUNKS_H_
 
-#include <cthun-client/protocol/serialization.hpp>
-#include <cthun-client/validator/schema.hpp>
+#include <cpp-pcp-client/protocol/serialization.hpp>
+#include <cpp-pcp-client/validator/schema.hpp>
 
 #include <string>
 #include <stdint.h>  // uint8_t

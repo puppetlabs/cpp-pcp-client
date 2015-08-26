@@ -7,15 +7,15 @@
 #define _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
 #define _WEBSOCKETPP_CPP11_THREAD_
 
-#include <cthun-client/connector/connection.hpp>
-#include <cthun-client/connector/errors.hpp>
-#include <cthun-client/protocol/message.hpp>
+#include <cpp-pcp-client/connector/connection.hpp>
+#include <cpp-pcp-client/connector/errors.hpp>
+#include <cpp-pcp-client/protocol/message.hpp>
 
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/client.hpp>
 #include <websocketpp/config/asio_client.hpp>
 
-#define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".connection"
+#define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".connection"
 
 #include <leatherman/logging/logging.hpp>
 

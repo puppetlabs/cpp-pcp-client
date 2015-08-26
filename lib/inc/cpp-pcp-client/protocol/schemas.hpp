@@ -1,7 +1,7 @@
 #ifndef CTHUN_CLIENT_SRC_PROTOCOL_SCHEMAS_H_
 #define CTHUN_CLIENT_SRC_PROTOCOL_SCHEMAS_H_
 
-#include <cthun-client/validator/schema.hpp>
+#include <cpp-pcp-client/validator/schema.hpp>
 
 namespace CthunClient {
 namespace Protocol {

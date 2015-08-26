@@ -1,7 +1,7 @@
 #ifndef CTHUN_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
 #define CTHUN_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
 
-#include <cthun-client/validator/schema.hpp>
+#include <cpp-pcp-client/validator/schema.hpp>
 
 #include <map>
 #include <mutex>

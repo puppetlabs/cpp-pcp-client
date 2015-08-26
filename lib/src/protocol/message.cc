@@ -1,7 +1,7 @@
-#include <cthun-client/protocol/message.hpp>
-#include <cthun-client/protocol/schemas.hpp>
+#include <cpp-pcp-client/protocol/message.hpp>
+#include <cpp-pcp-client/protocol/schemas.hpp>
 
-#define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".message"
+#define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".message"
 
 
 #include <leatherman/logging/logging.hpp>

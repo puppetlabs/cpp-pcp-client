@@ -1,10 +1,10 @@
 #ifndef CTHUN_CLIENT_SRC_PROTOCOL_MESSAGE_H_
 #define CTHUN_CLIENT_SRC_PROTOCOL_MESSAGE_H_
 
-#include <cthun-client/protocol/chunks.hpp>
-#include <cthun-client/protocol/errors.hpp>
-#include <cthun-client/protocol/serialization.hpp>
-#include <cthun-client/validator/validator.hpp>
+#include <cpp-pcp-client/protocol/chunks.hpp>
+#include <cpp-pcp-client/protocol/errors.hpp>
+#include <cpp-pcp-client/protocol/serialization.hpp>
+#include <cpp-pcp-client/validator/validator.hpp>
 
 #include <string>
 #include <vector>

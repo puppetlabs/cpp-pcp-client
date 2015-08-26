@@ -1,9 +1,9 @@
 #include "tests/test.hpp"
 #include "tests/unit/connector/certs.hpp"
 
-#include <cthun-client/connector/connection.hpp>
-#include <cthun-client/connector/client_metadata.hpp>
-#include <cthun-client/connector/errors.hpp>
+#include <cpp-pcp-client/connector/connection.hpp>
+#include <cpp-pcp-client/connector/client_metadata.hpp>
+#include <cpp-pcp-client/connector/errors.hpp>
 
 namespace CthunClient {
 

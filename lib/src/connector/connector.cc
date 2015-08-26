@@ -1,8 +1,8 @@
-#include <cthun-client/connector/connector.hpp>
-#include <cthun-client/protocol/message.hpp>
-#include <cthun-client/protocol/schemas.hpp>
+#include <cpp-pcp-client/connector/connector.hpp>
+#include <cpp-pcp-client/protocol/message.hpp>
+#include <cpp-pcp-client/protocol/schemas.hpp>
 
-#define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".connector"
+#define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".connector"
 
 #include <leatherman/logging/logging.hpp>
 
