@@ -14,7 +14,7 @@
 // #define NDEBUG
 #include <cassert>
 
-namespace CthunClient {
+namespace PCPClient {
 
 namespace lth_jc = leatherman::json_container;
 namespace lth_util = leatherman::util;
@@ -378,4 +378,4 @@ void Message::validateChunk(const MessageChunk& chunk) const {
     }
 }
 
-}  // namespace CthunAgent
+}  // namespace PCPClient

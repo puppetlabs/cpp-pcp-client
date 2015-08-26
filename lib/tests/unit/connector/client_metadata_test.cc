@@ -6,7 +6,9 @@
 
 #include <string>
 
-namespace CthunClient {
+namespace PCPClient {
+
+// TODO(ale): update cert identities so we don't match against cthun
 
 TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("retrieves correctly the client common name from the certificate") {
@@ -40,4 +42,4 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     }
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

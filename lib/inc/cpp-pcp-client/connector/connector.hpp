@@ -1,5 +1,5 @@
-#ifndef CTHUN_CLIENT_SRC_CONNECTOR_CONNECTOR_H_
-#define CTHUN_CLIENT_SRC_CONNECTOR_CONNECTOR_H_
+#ifndef CPP_PCP_CLIENT_SRC_CONNECTOR_CONNECTOR_H_
+#define CPP_PCP_CLIENT_SRC_CONNECTOR_CONNECTOR_H_
 
 #include <cpp-pcp-client/connector/connection.hpp>
 #include <cpp-pcp-client/connector/client_metadata.hpp>
@@ -16,7 +16,7 @@
 #include <condition_variable>
 #include <atomic>
 
-namespace CthunClient {
+namespace PCPClient {
 
 //
 // Connector
@@ -45,7 +45,7 @@ class Connector {
                                  MessageCallback callback);
 
     /// Set an optional callback for error messages
-    void setCthunErrorCallback(MessageCallback callback);
+    void setPCPErrorCallback(MessageCallback callback);
 
     /// Set an optional callback for associate responses
     void setAssociateCallback(MessageCallback callback);
@@ -101,7 +101,7 @@ class Connector {
     /// Send the specified message.
     ///
     /// Other overloads may specify:
-    ///   - targets: list of Cthun URI strings
+    ///   - targets: list of PCP URI strings
     ///   - message_type: schema name that identifies the message type
     ///   - timeout: expires entry in seconds
     ///   - destination_report: bool; the client must flag it in case
@@ -145,7 +145,7 @@ class Connector {
                         = std::vector<lth_jc::JsonContainer> {});
 
   private:
-    /// Cthun server url
+    /// PCP server url
     std::string server_url_;
 
     /// Client metadata
@@ -205,13 +205,13 @@ class Connector {
     // associated with the schema specified in the envelope.
     void processMessage(const std::string& msg_txt);
 
-    // Cthun Callback executed by processMessage in case of an
+    // PCP Callback executed by processMessage in case of an
     // associate session response.
-    void associateResponseCallback(const CthunClient::ParsedChunks& parsed_chunks);
+    void associateResponseCallback(const PCPClient::ParsedChunks& parsed_chunks);
 
-    // Cthun Callback executed by processMessage when an error message
+    // PCP Callback executed by processMessage when an error message
     // is received.
-    void errorMessageCallback(const CthunClient::ParsedChunks& parsed_chunks);
+    void errorMessageCallback(const PCPClient::ParsedChunks& parsed_chunks);
 
     // Monitor the underlying connection; reconnect or keep it alive.
     // If the underlying connection is dropped, unset the
@@ -219,6 +219,6 @@ class Connector {
     void startMonitorTask(int max_connect_attempts);
 };
 
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_CONNECTOR_CONNECTOR_H_
+#endif  // CPP_PCP_CLIENT_SRC_CONNECTOR_CONNECTOR_H_

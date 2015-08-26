@@ -8,7 +8,7 @@
 #include <valijson/validation_results.hpp>
 #include <valijson/validator.hpp>
 
-namespace CthunClient {
+namespace PCPClient {
 
 namespace lth_jc = leatherman::json_container;
 
@@ -107,4 +107,4 @@ ContentType Validator::getSchemaContentType(std::string schema_name) const {
     return schema_map_.at(schema_name).getContentType();
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

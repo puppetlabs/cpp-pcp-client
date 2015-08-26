@@ -18,7 +18,7 @@
 #include <leatherman/util/strings.hpp>
 #include <leatherman/util/time.hpp>
 
-namespace CthunClient {
+namespace PCPClient {
 
 namespace lth_jc = leatherman::json_container;
 namespace lth_util = leatherman::util;
@@ -57,12 +57,12 @@ Connector::Connector(const std::string& server_url,
           is_destructing_ { false },
           is_monitoring_ { false },
           is_associated_ { false } {
-    // Add Cthun schemas to the Validator instance member
+    // Add PCP schemas to the Validator instance member
     validator_.registerSchema(Protocol::EnvelopeSchema());
     validator_.registerSchema(Protocol::DebugSchema());
     validator_.registerSchema(Protocol::DebugItemSchema());
 
-    // Register Cthun callbacks
+    // Register PCP callbacks
     registerMessageCallback(
         Protocol::AssociateResponseSchema(),
         [this](const ParsedChunks& parsed_chunks) {
@@ -100,7 +100,7 @@ void Connector::registerMessageCallback(const Schema schema,
 }
 
 // Set an optional callback for error messages
-void Connector::setCthunErrorCallback(MessageCallback callback) {
+void Connector::setPCPErrorCallback(MessageCallback callback) {
     error_callback_ = callback;
 }
 
@@ -345,7 +345,7 @@ void Connector::processMessage(const std::string& msg_txt) {
 
 void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
     assert(parsed_chunks.has_data);
-    assert(parsed_chunks.data_type == CthunClient::ContentType::Json);
+    assert(parsed_chunks.data_type == PCPClient::ContentType::Json);
 
     auto response_id = parsed_chunks.envelope.get<std::string>("id");
     auto server_uri = parsed_chunks.envelope.get<std::string>("sender");
@@ -373,11 +373,11 @@ void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
     }
 }
 
-// Cthun error message callback
+// PCP error message callback
 
 void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
     assert(parsed_chunks.has_data);
-    assert(parsed_chunks.data_type == CthunClient::ContentType::Json);
+    assert(parsed_chunks.data_type == PCPClient::ContentType::Json);
 
     auto error_id = parsed_chunks.envelope.get<std::string>("id");
     auto server_uri = parsed_chunks.envelope.get<std::string>("sender");
@@ -421,7 +421,7 @@ void Connector::startMonitorTask(int max_connect_attempts) {
 
         try {
             if (!isConnected()) {
-                LOG_WARNING("WebSocket connection to Cthun server lost; retrying");
+                LOG_WARNING("WebSocket connection to PCP server lost; retrying");
                 is_associated_ = false;
                 connection_ptr_->connect(max_connect_attempts);
             } else {
@@ -444,4 +444,4 @@ void Connector::startMonitorTask(int max_connect_attempts) {
     }
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

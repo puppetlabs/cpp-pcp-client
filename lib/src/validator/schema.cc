@@ -5,7 +5,7 @@
 
 #include <rapidjson/allocators.h>
 
-namespace CthunClient {
+namespace PCPClient {
 
 namespace lth_jc = leatherman::json_container;
 
@@ -177,4 +177,4 @@ void Schema::checkAddConstraint() {
     }
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

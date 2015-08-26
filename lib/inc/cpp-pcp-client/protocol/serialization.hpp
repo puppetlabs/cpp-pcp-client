@@ -1,5 +1,5 @@
-#ifndef CTHUN_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
-#define CTHUN_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
+#ifndef CPP_PCP_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
+#define CPP_PCP_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
 
 #include <cpp-pcp-client/protocol/errors.hpp>
 
@@ -16,7 +16,7 @@
 // #define NDEBUG
 #include <cassert>
 
-namespace CthunClient {
+namespace PCPClient {
 
 typedef std::vector<uint8_t> SerializedMessage;
 
@@ -157,6 +157,6 @@ inline uint32_t deserialize(size_t thing_size,
     return getHostNumber(value);
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
+#endif  // CPP_PCP_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_

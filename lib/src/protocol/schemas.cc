@@ -1,10 +1,10 @@
 #include <cpp-pcp-client/protocol/schemas.hpp>
 
-namespace CthunClient {
+namespace PCPClient {
 namespace Protocol {
 
 // HERE(ale): this must be kept up to date with
-// https://github.com/puppetlabs/cthun-specifications
+// https://github.com/puppetlabs/pcp-specifications
 
 Schema EnvelopeSchema() {
     Schema schema { ENVELOPE_SCHEMA_NAME, ContentType::Json };
@@ -54,8 +54,8 @@ Schema DestinationReportSchema() {
     return schema;
 }
 
-CthunClient::Schema TTLExpiredSchema() {
-    CthunClient::Schema schema { TTL_EXPIRED_TYPE, ContentType::Json };
+PCPClient::Schema TTLExpiredSchema() {
+    PCPClient::Schema schema { TTL_EXPIRED_TYPE, ContentType::Json };
     // NB: additionalProperties = false
     schema.addConstraint("id", TypeConstraint::String, true);
     return schema;
@@ -76,4 +76,4 @@ Schema DebugItemSchema() {
 }
 
 }  // namespace Protocol
-}  // namespace CthunClient
+}  // namespace PCPClient

@@ -10,7 +10,7 @@
 
 #include <stdio.h>  // std::fopen
 
-namespace CthunClient {
+namespace PCPClient {
 
 // Get rid of OSX 10.7 and greater deprecation warnings.
 #if defined(__APPLE__) && defined(__clang__)
@@ -18,7 +18,7 @@ namespace CthunClient {
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-static const std::string CTHUN_URI_SCHEME { "cth://" };
+static const std::string PCP_URI_SCHEME { "cth://" };
 
 std::string getCommonNameFromCert(const std::string& client_crt_path) {
     LOG_INFO("Retrieving the common name from certificate %1%", client_crt_path);
@@ -67,9 +67,9 @@ ClientMetadata::ClientMetadata(const std::string& _client_type,
           key { _key },
           client_type { _client_type },
           common_name { getCommonNameFromCert(crt) },
-          uri { CTHUN_URI_SCHEME + common_name + "/" + client_type } {
+          uri { PCP_URI_SCHEME + common_name + "/" + client_type } {
     LOG_INFO("Retrieved common name from the certificate and determined "
              "the client URI: %1%", uri);
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

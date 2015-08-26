@@ -1,9 +1,9 @@
-#ifndef CTHUN_CLIENT_SRC_PROTOCOL_SCHEMAS_H_
-#define CTHUN_CLIENT_SRC_PROTOCOL_SCHEMAS_H_
+#ifndef CPP_PCP_CLIENT_SRC_PROTOCOL_SCHEMAS_H_
+#define CPP_PCP_CLIENT_SRC_PROTOCOL_SCHEMAS_H_
 
 #include <cpp-pcp-client/validator/schema.hpp>
 
-namespace CthunClient {
+namespace PCPClient {
 namespace Protocol {
 
 //
@@ -39,7 +39,7 @@ Schema DestinationReportSchema();
 
 // ttl expired
 static const std::string TTL_EXPIRED_TYPE { "http://puppetlabs.com/ttl_expired" };
-CthunClient::Schema TTLExpiredSchema();
+PCPClient::Schema TTLExpiredSchema();
 
 //
 // debug
@@ -52,6 +52,6 @@ static const std::string DEBUG_ITEM_SCHEMA_NAME { "debug_item_schema" };
 Schema DebugItemSchema();
 
 }  // namespace Protocol
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_PROTOCOL_SCHEMAS_H_
+#endif  // CPP_PCP_CLIENT_SRC_PROTOCOL_SCHEMAS_H_

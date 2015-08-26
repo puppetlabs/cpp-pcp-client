@@ -1,10 +1,10 @@
-#ifndef CTHUN_CLIENT_SRC_CONNECTOR_ERRORS_H_
-#define CTHUN_CLIENT_SRC_CONNECTOR_ERRORS_H_
+#ifndef CPP_PCP_CLIENT_SRC_CONNECTOR_ERRORS_H_
+#define CPP_PCP_CLIENT_SRC_CONNECTOR_ERRORS_H_
 
 #include <stdexcept>
 #include <string>
 
-namespace CthunClient {
+namespace PCPClient {
 
 /// Base error class.
 class connection_error : public std::runtime_error {
@@ -41,6 +41,6 @@ class connection_not_init_error : public connection_error {
             : connection_error(msg) {}
 };
 
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_CONNECTOR_ERRORS_H_
+#endif  // CPP_PCP_CLIENT_SRC_CONNECTOR_ERRORS_H_

@@ -5,7 +5,7 @@
 #include <cpp-pcp-client/connector/client_metadata.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
 
-namespace CthunClient {
+namespace PCPClient {
 
 TEST_CASE("Connection::connect", "[connector]") {
     SECTION("throws a connection_processing_error if the server url is "
@@ -19,4 +19,4 @@ TEST_CASE("Connection::connect", "[connector]") {
     }
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

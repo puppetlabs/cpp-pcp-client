@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <chrono>
 
-namespace CthunClient {
+namespace PCPClient {
 
 TEST_CASE("MessageChunk", "[message]") {
     SECTION("can instantiate with default ctor") {
@@ -553,4 +553,4 @@ TEST_CASE("Message serialization and parsing performance", "[message]") {
               << " msg/s)\n";
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

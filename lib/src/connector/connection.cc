@@ -28,7 +28,7 @@
 // #define NDEBUG
 #include <cassert>
 
-namespace CthunClient {
+namespace PCPClient {
 
 //
 // Constants
@@ -150,7 +150,7 @@ void Connection::connect(int max_connect_attempts) {
         case(ConnectionStateValues::open):
             if (previous_c_s != ConnectionStateValues::open) {
                 LOG_INFO("Successfully established a WebSocket connection with "
-                         "the Cthun server");
+                         "the PCP server");
                 connection_backoff_s_ = CONNECTION_BACKOFF_S;
             }
             return;
@@ -368,4 +368,4 @@ void Connection::onMessage(WS_Connection_Handle hdl,
     }
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

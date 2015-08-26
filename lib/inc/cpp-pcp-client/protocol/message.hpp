@@ -1,5 +1,5 @@
-#ifndef CTHUN_CLIENT_SRC_PROTOCOL_MESSAGE_H_
-#define CTHUN_CLIENT_SRC_PROTOCOL_MESSAGE_H_
+#ifndef CPP_PCP_CLIENT_SRC_PROTOCOL_MESSAGE_H_
+#define CPP_PCP_CLIENT_SRC_PROTOCOL_MESSAGE_H_
 
 #include <cpp-pcp-client/protocol/chunks.hpp>
 #include <cpp-pcp-client/protocol/errors.hpp>
@@ -12,7 +12,7 @@
 #include <initializer_list>
 #include <stdint.h>  // uint8_t
 
-namespace CthunClient {
+namespace PCPClient {
 
 //
 // Message
@@ -20,7 +20,7 @@ namespace CthunClient {
 
 class Message {
   public:
-    // The default ctor is deleted since, for the Cthun protocol, a
+    // The default ctor is deleted since, for the PCP protocol, a
     // valid message must have an envelope chunk (invariant)
     Message() = delete;
 
@@ -74,7 +74,7 @@ class Message {
     // Throw a data_parse_error in case the envelope content contains
     // invalid JSON text.
     // Throw a validation_error in case the envelope content does
-    // not match the envelope schema (as in cthun-specifications).
+    // not match the envelope schema (as in pcp-specifications).
     // Throw a schema_not_found_error in case the envelope schema
     // was not registered.
     //
@@ -97,6 +97,6 @@ class Message {
     void validateChunk(const MessageChunk& chunk) const;
 };
 
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_PROTOCOL_MESSAGE_H_
+#endif  // CPP_PCP_CLIENT_SRC_PROTOCOL_MESSAGE_H_

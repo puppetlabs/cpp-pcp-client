@@ -1,4 +1,4 @@
-# allow include directives with absolute paths for cthun-client sources
+# allow include directives with absolute paths for cpp-pcp-client sources
 set(BASEPATH "${CMAKE_CURRENT_LIST_DIR}/..")
 include_directories("${BASEPATH}")
 SET(SOURCE_DIR "${BASEPATH}/src")
