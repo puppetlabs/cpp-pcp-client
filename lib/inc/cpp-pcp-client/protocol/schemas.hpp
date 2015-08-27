@@ -39,7 +39,7 @@ Schema DestinationReportSchema();
 
 // ttl expired
 static const std::string TTL_EXPIRED_TYPE { "http://puppetlabs.com/ttl_expired" };
-PCPClient::Schema TTLExpiredSchema();
+Schema TTLExpiredSchema();
 
 //
 // debug

@@ -54,8 +54,8 @@ Schema DestinationReportSchema() {
     return schema;
 }
 
-PCPClient::Schema TTLExpiredSchema() {
-    PCPClient::Schema schema { TTL_EXPIRED_TYPE, ContentType::Json };
+Schema TTLExpiredSchema() {
+    Schema schema { TTL_EXPIRED_TYPE, ContentType::Json };
     // NB: additionalProperties = false
     schema.addConstraint("id", TypeConstraint::String, true);
     return schema;
