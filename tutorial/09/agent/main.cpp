@@ -1,13 +1,13 @@
 #include "../common.h"
 
-#include <cthun-client/connector/connector.hpp>  // Connector
-#include <cthun-client/connector/errors.hpp>     // connection_config_error
+#include <cpp-pcp-client/connector/connector.hpp>  // Connector
+#include <cpp-pcp-client/connector/errors.hpp>     // connection_config_error
 
-#include <cthun-client/protocol/chunks.hpp>      // ParsedChunk
-#include <cthun-client/protocol/schemas.hpp>     // Protocol::ErrorMessageSchema
+#include <cpp-pcp-client/protocol/chunks.hpp>      // ParsedChunk
+#include <cpp-pcp-client/protocol/schemas.hpp>     // Protocol::ErrorMessageSchema
 
-#include <cthun-client/validator/schema.hpp>     // Schema, ContentType
-#include <cthun-client/validator/validator.hpp>  // Validator
+#include <cpp-pcp-client/validator/schema.hpp>     // Schema, ContentType
+#include <cpp-pcp-client/validator/validator.hpp>  // Validator
 
 #include  <leatherman/json_container/json_container.hpp>  // JsonContainer
 
@@ -45,32 +45,32 @@ class Agent {
 
   private:
     int num_connect_attempts_;
-    CthunClient::Schema request_schema_;
-    CthunClient::Validator validator_;
-    std::unique_ptr<CthunClient::Connector> connector_ptr_;
+    PCPClient::Schema request_schema_;
+    PCPClient::Validator validator_;
+    std::unique_ptr<PCPClient::Connector> connector_ptr_;
 
-    void processRequest(const CthunClient::ParsedChunks& parsed_chunks);
+    void processRequest(const PCPClient::ParsedChunks& parsed_chunks);
 };
 
 Agent::Agent()
     try
         : num_connect_attempts_ { 4 },
           request_schema_ { getRequestMessageSchema() },
-          connector_ptr_ { new CthunClient::Connector { SERVER_URL,
-                                                        AGENT_CLIENT_TYPE,
-                                                        CA,
-                                                        CERT,
-                                                        KEY } } {
+          connector_ptr_ { new PCPClient::Connector { SERVER_URL,
+                                                      AGENT_CLIENT_TYPE,
+                                                      CA,
+                                                      CERT,
+                                                      KEY } } {
     // Validator::registerSchema()
-    CthunClient::Schema song_schema { SONG_SCHEMA,
-                                      CthunClient::ContentType::Json };
+    PCPClient::Schema song_schema { SONG_SCHEMA,
+                                      PCPClient::ContentType::Json };
     song_schema.addConstraint("artist", T_C::String, true);  // mandatory
     song_schema.addConstraint("album", T_C::String, false);  // optional
     song_schema.addConstraint("year", T_C::String, false);   // optional
 
     validator_.registerSchema(song_schema);
-} catch (CthunClient::connection_config_error& e) {
-    std::string err_msg { "failed to configure the Cthun Connector: " };
+} catch (PCPClient::connection_config_error& e) {
+    std::string err_msg { "failed to configure the PCP Connector: " };
     throw agent_error { err_msg + e.what() };
 }
 
@@ -79,7 +79,7 @@ void Agent::start() {
 
     connector_ptr_->registerMessageCallback(
         request_schema_,
-        [this](const CthunClient::ParsedChunks& parsed_chunks) {
+        [this](const PCPClient::ParsedChunks& parsed_chunks) {
             processRequest(parsed_chunks);
         });
 
@@ -87,10 +87,10 @@ void Agent::start() {
 
     try {
         connector_ptr_->connect(num_connect_attempts_);
-    } catch (CthunClient::connection_config_error& e) {
+    } catch (PCPClient::connection_config_error& e) {
         std::string err_msg { "failed to configure WebSocket: " };
         throw agent_error { err_msg + e.what() };
-    } catch (CthunClient::connection_fatal_error& e) {
+    } catch (PCPClient::connection_fatal_error& e) {
         std::string err_msg { "failed to connect to " + SERVER_URL + " after "
                               + std::to_string(num_connect_attempts_)
                               + "attempts: " };
@@ -110,13 +110,13 @@ void Agent::start() {
 
     try {
         connector_ptr_->monitorConnection(num_connect_attempts_);
-    } catch (CthunClient::connection_fatal_error& e) {
+    } catch (PCPClient::connection_fatal_error& e) {
         std::string err_msg { "failed to reconnect to " + SERVER_URL + ": " };
         throw agent_error { err_msg + e.what() };
     }
 }
 
-void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
+void Agent::processRequest(const PCPClient::ParsedChunks& parsed_chunks) {
     auto request_id = parsed_chunks.envelope.get<std::string>("id");
     auto requester_endpoint = parsed_chunks.envelope.get<std::string>("sender");
     auto& d = parsed_chunks.data;
@@ -130,7 +130,7 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
 
     try {
         validator_.validate(request, SONG_SCHEMA);
-    } catch (CthunClient::validation_error& e) {
+    } catch (PCPClient::validation_error& e) {
         std::string err { "Failed to validate request: " };
         err += e.what();
         std::cout << err << "\n";
@@ -140,11 +140,11 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
 
         try {
             connector_ptr_->send(std::vector<std::string> { requester_endpoint },
-                                 CthunClient::Protocol::ERROR_MSG_TYPE,
+                                 PCPClient::Protocol::ERROR_MSG_TYPE,
                                  MSG_TIMEOUT_S,
                                  err_data);
             std::cout << "Error message sent to " << requester_endpoint << "\n";
-        } catch (CthunClient::connection_processing_error& e) {
+        } catch (PCPClient::connection_processing_error& e) {
             std::cout << "Failed to send the error message: "
                       << e.what() << "\n";
             // NB: as below, we don't want to throw anything here; we
@@ -191,7 +191,7 @@ void Agent::processRequest(const CthunClient::ParsedChunks& parsed_chunks) {
                              response_data,
                              response_debug);
         std::cout << "Response message sent to " << requester_endpoint << "\n";
-    } catch (CthunClient::connection_processing_error& e) {
+    } catch (PCPClient::connection_processing_error& e) {
         std::cout << "Failed to send the response message: "
                   << e.what() << "\n";
 

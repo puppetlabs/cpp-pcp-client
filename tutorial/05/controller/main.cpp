@@ -1,5 +1,5 @@
-#include <cthun-client/connector/connector.hpp>  // Connector
-#include <cthun-client/connector/errors.hpp>     // connection_config_error
+#include <cpp-pcp-client/connector/connector.hpp>  // Connector
+#include <cpp-pcp-client/connector/errors.hpp>     // connection_config_error
 
 #include  <leatherman/json_container/json_container.hpp>  // JsonContainer
 
@@ -22,19 +22,19 @@ const std::string REQUEST_SCHEMA_NAME { "tutorial_request_schema" };
 const int MSG_TIMEOUT_S { 10 };
 
 int main(int argc, char *argv[]) {
-    std::unique_ptr<CthunClient::Connector> connector_ptr;
+    std::unique_ptr<PCPClient::Connector> connector_ptr;
 
     // Connector constructor
 
     try {
-        connector_ptr.reset(new CthunClient::Connector { SERVER_URL,
-                                                         CONTROLLER_CLIENT_TYPE,
-                                                         CA,
-                                                         CERT,
-                                                         KEY });
+        connector_ptr.reset(new PCPClient::Connector { SERVER_URL,
+                                                       CONTROLLER_CLIENT_TYPE,
+                                                       CA,
+                                                       CERT,
+                                                       KEY });
         std::cout << "Configured the connector\n";
-    } catch (CthunClient::connection_config_error& e) {
-        std::cout << "Failed to configure the Cthun connector: "
+    } catch (PCPClient::connection_config_error& e) {
+        std::cout << "Failed to configure the PCP Connector: "
                   << e.what() << "\n";
         return 1;
     }
@@ -45,10 +45,10 @@ int main(int argc, char *argv[]) {
 
     try {
         connector_ptr->connect(num_connect_attempts);
-    } catch (CthunClient::connection_config_error& e) {
+    } catch (PCPClient::connection_config_error& e) {
         std::cout << "Failed to configure WebSocket: " << e.what() << "\n";
         return 2;
-    } catch (CthunClient::connection_fatal_error& e) {
+    } catch (PCPClient::connection_fatal_error& e) {
         std::cout << "Failed to connect to " << SERVER_URL << " after "
                   << num_connect_attempts << " attempts: " << e.what() << "\n";
         return 2;
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
                             MSG_TIMEOUT_S,
                             data_entries);
         std::cout << "Request message sent\n";
-    } catch (CthunClient::connection_processing_error& e) {
+    } catch (PCPClient::connection_processing_error& e) {
         std::cout << "Failed to send the request message: " << e.what() << "\n";
         return 2;
     }

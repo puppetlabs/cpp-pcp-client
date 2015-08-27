@@ -1,5 +1,5 @@
-#include <cthun-client/connector/connector.hpp>  // Connector
-#include <cthun-client/connector/errors.hpp>     // connection_config_error
+#include <cpp-pcp-client/connector/connector.hpp>  // Connector
+#include <cpp-pcp-client/connector/errors.hpp>     // connection_config_error
 
 #include <string>
 #include <iostream>
@@ -16,19 +16,19 @@ const std::string CERT { "../../resources/agent_certs/crt.pem" };
 const std::string KEY  { "../../resources/agent_certs/key.pem" };
 
 int main(int argc, char *argv[]) {
-    std::unique_ptr<CthunClient::Connector> connector_ptr;
+    std::unique_ptr<PCPClient::Connector> connector_ptr;
 
     // Connector constructor
 
     try {
-        connector_ptr.reset(new CthunClient::Connector { SERVER_URL,
-                                                         AGENT_CLIENT_TYPE,
-                                                         CA,
-                                                         CERT,
-                                                         KEY });
+        connector_ptr.reset(new PCPClient::Connector { SERVER_URL,
+                                                       AGENT_CLIENT_TYPE,
+                                                       CA,
+                                                       CERT,
+                                                       KEY });
         std::cout << "Configured the connector\n";
-    } catch (CthunClient::connection_config_error& e) {
-        std::cout << "Failed to configure the Cthun connector: "
+    } catch (PCPClient::connection_config_error& e) {
+        std::cout << "Failed to configure the PCP connector: "
                   << e.what() << "\n";
         return 1;
     }
@@ -39,10 +39,10 @@ int main(int argc, char *argv[]) {
 
     try {
         connector_ptr->connect(num_connect_attempts);
-    } catch (CthunClient::connection_config_error& e) {
+    } catch (PCPClient::connection_config_error& e) {
         std::cout << "Failed to configure WebSocket: " << e.what() << "\n";
         return 2;
-    } catch (CthunClient::connection_fatal_error& e) {
+    } catch (PCPClient::connection_fatal_error& e) {
         std::cout << "Failed to connect to " << SERVER_URL << " after "
                   << num_connect_attempts << " attempts: " << e.what() << "\n";
         return 2;
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 
     try {
         connector_ptr->monitorConnection(num_connect_attempts);
-    } catch (CthunClient::connection_fatal_error& e) {
+    } catch (PCPClient::connection_fatal_error& e) {
         std::cout << "Failed to reconnect to " << SERVER_URL << " after "
                   << num_connect_attempts << " attempts: " << e.what() << "\n";
         return 2;

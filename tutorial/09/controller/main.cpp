@@ -1,9 +1,9 @@
 #include "../common.h"
 
-#include <cthun-client/connector/connector.hpp>  // Connector
-#include <cthun-client/connector/errors.hpp>     // connection_config_error
+#include <cpp-pcp-client/connector/connector.hpp>  // Connector
+#include <cpp-pcp-client/connector/errors.hpp>     // connection_config_error
 
-#include <cthun-client/protocol/schemas.hpp>     // Protocol::
+#include <cpp-pcp-client/protocol/schemas.hpp>     // Protocol::
 
 #include  <leatherman/json_container/json_container.hpp>  // JsonContainer
 
@@ -38,13 +38,13 @@ class Controller {
 
   private:
     int num_connect_attempts_;
-    CthunClient::Schema response_schema_;
-    CthunClient::Schema inventory_response_schema_;
-    std::unique_ptr<CthunClient::Connector> connector_ptr_;
+    PCPClient::Schema response_schema_;
+    PCPClient::Schema inventory_response_schema_;
+    std::unique_ptr<PCPClient::Connector> connector_ptr_;
 
-    void processResponse(const CthunClient::ParsedChunks& parsed_chunks);
-    void processError(const CthunClient::ParsedChunks& parsed_chunks);
-    void processInventoryResponse(const CthunClient::ParsedChunks& parsed_chunks);
+    void processResponse(const PCPClient::ParsedChunks& parsed_chunks);
+    void processError(const PCPClient::ParsedChunks& parsed_chunks);
+    void processInventoryResponse(const PCPClient::ParsedChunks& parsed_chunks);
 };
 
 Controller::Controller()
@@ -52,32 +52,32 @@ Controller::Controller()
         : num_connect_attempts_ { 2 },
           response_schema_ { getResponseMessageSchema() },
           inventory_response_schema_ {
-                CthunClient::Protocol::InventoryResponseSchema() },
-          connector_ptr_ { new CthunClient::Connector { SERVER_URL,
-                                                        CONTROLLER_CLIENT_TYPE,
-                                                        CA,
-                                                        CERT,
-                                                        KEY } } {
+                PCPClient::Protocol::InventoryResponseSchema() },
+          connector_ptr_ { new PCPClient::Connector { SERVER_URL,
+                                                      CONTROLLER_CLIENT_TYPE,
+                                                      CA,
+                                                      CERT,
+                                                      KEY } } {
     // Connector::registerMessageCallback()
 
     connector_ptr_->registerMessageCallback(
         response_schema_,
-        [this](const CthunClient::ParsedChunks& parsed_chunks) {
+        [this](const PCPClient::ParsedChunks& parsed_chunks) {
             processResponse(parsed_chunks);
         });
 
-    connector_ptr_->setCthunErrorCallback(
-        [this](const CthunClient::ParsedChunks& parsed_chunks) {
+    connector_ptr_->setPCPErrorCallback(
+        [this](const PCPClient::ParsedChunks& parsed_chunks) {
             processError(parsed_chunks);
         });
 
     connector_ptr_->registerMessageCallback(
         inventory_response_schema_,
-        [this](const CthunClient::ParsedChunks& parsed_chunks) {
+        [this](const PCPClient::ParsedChunks& parsed_chunks) {
             processInventoryResponse(parsed_chunks);
         });
-} catch (CthunClient::connection_config_error& e) {
-    std::string err_msg { "failed to configure the Cthun Connector: " };
+} catch (PCPClient::connection_config_error& e) {
+    std::string err_msg { "failed to configure the PCP Connector: " };
     throw controller_error { err_msg + e.what() };
 }
 
@@ -86,10 +86,10 @@ void Controller::sendRequests() {
 
     try {
         connector_ptr_->connect(num_connect_attempts_);
-    } catch (CthunClient::connection_config_error& e) {
+    } catch (PCPClient::connection_config_error& e) {
         std::string err_msg { "failed to configure WebSocket: " };
         throw controller_error { err_msg + e.what() };
-    } catch (CthunClient::connection_fatal_error& e) {
+    } catch (PCPClient::connection_fatal_error& e) {
         std::string err_msg { "failed to connect to " + SERVER_URL + " after "
                               + std::to_string(num_connect_attempts_)
                               + "attempts: " };
@@ -121,7 +121,7 @@ void Controller::sendRequests() {
                              MSG_TIMEOUT_S,
                              valid_request);
         std::cout << "Valid request message sent\n";
-    } catch (CthunClient::connection_processing_error& e) {
+    } catch (PCPClient::connection_processing_error& e) {
         std::string err_msg { "failed to send the request message: " };
         throw controller_error { err_msg + e.what() };
     }
@@ -140,7 +140,7 @@ void Controller::sendRequests() {
                              MSG_TIMEOUT_S,
                              bad_request);
         std::cout << "Bad request message sent\n";
-    } catch (CthunClient::connection_processing_error& e) {
+    } catch (PCPClient::connection_processing_error& e) {
         std::string err_msg { "failed to send the request message: " };
         throw controller_error { err_msg + e.what() };
     }
@@ -156,11 +156,11 @@ void Controller::sendRequests() {
     try {
         // NB: use "cth:///server" with 3 '/' as the server URI
         connector_ptr_->send(std::vector<std::string> { "cth:///server" },
-                             CthunClient::Protocol::INVENTORY_REQ_TYPE,
+                             PCPClient::Protocol::INVENTORY_REQ_TYPE,
                              MSG_TIMEOUT_S,
                              inventory_request);
         std::cout << "Inventory request message sent\n";
-    } catch (CthunClient::connection_processing_error& e) {
+    } catch (PCPClient::connection_processing_error& e) {
         std::string err_msg { "failed to send the inventory request message: " };
         throw controller_error { err_msg + e.what() };
     }
@@ -169,7 +169,7 @@ void Controller::sendRequests() {
     sleep(2);
 }
 
-void Controller::processResponse(const CthunClient::ParsedChunks& parsed_chunks) {
+void Controller::processResponse(const PCPClient::ParsedChunks& parsed_chunks) {
     auto response_id = parsed_chunks.envelope.get<std::string>("id");
     auto agent_endpoint = parsed_chunks.envelope.get<std::string>("sender");
 
@@ -178,7 +178,7 @@ void Controller::processResponse(const CthunClient::ParsedChunks& parsed_chunks)
               << parsed_chunks.data.get<std::string>("response") << "\n";
 }
 
-void Controller::processError(const CthunClient::ParsedChunks& parsed_chunks) {
+void Controller::processError(const PCPClient::ParsedChunks& parsed_chunks) {
     auto response_id = parsed_chunks.envelope.get<std::string>("id");
     auto agent_endpoint = parsed_chunks.envelope.get<std::string>("sender");
 
@@ -191,7 +191,7 @@ void Controller::processError(const CthunClient::ParsedChunks& parsed_chunks) {
 }
 
 void Controller::processInventoryResponse(
-            const CthunClient::ParsedChunks& parsed_chunks) {
+            const PCPClient::ParsedChunks& parsed_chunks) {
     auto response_id = parsed_chunks.envelope.get<std::string>("id");
     auto server_endpoint = parsed_chunks.envelope.get<std::string>("sender");
     auto uris = parsed_chunks.data.get<std::vector<std::string>>("uris");
