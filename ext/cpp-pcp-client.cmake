@@ -2,7 +2,7 @@ include(ExternalProject)
 
 # Add an external project to build cpp-pcp-client
 externalproject_add(
-    cthun-client
+    cpp-pcp-client
     PREFIX "${PROJECT_BINARY_DIR}"
     SOURCE_DIR "${VENDOR_DIRECTORY}/cpp-pcp-client"
     DOWNLOAD_COMMAND ""
@@ -14,5 +14,5 @@ externalproject_add(
     INSTALL_COMMAND ""
 )
 externalproject_get_property(cpp-pcp-client SOURCE_DIR)
-set(CTHUN_CLIENT_INCLUDE_DIRS "${SOURCE_DIR}/src")
-set(CTHUN_CLIENT_LIB "${SOURCE_DIR}/lib/libcpp-pcp-client.so")
+set(CPP_PCP_CLIENT_INCLUDE_DIRS "${SOURCE_DIR}/src")
+set(CPP_PCP_CLIENT_LIB "${SOURCE_DIR}/lib/libcpp-pcp-client.so")
