@@ -1,10 +1,10 @@
 ---
-project: 'cthun-client'
+project: 'cpp-pcp-client'
 author: 'Puppet Labs'
 email: 'info@puppetlabs.com'
-homepage: 'https://github.com/puppetlabs/cthun-client'
-summary: 'C++ library for interacting with a Cthun server'
-description: 'C++ library for interacting with a Cthun server'
+homepage: 'https://github.com/puppetlabs/cpp-pcp-client'
+summary: 'C++ library for interacting with a PCP server'
+description: 'C++ library for interacting with a PCP server'
 # files to be packaged into a tarball and released with deb/rpm
 files: '[A-Z]* bin lib vendor cmake'
 # space separated list of files to *exclude* from the tarball
@@ -16,5 +16,5 @@ tar_excludes: 'ext/packaging'
 # default to searching for any files in `ext` with the extension '.erb' and evaluate them. When this
 # key is supplied, its values override the defaults, and all desired erb files must be specified with a path or glob.
 templates:
-  - ext/redhat/cthun-client.spec.erb
+  - ext/redhat/cpp-pcp-client.spec.erb
   - ext/debian/changelog.erb
