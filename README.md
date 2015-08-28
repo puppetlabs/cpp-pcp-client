@@ -1,11 +1,12 @@
 # cpp-pcp-client
 
 *TODO(ale)*: update urls
+
 *TODO(ale)*: update URI scheme
 
 ## Introduction
 
-cpp-pcp-client is a C++ client library for the [PCP][2]. It includes a
+cpp-pcp-client is a C++ client library for the [PCP protocol][2]. It includes a
 collection of abstractions which can be used to initiate connections to a PCP
 server, wrapping the PCP message format and performing schema validation for
 message bodies.
