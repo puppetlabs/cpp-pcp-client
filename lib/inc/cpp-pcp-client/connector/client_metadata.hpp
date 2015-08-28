@@ -1,9 +1,9 @@
-#ifndef CTHUN_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_
-#define CTHUN_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_
+#ifndef CPP_PCP_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_
+#define CPP_PCP_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_
 
 #include <string>
 
-namespace CthunClient {
+namespace PCPClient {
 
 class ClientMetadata {
   public:
@@ -23,6 +23,6 @@ class ClientMetadata {
                    const std::string& _key);
 };
 
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_
+#endif  // CPP_PCP_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_

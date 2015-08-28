@@ -1,8 +1,8 @@
-#ifndef CTHUN_CLIENT_SRC_CONNECTOR_CONNECTION_H_
-#define CTHUN_CLIENT_SRC_CONNECTOR_CONNECTION_H_
+#ifndef CPP_PCP_CLIENT_SRC_CONNECTOR_CONNECTION_H_
+#define CPP_PCP_CLIENT_SRC_CONNECTOR_CONNECTION_H_
 
-#include <cthun-client/connector/timings.hpp>
-#include <cthun-client/connector/client_metadata.hpp>
+#include <cpp-pcp-client/connector/timings.hpp>
+#include <cpp-pcp-client/connector/client_metadata.hpp>
 
 #include <string>
 #include <vector>
@@ -46,7 +46,7 @@ namespace websocketpp {
     using connection_hdl = std::weak_ptr<void>;
 }  // namespace websocket
 
-namespace CthunClient {
+namespace PCPClient {
 
 // Constants
 
@@ -93,7 +93,7 @@ using CloseCode = CloseCodeValues::value_;
 class Connection {
   public:
     /// The Connection class provides the necessary logic to establish
-    /// and use a Cthun connection over Websocket.
+    /// and use a PCP connection over Websocket.
     /// The constructor throws an connection_config_error if it fails
     /// to configure the underlying WebSocket endpoint and the event
     /// handlers.
@@ -144,7 +144,7 @@ class Connection {
                const std::string& reason = DEFAULT_CLOSE_REASON);
 
   private:
-    /// Cthun server url
+    /// PCP server url
     std::string server_url_;
 
     /// Client metadata
@@ -209,6 +209,6 @@ class Connection {
                 websocketpp::message_buffer::alloc::con_msg_manager>> msg);
 };
 
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_CONNECTOR_CONNECTION_H_
+#endif  // CPP_PCP_CLIENT_SRC_CONNECTOR_CONNECTION_H_

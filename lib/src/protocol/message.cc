@@ -1,7 +1,7 @@
-#include <cthun-client/protocol/message.hpp>
-#include <cthun-client/protocol/schemas.hpp>
+#include <cpp-pcp-client/protocol/message.hpp>
+#include <cpp-pcp-client/protocol/schemas.hpp>
 
-#define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".message"
+#define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".message"
 
 
 #include <leatherman/logging/logging.hpp>
@@ -14,7 +14,7 @@
 // #define NDEBUG
 #include <cassert>
 
-namespace CthunClient {
+namespace PCPClient {
 
 namespace lth_jc = leatherman::json_container;
 namespace lth_util = leatherman::util;
@@ -378,4 +378,4 @@ void Message::validateChunk(const MessageChunk& chunk) const {
     }
 }
 
-}  // namespace CthunAgent
+}  // namespace PCPClient

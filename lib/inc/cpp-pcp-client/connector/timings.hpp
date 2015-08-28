@@ -1,10 +1,10 @@
-#ifndef CTHUN_CLIENT_SRC_CONNECTOR_TIMINGS_H_
-#define CTHUN_CLIENT_SRC_CONNECTOR_TIMINGS_H_
+#ifndef CPP_PCP_CLIENT_SRC_CONNECTOR_TIMINGS_H_
+#define CPP_PCP_CLIENT_SRC_CONNECTOR_TIMINGS_H_
 
 #include <chrono>
 #include <string>
 
-namespace CthunClient {
+namespace PCPClient {
 
 //
 // ConnectionTimings
@@ -56,6 +56,6 @@ inline std::string ConnectionTimings::toString() const {
     return "the endpoint has not been connected yet";
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_CONNECTOR_TIMINGS_H_
+#endif  // CPP_PCP_CLIENT_SRC_CONNECTOR_TIMINGS_H_

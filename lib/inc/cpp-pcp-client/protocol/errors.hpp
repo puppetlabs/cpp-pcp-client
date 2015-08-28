@@ -1,10 +1,10 @@
-#ifndef CTHUN_CLIENT_SRC_PROTOCOL_ERRORS_H_
-#define CTHUN_CLIENT_SRC_PROTOCOL_ERRORS_H_
+#ifndef CPP_PCP_CLIENT_SRC_PROTOCOL_ERRORS_H_
+#define CPP_PCP_CLIENT_SRC_PROTOCOL_ERRORS_H_
 
 #include <stdexcept>
 #include <string>
 
-namespace CthunClient {
+namespace PCPClient {
 
 /// Base error class.
 class message_error : public std::runtime_error {
@@ -34,6 +34,6 @@ class invalid_chunk_error : public message_error {
             : message_error(msg) {}
 };
 
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_PROTOCOL_ERRORS_H_
+#endif  // CPP_PCP_CLIENT_SRC_PROTOCOL_ERRORS_H_

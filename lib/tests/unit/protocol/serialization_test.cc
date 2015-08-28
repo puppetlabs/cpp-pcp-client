@@ -1,14 +1,14 @@
 #include "tests/test.hpp"
 
-#include <cthun-client/protocol/serialization.hpp>
+#include <cpp-pcp-client/protocol/serialization.hpp>
 
 #include <iostream>
 #include <string>
 #include <stdint.h>
 
-namespace CthunClient {
+namespace PCPClient {
 
-TEST_CASE("CthunClient::serialize", "[message]") {
+TEST_CASE("PCPClient::serialize", "[message]") {
     SECTION("can serialize a string") {
         std::string s { "lalala" };
         SerializedMessage buffer;
@@ -109,7 +109,7 @@ TEST_CASE("CthunClient::serialize", "[message]") {
     }
 }
 
-TEST_CASE("CthunClient::deserialize", "[message]") {
+TEST_CASE("PCPClient::deserialize", "[message]") {
     SECTION("can deserialize a short integer") {
         // NB: better not use init. lists with vector ctor (S. Meyers)
         auto n_buffer = SerializedMessage({ 42 });
@@ -202,4 +202,4 @@ TEST_CASE("CthunClient::deserialize", "[message]") {
     }
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

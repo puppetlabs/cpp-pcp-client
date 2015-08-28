@@ -1,13 +1,13 @@
 #include "tests/test.hpp"
 
-#include <cthun-client/validator/schema.hpp>
+#include <cpp-pcp-client/validator/schema.hpp>
 
 #include <valijson/adapters/rapidjson_adapter.hpp>
 #include <valijson/schema_parser.hpp>
 #include <valijson/validation_results.hpp>
 #include <valijson/validator.hpp>
 
-namespace CthunClient {
+namespace PCPClient {
 
 namespace lth_jc = leatherman::json_container;
 
@@ -287,4 +287,4 @@ TEST_CASE("Schema::getContentType()", "[validation]") {
     REQUIRE(schema.getContentType() == ContentType::Binary);
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

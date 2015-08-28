@@ -1,9 +1,9 @@
 #include "tests/test.hpp"
 
-#include <cthun-client/validator/validator.hpp>
-#include <cthun-client/validator/schema.hpp>
+#include <cpp-pcp-client/validator/validator.hpp>
+#include <cpp-pcp-client/validator/schema.hpp>
 
-namespace CthunClient {
+namespace PCPClient {
 
 namespace lth_jc = leatherman::json_container;
 
@@ -66,4 +66,4 @@ TEST_CASE("Validator::getSchemaContentType", "[validation]") {
     }
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

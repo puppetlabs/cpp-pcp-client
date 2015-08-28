@@ -1,8 +1,8 @@
-#include <cthun-client/connector/timings.hpp>
+#include <cpp-pcp-client/connector/timings.hpp>
 
 #include <sstream>
 
-namespace CthunClient {
+namespace PCPClient {
 
 ConnectionTimings::ConnectionTimings()
         : start { std::chrono::high_resolution_clock::now() } {
@@ -28,4 +28,4 @@ ConnectionTimings::Duration_us ConnectionTimings::getCloseInterval() const {
         close - start);
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

@@ -1,4 +1,4 @@
-# allow include directives with absolute paths for cthun-client sources
+# allow include directives with absolute paths for cpp-pcp-client sources
 set(BASEPATH "${CMAKE_CURRENT_LIST_DIR}/..")
 include_directories("${BASEPATH}")
 SET(SOURCE_DIR "${BASEPATH}/src")
@@ -17,7 +17,7 @@ set(SOURCES
     unit/validator/validator_test.cc
 )
 
-set(test_BIN cthun-client-unittests)
+set(test_BIN cpp-pcp-client-unittests)
 
 find_package(Boost 1.54 REQUIRED
   COMPONENTS filesystem system date_time thread log regex random)
@@ -28,7 +28,7 @@ include_directories(
 )
 
 add_executable(${test_BIN} ${SOURCES})
-target_link_libraries(${test_BIN} libcthun-client)
+target_link_libraries(${test_BIN} libcpp-pcp-client)
 
 set(LIBS
     ${Boost_LIBRARIES}

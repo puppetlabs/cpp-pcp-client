@@ -1,5 +1,5 @@
-#include <cthun-client/connector/connector.hpp>  // Connector
-#include <cthun-client/connector/errors.hpp>     // connection_config_error
+#include <cpp-pcp-client/connector/connector.hpp>  // Connector
+#include <cpp-pcp-client/connector/errors.hpp>     // connection_config_error
 
 #include <string>
 #include <iostream>
@@ -17,11 +17,11 @@ const std::string KEY  { "../../resources/agent_certs/key.pem" };
 int main(int argc, char *argv[]) {
     // Connector constructor
 
-    CthunClient::Connector connector { SERVER_URL,
-                                       AGENT_CLIENT_TYPE,
-                                       CA,
-                                       CERT,
-                                       KEY };
+    PCPClient::Connector connector { SERVER_URL,
+                                     AGENT_CLIENT_TYPE,
+                                     CA,
+                                     CERT,
+                                     KEY };
 
     std::cout << "Configured the connector\n";
 

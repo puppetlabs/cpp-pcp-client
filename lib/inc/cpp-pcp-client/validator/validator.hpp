@@ -1,12 +1,12 @@
-#ifndef CTHUN_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
-#define CTHUN_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
+#ifndef CPP_PCP_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
+#define CPP_PCP_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
 
-#include <cthun-client/validator/schema.hpp>
+#include <cpp-pcp-client/validator/schema.hpp>
 
 #include <map>
 #include <mutex>
 
-namespace CthunClient {
+namespace PCPClient {
 
 //
 // Errors
@@ -68,6 +68,6 @@ class Validator {
     mutable std::mutex lookup_mutex_;
 };
 
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
+#endif  // CPP_PCP_CLIENT_SRC_VALIDATOR_VALIDATOR_H_

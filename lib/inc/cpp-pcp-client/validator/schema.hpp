@@ -1,5 +1,5 @@
-#ifndef CTHUN_CLIENT_SRC_VALIDATOR_SCHEMA_H_
-#define CTHUN_CLIENT_SRC_VALIDATOR_SCHEMA_H_
+#ifndef CPP_PCP_CLIENT_SRC_VALIDATOR_SCHEMA_H_
+#define CPP_PCP_CLIENT_SRC_VALIDATOR_SCHEMA_H_
 
 #include <leatherman/json_container/json_container.hpp>
 
@@ -30,7 +30,7 @@ namespace valijson {
     }
 }
 
-namespace CthunClient {
+namespace PCPClient {
 
 namespace V_C = valijson::constraints;
 namespace lth_jc = leatherman::json_container;
@@ -104,13 +104,13 @@ class Schema {
     std::unique_ptr<V_C::PropertySchemaMap> pattern_properties_;
     std::unique_ptr<V_C::RequiredProperties> required_properties_;
 
-    // Convert CthunClient::TypeConstraint to the validjson ones
+    // Convert PCPClient::TypeConstraint to the validjson ones
     V_C::TypeConstraint getConstraint(TypeConstraint type) const;
 
     // Check if it's possible to add constraints
     void checkAddConstraint();
 };
 
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_VALIDATOR_SCHEMA_H_
+#endif  // CPP_PCP_CLIENT_SRC_VALIDATOR_SCHEMA_H_

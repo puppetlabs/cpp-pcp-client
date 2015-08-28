@@ -1,6 +1,6 @@
 #include <string>
 
-#include <cthun-client/validator/schema.hpp>     // Schema, ContentType
+#include <cpp-pcp-client/validator/schema.hpp>     // Schema, ContentType
 
 namespace Tutorial {
 
@@ -13,11 +13,11 @@ static const std::string REQUEST_SCHEMA_NAME { "http://puppetlabs.com/tutorial_r
 
 static const int MSG_TIMEOUT_S { 10 };
 
-static CthunClient::Schema getRequestMessageSchema() {
-    CthunClient::Schema schema { REQUEST_SCHEMA_NAME,
-                                 CthunClient::ContentType::Json };
+static PCPClient::Schema getRequestMessageSchema() {
+    PCPClient::Schema schema { REQUEST_SCHEMA_NAME,
+                               PCPClient::ContentType::Json };
     // Add constraints to the request message schema
-    using T_C = CthunClient::TypeConstraint;
+    using T_C = PCPClient::TypeConstraint;
     schema.addConstraint("request", T_C::Object, true);   // mandatory
     schema.addConstraint("details", T_C::String, false);  // optional
     return schema;

@@ -1,13 +1,13 @@
-#ifndef CTHUN_CLIENT_SRC_PROTOCOL_CHUNKS_H_
-#define CTHUN_CLIENT_SRC_PROTOCOL_CHUNKS_H_
+#ifndef CPP_PCP_CLIENT_SRC_PROTOCOL_CHUNKS_H_
+#define CPP_PCP_CLIENT_SRC_PROTOCOL_CHUNKS_H_
 
-#include <cthun-client/protocol/serialization.hpp>
-#include <cthun-client/validator/schema.hpp>
+#include <cpp-pcp-client/protocol/serialization.hpp>
+#include <cpp-pcp-client/validator/schema.hpp>
 
 #include <string>
 #include <stdint.h>  // uint8_t
 
-namespace CthunClient {
+namespace PCPClient {
 
 //
 // ChunkDescriptor
@@ -95,6 +95,6 @@ struct ParsedChunks {
     std::string toString() const;
 };
 
-}  // namespace CthunClient
+}  // namespace PCPClient
 
-#endif  // CTHUN_CLIENT_SRC_PROTOCOL_CHUNKS_H_
+#endif  // CPP_PCP_CLIENT_SRC_PROTOCOL_CHUNKS_H_

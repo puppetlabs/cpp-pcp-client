@@ -1,27 +1,29 @@
 ## Tutorial
 
-This tutorial shows how to create a Cthun agent / controller pair with
-CthunClient.
+*TODO(ale):* update urls
+
+This tutorial shows how to create a PCP agent / controller pair with
+cpp-pcp-client.
 
 To build on OS X:
 ```
-    g++ -std=c++11 -o agent -L /usr/local/lib -lcthun-client \
+    g++ -std=c++11 -o agent -L /usr/local/lib -lcpp-pcp-client \
     -lleatherman_json_container -I ../../../lib/inc main.cpp
 ```
 
-You need to install CthunClient and [leatherman][1] before that: `make` then
-`sudo make install`; `libcthun-client.so` and `libleatherman_json_container.a`
+You need to install PCP and [leatherman][1] before that: `make` then
+`sudo make install`; `libcpp-pcp-client.so` and `libleatherman_json_container.a`
 should be then in /usr/local/lib, otherwise you must modify the above -L option
 argument appropriately.
 
-To test the agent / controller pair you will need a running Cthun server.
-Please refer to the [Cthun server repo][2] for setting the required SSL
+To test the agent / controller pair you will need a running PCP server.
+Please refer to the [PCP server repo][2] for setting the required SSL
 certificates infrastructure; the certificates located in the tutorial/resources
 directory will not work out of the box.
 
 ### Step 1
 
-Create an instance of CthunClient::Connector that will manage the connection.
+Create an instance of PCPClient::Connector that will manage the connection.
 
 Note that the paths to the certificate files are hardcoded.
 
@@ -29,7 +31,7 @@ Note that the paths to the certificate files are hardcoded.
 
  - Connect to the specified server; the server url is hardcoded.
  The Connector::connect() method will establish the underlying transport
- connection (WebSockets) and login into the Cthun server.
+ connection (WebSockets) and login into the PCP server.
  - Ensure that the connection is up by calling Connector::isConnected();
  - Enable the connection persistence by starting the monitoring task.
  Connector::monitorConnection() will periodically check the connection and,
@@ -44,7 +46,7 @@ Add exception handling.
 ### Step 4
 
  - Refactor the connection logic to the new Agent class.
- - Define the request message schema with CthunClient::Schema.
+ - Define the request message schema with PCPClient::Schema.
  - Register a callback (processRequest) that will be executed when request
  messages are received; the callback will simply log a message event. The
  registration is done by calling Connector::registerMessageCallback().
@@ -53,7 +55,7 @@ More in detail, calling Connector::registerMessageCallback() ensures that all
 received messages with a `data_schema` entry equals to `"tutorial_request_schema"`
 (which is the name we gave to the request Schema object) are processed by
 Agent::processRequest; `data_schema` is  required entry of envelope chunks
-(refer to the [Cthun specs][3].
+(refer to the [PCP specs][3].
 
 ### Step 5
 
@@ -85,7 +87,7 @@ Create a Controller class and refactor common code.
 
  - Use the error message schema defined in protocol/schemas.
  - For each incoming request message, the Agent::processRequest callback will
- validate the content of the request by using CthunClient::Validator.
+ validate the content of the request by using PCPClient::Validator.
  - In case the request content is invalid, the agent will respond to the
  controller with an error message.
  - Add a callback to the Controller to process error messages.

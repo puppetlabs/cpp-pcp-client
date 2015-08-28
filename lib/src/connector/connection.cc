@@ -7,15 +7,15 @@
 #define _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
 #define _WEBSOCKETPP_CPP11_THREAD_
 
-#include <cthun-client/connector/connection.hpp>
-#include <cthun-client/connector/errors.hpp>
-#include <cthun-client/protocol/message.hpp>
+#include <cpp-pcp-client/connector/connection.hpp>
+#include <cpp-pcp-client/connector/errors.hpp>
+#include <cpp-pcp-client/protocol/message.hpp>
 
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/client.hpp>
 #include <websocketpp/config/asio_client.hpp>
 
-#define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".connection"
+#define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".connection"
 
 #include <leatherman/logging/logging.hpp>
 
@@ -28,7 +28,7 @@
 // #define NDEBUG
 #include <cassert>
 
-namespace CthunClient {
+namespace PCPClient {
 
 //
 // Constants
@@ -150,7 +150,7 @@ void Connection::connect(int max_connect_attempts) {
         case(ConnectionStateValues::open):
             if (previous_c_s != ConnectionStateValues::open) {
                 LOG_INFO("Successfully established a WebSocket connection with "
-                         "the Cthun server");
+                         "the PCP server");
                 connection_backoff_s_ = CONNECTION_BACKOFF_S;
             }
             return;
@@ -368,4 +368,4 @@ void Connection::onMessage(WS_Connection_Handle hdl,
     }
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

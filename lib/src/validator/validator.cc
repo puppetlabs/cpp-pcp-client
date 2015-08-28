@@ -1,6 +1,6 @@
-#include <cthun-client/validator/validator.hpp>
+#include <cpp-pcp-client/validator/validator.hpp>
 
-#define LEATHERMAN_LOGGING_NAMESPACE CTHUN_CLIENT_LOGGING_PREFIX".validator"
+#define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".validator"
 #include <leatherman/logging/logging.hpp>
 
 #include <valijson/adapters/rapidjson_adapter.hpp>
@@ -8,7 +8,7 @@
 #include <valijson/validation_results.hpp>
 #include <valijson/validator.hpp>
 
-namespace CthunClient {
+namespace PCPClient {
 
 namespace lth_jc = leatherman::json_container;
 
@@ -107,4 +107,4 @@ ContentType Validator::getSchemaContentType(std::string schema_name) const {
     return schema_map_.at(schema_name).getContentType();
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient

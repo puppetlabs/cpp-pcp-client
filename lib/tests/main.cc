@@ -4,7 +4,7 @@
 
 #include "test.hpp"
 
-#define LEATHERMAN_LOGGING_NAMESPACE "puppetlabs.cthun_client.test"
+#define LEATHERMAN_LOGGING_NAMESPACE "puppetlabs.cpp_pcp_client.test"
 #include <leatherman/logging/logging.hpp>
 
 int main(int argc, char* const argv[]) {

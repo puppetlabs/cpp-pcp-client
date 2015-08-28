@@ -1,11 +1,11 @@
 #include "tests/test.hpp"
 
-#include <cthun-client/protocol/schemas.hpp>
+#include <cpp-pcp-client/protocol/schemas.hpp>
 
-namespace CthunClient {
+namespace PCPClient {
 
 TEST_CASE("AssociateResponseSchema", "[message]") {
     REQUIRE_NOTHROW(Protocol::AssociateResponseSchema());
 }
 
-}  // namespace CthunClient
+}  // namespace PCPClient
