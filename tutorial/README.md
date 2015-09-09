@@ -100,5 +100,5 @@ is done by 1) registering an associate response callback for processing and
 displaying the inventory list and 2) sending an inventory request to the server.
 
 [1]: https://github.com/puppetlabs/leatherman
-[2]: https://github.com/puppetlabs/cthun
-[3]: https://github.com/puppetlabs/cthun-specifications
+[2]: https://github.com/puppetlabs/pcp-broker
+[3]: https://github.com/puppetlabs/pcp-specifications
