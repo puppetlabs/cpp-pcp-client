@@ -97,7 +97,7 @@ The parameters are described as:
 
  - client_type - A free form value used to group applications connected to a PCP server.
  For example, an applications connected with the type _potato_ will all be addressable
- as the PCP endpoint cth://*/potato. The only value that you cannot use is "server",
+ as the PCP endpoint pcp://*/potato. The only value that you cannot use is "server",
  which is reserved for PCP servers (please refer to the URI section in the
  [PCP specifications][specs]).
  - server_url - The URL of the PCP server. For example, _wss://localhost:8090/pcp/_.
@@ -401,7 +401,7 @@ Example usage:
     JsonContainer data {};
     data.set<std::string>("foo", "bar");
     try {
-      connector.send({"cth://*/potato"}, "potato_schema", 42, data);
+      connector.send({"pcp://*/potato"}, "potato_schema", 42, data);
     } catch (connection_not_init_error e) {
       std::cout << "Cannot send message without being connected to the server" << std::endl;
     } catch (connection_processing_error e) {

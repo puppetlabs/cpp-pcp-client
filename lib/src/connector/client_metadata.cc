@@ -18,7 +18,7 @@ namespace PCPClient {
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-static const std::string PCP_URI_SCHEME { "cth://" };
+static const std::string PCP_URI_SCHEME { "pcp://" };
 
 std::string getCommonNameFromCert(const std::string& client_crt_path) {
     LOG_INFO("Retrieving the common name from certificate %1%", client_crt_path);
