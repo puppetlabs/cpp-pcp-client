@@ -39,8 +39,8 @@ std::string getCommonNameFromCert(const std::string& client_crt_path) {
                                         + "' is invalid" };
     }
 
-    X509_NAME* subj = X509_get_subject_name(cert.get());
-    X509_NAME_ENTRY* name_entry = X509_NAME_get_entry(subj, 0);
+    auto subj = X509_get_subject_name(cert.get());
+    auto name_entry = X509_NAME_get_entry(subj, 0);
 
     if (name_entry == nullptr) {
         throw connection_config_error { "failed to retrieve the client common "
