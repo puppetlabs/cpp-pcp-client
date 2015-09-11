@@ -34,9 +34,9 @@ namespace PCPClient {
 // Constants
 //
 
-static const uint CONNECTION_MIN_INTERVAL { 200000 };  // [us]
-static const uint CONNECTION_BACKOFF_LIMIT { 33 };  // [s]
-static const uint CONNECTION_BACKOFF_MULTIPLIER { 2 };
+static const uint32_t CONNECTION_MIN_INTERVAL { 200000 };  // [us]
+static const uint32_t CONNECTION_BACKOFF_LIMIT { 33 };  // [s]
+static const uint32_t CONNECTION_BACKOFF_MULTIPLIER { 2 };
 
 //
 // Connection
