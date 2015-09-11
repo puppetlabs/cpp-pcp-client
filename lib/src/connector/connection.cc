@@ -20,6 +20,7 @@
 #include <leatherman/logging/logging.hpp>
 
 #include <chrono>
+#include <thread>
 #include <cstdio>
 #include <iostream>
 
@@ -139,12 +140,12 @@ void Connection::connect(int max_connect_attempts) {
         case(ConnectionStateValues::initialized):
             assert(previous_c_s == ConnectionStateValues::initialized);
             connect_();
-            usleep(CONNECTION_MIN_INTERVAL);
+            std::this_thread::sleep_for(std::chrono::microseconds(CONNECTION_MIN_INTERVAL));
             break;
 
         case(ConnectionStateValues::connecting):
             previous_c_s = current_c_s;
-            usleep(CONNECTION_MIN_INTERVAL);
+            std::this_thread::sleep_for(std::chrono::microseconds(CONNECTION_MIN_INTERVAL));
             continue;
 
         case(ConnectionStateValues::open):
@@ -157,21 +158,21 @@ void Connection::connect(int max_connect_attempts) {
 
         case(ConnectionStateValues::closing):
             previous_c_s = current_c_s;
-            usleep(CONNECTION_MIN_INTERVAL);
+            std::this_thread::sleep_for(std::chrono::microseconds(CONNECTION_MIN_INTERVAL));
             continue;
 
         case(ConnectionStateValues::closed):
             assert(previous_c_s != ConnectionStateValues::open);
             if (previous_c_s == ConnectionStateValues::closed) {
                 connect_();
-                usleep(CONNECTION_MIN_INTERVAL);
+                std::this_thread::sleep_for(std::chrono::microseconds(CONNECTION_MIN_INTERVAL));
                 previous_c_s = ConnectionStateValues::connecting;
             } else {
                 LOG_INFO("Failed to establish a WebSocket connection; "
                          "retrying in %1% seconds", connection_backoff_s_);
-                sleep(connection_backoff_s_);
+                std::this_thread::sleep_for(std::chrono::seconds(connection_backoff_s_));
                 connect_();
-                usleep(CONNECTION_MIN_INTERVAL);
+                std::this_thread::sleep_for(std::chrono::microseconds(CONNECTION_MIN_INTERVAL));
                 if (try_again && !got_max_backoff) {
                     connection_backoff_s_ *= CONNECTION_BACKOFF_MULTIPLIER;
                 }
