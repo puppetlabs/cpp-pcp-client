@@ -27,7 +27,7 @@ namespace lth_util = leatherman::util;
 // Constants
 //
 
-static const uint CONNECTION_CHECK_S { 15 };  // [s]
+static const uint32_t CONNECTION_CHECK_S { 15 };  // [s]
 static const int DEFAULT_MSG_TIMEOUT { 10 };  // [s]
 
 static const std::string MY_SERVER_URI { "pcp:///server" };
