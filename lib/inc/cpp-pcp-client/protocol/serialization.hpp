@@ -8,7 +8,11 @@
 #include <string>
 #include <vector>
 #include <stdint.h>  // uint8_t
+#if _WIN32
+#include <Winsock2.h>
+#else
 #include <netinet/in.h>  // endianess functions: htonl, ntohl
+#endif
 #include <stdexcept>
 
 // TODO(ale): disable assert() once we're confident with the code...
