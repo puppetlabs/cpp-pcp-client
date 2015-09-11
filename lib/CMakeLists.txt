@@ -33,6 +33,7 @@ endif ()
 
 if (WIN32)
     set(LIBCPP_PCP_CLIENT_INSTALL_DESTINATION bin)
+    set (PLATFORM_LIBRARIES Ws2_32)
 else()
     #   TODO: lib64 for certain operating systems?
     set(LIBCPP_PCP_CLIENT_INSTALL_DESTINATION lib)

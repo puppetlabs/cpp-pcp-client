@@ -3,10 +3,14 @@
 #define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".validator"
 #include <leatherman/logging/logging.hpp>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextra"
+#pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #include <valijson/adapters/rapidjson_adapter.hpp>
 #include <valijson/schema_parser.hpp>
 #include <valijson/validation_results.hpp>
 #include <valijson/validator.hpp>
+#pragma GCC diagnostic pop
 
 namespace PCPClient {
 
