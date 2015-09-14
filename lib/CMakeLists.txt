@@ -15,6 +15,7 @@ set(SOURCES
     src/protocol/chunks.cc
     src/protocol/message.cc
     src/protocol/schemas.cc
+    src/protocol/serialization.cc
     src/validator/schema.cc
     src/validator/validator.cc
 )
