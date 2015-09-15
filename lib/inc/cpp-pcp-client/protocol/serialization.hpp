@@ -8,11 +8,6 @@
 #include <string>
 #include <vector>
 #include <stdint.h>  // uint8_t
-#if _WIN32
-#include <Winsock2.h>
-#else
-#include <netinet/in.h>  // endianess functions: htonl, ntohl
-#endif
 #include <stdexcept>
 
 // TODO(ale): disable assert() once we're confident with the code...
@@ -30,13 +25,8 @@ typedef std::vector<uint8_t> SerializedMessage;
 
 #ifdef BOOST_LITTLE_ENDIAN
 
-inline uint32_t getNetworkNumber(const uint32_t& number) {
-    return htonl(number);
-}
-
-inline uint32_t getHostNumber(const uint32_t& number) {
-    return ntohl(number);
-}
+uint32_t getNetworkNumber(const uint32_t& number);
+uint32_t getHostNumber(const uint32_t& number);
 
 #else  // we're using big endian (!)
 
