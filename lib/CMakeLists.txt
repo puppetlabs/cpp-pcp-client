@@ -30,6 +30,8 @@ set(LIBS
 
 if ("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
     set (PLATFORM_LIBRARIES rt)
+elseif ("${CMAKE_SYSTEM_NAME}" MATCHES "SunOS")
+    set (PLATFORM_LIBRARIES rt)
 endif ()
 
 if (WIN32)
