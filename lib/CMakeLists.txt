@@ -28,10 +28,6 @@ set(LIBS
     ${PTHREADS}
 )
 
-if ("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
-    set (PLATFORM_LIBRARIES rt)
-endif ()
-
 if (WIN32)
     set(LIBCPP_PCP_CLIENT_INSTALL_DESTINATION bin)
     set (PLATFORM_LIBRARIES Ws2_32)
