@@ -23,6 +23,7 @@
 #include <thread>
 #include <cstdio>
 #include <iostream>
+#include <random>
 
 // TODO(ale): disable assert() once we're confident with the code...
 // To disable assert()
@@ -35,8 +36,8 @@ namespace PCPClient {
 // Constants
 //
 
-static const uint32_t CONNECTION_MIN_INTERVAL { 200000 };  // [us]
-static const uint32_t CONNECTION_BACKOFF_LIMIT { 33 };  // [s]
+static const uint32_t CONNECTION_MIN_INTERVAL { 200 };  // [ms]
+static const uint32_t CONNECTION_BACKOFF_LIMIT { 33000 };  // [ms]
 static const uint32_t CONNECTION_BACKOFF_MULTIPLIER { 2 };
 
 //
@@ -126,6 +127,9 @@ void Connection::connect(int max_connect_attempts) {
     int idx { 0 };
     bool try_again { true };
     bool got_max_backoff { false };
+    std::random_device rd;
+    std::default_random_engine engine(rd());
+    std::uniform_int_distribution<int> dist(-250, 250);
 
     do {
         current_c_s = connection_state_.load();
@@ -133,55 +137,57 @@ void Connection::connect(int max_connect_attempts) {
         if (max_connect_attempts) {
             try_again = (idx < max_connect_attempts);
         }
-        got_max_backoff |= (connection_backoff_s_ * CONNECTION_BACKOFF_MULTIPLIER
+        got_max_backoff |= (connection_backoff_ms_ * CONNECTION_BACKOFF_MULTIPLIER
                             >= CONNECTION_BACKOFF_LIMIT);
 
         switch (current_c_s) {
         case(ConnectionStateValues::initialized):
             assert(previous_c_s == ConnectionStateValues::initialized);
             connect_();
-            std::this_thread::sleep_for(std::chrono::microseconds(CONNECTION_MIN_INTERVAL));
+            std::this_thread::sleep_for(std::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
             break;
 
         case(ConnectionStateValues::connecting):
             previous_c_s = current_c_s;
-            std::this_thread::sleep_for(std::chrono::microseconds(CONNECTION_MIN_INTERVAL));
+            std::this_thread::sleep_for(std::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
             continue;
 
         case(ConnectionStateValues::open):
             if (previous_c_s != ConnectionStateValues::open) {
                 LOG_INFO("Successfully established a WebSocket connection with "
                          "the PCP server");
-                connection_backoff_s_ = CONNECTION_BACKOFF_S;
+                connection_backoff_ms_ = CONNECTION_BACKOFF_MS;
             }
             return;
 
         case(ConnectionStateValues::closing):
             previous_c_s = current_c_s;
-            std::this_thread::sleep_for(std::chrono::microseconds(CONNECTION_MIN_INTERVAL));
+            std::this_thread::sleep_for(std::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
             continue;
 
         case(ConnectionStateValues::closed):
             assert(previous_c_s != ConnectionStateValues::open);
             if (previous_c_s == ConnectionStateValues::closed) {
                 connect_();
-                std::this_thread::sleep_for(std::chrono::microseconds(CONNECTION_MIN_INTERVAL));
+                std::this_thread::sleep_for(std::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
                 previous_c_s = ConnectionStateValues::connecting;
             } else {
                 LOG_INFO("Failed to establish a WebSocket connection; "
-                         "retrying in %1% seconds", connection_backoff_s_);
-                std::this_thread::sleep_for(std::chrono::seconds(connection_backoff_s_));
+                         "retrying in %1% milliseconds", connection_backoff_ms_);
+                // Randomly adjust the interval slightly to help calm a
+                // thundering herd
+                std::this_thread::sleep_for(std::chrono::milliseconds(connection_backoff_ms_ + dist(engine)));
                 connect_();
-                std::this_thread::sleep_for(std::chrono::microseconds(CONNECTION_MIN_INTERVAL));
+                std::this_thread::sleep_for(std::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
                 if (try_again && !got_max_backoff) {
-                    connection_backoff_s_ *= CONNECTION_BACKOFF_MULTIPLIER;
+                    connection_backoff_ms_ *= CONNECTION_BACKOFF_MULTIPLIER;
                 }
             }
             break;
         }
     } while (try_again);
 
-    connection_backoff_s_ = CONNECTION_BACKOFF_S;
+    connection_backoff_ms_ = CONNECTION_BACKOFF_MS;
     throw connection_fatal_error { "failed to establish a WebSocket connection "
                                    "after " + std::to_string(idx) + " attempt"
                                    + (idx > 1 ? "s" : "") };
