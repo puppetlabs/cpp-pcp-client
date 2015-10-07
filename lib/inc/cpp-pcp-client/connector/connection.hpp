@@ -51,7 +51,7 @@ namespace PCPClient {
 // Constants
 
 static const std::string PING_PAYLOAD_DEFAULT { "" };
-static const uint32_t CONNECTION_BACKOFF_S { 2 };  // [s]
+static const uint32_t CONNECTION_BACKOFF_MS { 2000 };  // [ms]
 static const std::string DEFAULT_CLOSE_REASON { "Closed by client" };
 
 // Configuration of the WebSocket transport layer
@@ -173,7 +173,7 @@ class Connection {
     std::function<void(const std::string& message)> onMessage_callback_;
 
     /// Exponential backoff interval for re-connect
-    uint32_t connection_backoff_s_ { CONNECTION_BACKOFF_S };
+    uint32_t connection_backoff_ms_ { CONNECTION_BACKOFF_MS };
 
     /// Keep track of connection timings
     ConnectionTimings connection_timings_;
