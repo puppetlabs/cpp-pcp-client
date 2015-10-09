@@ -1,15 +1,14 @@
 #include <cpp-pcp-client/connector/connector.hpp>
 #include <cpp-pcp-client/protocol/message.hpp>
 #include <cpp-pcp-client/protocol/schemas.hpp>
+#include <cpp-pcp-client/util/thread.hpp>
+#include <cpp-pcp-client/util/chrono.hpp>
 
 #define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".connector"
 
 #include <leatherman/logging/logging.hpp>
 
-#include <boost/date_time/posix_time/posix_time.hpp>
-
 #include <cstdio>
-#include <chrono>
 
 // TODO(ale): disable assert() once we're confident with the code...
 // To disable assert()
@@ -85,7 +84,7 @@ Connector::~Connector() {
     }
 
     {
-        std::lock_guard<std::mutex> the_lock { mutex_ };
+        Util::lock_guard<Util::mutex> the_lock { mutex_ };
         is_destructing_ = true;
         cond_var_.notify_one();
     }
@@ -405,11 +404,11 @@ void Connector::startMonitorTask(int max_connect_attempts) {
     assert(connection_ptr_ != nullptr);
 
     while (true) {
-        std::unique_lock<std::mutex> the_lock { mutex_ };
-        auto now = std::chrono::system_clock::now();
+        Util::unique_lock<Util::mutex> the_lock { mutex_ };
+        auto now = Util::chrono::system_clock::now();
 
         cond_var_.wait_until(the_lock,
-                             now + std::chrono::seconds(CONNECTION_CHECK_S));
+                             now + Util::chrono::seconds(CONNECTION_CHECK_S));
 
         if (is_destructing_) {
             // The dtor has been invoked

@@ -1,7 +1,7 @@
 #ifndef CPP_PCP_CLIENT_SRC_CONNECTOR_TIMINGS_H_
 #define CPP_PCP_CLIENT_SRC_CONNECTOR_TIMINGS_H_
 
-#include <chrono>
+#include <boost/chrono/chrono.hpp>
 #include <string>
 
 namespace PCPClient {
@@ -12,13 +12,13 @@ namespace PCPClient {
 
 class ConnectionTimings {
   public:
-    using Duration_us = std::chrono::duration<int, std::micro>;
+    using Duration_us = boost::chrono::duration<int, boost::micro>;
 
-    std::chrono::high_resolution_clock::time_point start;
-    std::chrono::high_resolution_clock::time_point tcp_pre_init;
-    std::chrono::high_resolution_clock::time_point tcp_post_init;
-    std::chrono::high_resolution_clock::time_point open;
-    std::chrono::high_resolution_clock::time_point close;
+    boost::chrono::high_resolution_clock::time_point start;
+    boost::chrono::high_resolution_clock::time_point tcp_pre_init;
+    boost::chrono::high_resolution_clock::time_point tcp_post_init;
+    boost::chrono::high_resolution_clock::time_point open;
+    boost::chrono::high_resolution_clock::time_point close;
 
     bool connection_started { false };
     bool connection_failed { false };

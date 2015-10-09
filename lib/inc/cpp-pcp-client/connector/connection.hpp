@@ -3,11 +3,11 @@
 
 #include <cpp-pcp-client/connector/timings.hpp>
 #include <cpp-pcp-client/connector/client_metadata.hpp>
+#include <cpp-pcp-client/util/thread.hpp>
 
 #include <string>
 #include <vector>
 #include <memory>
-#include <thread>
 #include <atomic>
 #include <stdint.h>
 
@@ -164,7 +164,7 @@ class Connection {
     std::unique_ptr<WS_Client_Type> endpoint_;
 
     /// Transport layer event loop thread
-    std::shared_ptr<std::thread> endpoint_thread_;
+    std::shared_ptr<Util::thread> endpoint_thread_;
 
     // Callback function called by the onOpen handler.
     std::function<void()> onOpen_callback;

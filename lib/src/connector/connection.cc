@@ -5,11 +5,13 @@
 #define _WEBSOCKETPP_CPP11_MEMORY_
 #define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
 #define _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
-#define _WEBSOCKETPP_CPP11_THREAD_
+#define _WEBSOCKETPP_NO_CPP11_THREAD_
 
 #include <cpp-pcp-client/connector/connection.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
 #include <cpp-pcp-client/protocol/message.hpp>
+#include <cpp-pcp-client/util/thread.hpp>
+#include <cpp-pcp-client/util/chrono.hpp>
 
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/client.hpp>
@@ -19,8 +21,6 @@
 
 #include <leatherman/logging/logging.hpp>
 
-#include <chrono>
-#include <thread>
 #include <cstdio>
 #include <iostream>
 #include <random>
@@ -61,22 +61,19 @@ Connection::Connection(const std::string& server_url,
     endpoint_->start_perpetual();
 
     try {
-        // Bind the event handlers
-        using namespace std::placeholders;
-
-        endpoint_->set_tls_init_handler(std::bind(&Connection::onTlsInit, this, _1));
-        endpoint_->set_open_handler(std::bind(&Connection::onOpen, this, _1));
-        endpoint_->set_close_handler(std::bind(&Connection::onClose, this, _1));
-        endpoint_->set_fail_handler(std::bind(&Connection::onFail, this, _1));
-        endpoint_->set_message_handler(std::bind(&Connection::onMessage, this, _1, _2));
-        endpoint_->set_ping_handler(std::bind(&Connection::onPing, this, _1, _2));
-        endpoint_->set_pong_handler(std::bind(&Connection::onPong, this, _1, _2));
-        endpoint_->set_pong_timeout_handler(std::bind(&Connection::onPongTimeout, this, _1, _2));
-        endpoint_->set_tcp_pre_init_handler(std::bind(&Connection::onPreTCPInit, this, _1));
-        endpoint_->set_tcp_post_init_handler(std::bind(&Connection::onPostTCPInit, this, _1));
+        endpoint_->set_tls_init_handler(std::bind(&Connection::onTlsInit, this, std::placeholders::_1));
+        endpoint_->set_open_handler(std::bind(&Connection::onOpen, this, std::placeholders::_1));
+        endpoint_->set_close_handler(std::bind(&Connection::onClose, this, std::placeholders::_1));
+        endpoint_->set_fail_handler(std::bind(&Connection::onFail, this, std::placeholders::_1));
+        endpoint_->set_message_handler(std::bind(&Connection::onMessage, this, std::placeholders::_1, std::placeholders::_2));
+        endpoint_->set_ping_handler(std::bind(&Connection::onPing, this, std::placeholders::_1, std::placeholders::_2));
+        endpoint_->set_pong_handler(std::bind(&Connection::onPong, this, std::placeholders::_1, std::placeholders::_2));
+        endpoint_->set_pong_timeout_handler(std::bind(&Connection::onPongTimeout, this, std::placeholders::_1, std::placeholders::_2));
+        endpoint_->set_tcp_pre_init_handler(std::bind(&Connection::onPreTCPInit, this, std::placeholders::_1));
+        endpoint_->set_tcp_post_init_handler(std::bind(&Connection::onPostTCPInit, this, std::placeholders::_1));
 
         // Start the event loop thread
-        endpoint_thread_.reset(new std::thread(&WS_Client_Type::run, endpoint_.get()));
+        endpoint_thread_.reset(new Util::thread(&WS_Client_Type::run, endpoint_.get()));
     } catch (...) {
         LOG_DEBUG("Failed to configure the WebSocket endpoint; about to stop "
                   "the event loop");
@@ -144,12 +141,12 @@ void Connection::connect(int max_connect_attempts) {
         case(ConnectionStateValues::initialized):
             assert(previous_c_s == ConnectionStateValues::initialized);
             connect_();
-            std::this_thread::sleep_for(std::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
+            Util::this_thread::sleep_for(Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
             break;
 
         case(ConnectionStateValues::connecting):
             previous_c_s = current_c_s;
-            std::this_thread::sleep_for(std::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
+            Util::this_thread::sleep_for(Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
             continue;
 
         case(ConnectionStateValues::open):
@@ -162,23 +159,23 @@ void Connection::connect(int max_connect_attempts) {
 
         case(ConnectionStateValues::closing):
             previous_c_s = current_c_s;
-            std::this_thread::sleep_for(std::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
+            Util::this_thread::sleep_for(Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
             continue;
 
         case(ConnectionStateValues::closed):
             assert(previous_c_s != ConnectionStateValues::open);
             if (previous_c_s == ConnectionStateValues::closed) {
                 connect_();
-                std::this_thread::sleep_for(std::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
+                Util::this_thread::sleep_for(Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
                 previous_c_s = ConnectionStateValues::connecting;
             } else {
                 LOG_INFO("Failed to establish a WebSocket connection; "
                          "retrying in %1% milliseconds", connection_backoff_ms_);
                 // Randomly adjust the interval slightly to help calm a
                 // thundering herd
-                std::this_thread::sleep_for(std::chrono::milliseconds(connection_backoff_ms_ + dist(engine)));
+                Util::this_thread::sleep_for(Util::chrono::milliseconds(connection_backoff_ms_ + dist(engine)));
                 connect_();
-                std::this_thread::sleep_for(std::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
+                Util::this_thread::sleep_for(Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
                 if (try_again && !got_max_backoff) {
                     connection_backoff_ms_ *= CONNECTION_BACKOFF_MULTIPLIER;
                 }
@@ -296,13 +293,13 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
 }
 
 void Connection::onClose(WS_Connection_Handle hdl) {
-    connection_timings_.close = std::chrono::high_resolution_clock::now();
+    connection_timings_.close = Util::chrono::high_resolution_clock::now();
     LOG_TRACE("WebSocket connection closed");
     connection_state_ = ConnectionStateValues::closed;
 }
 
 void Connection::onFail(WS_Connection_Handle hdl) {
-    connection_timings_.close = std::chrono::high_resolution_clock::now();
+    connection_timings_.close = Util::chrono::high_resolution_clock::now();
     connection_timings_.connection_failed = true;
     LOG_DEBUG("WebSocket on fail event - %1%", connection_timings_.toString());
     connection_state_ = ConnectionStateValues::closed;
@@ -328,17 +325,17 @@ void Connection::onPongTimeout(WS_Connection_Handle hdl,
 }
 
 void Connection::onPreTCPInit(WS_Connection_Handle hdl) {
-    connection_timings_.tcp_pre_init = std::chrono::high_resolution_clock::now();
+    connection_timings_.tcp_pre_init = Util::chrono::high_resolution_clock::now();
     LOG_TRACE("WebSocket pre-TCP initialization event");
 }
 
 void Connection::onPostTCPInit(WS_Connection_Handle hdl) {
-    connection_timings_.tcp_post_init = std::chrono::high_resolution_clock::now();
+    connection_timings_.tcp_post_init = Util::chrono::high_resolution_clock::now();
     LOG_TRACE("WebSocket post-TCP initialization event");
 }
 
 void Connection::onOpen(WS_Connection_Handle hdl) {
-    connection_timings_.open = std::chrono::high_resolution_clock::now();
+    connection_timings_.open = Util::chrono::high_resolution_clock::now();
     connection_timings_.connection_started = true;
     LOG_DEBUG("WebSocket on open event - %1%", connection_timings_.toString());
     LOG_INFO("WebSocket connection established");
