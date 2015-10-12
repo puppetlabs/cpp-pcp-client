@@ -2,9 +2,9 @@
 #define CPP_PCP_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
 
 #include <cpp-pcp-client/validator/schema.hpp>
+#include <cpp-pcp-client/util/thread.hpp>
 
 #include <map>
-#include <mutex>
 
 namespace PCPClient {
 
@@ -65,7 +65,7 @@ class Validator {
 
   private:
     std::map<std::string, Schema> schema_map_;
-    mutable std::mutex lookup_mutex_;
+    mutable Util::mutex lookup_mutex_;
 };
 
 }  // namespace PCPClient

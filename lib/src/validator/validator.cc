@@ -69,7 +69,7 @@ Validator::Validator(Validator&& other_validator)
 }
 
 void Validator::registerSchema(const Schema& schema) {
-    std::lock_guard<std::mutex> lock(lookup_mutex_);
+    Util::lock_guard<Util::mutex> lock(lookup_mutex_);
     auto schema_name = schema.getName();
     if (includesSchema(schema_name)) {
         throw schema_redefinition_error { "Schema '" + schema_name +
@@ -82,7 +82,7 @@ void Validator::registerSchema(const Schema& schema) {
 
 void Validator::validate(const lth_jc::JsonContainer& data,
                          std::string schema_name) const {
-    std::unique_lock<std::mutex> lock(lookup_mutex_);
+    Util::unique_lock<Util::mutex> lock(lookup_mutex_);
     if (!includesSchema(schema_name)) {
         throw schema_not_found_error { "'" + schema_name
                                        + "' is not a registred schema" };
@@ -101,7 +101,7 @@ bool Validator::includesSchema(std::string schema_name) const {
 }
 
 ContentType Validator::getSchemaContentType(std::string schema_name) const {
-    std::unique_lock<std::mutex> lock(lookup_mutex_);
+    Util::unique_lock<Util::mutex> lock(lookup_mutex_);
     if (!includesSchema(schema_name)) {
         throw schema_not_found_error { "'" + schema_name +
                                        "' is not a registred schema" };
