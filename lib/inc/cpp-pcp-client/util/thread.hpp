@@ -1,7 +1,10 @@
 #ifndef CPP_PCP_CLIENT_SRC_UTIL_THREAD_HPP_
 #define CPP_PCP_CLIENT_SRC_UTIL_THREAD_HPP_
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #include <boost/thread/thread.hpp>
+#pragma GCC diagnostic pop
 
 /* This header encapsulates our use of threads and locking structures.
    During PCP-53 we were forced to switch from using std::thread to boost::thread.
