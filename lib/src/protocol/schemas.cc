@@ -61,6 +61,15 @@ Schema TTLExpiredSchema() {
     return schema;
 }
 
+Schema VersionErrorSchema() {
+    Schema schema { VERSION_ERROR_TYPE, ContentType::Json };
+    // NB: additionalProperties = false
+    schema.addConstraint("id", TypeConstraint::String, true);
+    schema.addConstraint("target", TypeConstraint::String, true);
+    schema.addConstraint("reason", TypeConstraint::String, true);
+    return schema;
+}
+
 Schema DebugSchema() {
     Schema schema { DEBUG_SCHEMA_NAME, ContentType::Json };
     schema.addConstraint("hops", TypeConstraint::Array, true);
