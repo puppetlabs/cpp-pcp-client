@@ -23,6 +23,12 @@ set(ROOT_PATH ${PROJECT_SOURCE_DIR})
 configure_file(templates/root_path.hpp ${CMAKE_BINARY_DIR}/generated/root_path.hpp)
 include_directories(${CMAKE_BINARY_DIR}/generated)
 
+# Set RPATH if not installing to a system library directory
+list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" INSTALL_IS_SYSTEM_DIR)
+if ("${INSTALL_IS_SYSTEM_DIR}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif()
+
 # Set compiler flags
 include(cflags)
 set(CPP_PCP_CLIENT_FLAGS "-Wno-deprecated-declarations -Wno-reorder -Wno-sign-compare")
