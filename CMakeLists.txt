@@ -14,11 +14,7 @@ else ()
    set(CPP_PCP_CLIENT_TOPLEVEL FALSE)
 endif ()
 
-if ("${CPP_PCP_CLIENT_LOGGING_PREFIX}" STREQUAL "")
-  add_definitions(-DCPP_PCP_CLIENT_LOGGING_PREFIX="puppetlabs.cpp_pcp_client")
-else ()
-  add_definitions(-DCPP_PCP_CLIENT_LOGGING_PREFIX="${CPP_PCP_CLIENT_LOGGING_PREFIX}")
-endif()
+add_definitions(-DCPP_PCP_CLIENT_LOGGING_PREFIX="puppetlabs.cpp_pcp_client")
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/vendor/leatherman/cmake")
 
