@@ -169,8 +169,9 @@ void Connection::connect(int max_connect_attempts) {
                 Util::this_thread::sleep_for(Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
                 previous_c_s = ConnectionStateValues::connecting;
             } else {
-                LOG_INFO("Failed to establish a WebSocket connection; "
-                         "retrying in %1% milliseconds", connection_backoff_ms_);
+                LOG_WARNING("Failed to establish a WebSocket connection; "
+                            "retrying in %1% seconds",
+                            static_cast<int>(connection_backoff_ms_ / 1000));
                 // Randomly adjust the interval slightly to help calm a
                 // thundering herd
                 Util::this_thread::sleep_for(Util::chrono::milliseconds(connection_backoff_ms_ + dist(engine)));
