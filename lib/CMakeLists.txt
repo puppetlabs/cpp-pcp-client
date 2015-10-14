@@ -16,6 +16,7 @@ set(SOURCES
     src/protocol/message.cc
     src/protocol/schemas.cc
     src/protocol/serialization.cc
+    src/util/logging.cc
     src/validator/schema.cc
     src/validator/validator.cc
 )
