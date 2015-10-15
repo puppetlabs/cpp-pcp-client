@@ -10,7 +10,9 @@
 namespace PCPClient {
 namespace Util {
 
-void setupLogging(std::ostream &stream, bool color, std::string const& level);
+void setupLogging(std::ostream &stream,
+                  bool force_colorization,
+                  std::string const& loglevel_label);
 
 }  // namespace Util
 }  // namespace PCPClient

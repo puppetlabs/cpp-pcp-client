@@ -8,9 +8,10 @@ namespace Util {
 
 namespace lth_log = leatherman::logging;
 
-void setupLogging(std::ostream &stream, bool color, std::string const& level)
-{
-    const std::map<std::string, lth_log::log_level> option_to_log_level {
+void setupLogging(std::ostream &stream,
+                  bool force_colorization,
+                  std::string const& loglevel_label) {
+    const std::map<std::string, lth_log::log_level> label_to_log_level {
         { "none", lth_log::log_level::none },
         { "trace", lth_log::log_level::trace },
         { "debug", lth_log::log_level::debug },
@@ -19,11 +20,13 @@ void setupLogging(std::ostream &stream, bool color, std::string const& level)
         { "error", lth_log::log_level::error },
         { "fatal", lth_log::log_level::fatal }
     };
-    auto lvl = option_to_log_level.at(level);
 
+    auto lvl = label_to_log_level.at(loglevel_label);
     lth_log::setup_logging(stream);
-    lth_log::set_colorization(color);
     lth_log::set_level(lvl);
+    if (force_colorization) {
+        lth_log::set_colorization(true);
+    }
 }
 
 }  // namespace Util
