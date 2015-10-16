@@ -298,8 +298,10 @@ void Connector::associateSession() {
 // WebSocket onMessage callback
 
 void Connector::processMessage(const std::string& msg_txt) {
+#ifdef DEV_LOG_RAW_MESSAGE
     LOG_DEBUG("Received message of %1% bytes - raw message:\n%2%",
               msg_txt.size(), msg_txt);
+#endif
 
     // Deserialize the incoming message
     std::unique_ptr<Message> msg_ptr;

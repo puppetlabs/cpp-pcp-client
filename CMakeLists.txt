@@ -18,6 +18,10 @@ add_definitions(-DCPP_PCP_CLIENT_LOGGING_PREFIX="puppetlabs.cpp_pcp_client")
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/vendor/leatherman/cmake")
 
+# Defined further options
+option(DEV_LOG_RAW_MESSAGE "Enable logging unserialized raw messages (development setting - avoid this on Windows)" OFF)
+
+
 # Set the root path macro and expand related template
 set(ROOT_PATH ${PROJECT_SOURCE_DIR})
 configure_file(templates/root_path.hpp ${CMAKE_BINARY_DIR}/generated/root_path.hpp)
@@ -46,6 +50,12 @@ set(LEATHERMAN_USE_JSON_CONTAINER TRUE)
 set(LEATHERMAN_USE_UTIL TRUE)
 leatherman_logging_line_numbers()
 add_subdirectory("vendor/leatherman")
+
+# Include further option definitions
+
+if(DEV_LOG_RAW_MESSAGE)
+    add_definitions(-DDEV_LOG_RAW_MESSAGE)
+endif()
 
 # Find libraries
 find_package(Boost 1.54 REQUIRED
