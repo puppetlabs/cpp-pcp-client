@@ -37,6 +37,7 @@ endif()
 include(cflags)
 set(CPP_PCP_CLIENT_FLAGS "-Wno-deprecated-declarations -Wno-reorder -Wno-sign-compare")
 set(CMAKE_CXX_FLAGS "${LEATHERMAN_CXX_FLAGS} ${CPP_PCP_CLIENT_FLAGS}")
+add_definitions(${LEATHERMAN_DEFINITIONS})
 
 # Leatherman it up
 include(options)
