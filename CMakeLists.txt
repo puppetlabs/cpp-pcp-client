@@ -19,8 +19,7 @@ add_definitions(-DCPP_PCP_CLIENT_LOGGING_PREFIX="puppetlabs.cpp_pcp_client")
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/vendor/leatherman/cmake")
 
 # Defined further options
-option(DEV_LOG_RAW_MESSAGE "Enable logging unserialized raw messages (development setting - avoid this on Windows)" OFF)
-
+option(DEV_LOG_RAW_MESSAGE "Enable logging serialized messages (development setting - avoid this on Windows)" OFF)
 
 # Set the root path macro and expand related template
 set(ROOT_PATH ${PROJECT_SOURCE_DIR})
