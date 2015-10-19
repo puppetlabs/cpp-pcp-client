@@ -30,7 +30,7 @@ class Connector {
 
     /// Throws a connection_config_error in case it fails to retrieve
     /// the client identity from its certificate.
-    Connector(const std::string& server_url,
+    Connector(const std::string& broker_ws_uri,
               const std::string& client_type,
               const std::string& ca_crt_path,
               const std::string& client_crt_path,
@@ -55,7 +55,7 @@ class Connector {
     /// in case that parameter is 0 (as by default). This is done by
     /// following an exponential backoff.
     /// Once the underlying connection is open, send an associate
-    /// session request to the server.
+    /// session request to the broker.
     /// Throw a connection_config_error if it fails to set up the
     /// underlying communications layer (ex. invalid certificates).
     /// Throw a connection_fatal_error if it fails to open the
@@ -77,7 +77,7 @@ class Connector {
 
     /// Periodically check the state of the underlying connection.
     /// Re-establish the connection in case it has dropped, otherwise
-    /// send a ping mst to the server in order to keep the connection
+    /// send a ping mst to the broker in order to keep the connection
     /// alive.
     /// The max_connect_attempts parameters is used to reconnect; it
     /// works as for the above connect() function.
@@ -104,7 +104,7 @@ class Connector {
     ///   - message_type: schema name that identifies the message type
     ///   - timeout: expires entry in seconds
     ///   - destination_report: bool; the client must flag it in case
-    ///     he wants to receive a destination report from the server
+    ///     he wants to receive a destination report from the broker
     ///   - data: in binary (string)
     ///
     /// All methods:
@@ -144,8 +144,8 @@ class Connector {
                         = std::vector<lth_jc::JsonContainer> {});
 
   private:
-    /// PCP server url
-    std::string server_url_;
+    /// WebSocket URI of the PCP broker
+    std::string broker_ws_uri_;
 
     /// Client metadata
     ClientMetadata client_metadata_;

@@ -93,11 +93,11 @@ using CloseCode = CloseCodeValues::value_;
 class Connection {
   public:
     /// The Connection class provides the necessary logic to establish
-    /// and use a PCP connection over Websocket.
+    /// and use a PCP connection over WebSocket.
     /// The constructor throws an connection_config_error if it fails
     /// to configure the underlying WebSocket endpoint and the event
     /// handlers.
-    Connection(const std::string& server_url,
+    Connection(const std::string& broker_ws_uri,
                const ClientMetadata& client_metadata);
 
     ~Connection();
@@ -126,13 +126,13 @@ class Connection {
     /// succeed after max_connect_attempts attempts.
     void connect(int max_connect_attempts = 0);
 
-    /// Send a message to the server.
+    /// Send a message to the broker.
     /// Throw a connection_processing_error in case of failure while
     /// sending.
     void send(const std::string& msg);
     void send(void* const serialized_msg_ptr, size_t msg_len);
 
-    /// Ping the server.
+    /// Ping the broker.
     /// Throw a connection_processing_error in case of failure.
     void ping(const std::string& binary_payload = PING_PAYLOAD_DEFAULT);
 
@@ -144,8 +144,8 @@ class Connection {
                const std::string& reason = DEFAULT_CLOSE_REASON);
 
   private:
-    /// PCP server url
-    std::string server_url_;
+    /// WebSocket URI of the PCP broker
+    std::string broker_ws_uri_;
 
     /// Client metadata
     ClientMetadata client_metadata_;

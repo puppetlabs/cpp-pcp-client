@@ -44,9 +44,9 @@ static const uint32_t CONNECTION_BACKOFF_MULTIPLIER { 2 };
 // Connection
 //
 
-Connection::Connection(const std::string& server_url,
+Connection::Connection(const std::string& broker_ws_uri,
                        const ClientMetadata& client_metadata)
-        : server_url_ { server_url },
+        : broker_ws_uri_ { broker_ws_uri },
           client_metadata_ { client_metadata },
           connection_state_ { ConnectionStateValues::initialized },
           consecutive_pong_timeouts_ { 0 },
@@ -61,16 +61,30 @@ Connection::Connection(const std::string& server_url,
     endpoint_->start_perpetual();
 
     try {
-        endpoint_->set_tls_init_handler(std::bind(&Connection::onTlsInit, this, std::placeholders::_1));
-        endpoint_->set_open_handler(std::bind(&Connection::onOpen, this, std::placeholders::_1));
-        endpoint_->set_close_handler(std::bind(&Connection::onClose, this, std::placeholders::_1));
-        endpoint_->set_fail_handler(std::bind(&Connection::onFail, this, std::placeholders::_1));
-        endpoint_->set_message_handler(std::bind(&Connection::onMessage, this, std::placeholders::_1, std::placeholders::_2));
-        endpoint_->set_ping_handler(std::bind(&Connection::onPing, this, std::placeholders::_1, std::placeholders::_2));
-        endpoint_->set_pong_handler(std::bind(&Connection::onPong, this, std::placeholders::_1, std::placeholders::_2));
-        endpoint_->set_pong_timeout_handler(std::bind(&Connection::onPongTimeout, this, std::placeholders::_1, std::placeholders::_2));
-        endpoint_->set_tcp_pre_init_handler(std::bind(&Connection::onPreTCPInit, this, std::placeholders::_1));
-        endpoint_->set_tcp_post_init_handler(std::bind(&Connection::onPostTCPInit, this, std::placeholders::_1));
+        endpoint_->set_tls_init_handler(
+            std::bind(&Connection::onTlsInit, this, std::placeholders::_1));
+        endpoint_->set_open_handler(
+            std::bind(&Connection::onOpen, this, std::placeholders::_1));
+        endpoint_->set_close_handler(
+            std::bind(&Connection::onClose, this, std::placeholders::_1));
+        endpoint_->set_fail_handler(
+            std::bind(&Connection::onFail, this, std::placeholders::_1));
+        endpoint_->set_message_handler(
+            std::bind(&Connection::onMessage, this,
+                      std::placeholders::_1, std::placeholders::_2));
+        endpoint_->set_ping_handler(
+            std::bind(&Connection::onPing, this,
+                      std::placeholders::_1, std::placeholders::_2));
+        endpoint_->set_pong_handler(
+            std::bind(&Connection::onPong, this,
+                      std::placeholders::_1, std::placeholders::_2));
+        endpoint_->set_pong_timeout_handler(
+            std::bind(&Connection::onPongTimeout, this,
+                      std::placeholders::_1, std::placeholders::_2));
+        endpoint_->set_tcp_pre_init_handler(
+            std::bind(&Connection::onPreTCPInit, this, std::placeholders::_1));
+        endpoint_->set_tcp_post_init_handler(
+            std::bind(&Connection::onPostTCPInit, this, std::placeholders::_1));
 
         // Start the event loop thread
         endpoint_thread_.reset(new Util::thread(&WS_Client_Type::run, endpoint_.get()));
@@ -152,7 +166,7 @@ void Connection::connect(int max_connect_attempts) {
         case(ConnectionStateValues::open):
             if (previous_c_s != ConnectionStateValues::open) {
                 LOG_INFO("Successfully established a WebSocket connection with "
-                         "the PCP server");
+                         "the PCP broker");
                 connection_backoff_ms_ = CONNECTION_BACKOFF_MS;
             }
             return;
@@ -258,10 +272,10 @@ void Connection::connect_() {
     connection_timings_ = ConnectionTimings();
     websocketpp::lib::error_code ec;
     WS_Client_Type::connection_ptr connection_ptr {
-        endpoint_->get_connection(server_url_, ec) };
+        endpoint_->get_connection(broker_ws_uri_, ec) };
     if (ec) {
         throw connection_processing_error { "failed to establish the WebSocket "
-                                            "connection with " + server_url_
+                                            "connection with " + broker_ws_uri_
                                             + ": " + ec.message() };
     }
     connection_handle_ = connection_ptr->get_handle();

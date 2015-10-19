@@ -49,7 +49,7 @@ Controller::Controller()
     try
         : num_connect_attempts_ { 2 },
           response_schema_ { getResponseMessageSchema() },
-          connector_ptr_ { new PCPClient::Connector { SERVER_URL,
+          connector_ptr_ { new PCPClient::Connector { BROKER_URL,
                                                       CONTROLLER_CLIENT_TYPE,
                                                       CA,
                                                       CERT,
@@ -80,7 +80,7 @@ void Controller::sendRequests() {
         std::string err_msg { "failed to configure WebSocket: " };
         throw controller_error { err_msg + e.what() };
     } catch (PCPClient::connection_fatal_error& e) {
-        std::string err_msg { "failed to connect to " + SERVER_URL + " after "
+        std::string err_msg { "failed to connect to " + BROKER_URL + " after "
                               + std::to_string(num_connect_attempts_)
                               + "attempts: " };
         throw controller_error { err_msg + e.what() };
@@ -89,7 +89,7 @@ void Controller::sendRequests() {
     // Connector::isConnected()
 
     if (connector_ptr_->isConnected()) {
-        std::cout << "Successfully connected to " << SERVER_URL << "\n";
+        std::cout << "Successfully connected to " << BROKER_URL << "\n";
     } else {
         // The connection has dropped; we can't send anything
         throw controller_error { "connection dropped" };

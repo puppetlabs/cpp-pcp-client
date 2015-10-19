@@ -7,7 +7,7 @@ namespace Tutorial {
 static const std::string AGENT_CLIENT_TYPE { "tutorial-agent" };
 static const std::string CONTROLLER_CLIENT_TYPE { "tutorial-controller" };
 
-static const std::string SERVER_URL { "wss://127.0.0.1:8090/cthun/" };
+static const std::string BROKER_URL { "wss://127.0.0.1:8090/cthun/" };
 
 static const std::string REQUEST_SCHEMA_NAME { "http://puppetlabs.com/tutorial_request_schema" };
 static const std::string RESPONSE_SCHEMA_NAME { "http://puppetlabs.com/tutorial_response_schema" };

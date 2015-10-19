@@ -6,7 +6,7 @@
 
 namespace Tutorial {
 
-const std::string SERVER_URL { "wss://127.0.0.1:8090/cthun/" };
+const std::string BROKER_URL { "wss://127.0.0.1:8090/cthun/" };
 
 const std::string AGENT_CLIENT_TYPE { "tutorial_agent" };
 
@@ -17,7 +17,7 @@ const std::string KEY  { "../../resources/agent_certs/key.pem" };
 int main(int argc, char *argv[]) {
     // Connector constructor
 
-    PCPClient::Connector connector { SERVER_URL,
+    PCPClient::Connector connector { BROKER_URL,
                                      AGENT_CLIENT_TYPE,
                                      CA,
                                      CERT,
