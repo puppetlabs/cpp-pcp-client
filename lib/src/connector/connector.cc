@@ -29,19 +29,18 @@ namespace lth_util = leatherman::util;
 static const uint32_t CONNECTION_CHECK_S { 15 };  // [s]
 static const int DEFAULT_MSG_TIMEOUT { 10 };  // [s]
 
-static const std::string MY_SERVER_URI { "pcp:///server" };
-
+static const std::string MY_BROKER_URI { "pcp:///server" };
 
 //
 // Public api
 //
 
-Connector::Connector(const std::string& server_url,
+Connector::Connector(const std::string& broker_ws_uri,
                      const std::string& client_type,
                      const std::string& ca_crt_path,
                      const std::string& client_crt_path,
                      const std::string& client_key_path)
-        : server_url_ { server_url },
+        : broker_ws_uri_ { broker_ws_uri },
           client_metadata_ { client_type,
                              ca_crt_path,
                              client_crt_path,
@@ -114,7 +113,7 @@ void Connector::setAssociateCallback(MessageCallback callback) {
 void Connector::connect(int max_connect_attempts) {
     if (connection_ptr_ == nullptr) {
         // Initialize the WebSocket connection
-        connection_ptr_.reset(new Connection(server_url_, client_metadata_));
+        connection_ptr_.reset(new Connection(broker_ws_uri_, client_metadata_));
 
         // Set WebSocket callbacks
         connection_ptr_->setOnMessageCallback(
@@ -284,7 +283,7 @@ void Connector::sendMessage(const std::vector<std::string>& targets,
 
 void Connector::associateSession() {
     // Envelope
-    auto envelope = createEnvelope(std::vector<std::string> { MY_SERVER_URI },
+    auto envelope = createEnvelope(std::vector<std::string> { MY_BROKER_URI },
                                    Protocol::ASSOCIATE_REQ_TYPE,
                                    DEFAULT_MSG_TIMEOUT,
                                    false);
@@ -349,13 +348,13 @@ void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
     assert(parsed_chunks.data_type == PCPClient::ContentType::Json);
 
     auto response_id = parsed_chunks.envelope.get<std::string>("id");
-    auto server_uri = parsed_chunks.envelope.get<std::string>("sender");
+    auto sender_uri = parsed_chunks.envelope.get<std::string>("sender");
 
     auto request_id = parsed_chunks.data.get<std::string>("id");
     auto success = parsed_chunks.data.get<bool>("success");
 
     std::string msg { "Received associate session response " + response_id
-                      + " from " + server_uri + " for request " + request_id };
+                      + " from " + sender_uri + " for request " + request_id };
 
     if (success) {
         LOG_INFO("%1%: success", msg);
@@ -381,11 +380,11 @@ void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
     assert(parsed_chunks.data_type == PCPClient::ContentType::Json);
 
     auto error_id = parsed_chunks.envelope.get<std::string>("id");
-    auto server_uri = parsed_chunks.envelope.get<std::string>("sender");
+    auto sender_uri = parsed_chunks.envelope.get<std::string>("sender");
 
     auto description = parsed_chunks.data.get<std::string>("description");
 
-    std::string msg { "Received error " + error_id + " from " + server_uri };
+    std::string msg { "Received error " + error_id + " from " + sender_uri };
 
     if (parsed_chunks.data.includes("id")) {
         auto cause_id = parsed_chunks.data.get<std::string>("id");
@@ -422,7 +421,7 @@ void Connector::startMonitorTask(int max_connect_attempts) {
 
         try {
             if (!isConnected()) {
-                LOG_WARNING("WebSocket connection to PCP server lost; retrying");
+                LOG_WARNING("WebSocket connection to PCP broker lost; retrying");
                 is_associated_ = false;
                 connection_ptr_->connect(max_connect_attempts);
             } else {

@@ -56,7 +56,7 @@ Agent::Agent()
     try
         : num_connect_attempts_ { 4 },
           request_schema_ { getRequestMessageSchema() },
-          connector_ptr_ { new PCPClient::Connector { SERVER_URL,
+          connector_ptr_ { new PCPClient::Connector { BROKER_URL,
                                                       AGENT_CLIENT_TYPE,
                                                       CA,
                                                       CERT,
@@ -91,7 +91,7 @@ void Agent::start() {
         std::string err_msg { "failed to configure WebSocket: " };
         throw agent_error { err_msg + e.what() };
     } catch (PCPClient::connection_fatal_error& e) {
-        std::string err_msg { "failed to connect to " + SERVER_URL + " after "
+        std::string err_msg { "failed to connect to " + BROKER_URL + " after "
                               + std::to_string(num_connect_attempts_)
                               + "attempts: " };
         throw agent_error { err_msg + e.what() };
@@ -100,7 +100,7 @@ void Agent::start() {
     // Connector::isConnected()
 
     if (connector_ptr_->isConnected()) {
-        std::cout << "Successfully connected to " << SERVER_URL << "\n";
+        std::cout << "Successfully connected to " << BROKER_URL << "\n";
     } else {
         std::cout << "The connection has dropped; the monitoring task "
                      "will take care of re-establishing it\n";
@@ -111,7 +111,7 @@ void Agent::start() {
     try {
         connector_ptr_->monitorConnection(num_connect_attempts_);
     } catch (PCPClient::connection_fatal_error& e) {
-        std::string err_msg { "failed to reconnect to " + SERVER_URL + ": " };
+        std::string err_msg { "failed to reconnect to " + BROKER_URL + ": " };
         throw agent_error { err_msg + e.what() };
     }
 }

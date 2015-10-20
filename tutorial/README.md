@@ -16,8 +16,8 @@ You need to install PCP and [leatherman][1] before that: `make` then
 should be then in /usr/local/lib, otherwise you must modify the above -L option
 argument appropriately.
 
-To test the agent / controller pair you will need a running PCP server.
-Please refer to the [PCP server repo][2] for setting the required SSL
+To test the agent / controller pair you will need a running PCP broker.
+Please refer to the [PCP broker repo][2] for setting the required SSL
 certificates infrastructure; the certificates located in the tutorial/resources
 directory will not work out of the box.
 
@@ -29,13 +29,13 @@ Note that the paths to the certificate files are hardcoded.
 
 ### Step 2
 
- - Connect to the specified server; the server url is hardcoded.
+ - Connect to the specified broker; the broker WebSocket URI is hardcoded.
  The Connector::connect() method will establish the underlying transport
- connection (WebSockets) and login into the PCP server.
+ connection (WebSockets) and login into the PCP broker.
  - Ensure that the connection is up by calling Connector::isConnected();
  - Enable the connection persistence by starting the monitoring task.
  Connector::monitorConnection() will periodically check the connection and,
- depending on its state, send a keepalive message to the server or reconnect.
+ depending on its state, send a keepalive message to the broker or reconnect.
 
 Note that the connector will attempt to connect or reconnect 4 times at most.
 
@@ -61,7 +61,7 @@ Agent::processRequest; `data_schema` is  required entry of envelope chunks
 
  - Create a controller, similar to the agent. At this point, two different
  executables should be built.
- - The Controller 1) connects to server, 2) sends a request to the Agent, and
+ - The Controller 1) connects to broker, 2) sends a request to the Agent, and
  3) logs the received responses messages. The request is sent by simply
  specifying the message entries; the connector will then take care of creating
  message chunks.
@@ -95,9 +95,9 @@ Create a Controller class and refactor common code.
 ### Step 9
 
 The controller retrieves the list of the agent nodes connected to the message
-fabric (inventory) by relying on the associate response sent by the server. This
+fabric (inventory) by relying on the associate response sent by the broker. This
 is done by 1) registering an associate response callback for processing and
-displaying the inventory list and 2) sending an inventory request to the server.
+displaying the inventory list and 2) sending an inventory request to the broker.
 
 [1]: https://github.com/puppetlabs/leatherman
 [2]: https://github.com/puppetlabs/pcp-broker

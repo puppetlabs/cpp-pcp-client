@@ -9,7 +9,7 @@
 
 namespace Tutorial {
 
-const std::string SERVER_URL { "wss://127.0.0.1:8090/cthun/" };
+const std::string BROKER_URL { "wss://127.0.0.1:8090/cthun/" };
 
 const std::string AGENT_CLIENT_TYPE { "tutorial_agent" };
 const std::string CONTROLLER_CLIENT_TYPE { "tutorial_controller" };
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     // Connector constructor
 
     try {
-        connector_ptr.reset(new PCPClient::Connector { SERVER_URL,
+        connector_ptr.reset(new PCPClient::Connector { BROKER_URL,
                                                        CONTROLLER_CLIENT_TYPE,
                                                        CA,
                                                        CERT,
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Failed to configure WebSocket: " << e.what() << "\n";
         return 2;
     } catch (PCPClient::connection_fatal_error& e) {
-        std::cout << "Failed to connect to " << SERVER_URL << " after "
+        std::cout << "Failed to connect to " << BROKER_URL << " after "
                   << num_connect_attempts << " attempts: " << e.what() << "\n";
         return 2;
     }
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     // Connector::isConnected()
 
     if (connector_ptr->isConnected()) {
-        std::cout << "Successfully connected to " << SERVER_URL << "\n";
+        std::cout << "Successfully connected to " << BROKER_URL << "\n";
     } else {
         std::cout << "The connection has dropped; we can't send anything\n";
         return 2;

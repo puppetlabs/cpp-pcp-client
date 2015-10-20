@@ -53,7 +53,7 @@ Controller::Controller()
           response_schema_ { getResponseMessageSchema() },
           inventory_response_schema_ {
                 PCPClient::Protocol::InventoryResponseSchema() },
-          connector_ptr_ { new PCPClient::Connector { SERVER_URL,
+          connector_ptr_ { new PCPClient::Connector { BROKER_URL,
                                                       CONTROLLER_CLIENT_TYPE,
                                                       CA,
                                                       CERT,
@@ -90,7 +90,7 @@ void Controller::sendRequests() {
         std::string err_msg { "failed to configure WebSocket: " };
         throw controller_error { err_msg + e.what() };
     } catch (PCPClient::connection_fatal_error& e) {
-        std::string err_msg { "failed to connect to " + SERVER_URL + " after "
+        std::string err_msg { "failed to connect to " + BROKER_URL + " after "
                               + std::to_string(num_connect_attempts_)
                               + "attempts: " };
         throw controller_error { err_msg + e.what() };
@@ -99,7 +99,7 @@ void Controller::sendRequests() {
     // Connector::isConnected()
 
     if (connector_ptr_->isConnected()) {
-        std::cout << "Successfully connected to " << SERVER_URL << "\n";
+        std::cout << "Successfully connected to " << BROKER_URL << "\n";
     } else {
         // The connection has dropped; we can't send anything
         throw controller_error { "connection dropped" };
@@ -145,16 +145,14 @@ void Controller::sendRequests() {
         throw controller_error { err_msg + e.what() };
     }
 
-    // Send an inventory request to the server
+    // Send an inventory request to the broker
 
     leatherman::json_container::JsonContainer inventory_request {};
     std::vector<std::string> query { "cth://*/" + AGENT_CLIENT_TYPE };
     inventory_request.set<std::vector<std::string>>("query", query);
 
-    // TODO(ale): use the complete server URI once we apply the specs
-
     try {
-        // NB: use "cth:///server" with 3 '/' as the server URI
+        // NB: use "cth:///server" with 3 '/' as the broker URI
         connector_ptr_->send(std::vector<std::string> { "cth:///server" },
                              PCPClient::Protocol::INVENTORY_REQ_TYPE,
                              MSG_TIMEOUT_S,
@@ -193,11 +191,11 @@ void Controller::processError(const PCPClient::ParsedChunks& parsed_chunks) {
 void Controller::processInventoryResponse(
             const PCPClient::ParsedChunks& parsed_chunks) {
     auto response_id = parsed_chunks.envelope.get<std::string>("id");
-    auto server_endpoint = parsed_chunks.envelope.get<std::string>("sender");
+    auto broker_endpoint = parsed_chunks.envelope.get<std::string>("sender");
     auto uris = parsed_chunks.data.get<std::vector<std::string>>("uris");
 
     std::cout << "Received inventory response " << response_id
-              << " from " << server_endpoint << " -  number of nodes: "
+              << " from " << broker_endpoint << " -  number of nodes: "
               << uris.size();
 
     for (auto& uri : uris)

@@ -3,8 +3,8 @@ project: 'cpp-pcp-client'
 author: 'Puppet Labs'
 email: 'info@puppetlabs.com'
 homepage: 'https://github.com/puppetlabs/cpp-pcp-client'
-summary: 'C++ library for interacting with a PCP server'
-description: 'C++ library for interacting with a PCP server'
+summary: 'C++ library for interacting with a PCP broker'
+description: 'C++ library for interacting with a PCP broker'
 # files to be packaged into a tarball and released with deb/rpm
 files: '[A-Z]* bin lib vendor cmake'
 # space separated list of files to *exclude* from the tarball
