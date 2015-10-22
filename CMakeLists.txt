@@ -98,4 +98,7 @@ if (CPP_PCP_CLIENT_TOPLEVEL)
     add_cpplint_files(${ALL_SOURCES})
     enable_cpplint()
 
+    add_cppcheck_dirs("${PROJECT_SOURCE_DIR}/lib")
+    enable_cppcheck()
+
 endif()
