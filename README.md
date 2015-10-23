@@ -7,6 +7,9 @@ collection of abstractions which can be used to initiate connections to a PCP
 broker, wrapping the PCP message format and performing schema validation for
 message bodies.
 
+cpp-pcp-client implements PCP by layering it upon WebSocket; it uses
+[WebSocket++][websocket++] for that.
+
 A tutorial on how to create a PCP agent / controller pair with cpp-pcp-client is
 [here][tutorial].
 
@@ -463,3 +466,4 @@ Example usage:
 [tutorial]: https://github.com/puppetlabs/cpp-pcp-client/tree/master/tutorial
 [specs]: https://github.com/puppetlabs/pcp-specifications
 [json_container]: https://github.com/puppetlabs/leatherman/tree/master/json_container
+[websocket++]: http://www.zaphoyd.com/websocketpp/
