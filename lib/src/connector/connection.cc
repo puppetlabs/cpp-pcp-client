@@ -169,8 +169,6 @@ void Connection::connect(int max_connect_attempts) {
 
         case(ConnectionStateValues::open):
             if (previous_c_s != ConnectionStateValues::open) {
-                LOG_INFO("Successfully established a WebSocket connection with "
-                         "the PCP broker");
                 connection_backoff_ms_ = CONNECTION_BACKOFF_MS;
             }
             return;
