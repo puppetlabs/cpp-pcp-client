@@ -307,7 +307,8 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
                                   boost::asio::ssl::context::file_format::pem);
         ctx->load_verify_file(client_metadata_.ca);
     } catch (std::exception& e) {
-        LOG_ERROR("Failed to configure TLS: %1%", e.what());
+        throw connection_processing_error { std::string { "TLS error: " }
+                                            + e.what() };
     }
     return ctx;
 }
