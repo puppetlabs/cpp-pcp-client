@@ -162,7 +162,7 @@ void Connection::connect(int max_connect_attempts) {
             break;
 
         case(ConnectionStateValues::connecting):
-            previous_c_s = current_c_s;
+            previous_c_s = ConnectionStateValues::connecting;
             Util::this_thread::sleep_for(
                 Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
             continue;
@@ -176,7 +176,7 @@ void Connection::connect(int max_connect_attempts) {
             return;
 
         case(ConnectionStateValues::closing):
-            previous_c_s = current_c_s;
+            previous_c_s = ConnectionStateValues::closing;
             Util::this_thread::sleep_for(
                 Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
             continue;
