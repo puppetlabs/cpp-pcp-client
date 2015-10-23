@@ -2,6 +2,7 @@
 #define CPP_PCP_CLIENT_SRC_PROTOCOL_SCHEMAS_H_
 
 #include <cpp-pcp-client/validator/schema.hpp>
+#include <cpp-pcp-client/export.h>
 
 namespace PCPClient {
 namespace Protocol {
@@ -21,7 +22,7 @@ Schema EnvelopeSchema();
 static const std::string ASSOCIATE_REQ_TYPE  { "http://puppetlabs.com/associate_request" };
 static const std::string ASSOCIATE_RESP_TYPE { "http://puppetlabs.com/associate_response" };
 // NB: associate requests don't have a data chunk
-Schema AssociateResponseSchema();
+LIBCPP_PCP_CLIENT_EXPORT Schema AssociateResponseSchema();
 
 // inventory
 static const std::string INVENTORY_REQ_TYPE  { "http://puppetlabs.com/inventory_request" };
