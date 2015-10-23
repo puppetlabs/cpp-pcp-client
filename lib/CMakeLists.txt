@@ -47,7 +47,7 @@ set_target_properties(libcpp-pcp-client  PROPERTIES PREFIX "" SUFFIX ".so" IMPOR
 include(GenerateExportHeader)
 generate_export_header(libcpp-pcp-client EXPORT_FILE_NAME "${CMAKE_CURRENT_LIST_DIR}/inc/cpp-pcp-client/export.h")
 
-if ("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+if ("${CMAKE_SYSTEM_NAME}" MATCHES "Linux" OR "${CMAKE_SYSTEM_NAME}" MATCHES "AIX")
     add_compiler_export_flags()
 elseif (WIN32)
     add_compiler_export_flags()
