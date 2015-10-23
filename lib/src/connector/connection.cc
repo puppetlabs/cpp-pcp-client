@@ -292,7 +292,7 @@ void Connection::connect_() {
 //
 
 WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
-    LOG_TRACE("WebSocket TLS initialization event");
+    LOG_INFO("WebSocket TLS initialization event; about to validate the certificate");
     // NB: for TLS certificates, refer to:
     // www.boost.org/doc/libs/1_56_0/doc/html/boost_asio/reference/ssl__context.html
     WS_Context_Ptr ctx {
