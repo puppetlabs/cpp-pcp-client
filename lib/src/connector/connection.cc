@@ -182,7 +182,6 @@ void Connection::connect(int max_connect_attempts) {
             continue;
 
         case(ConnectionStateValues::closed):
-            assert(previous_c_s != ConnectionStateValues::open);
             if (previous_c_s == ConnectionStateValues::closed) {
                 connect_();
                 Util::this_thread::sleep_for(
