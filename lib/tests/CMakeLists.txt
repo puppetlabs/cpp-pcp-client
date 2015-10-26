@@ -28,10 +28,20 @@ include_directories(
 )
 
 add_executable(${test_BIN} ${SOURCES})
-target_link_libraries(${test_BIN} libcpp-pcp-client ${PLATFORM_LIBRARIES})
+target_link_libraries(${test_BIN} cpp-pcp-client ${PLATFORM_LIBRARIES})
+
+if (WIN32)
+    set(PLATFORM_LIBRARIES Ws2_32)
+endif()
 
 set(LIBS
+    cpp-pcp-client
+    ${LEATHERMAN_LIBRARIES}
     ${Boost_LIBRARIES}
+    ${OPENSSL_SSL_LIBRARY}
+    ${OPENSSL_CRYPTO_LIBRARY}
+    ${PTHREADS}
+    ${PLATFORM_LIBRARIES}
 )
 
 target_link_libraries(${test_BIN} ${LIBS})
