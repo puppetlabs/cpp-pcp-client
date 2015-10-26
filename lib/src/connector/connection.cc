@@ -307,8 +307,7 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
                                   boost::asio::ssl::context::file_format::pem);
         ctx->load_verify_file(client_metadata_.ca);
     } catch (std::exception& e) {
-        throw connection_processing_error { std::string { "TLS error: " }
-                                            + e.what() };
+        throw connection_config_error { std::string { "TLS error: " } + e.what() };
     }
     return ctx;
 }
@@ -322,7 +321,10 @@ void Connection::onClose(WS_Connection_Handle hdl) {
 void Connection::onFail(WS_Connection_Handle hdl) {
     connection_timings_.close = Util::chrono::high_resolution_clock::now();
     connection_timings_.connection_failed = true;
-    LOG_DEBUG("WebSocket on fail event - %1%", connection_timings_.toString());
+    auto con = endpoint_->get_con_from_hdl(hdl);
+    LOG_WARNING("WebSocket on fail event, %1%: status code %2% - %3%",
+                connection_timings_.toString(), con->get_remote_close_code(),
+                con->get_ec().message());
     connection_state_ = ConnectionStateValues::closed;
 }
 
