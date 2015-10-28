@@ -24,7 +24,7 @@ find_package(Boost 1.54 REQUIRED
 
 include_directories(
     ${LEATHERMAN_CATCH_INCLUDE}
-    SYSTEM ${Boost_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_executable(${test_BIN} ${SOURCES})
