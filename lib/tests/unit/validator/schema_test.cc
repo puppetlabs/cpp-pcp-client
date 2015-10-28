@@ -2,10 +2,14 @@
 
 #include <cpp-pcp-client/validator/schema.hpp>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextra"
+#pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #include <valijson/adapters/rapidjson_adapter.hpp>
 #include <valijson/schema_parser.hpp>
 #include <valijson/validation_results.hpp>
 #include <valijson/validator.hpp>
+#pragma GCC diagnostic pop
 
 namespace PCPClient {
 
