@@ -2,6 +2,7 @@
 #define CPP_PCP_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
 
 #include <cpp-pcp-client/protocol/errors.hpp>
+#include <cpp-pcp-client/export.h>
 
 #include <boost/detail/endian.hpp>
 
@@ -25,8 +26,8 @@ typedef std::vector<uint8_t> SerializedMessage;
 
 #ifdef BOOST_LITTLE_ENDIAN
 
-uint32_t getNetworkNumber(const uint32_t& number);
-uint32_t getHostNumber(const uint32_t& number);
+LIBCPP_PCP_CLIENT_EXPORT uint32_t getNetworkNumber(const uint32_t& number);
+LIBCPP_PCP_CLIENT_EXPORT uint32_t getHostNumber(const uint32_t& number);
 
 #else  // we're using big endian (!)
 

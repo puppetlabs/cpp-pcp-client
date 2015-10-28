@@ -9,6 +9,7 @@
 #include <cpp-pcp-client/protocol/chunks.hpp>
 #include <cpp-pcp-client/protocol/message.hpp>
 #include <cpp-pcp-client/util/thread.hpp>
+#include <cpp-pcp-client/export.h>
 
 #include <memory>
 #include <string>
@@ -22,7 +23,7 @@ namespace PCPClient {
 //
 namespace lth_jc = leatherman::json_container;
 
-class Connector {
+class LIBCPP_PCP_CLIENT_EXPORT Connector {
   public:
     using MessageCallback = std::function<void(const ParsedChunks& parsed_chunks)>;
 

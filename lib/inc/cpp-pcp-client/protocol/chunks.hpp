@@ -3,6 +3,7 @@
 
 #include <cpp-pcp-client/protocol/serialization.hpp>
 #include <cpp-pcp-client/validator/schema.hpp>
+#include <cpp-pcp-client/export.h>
 
 #include <string>
 #include <stdint.h>  // uint8_t
@@ -34,7 +35,7 @@ namespace ChunkDescriptor {
 // MessageChunk
 //
 
-struct MessageChunk {
+struct LIBCPP_PCP_CLIENT_EXPORT MessageChunk {
     uint8_t descriptor;
     uint32_t size;  // [byte]
     std::string content;
@@ -56,7 +57,7 @@ struct MessageChunk {
 // ParsedChunks
 //
 
-struct ParsedChunks {
+struct LIBCPP_PCP_CLIENT_EXPORT ParsedChunks {
     // Envelope
     lth_jc::JsonContainer envelope;
 

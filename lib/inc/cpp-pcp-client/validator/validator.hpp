@@ -3,6 +3,7 @@
 
 #include <cpp-pcp-client/validator/schema.hpp>
 #include <cpp-pcp-client/util/thread.hpp>
+#include <cpp-pcp-client/export.h>
 
 #include <map>
 
@@ -13,25 +14,25 @@ namespace PCPClient {
 //
 
 /// General validator error
-class validator_error : public std::runtime_error  {
+class LIBCPP_PCP_CLIENT_EXPORT validator_error : public std::runtime_error  {
   public:
     explicit validator_error(std::string const& msg)
         : std::runtime_error(msg) {}
 };
 
-class schema_redefinition_error : public validator_error  {
+class LIBCPP_PCP_CLIENT_EXPORT schema_redefinition_error : public validator_error  {
   public:
     explicit schema_redefinition_error(std::string const& msg)
         : validator_error(msg) {}
 };
 
-class schema_not_found_error : public validator_error  {
+class LIBCPP_PCP_CLIENT_EXPORT schema_not_found_error : public validator_error  {
   public:
     explicit schema_not_found_error(std::string const& msg)
         : validator_error(msg) {}
 };
 
-class validation_error : public validator_error {
+class LIBCPP_PCP_CLIENT_EXPORT validation_error : public validator_error {
   public:
     explicit validation_error(std::string const& msg)
         : validator_error(msg) {}
@@ -43,7 +44,7 @@ class validation_error : public validator_error {
 
 namespace lth_jc = leatherman::json_container;
 
-class Validator {
+class LIBCPP_PCP_CLIENT_EXPORT Validator {
   public:
     Validator();
 
