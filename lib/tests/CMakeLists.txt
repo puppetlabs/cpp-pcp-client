@@ -28,7 +28,7 @@ include_directories(
 )
 
 add_executable(${test_BIN} ${SOURCES})
-target_link_libraries(${test_BIN} libcpp-pcp-client ${PLATFORM_LIBRARIES} ${LEATHERMAN_LIBRARIES})
+target_link_libraries(${test_BIN} libcpp-pcp-client ${PLATFORM_LIBRARIES})
 
 set(LIBS
     ${Boost_LIBRARIES}

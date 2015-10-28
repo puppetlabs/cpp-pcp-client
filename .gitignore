@@ -4,7 +4,6 @@
 /test-resources/
 /ext/packaging
 .DS_Store
-/lib/inc/cpp-pcp-client/export.h
 
 #Generated files
 /.idea/

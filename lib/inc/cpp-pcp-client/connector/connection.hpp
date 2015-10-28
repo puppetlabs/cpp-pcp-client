@@ -4,7 +4,6 @@
 #include <cpp-pcp-client/connector/timings.hpp>
 #include <cpp-pcp-client/connector/client_metadata.hpp>
 #include <cpp-pcp-client/util/thread.hpp>
-#include <cpp-pcp-client/export.h>
 
 #include <string>
 #include <vector>
@@ -91,7 +90,7 @@ using CloseCode = CloseCodeValues::value_;
 // Connection
 //
 
-class LIBCPP_PCP_CLIENT_EXPORT Connection {
+class Connection {
   public:
     /// The Connection class provides the necessary logic to establish
     /// and use a PCP connection over WebSocket.

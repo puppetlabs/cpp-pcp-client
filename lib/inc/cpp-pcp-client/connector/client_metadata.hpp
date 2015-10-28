@@ -1,12 +1,11 @@
 #ifndef CPP_PCP_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_
 #define CPP_PCP_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_
 
-#include <cpp-pcp-client/export.h>
 #include <string>
 
 namespace PCPClient {
 
-class LIBCPP_PCP_CLIENT_EXPORT ClientMetadata {
+class ClientMetadata {
   public:
     std::string ca;
     std::string crt;
