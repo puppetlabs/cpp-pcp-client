@@ -21,9 +21,24 @@ set(SOURCES
     src/validator/validator.cc
 )
 
-add_library(cpp-pcp-client STATIC ${SOURCES})
+set(LIBS
+    ${LEATHERMAN_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${OPENSSL_SSL_LIBRARY}
+    ${OPENSSL_CRYPTO_LIBRARY}
+)
 
-install(TARGETS cpp-pcp-client
+if (WIN32)
+    set(PLATFORM_LIBS Ws2_32)
+elseif ("${CMAKE_SYSTEM_NAME}" MATCHES "SunOS")
+    set(PLATFORM_LIBS socket nsl)
+endif()
+
+add_library(libcpp-pcp-client SHARED ${SOURCES})
+target_link_libraries(libcpp-pcp-client PRIVATE ${LIBS} ${PLATFORM_LIBS})
+set_target_properties(libcpp-pcp-client PROPERTIES PREFIX "" SUFFIX ".so" IMPORT_PREFIX "" IMPORT_SUFFIX ".so.a")
+
+install(TARGETS libcpp-pcp-client
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib)
