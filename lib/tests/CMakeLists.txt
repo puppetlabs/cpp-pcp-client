@@ -32,6 +32,8 @@ target_link_libraries(${test_BIN} cpp-pcp-client ${PLATFORM_LIBRARIES})
 
 if (WIN32)
     set(PLATFORM_LIBRARIES Ws2_32)
+elseif ("${CMAKE_SYSTEM_NAME}" MATCHES "SunOS")
+    set(PLATFORM_LIBRARIES socket nsl)
 endif()
 
 set(LIBS
