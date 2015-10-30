@@ -42,8 +42,6 @@ void validatePrivateKeyCertPair(const std::string& key, const std::string& crt) 
 }
 
 std::string getCommonNameFromCert(const std::string& client_crt_path) {
-    LOG_INFO("Retrieving the common name from certificate %1%", client_crt_path);
-
     std::unique_ptr<std::FILE, int(*)(std::FILE*)> fp {
         std::fopen(client_crt_path.data(), "r"), std::fclose };
 
