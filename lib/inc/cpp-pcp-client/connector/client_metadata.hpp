@@ -5,6 +5,8 @@
 
 namespace PCPClient {
 
+void validatePrivateKeyCertPair(const std::string& key, const std::string& crt);
+
 class ClientMetadata {
   public:
     std::string ca;
