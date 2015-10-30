@@ -22,6 +22,8 @@ namespace PCPClient {
 
 static const std::string PCP_URI_SCHEME { "pcp://" };
 
+// TODO(ale): consider moving the SSL functions elsewhere
+
 void validatePrivateKeyCertPair(const std::string& key, const std::string& crt) {
     auto ctx = SSL_CTX_new(SSLv23_method());
     leatherman::util::scope_exit ctx_cleaner {
@@ -89,6 +91,8 @@ ClientMetadata::ClientMetadata(const std::string& _client_type,
           uri { PCP_URI_SCHEME + common_name + "/" + client_type } {
     LOG_INFO("Retrieved common name from the certificate and determined "
              "the client URI: %1%", uri);
+    validatePrivateKeyCertPair(key, crt);
+    LOG_INFO("Validated the private key / certificate pair");
 }
 
 }  // namespace PCPClient
