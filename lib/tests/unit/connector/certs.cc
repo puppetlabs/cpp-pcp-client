@@ -19,6 +19,12 @@ std::string getKeyPath() {
     return key;
 }
 
+std::string getMismatchedKeyPath() {
+    static const std::string key {
+        std::string { CPP_PCP_CLIENT_ROOT_PATH } + "/lib/tests/resources/mismatched_key.pem" };
+    return key;
+}
+
 std::string getNotACertPath() {
     static const std::string tmp {
         std::string { CPP_PCP_CLIENT_ROOT_PATH } + "/lib/tests/resources/not_a_cert" };

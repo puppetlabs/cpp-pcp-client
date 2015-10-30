@@ -1,6 +1,8 @@
 #include <cpp-pcp-client/connector/client_metadata.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
 
+#include <leatherman/util/scope_exit.hpp>
+
 #define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".client_metadata"
 
 #include <leatherman/logging/logging.hpp>
@@ -20,9 +22,28 @@ namespace PCPClient {
 
 static const std::string PCP_URI_SCHEME { "pcp://" };
 
-std::string getCommonNameFromCert(const std::string& client_crt_path) {
-    LOG_INFO("Retrieving the common name from certificate %1%", client_crt_path);
+// TODO(ale): consider moving the SSL functions elsewhere
 
+void validatePrivateKeyCertPair(const std::string& key, const std::string& crt) {
+    auto ctx = SSL_CTX_new(SSLv23_method());
+    leatherman::util::scope_exit ctx_cleaner {
+        [ctx]() { SSL_CTX_free(ctx); }
+    };
+    if ( ctx == nullptr ) {
+        throw connection_config_error { "failed to create SSL context" };
+    }
+    if ( SSL_CTX_use_certificate_file(ctx, crt.c_str(), SSL_FILETYPE_PEM) <= 0 ) {
+        throw connection_config_error { "failed to open cert" };
+    }
+    if ( SSL_CTX_use_PrivateKey_file(ctx, key.c_str(), SSL_FILETYPE_PEM) <= 0 ) {
+        throw connection_config_error { "failed to load private key" };
+    }
+    if ( !SSL_CTX_check_private_key(ctx) ) {
+        throw connection_config_error { "mismatch between private key and cert " };
+    }
+}
+
+std::string getCommonNameFromCert(const std::string& client_crt_path) {
     std::unique_ptr<std::FILE, int(*)(std::FILE*)> fp {
         std::fopen(client_crt_path.data(), "r"), std::fclose };
 
@@ -70,6 +91,8 @@ ClientMetadata::ClientMetadata(const std::string& _client_type,
           uri { PCP_URI_SCHEME + common_name + "/" + client_type } {
     LOG_INFO("Retrieved common name from the certificate and determined "
              "the client URI: %1%", uri);
+    validatePrivateKeyCertPair(key, crt);
+    LOG_INFO("Validated the private key / certificate pair");
 }
 
 }  // namespace PCPClient
