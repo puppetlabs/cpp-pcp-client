@@ -125,15 +125,19 @@ void Connection::resetCallbacks() {
 // Synchronous calls
 //
 
+inline static void doSleep(int ms = CONNECTION_MIN_INTERVAL) {
+    Util::this_thread::sleep_for(Util::chrono::milliseconds(ms));
+}
+
 void Connection::connect(int max_connect_attempts) {
     // FSM
     //  - states are ConnectionStateValues:
     //      * initialized - connecting - open - closing - closed
     //  - for the transitions, we assume that the connection_state_:
-    //      * can be set to 'initialized' only by the Connection constructor;
+    //      * can be set to 'initialized' only by the Connection ctor;
     //      * is set to 'connecting' by connect_();
-    //      * after a connect_() call, it will become, eventually, open or
-    //        closed.
+    //      * after a connect_() call, it will become, eventually,
+    //        open or closed.
 
     ConnectionState previous_c_s = connection_state_.load();
     ConnectionState current_c_s;
@@ -157,14 +161,12 @@ void Connection::connect(int max_connect_attempts) {
         case(ConnectionStateValues::initialized):
             assert(previous_c_s == ConnectionStateValues::initialized);
             connect_();
-            Util::this_thread::sleep_for(
-                Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
+            doSleep();
             break;
 
         case(ConnectionStateValues::connecting):
             previous_c_s = ConnectionStateValues::connecting;
-            Util::this_thread::sleep_for(
-                Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
+            doSleep();
             continue;
 
         case(ConnectionStateValues::open):
@@ -175,27 +177,23 @@ void Connection::connect(int max_connect_attempts) {
 
         case(ConnectionStateValues::closing):
             previous_c_s = ConnectionStateValues::closing;
-            Util::this_thread::sleep_for(
-                Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
+            doSleep();
             continue;
 
         case(ConnectionStateValues::closed):
             if (previous_c_s == ConnectionStateValues::closed) {
                 connect_();
-                Util::this_thread::sleep_for(
-                    Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
+                doSleep();
                 previous_c_s = ConnectionStateValues::connecting;
             } else {
                 LOG_WARNING("Failed to establish a WebSocket connection; "
                             "retrying in %1% seconds",
                             static_cast<int>(connection_backoff_ms_ / 1000));
-                // Randomly adjust the interval slightly to help calm a
-                // thundering herd
-                Util::this_thread::sleep_for(
-                    Util::chrono::milliseconds(connection_backoff_ms_ + dist(engine)));
+                // Randomly adjust the interval slightly to help calm
+                // a thundering herd
+                doSleep(connection_backoff_ms_ + dist(engine));
                 connect_();
-                Util::this_thread::sleep_for(
-                    Util::chrono::milliseconds(CONNECTION_MIN_INTERVAL));
+                doSleep();
                 if (try_again && !got_max_backoff) {
                     connection_backoff_ms_ *= CONNECTION_BACKOFF_MULTIPLIER;
                 }

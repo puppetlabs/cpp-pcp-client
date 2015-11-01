@@ -8,14 +8,15 @@
 
 #include <leatherman/logging/logging.hpp>
 
+#include <leatherman/util/strings.hpp>
+#include <leatherman/util/time.hpp>
+
 #include <cstdio>
 
 // TODO(ale): disable assert() once we're confident with the code...
 // To disable assert()
 // #define NDEBUG
 #include <cassert>
-#include <leatherman/util/strings.hpp>
-#include <leatherman/util/time.hpp>
 
 namespace PCPClient {
 
