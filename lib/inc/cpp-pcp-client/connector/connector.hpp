@@ -28,8 +28,10 @@ class Connector {
 
     Connector() = delete;
 
-    /// Throws a connection_config_error in case it fails to retrieve
-    /// the client identity from its certificate.
+    /// Throws a connection_config_error in case the client
+    /// certificate file does not exist or is invalid; it fails to
+    /// retrieve the client identity from the file; the client
+    /// certificate and private key are not paired
     Connector(const std::string& broker_ws_uri,
               const std::string& client_type,
               const std::string& ca_crt_path,

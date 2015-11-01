@@ -131,11 +131,12 @@ void Connector::connect(int max_connect_attempts) {
     try {
         // Open the WebSocket connection
         connection_ptr_->connect(max_connect_attempts);
-    } catch (connection_processing_error& e) {
-        // NB: connection_fatal_errors are propagated whereas
-        //     connection_processing_errors are converted to
-        //     connection_config_errors (they can be thrown after
-        //     websocketpp::Endpoint::connect() or ::send() failures)
+    } catch (const connection_processing_error& e) {
+        // NB: connection_fatal_errors (can't connect after n tries)
+        //     and _config_errors (TLS initialization error) are
+        //     propagated whereas _processing_errors are converted
+        //     to _config_errors (they can be thrown by the
+        //     synchronous call websocketpp::Endpoint::connect())
         LOG_ERROR("Failed to connect: %1%", e.what());
         throw connection_config_error { e.what() };
     }
@@ -429,13 +430,18 @@ void Connector::startMonitorTask(int max_connect_attempts) {
                 LOG_DEBUG("Sending heartbeat ping");
                 connection_ptr_->ping();
             }
-        } catch (connection_processing_error& e) {
+        } catch (const connection_processing_error& e) {
             // Connection::connect() or ping() failure - keep trying
-            LOG_ERROR("Connection monitor failure: %1%", e.what());
-        } catch (connection_fatal_error& e) {
+            LOG_WARNING("The connection monitor task will continue after a "
+                        "WebSocket failure (%1%)", e.what());
+        } catch (const connection_config_error& e) {
+            // WebSocket TLS init error - keep trying
+            LOG_WARNING("The connection monitor task will continue after a "
+                        "WebSocket configuration failure (%1%)", e.what());
+        } catch (const connection_fatal_error& e) {
             // Failed to reconnect after max_connect_attempts - stop
-            LOG_ERROR("The connection monitor task will stop - failure: %1%",
-                      e.what());
+            LOG_WARNING("The connection monitor task will stop: %1%",
+                        e.what());
             is_monitoring_ = false;
             the_lock.unlock();
             throw;

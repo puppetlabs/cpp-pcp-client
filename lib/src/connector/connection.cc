@@ -305,6 +305,8 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
                                   boost::asio::ssl::context::file_format::pem);
         ctx->load_verify_file(client_metadata_.ca);
     } catch (std::exception& e) {
+        // This is unexpected, as the CliendMetadata ctor does
+        // validate the key / cert pair
         throw connection_config_error { std::string { "TLS error: " } + e.what() };
     }
     return ctx;

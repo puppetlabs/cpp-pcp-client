@@ -24,6 +24,11 @@ static const std::string PCP_URI_SCHEME { "pcp://" };
 
 // TODO(ale): consider moving the SSL functions elsewhere
 
+int pwdCallback(char *buf, int size, int rwflag, void *password) {
+    throw connection_config_error { "key is protected by password" };
+    return EXIT_FAILURE;
+}
+
 void validatePrivateKeyCertPair(const std::string& key, const std::string& crt) {
     LOG_TRACE("About to validate private key / certificate pair: '%1%' / '%2%'",
               key, crt);
@@ -31,19 +36,20 @@ void validatePrivateKeyCertPair(const std::string& key, const std::string& crt) 
     leatherman::util::scope_exit ctx_cleaner {
         [ctx]() { SSL_CTX_free(ctx); }
     };
-    if ( ctx == nullptr ) {
+    if (ctx == nullptr) {
         throw connection_config_error { "failed to create SSL context" };
     }
-    if ( SSL_CTX_use_certificate_file(ctx, crt.c_str(), SSL_FILETYPE_PEM) <= 0 ) {
+    SSL_CTX_set_default_passwd_cb(ctx, &pwdCallback);
     LOG_TRACE("Created SSL context");
+    if (SSL_CTX_use_certificate_file(ctx, crt.c_str(), SSL_FILETYPE_PEM) <= 0) {
         throw connection_config_error { "failed to open cert" };
     }
-    if ( SSL_CTX_use_PrivateKey_file(ctx, key.c_str(), SSL_FILETYPE_PEM) <= 0 ) {
     LOG_TRACE("Certificate loaded");
+    if (SSL_CTX_use_PrivateKey_file(ctx, key.c_str(), SSL_FILETYPE_PEM) <= 0) {
         throw connection_config_error { "failed to load private key" };
     }
-    if ( !SSL_CTX_check_private_key(ctx) ) {
     LOG_TRACE("Private key loaded");
+    if (!SSL_CTX_check_private_key(ctx)) {
         throw connection_config_error { "mismatch between private key and cert " };
     }
     LOG_TRACE("Private key / certificate pair has been successfully validated");
