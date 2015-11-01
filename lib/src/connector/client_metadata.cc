@@ -25,6 +25,8 @@ static const std::string PCP_URI_SCHEME { "pcp://" };
 // TODO(ale): consider moving the SSL functions elsewhere
 
 void validatePrivateKeyCertPair(const std::string& key, const std::string& crt) {
+    LOG_TRACE("About to validate private key / certificate pair: '%1%' / '%2%'",
+              key, crt);
     auto ctx = SSL_CTX_new(SSLv23_method());
     leatherman::util::scope_exit ctx_cleaner {
         [ctx]() { SSL_CTX_free(ctx); }
@@ -33,22 +35,27 @@ void validatePrivateKeyCertPair(const std::string& key, const std::string& crt) 
         throw connection_config_error { "failed to create SSL context" };
     }
     if ( SSL_CTX_use_certificate_file(ctx, crt.c_str(), SSL_FILETYPE_PEM) <= 0 ) {
+    LOG_TRACE("Created SSL context");
         throw connection_config_error { "failed to open cert" };
     }
     if ( SSL_CTX_use_PrivateKey_file(ctx, key.c_str(), SSL_FILETYPE_PEM) <= 0 ) {
+    LOG_TRACE("Certificate loaded");
         throw connection_config_error { "failed to load private key" };
     }
     if ( !SSL_CTX_check_private_key(ctx) ) {
+    LOG_TRACE("Private key loaded");
         throw connection_config_error { "mismatch between private key and cert " };
     }
+    LOG_TRACE("Private key / certificate pair has been successfully validated");
 }
 
-std::string getCommonNameFromCert(const std::string& client_crt_path) {
+std::string getCommonNameFromCert(const std::string& crt) {
+    LOG_TRACE("Retrieving client name from certificate '%1%'", crt);
     std::unique_ptr<std::FILE, int(*)(std::FILE*)> fp {
-        std::fopen(client_crt_path.data(), "r"), std::fclose };
+        std::fopen(crt.data(), "r"), std::fclose };
 
     if (fp == nullptr) {
-        throw connection_config_error { "certificate file '" + client_crt_path
+        throw connection_config_error { "certificate file '" + crt
                                         + "' does not exist" };
     }
 
@@ -56,7 +63,7 @@ std::string getCommonNameFromCert(const std::string& client_crt_path) {
         PEM_read_X509(fp.get(), NULL, NULL, NULL), X509_free };
 
     if (cert == nullptr) {
-        throw connection_config_error { "certificate file '" + client_crt_path
+        throw connection_config_error { "certificate file '" + crt
                                         + "' is invalid" };
     }
 
@@ -65,7 +72,7 @@ std::string getCommonNameFromCert(const std::string& client_crt_path) {
 
     if (name_entry == nullptr) {
         throw connection_config_error { "failed to retrieve the client common "
-                                        "name from " + client_crt_path };
+                                        "name from " + crt };
     }
 
     ASN1_STRING* asn1_name = X509_NAME_ENTRY_get_data(name_entry);
