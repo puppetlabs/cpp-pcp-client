@@ -18,6 +18,13 @@ TEST_CASE("validatePrivateKeyCertPair", "[connector]") {
                                                      getCertPath()),
                           connection_config_error);
     }
+
+    SECTION("raises a connection_config_error with no CL prompt in case of "
+            "password protected key") {
+        REQUIRE_THROWS_AS(validatePrivateKeyCertPair(getProtectedKeyPath(),
+                                                     getCertPath()),
+                          connection_config_error);
+    }
 }
 
 TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
