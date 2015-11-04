@@ -2,6 +2,7 @@
 #define CPP_PCP_CLIENT_SRC_VALIDATOR_SCHEMA_H_
 
 #include <leatherman/json_container/json_container.hpp>
+#include <cpp-pcp-client/export.h>
 
 #include <map>
 #include <string>
@@ -38,13 +39,13 @@ namespace lth_jc = leatherman::json_container;
 enum class TypeConstraint { Object, Array, String, Int, Bool, Double, Null, Any };
 enum class ContentType { Json, Binary };
 
-class schema_error : public std::runtime_error  {
+class LIBCPP_PCP_CLIENT_EXPORT schema_error : public std::runtime_error  {
   public:
     explicit schema_error(std::string const& msg)
             : std::runtime_error(msg) {}
 };
 
-class Schema {
+class LIBCPP_PCP_CLIENT_EXPORT Schema {
   public:
     Schema() = delete;
 
