@@ -4,7 +4,7 @@
 #pragma GCC diagnostic ignored "-Wextra"
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #include <valijson/schema_parser.hpp>
-#include <valijson/adapters/rapidjson_adapter.hpp>
+#include <cpp-pcp-client/valijson/rapidjson_adapter.hpp>
 #pragma GCC diagnostic pop
 
 #include <rapidjson/allocators.h>
@@ -71,7 +71,7 @@ Schema::Schema(const Schema& s)
             new V_C::RequiredConstraint::RequiredProperties(*s.required_properties_)} {
 }
 
-Schema::Schema(const std::string& name, const lth_jc::JsonContainer metadata)
+Schema::Schema(const std::string& name, const lth_jc::JsonContainer& metadata)
         try : name_ { name },
               content_type_ { ContentType::Json },
               parsed_json_schema_ { new valijson::Schema(parseSchema(metadata)) },
