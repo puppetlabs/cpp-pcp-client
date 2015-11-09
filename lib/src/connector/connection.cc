@@ -290,7 +290,7 @@ void Connection::connect_() {
 //
 
 WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
-    LOG_INFO("WebSocket TLS initialization event; about to validate the certificate");
+    LOG_DEBUG("WebSocket TLS initialization event; about to validate the certificate");
     // NB: for TLS certificates, refer to:
     // www.boost.org/doc/libs/1_56_0/doc/html/boost_asio/reference/ssl__context.html
     WS_Context_Ptr ctx {
@@ -322,9 +322,9 @@ void Connection::onFail(WS_Connection_Handle hdl) {
     connection_timings_.close = Util::chrono::high_resolution_clock::now();
     connection_timings_.connection_failed = true;
     auto con = endpoint_->get_con_from_hdl(hdl);
-    LOG_WARNING("WebSocket on fail event, %1%: status code %2% - %3%",
-                connection_timings_.toString(), con->get_remote_close_code(),
-                con->get_ec().message());
+    LOG_DEBUG("WebSocket on fail event - %1%", connection_timings_.toString());
+    LOG_WARNING("WebSocket on fail event (connection loss): status code %1% - %2%",
+                con->get_remote_close_code(), con->get_ec().message());
     connection_state_ = ConnectionStateValues::closed;
 }
 
