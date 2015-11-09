@@ -244,8 +244,8 @@ MessageChunk Connector::createEnvelope(const std::vector<std::string>& targets,
                                        bool destination_report) {
     auto msg_id = lth_util::get_UUID();
     auto expires = lth_util::get_ISO8601_time(timeout);
-    LOG_INFO("Creating message with id %1% for %2% receiver%3%",
-             msg_id, targets.size(), lth_util::plural(targets.size()));
+    LOG_DEBUG("Creating message with id %1% for %2% receiver%3%",
+              msg_id, targets.size(), lth_util::plural(targets.size()));
 
     lth_jc::JsonContainer envelope_content {};
 

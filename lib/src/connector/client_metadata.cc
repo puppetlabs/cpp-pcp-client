@@ -105,7 +105,7 @@ ClientMetadata::ClientMetadata(const std::string& _client_type,
     LOG_INFO("Retrieved common name from the certificate and determined "
              "the client URI: %1%", uri);
     validatePrivateKeyCertPair(key, crt);
-    LOG_INFO("Validated the private key / certificate pair");
+    LOG_DEBUG("Validated the private key / certificate pair");
 }
 
 }  // namespace PCPClient
