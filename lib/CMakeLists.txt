@@ -38,6 +38,17 @@ add_library(libcpp-pcp-client SHARED ${SOURCES})
 target_link_libraries(libcpp-pcp-client PRIVATE ${LIBS} ${PLATFORM_LIBS})
 set_target_properties(libcpp-pcp-client PROPERTIES PREFIX "" SUFFIX ".so" IMPORT_PREFIX "" IMPORT_SUFFIX ".so.a")
 
+# Generate the export header
+include(GenerateExportHeader)
+generate_export_header(libcpp-pcp-client EXPORT_FILE_NAME "${CMAKE_CURRENT_LIST_DIR}/inc/cpp-pcp-client/export.h")
+
+if (NOT APPLE)
+    add_compiler_export_flags()
+endif()
+if (WIN32)
+    add_definitions("-Dlibcpp_pcp_client_EXPORTS")
+endif()
+
 install(TARGETS libcpp-pcp-client
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib

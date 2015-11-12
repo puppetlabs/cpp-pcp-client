@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cpp-pcp-client/export.h>
 #include <ostream>
 
 /* This header provides a utility to setup logging for the cpp-pcp-client library.
@@ -10,7 +11,7 @@
 namespace PCPClient {
 namespace Util {
 
-void setupLogging(std::ostream &stream,
+LIBCPP_PCP_CLIENT_EXPORT void setupLogging(std::ostream &stream,
                   bool force_colorization,
                   std::string const& loglevel_label);
 
