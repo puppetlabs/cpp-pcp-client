@@ -361,7 +361,8 @@ void Connection::onOpen(WS_Connection_Handle hdl) {
     connection_timings_.open = Util::chrono::high_resolution_clock::now();
     connection_timings_.connection_started = true;
     LOG_DEBUG("WebSocket on open event - %1%", connection_timings_.toString());
-    LOG_INFO("Successfully established a WebSocket connection with the PCP broker");
+    LOG_INFO("Successfully established a WebSocket connection with the PCP "
+             "broker at %1%", broker_ws_uri_);
     connection_state_ = ConnectionStateValues::open;
 
     if (onOpen_callback) {
