@@ -14,6 +14,11 @@ else ()
    set(CPP_PCP_CLIENT_TOPLEVEL FALSE)
 endif ()
 
+if (NOT CMAKE_BUILD_TYPE)
+    message(STATUS "Defaulting to a release build.")
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
+endif()
+
 add_definitions(-DCPP_PCP_CLIENT_LOGGING_PREFIX="puppetlabs.cpp_pcp_client")
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/vendor/leatherman/cmake")
