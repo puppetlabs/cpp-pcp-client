@@ -1,6 +1,4 @@
-## 1.0.2
-
-This is a maintenence release
+## HEAD
 
 * [PCP-137](https://tickets.puppetlabs.com/browse/PCP-121) Default to setting
   CMAKE_BUILD_TYPE to Release.
@@ -8,6 +6,10 @@ This is a maintenence release
   on Websocket onOpen event.
 * [PCP-121](https://tickets.puppetlabs.com/browse/PCP-121) Only export needed
   symbols.
+
+## 1.0.2
+
+This was an cancelled release and the tag should not be used.
 
 ## 1.0.1
 
