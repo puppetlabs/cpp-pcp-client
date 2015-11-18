@@ -4,6 +4,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #include <boost/thread/thread.hpp>
+#include <boost/thread/locks.hpp>
 #pragma GCC diagnostic pop
 
 /* This header encapsulates our use of threads and locking structures.
@@ -18,6 +19,7 @@ namespace Util {
 using thread = boost::thread;
 using mutex = boost::mutex;
 using condition_variable = boost::condition_variable;
+const boost::defer_lock_t defer_lock {};
 
 template <class T>
 using lock_guard = boost::lock_guard<T>;

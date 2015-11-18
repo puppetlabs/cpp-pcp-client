@@ -5,6 +5,7 @@
 #include <cpp-pcp-client/protocol/errors.hpp>
 #include <cpp-pcp-client/protocol/serialization.hpp>
 #include <cpp-pcp-client/validator/validator.hpp>
+#include <cpp-pcp-client/export.h>
 
 #include <string>
 #include <vector>
@@ -18,7 +19,7 @@ namespace PCPClient {
 // Message
 //
 
-class Message {
+class LIBCPP_PCP_CLIENT_EXPORT Message {
   public:
     // The default ctor is deleted since, for the PCP protocol, a
     // valid message must have an envelope chunk (invariant)
