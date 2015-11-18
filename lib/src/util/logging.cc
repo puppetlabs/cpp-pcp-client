@@ -1,24 +1,12 @@
 #include <cpp-pcp-client/util/logging.hpp>
-
 #define LEATHERMAN_LOGGING_NAMESPACE "puppetlabs.pcp_client.configuration"
 #include <leatherman/logging/logging.hpp>
-
 #include <map>
 
 namespace PCPClient {
 namespace Util {
 
 namespace lth_log = leatherman::logging;
-
-static void setupLoggingImp(std::ostream &stream,
-                            bool force_colorization,
-                            lth_log::log_level const& lvl) {
-    lth_log::setup_logging(stream);
-    lth_log::set_level(lvl);
-    if (force_colorization) {
-        lth_log::set_colorization(true);
-    }
-}
 
 void setupLogging(std::ostream &stream,
                   bool force_colorization,
@@ -34,13 +22,11 @@ void setupLogging(std::ostream &stream,
     };
 
     auto lvl = label_to_log_level.at(loglevel_label);
-    setupLoggingImp(stream, force_colorization, lvl);
-}
-
-void setupLogging(std::ostream &stream,
-                  bool force_colorization,
-                  lth_log::log_level const& lvl) {
-    setupLoggingImp(stream, force_colorization, lvl);
+    lth_log::setup_logging(stream);
+    lth_log::set_level(lvl);
+    if (force_colorization) {
+        lth_log::set_colorization(true);
+    }
 }
 
 }  // namespace Util

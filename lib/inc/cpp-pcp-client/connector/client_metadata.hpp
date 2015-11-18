@@ -1,16 +1,15 @@
 #ifndef CPP_PCP_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_
 #define CPP_PCP_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_
 
-#include <cpp-pcp-client/export.h>
 #include <string>
 
 namespace PCPClient {
 
-LIBCPP_PCP_CLIENT_EXPORT void validatePrivateKeyCertPair(const std::string& key, const std::string& crt);
+void validatePrivateKeyCertPair(const std::string& key, const std::string& crt);
 
-LIBCPP_PCP_CLIENT_EXPORT std::string getCommonNameFromCert(const std::string& crt);
+std::string getCommonNameFromCert(const std::string& crt);
 
-class LIBCPP_PCP_CLIENT_EXPORT ClientMetadata {
+class ClientMetadata {
   public:
     std::string ca;
     std::string crt;
