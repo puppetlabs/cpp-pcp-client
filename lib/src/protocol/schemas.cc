@@ -15,6 +15,7 @@ Schema EnvelopeSchema() {
     schema.addConstraint("targets", TypeConstraint::Array, true);
     schema.addConstraint("sender", TypeConstraint::String, true);
     schema.addConstraint("destination_report", TypeConstraint::Bool, false);
+    schema.addConstraint("in-reply-to", TypeConstraint::String, false);
     return schema;
 }
 
