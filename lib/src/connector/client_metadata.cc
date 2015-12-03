@@ -95,13 +95,15 @@ std::string getCommonNameFromCert(const std::string& crt) {
 ClientMetadata::ClientMetadata(const std::string& _client_type,
                                const std::string& _ca,
                                const std::string& _crt,
-                               const std::string& _key)
+                               const std::string& _key,
+                               const long& _connection_timeout)
         : ca { _ca },
           crt { _crt },
           key { _key },
           client_type { _client_type },
           common_name { getCommonNameFromCert(crt) },
-          uri { PCP_URI_SCHEME + common_name + "/" + client_type } {
+          uri { PCP_URI_SCHEME + common_name + "/" + client_type },
+          connection_timeout { _connection_timeout } {
     LOG_INFO("Retrieved common name from the certificate and determined "
              "the client URI: %1%", uri);
     validatePrivateKeyCertPair(key, crt);

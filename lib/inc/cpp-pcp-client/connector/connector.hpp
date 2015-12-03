@@ -37,7 +37,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
               const std::string& client_type,
               const std::string& ca_crt_path,
               const std::string& client_crt_path,
-              const std::string& client_key_path);
+              const std::string& client_key_path,
+              const long& connection_timeout = 5000);
 
     ~Connector();
 

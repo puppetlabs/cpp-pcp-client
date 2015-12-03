@@ -30,7 +30,7 @@ TEST_CASE("validatePrivateKeyCertPair", "[connector]") {
 TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("retrieves correctly the client common name from the certificate") {
         std::string type { "test" };
-        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath() };
+        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(), 5000 };
         std::string expected_id { "pcp://cthun-client/" + type };
 
         REQUIRE(c_m.common_name == "cthun-client");
@@ -38,7 +38,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
 
     SECTION("determines correctly the client URI") {
         std::string type { "test" };
-        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath() };
+        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(), 5000 };
         std::string expected_uri { "pcp://cthun-client/" + type };
 
         REQUIRE(c_m.uri == expected_uri);
@@ -47,14 +47,15 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("throws a connection_config_error if the provided certificate "
             "file does not exist") {
         REQUIRE_THROWS_AS(ClientMetadata("test", getCaPath(),
-                                         getNotExistentFilePath(), getKeyPath()),
+                                         getNotExistentFilePath(), getKeyPath(),
+                                         5000),
                           connection_config_error);
     }
 
     SECTION("throws a connection_config_error if the provided certificate "
             "is invalid") {
         REQUIRE_THROWS_AS(ClientMetadata("test", getCaPath(), getNotACertPath(),
-                                         getKeyPath()),
+                                         getKeyPath(), 5000),
                           connection_config_error);
     }
 }

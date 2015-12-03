@@ -11,7 +11,7 @@ TEST_CASE("Connection::connect", "[connector]") {
     SECTION("throws a connection_processing_error if the broker url is "
             "not a valid WebSocket url") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath() };
+                             getKeyPath(), 5000 };
         Connection connection { "foo", c_m };
 
         REQUIRE_THROWS_AS(connection.connect(),

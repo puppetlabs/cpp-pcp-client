@@ -282,6 +282,9 @@ void Connection::connect_() {
                                             + ": " + ec.message() };
     }
     connection_handle_ = connection_ptr->get_handle();
+    LOG_INFO("Connecting to '%1%' with a connection timeout of %2% ms",
+              broker_ws_uri_, client_metadata_.connection_timeout);
+    connection_ptr->set_open_handshake_timeout(client_metadata_.connection_timeout);
     endpoint_->connect(connection_ptr);
 }
 
