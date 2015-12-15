@@ -1,7 +1,7 @@
 ## 1.0.3
 
-This is an improvement release. It is still based on PCP version 1 and PXP
-version 1 [protocols](https://github.com/puppetlabs/pcp-specifications).
+This is an improvement release. It is still based on PCP version 1
+[protocol](https://github.com/puppetlabs/pcp-specifications).
 
 * [PCP-216](https://tickets.puppetlabs.com/browse/PCP-215) Improve the logic
   that establishes the WebSocket connection.
