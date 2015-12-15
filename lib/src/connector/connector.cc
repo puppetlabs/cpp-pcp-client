@@ -357,7 +357,7 @@ void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
     auto request_id = parsed_chunks.data.get<std::string>("id");
     auto success = parsed_chunks.data.get<bool>("success");
 
-    std::string msg { "Received associate session response " + response_id
+    std::string msg { "Received Associate Session response " + response_id
                       + " from " + sender_uri + " for request " + request_id };
 
     if (success) {
