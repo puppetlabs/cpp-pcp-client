@@ -179,6 +179,13 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     /// Keep track of connection timings
     ConnectionTimings connection_timings_;
 
+    /// Connect and wait until the connection is open or for the
+    /// configured connection_timeout
+    void connectAndWait();
+
+    /// Try closing the connection
+    void tryClose();
+
     /// Stop the event loop thread and perform the necessary clean up
     void cleanUp();
 

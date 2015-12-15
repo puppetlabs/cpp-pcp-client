@@ -29,6 +29,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
 
     Connector() = delete;
 
+    /// The timeout for the call that establishes the WebSocket
+    /// connection is set, by default, to 5000 ms.
     /// Throws a connection_config_error in case the client
     /// certificate file does not exist or is invalid; it fails to
     /// retrieve the client identity from the file; the client
