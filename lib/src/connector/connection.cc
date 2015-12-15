@@ -39,8 +39,8 @@ namespace PCPClient {
 // Constants
 //
 
-static const uint32_t CONNECTION_MIN_INTERVAL { 200 };  // [ms]
-static const uint32_t CONNECTION_BACKOFF_LIMIT { 33000 };  // [ms]
+static const uint32_t CONNECTION_MIN_INTERVAL_MS { 200 };  // [ms]
+static const uint32_t CONNECTION_BACKOFF_LIMIT_MS { 33000 };  // [ms]
 static const uint32_t CONNECTION_BACKOFF_MULTIPLIER { 2 };
 
 //
@@ -128,7 +128,7 @@ void Connection::resetCallbacks() {
 // Synchronous calls
 //
 
-inline static void doSleep(int ms = CONNECTION_MIN_INTERVAL) {
+inline static void doSleep(int ms = CONNECTION_MIN_INTERVAL_MS) {
     Util::this_thread::sleep_for(Util::chrono::milliseconds(ms));
 }
 
@@ -148,17 +148,16 @@ void Connection::connect(int max_connect_attempts) {
     bool try_again { true };
     bool got_max_backoff { false };
     std::random_device rd;
-    std::default_random_engine engine(rd());
-    std::uniform_int_distribution<int> dist(-250, 250);
+    std::default_random_engine engine { rd() };
+    std::uniform_int_distribution<int> dist { -250, 250 };
 
     do {
         current_c_s = connection_state_.load();
         idx++;
-        if (max_connect_attempts) {
+        if (max_connect_attempts)
             try_again = (idx < max_connect_attempts);
-        }
         got_max_backoff |= (connection_backoff_ms_ * CONNECTION_BACKOFF_MULTIPLIER
-                            >= CONNECTION_BACKOFF_LIMIT);
+                            >= CONNECTION_BACKOFF_LIMIT_MS);
 
         switch (current_c_s) {
         case(ConnectionStateValues::initialized):
@@ -173,9 +172,8 @@ void Connection::connect(int max_connect_attempts) {
             continue;
 
         case(ConnectionStateValues::open):
-            if (previous_c_s != ConnectionStateValues::open) {
+            if (previous_c_s != ConnectionStateValues::open)
                 connection_backoff_ms_ = CONNECTION_BACKOFF_MS;
-            }
             return;
 
         case(ConnectionStateValues::closing):
