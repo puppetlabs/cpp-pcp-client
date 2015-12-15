@@ -24,6 +24,8 @@
 
 #include <leatherman/logging/logging.hpp>
 
+#include <leatherman/util/timer.hpp>
+
 #include <cstdio>
 #include <iostream>
 #include <random>
@@ -34,6 +36,8 @@
 #include <cassert>
 
 namespace PCPClient {
+
+namespace lth_util = leatherman::util;
 
 //
 // Constants
@@ -162,8 +166,9 @@ void Connection::connect(int max_connect_attempts) {
         switch (current_c_s) {
         case(ConnectionStateValues::initialized):
             assert(previous_c_s == ConnectionStateValues::initialized);
-            connect_();
-            doSleep();
+            connectAndWait();
+            if (connection_state_.load() == ConnectionStateValues::open)
+                return;
             break;
 
         case(ConnectionStateValues::connecting):
@@ -183,9 +188,8 @@ void Connection::connect(int max_connect_attempts) {
 
         case(ConnectionStateValues::closed):
             if (previous_c_s == ConnectionStateValues::closed) {
-                connect_();
-                doSleep();
                 previous_c_s = ConnectionStateValues::connecting;
+                connectAndWait();
             } else {
                 LOG_WARNING("Failed to establish a WebSocket connection; "
                             "retrying in %1% seconds",
@@ -193,8 +197,7 @@ void Connection::connect(int max_connect_attempts) {
                 // Randomly adjust the interval slightly to help calm
                 // a thundering herd
                 doSleep(connection_backoff_ms_ + dist(engine));
-                connect_();
-                doSleep();
+                connectAndWait();
                 if (try_again && !got_max_backoff) {
                     connection_backoff_ms_ *= CONNECTION_BACKOFF_MULTIPLIER;
                 }
@@ -257,15 +260,41 @@ void Connection::close(CloseCode code, const std::string& reason) {
 // Private interface
 //
 
-void Connection::cleanUp() {
-    endpoint_->stop_perpetual();
-    if (connection_state_ == ConnectionStateValues::open) {
-        try {
-            close();
-        } catch (connection_processing_error& e) {
-            LOG_ERROR("Failed to close the WebSocket connection: %1%", e.what());
-        }
+void Connection::connectAndWait() {
+    static auto connection_timeout_s =
+        static_cast<int>(client_metadata_.connection_timeout / 1000);
+    connect_();
+    lth_util::Timer timer {};
+    while (connection_state_.load() != ConnectionStateValues::open
+           && timer.elapsed_seconds() < connection_timeout_s) {
+        doSleep();
     }
+}
+
+void Connection::tryClose() {
+    try {
+        close();
+    } catch (connection_processing_error& e) {
+        LOG_ERROR("Cleanup failure: %1%", e.what());
+    }
+}
+
+void Connection::cleanUp() {
+    auto c_s = connection_state_.load();
+
+    if (c_s == ConnectionStateValues::open) {
+        tryClose();
+    } else if (c_s == ConnectionStateValues::connecting) {
+        // Wait connection_timeout ms, in case of a concurrent onOpen
+        LOG_WARNING("Will wait %1% ms before terminating the WebSocket connection",
+                    client_metadata_.connection_timeout);
+        doSleep(client_metadata_.connection_timeout);
+        if (connection_state_.load() == ConnectionStateValues::open)
+            tryClose();
+    }
+
+    endpoint_->stop_perpetual();
+
     if (endpoint_thread_ != nullptr && endpoint_thread_->joinable()) {
         endpoint_thread_->join();
     }
