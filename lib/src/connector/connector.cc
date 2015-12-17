@@ -174,58 +174,58 @@ void Connector::send(const Message& msg) {
     connection_ptr_->send(&serialized_msg[0], serialized_msg.size());
 }
 
-void Connector::send(const std::vector<std::string>& targets,
+std::string Connector::send(const std::vector<std::string>& targets,
                      const std::string& message_type,
                      unsigned int timeout,
                      const lth_jc::JsonContainer& data_json,
                      const std::vector<lth_jc::JsonContainer>& debug) {
-    sendMessage(targets,
-                message_type,
-                timeout,
-                false,
-                data_json.toString(),
-                debug);
+    return sendMessage(targets,
+                       message_type,
+                       timeout,
+                       false,
+                       data_json.toString(),
+                       debug);
 }
 
-void Connector::send(const std::vector<std::string>& targets,
+std::string Connector::send(const std::vector<std::string>& targets,
                      const std::string& message_type,
                      unsigned int timeout,
                      const std::string& data_binary,
                      const std::vector<lth_jc::JsonContainer>& debug) {
-    sendMessage(targets,
-                message_type,
-                timeout,
-                false,
-                data_binary,
-                debug);
+    return sendMessage(targets,
+                       message_type,
+                       timeout,
+                       false,
+                       data_binary,
+                       debug);
 }
 
-void Connector::send(const std::vector<std::string>& targets,
+std::string Connector::send(const std::vector<std::string>& targets,
                      const std::string& message_type,
                      unsigned int timeout,
                      bool destination_report,
                      const lth_jc::JsonContainer& data_json,
                      const std::vector<lth_jc::JsonContainer>& debug) {
-    sendMessage(targets,
-                message_type,
-                timeout,
-                destination_report,
-                data_json.toString(),
-                debug);
+    return sendMessage(targets,
+                       message_type,
+                       timeout,
+                       destination_report,
+                       data_json.toString(),
+                       debug);
 }
 
-void Connector::send(const std::vector<std::string>& targets,
+std::string Connector::send(const std::vector<std::string>& targets,
                      const std::string& message_type,
                      unsigned int timeout,
                      bool destination_report,
                      const std::string& data_binary,
                      const std::vector<lth_jc::JsonContainer>& debug) {
-    sendMessage(targets,
-                message_type,
-                timeout,
-                destination_report,
-                data_binary,
-                debug);
+    return sendMessage(targets,
+                       message_type,
+                       timeout,
+                       destination_report,
+                       data_binary,
+                       debug);
 }
 
 //
@@ -243,8 +243,9 @@ void Connector::checkConnectionInitialization() {
 MessageChunk Connector::createEnvelope(const std::vector<std::string>& targets,
                                        const std::string& message_type,
                                        unsigned int timeout,
-                                       bool destination_report) {
-    auto msg_id = lth_util::get_UUID();
+                                       bool destination_report,
+                                       std::string& msg_id) {
+    msg_id = lth_util::get_UUID();
     auto expires = lth_util::get_ISO8601_time(timeout);
     LOG_DEBUG("Creating message with id %1% for %2% receiver%3%",
               msg_id, targets.size(), lth_util::plural(targets.size()));
@@ -264,14 +265,18 @@ MessageChunk Connector::createEnvelope(const std::vector<std::string>& targets,
     return MessageChunk { ChunkDescriptor::ENVELOPE, envelope_content.toString() };
 }
 
-void Connector::sendMessage(const std::vector<std::string>& targets,
-                            const std::string& message_type,
-                            unsigned int timeout,
-                            bool destination_report,
-                            const std::string& data_txt,
-                            const std::vector<lth_jc::JsonContainer>& debug) {
-    auto envelope_chunk = createEnvelope(targets, message_type, timeout,
-                                         destination_report);
+std::string Connector::sendMessage(const std::vector<std::string>& targets,
+                                   const std::string& message_type,
+                                   unsigned int timeout,
+                                   bool destination_report,
+                                   const std::string& data_txt,
+                                   const std::vector<lth_jc::JsonContainer>& debug) {
+    std::string msg_id {};
+    auto envelope_chunk = createEnvelope(targets,
+                                         message_type,
+                                         timeout,
+                                         destination_report,
+                                         msg_id);
     MessageChunk data_chunk { ChunkDescriptor::DATA, data_txt };
     Message msg { envelope_chunk, data_chunk };
 
@@ -281,16 +286,19 @@ void Connector::sendMessage(const std::vector<std::string>& targets,
     }
 
     send(msg);
+    return msg_id;
 }
 
 // WebSocket onOpen callback - will send the associate session request
 
 void Connector::associateSession() {
     // Envelope
+    std::string msg_id {};
     auto envelope = createEnvelope(std::vector<std::string> { MY_BROKER_URI },
                                    Protocol::ASSOCIATE_REQ_TYPE,
                                    DEFAULT_MSG_TIMEOUT,
-                                   false);
+                                   false,
+                                   msg_id);
 
     // Create and send message
     Message msg { envelope };

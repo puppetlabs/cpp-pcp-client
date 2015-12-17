@@ -343,8 +343,8 @@ or you can assign one callback to a lot of different schemas,
 ### Sending Messages
 
 Once you have established a connection to the PCP broker you can send messages
-using the _send_ function. There are two overloads for the function that are
-defined as:
+using the _send_ method. There are two main overloads for this function that
+are defined as (please check connector.hpp for the other overloads):
 
 ```
     void send(std::vector<std::string> targets,
@@ -359,26 +359,29 @@ With the parameters are described as follows:
 
  - targets - A vector of the destinations the message will be sent to
  - data_schema - The Schema that identifies the message type
- - timeout - Duration the message will be valid on the fabric
+ - timeout - Duration the message will be valid on the fabric, in seconds
  - data_json - A JsonContainer representing the data chunk of the message
  - debug - A vector of strings representing the debug chunks of the message (defaults to empty)
 
 
 ```
-    void send(std::vector<std::string> targets,
-              std::string data_schema,
-              unsigned int timeout,
-              std::string data_binary,
-              std::vector<JsonContainer> debug = std::vector<JsonContainer> {})
-                        throws (connection_processing_error, connection_not_init_error)
+    std::string send(std::vector<std::string> targets,
+                     std::string data_schema,
+                     unsigned int timeout,
+                     bool destination_report,
+                     std::string data_binary,
+                     std::vector<JsonContainer> debug = std::vector<JsonContainer> {})
+                              throws (connection_processing_error, connection_not_init_error)
 
 ```
 
-With the parameters are described as follows:
+The above overload returns the ID of the sent message and accepts the following
+parameters:
 
  - targets - A vector of the destinations the message will be sent to
  - data_schema - The Schema that identifies the message type
- - timeout - Duration the message will be valid on the fabric
+ - timeout - Duration the message will be valid on the fabric, in seconds
+ - destination_report - A boolean indicating whether or not requesting a destination report
  - data_binary - A string representing the data chunk of the message
  - debug - A vector of strings representing the debug chunks of the message (defaults to empty)
 
@@ -404,7 +407,8 @@ Example usage:
     JsonContainer data {};
     data.set<std::string>("foo", "bar");
     try {
-      connector.send({"pcp://*/potato"}, "potato_schema", 42, data);
+      auto id = connector.send({"pcp://*/potato"}, "potato_schema", 42, data);
+      std::cout << "Sent potato message to all potato clients, with ID=" << id << std::endl;
     } catch (connection_not_init_error e) {
       std::cout << "Cannot send message without being connected to the broker" << std::endl;
     } catch (connection_processing_error e) {

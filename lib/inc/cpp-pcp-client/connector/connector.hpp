@@ -18,10 +18,11 @@
 
 namespace PCPClient {
 
+namespace lth_jc = leatherman::json_container;
+
 //
 // Connector
 //
-namespace lth_jc = leatherman::json_container;
 
 class LIBCPP_PCP_CLIENT_EXPORT Connector {
   public:
@@ -104,8 +105,15 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     void monitorConnection(int max_connect_attempts = 0);
 
     /// Send the specified message.
+    /// Throw a connection_processing_error in case of failure;
+    /// throw a connection_not_init_error in case the connection
+    /// has not been opened previously.
+    void send(const Message& msg);
+
+    /// send() overloads that create and send a message as specified.
+    /// Return the ID of the message, as a string.
     ///
-    /// Other overloads may specify:
+    /// The caller may specify:
     ///   - targets: list of PCP URI strings
     ///   - message_type: schema name that identifies the message type
     ///   - timeout: expires entry in seconds
@@ -117,36 +125,34 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     ///   - throw a connection_processing_error in case of failure;
     ///   - throw a connection_not_init_error in case the connection
     ///     has not been opened previously.
-    void send(const Message& msg);
-
-    void send(const std::vector<std::string>& targets,
-              const std::string& message_type,
-              unsigned int timeout,
-              const lth_jc::JsonContainer& data_json,
-              const std::vector<lth_jc::JsonContainer>& debug
+    std::string send(const std::vector<std::string>& targets,
+                     const std::string& message_type,
+                     unsigned int timeout,
+                     const lth_jc::JsonContainer& data_json,
+                     const std::vector<lth_jc::JsonContainer>& debug
                         = std::vector<lth_jc::JsonContainer> {});
 
-    void send(const std::vector<std::string>& targets,
-              const std::string& message_type,
-              unsigned int timeout,
-              const std::string& data_binary,
-              const std::vector<lth_jc::JsonContainer>& debug
+    std::string send(const std::vector<std::string>& targets,
+                     const std::string& message_type,
+                     unsigned int timeout,
+                     const std::string& data_binary,
+                     const std::vector<lth_jc::JsonContainer>& debug
                         = std::vector<lth_jc::JsonContainer> {});
 
-    void send(const std::vector<std::string>& targets,
-              const std::string& message_type,
-              unsigned int timeout,
-              bool destination_report,
-              const lth_jc::JsonContainer& data_json,
-              const std::vector<lth_jc::JsonContainer>& debug
+    std::string send(const std::vector<std::string>& targets,
+                     const std::string& message_type,
+                     unsigned int timeout,
+                     bool destination_report,
+                     const lth_jc::JsonContainer& data_json,
+                     const std::vector<lth_jc::JsonContainer>& debug
                         = std::vector<lth_jc::JsonContainer> {});
 
-    void send(const std::vector<std::string>& targets,
-              const std::string& message_type,
-              unsigned int timeout,
-              bool destination_report,
-              const std::string& data_binary,
-              const std::vector<lth_jc::JsonContainer>& debug
+    std::string send(const std::vector<std::string>& targets,
+                     const std::string& message_type,
+                     unsigned int timeout,
+                     bool destination_report,
+                     const std::string& data_binary,
+                     const std::vector<lth_jc::JsonContainer>& debug
                         = std::vector<lth_jc::JsonContainer> {});
 
   private:
@@ -191,14 +197,15 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     MessageChunk createEnvelope(const std::vector<std::string>& targets,
                                 const std::string& message_type,
                                 unsigned int timeout,
-                                bool destination_report);
+                                bool destination_report,
+                                std::string& msg_id);
 
-    void sendMessage(const std::vector<std::string>& targets,
-                     const std::string& message_type,
-                     unsigned int timeout,
-                     bool destination_report,
-                     const std::string& data_txt,
-                     const std::vector<lth_jc::JsonContainer>& debug);
+    std::string sendMessage(const std::vector<std::string>& targets,
+                            const std::string& message_type,
+                            unsigned int timeout,
+                            bool destination_report,
+                            const std::string& data_txt,
+                            const std::vector<lth_jc::JsonContainer>& debug);
 
     // WebSocket Callback for the Connection instance to be triggered
     // on an onOpen event.
