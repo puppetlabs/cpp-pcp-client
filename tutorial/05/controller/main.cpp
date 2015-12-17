@@ -9,7 +9,7 @@
 
 namespace Tutorial {
 
-const std::string BROKER_URL { "wss://127.0.0.1:8090/cthun/" };
+const std::string BROKER_URL { "wss://127.0.0.1:8142/pcp/" };
 
 const std::string AGENT_CLIENT_TYPE { "tutorial_agent" };
 const std::string CONTROLLER_CLIENT_TYPE { "tutorial_controller" };
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     data_entries.set<leatherman::json_container::JsonContainer>("request", track);
     data_entries.set<std::string>("details", "please send some good music");
 
-    std::vector<std::string> endpoints { "cth://*/" + AGENT_CLIENT_TYPE };
+    std::vector<std::string> endpoints { "pcp://*/" + AGENT_CLIENT_TYPE };
 
     try {
         connector_ptr->send(endpoints,

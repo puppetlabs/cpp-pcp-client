@@ -74,7 +74,7 @@ void Controller::sendRequest() {
     } catch (PCPClient::connection_fatal_error& e) {
         std::string err_msg { "failed to connect to " + BROKER_URL + " after "
                               + std::to_string(num_connect_attempts_)
-                              + "attempts: " };
+                              + " attempts: " };
         throw controller_error { err_msg + e.what() };
     }
 
@@ -95,7 +95,7 @@ void Controller::sendRequest() {
     data_entries.set<leatherman::json_container::JsonContainer>("request", track);
     data_entries.set<std::string>("details", "please send some good music");
 
-    std::vector<std::string> endpoints { "cth://*/" + AGENT_CLIENT_TYPE };
+    std::vector<std::string> endpoints { "pcp://*/" + AGENT_CLIENT_TYPE };
 
     try {
         connector_ptr_->send(endpoints,

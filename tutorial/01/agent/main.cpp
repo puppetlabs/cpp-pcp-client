@@ -6,7 +6,7 @@
 
 namespace Tutorial {
 
-const std::string BROKER_URL { "wss://127.0.0.1:8090/cthun/" };
+const std::string BROKER_URL { "wss://127.0.0.1:8142/pcp/" };
 
 const std::string AGENT_CLIENT_TYPE { "tutorial_agent" };
 
