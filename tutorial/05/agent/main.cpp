@@ -13,7 +13,7 @@
 
 namespace Tutorial {
 
-const std::string BROKER_URL { "wss://127.0.0.1:8090/cthun/" };
+const std::string BROKER_URL { "wss://127.0.0.1:8142/pcp/" };
 
 const std::string AGENT_CLIENT_TYPE { "tutorial_agent" };
 
@@ -87,7 +87,7 @@ void Agent::start() {
     } catch (PCPClient::connection_fatal_error& e) {
         std::string err_msg { "failed to connect to " + BROKER_URL + " after "
                               + std::to_string(num_connect_attempts_)
-                              + "attempts: " };
+                              + " attempts: " };
         throw agent_error { err_msg + e.what() };
     }
 

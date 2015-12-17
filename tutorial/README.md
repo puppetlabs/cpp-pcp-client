@@ -8,7 +8,7 @@ cpp-pcp-client.
 To build on OS X:
 ```
     g++ -std=c++11 -o agent -L /usr/local/lib -lcpp-pcp-client \
-    -lleatherman_json_container -I ../../../lib/inc main.cpp
+    -lboost_system -I ../../../lib/inc main.cpp
 ```
 
 You need to install PCP and [leatherman][1] before that: `make` then

@@ -92,7 +92,7 @@ void Controller::sendRequests() {
     } catch (PCPClient::connection_fatal_error& e) {
         std::string err_msg { "failed to connect to " + BROKER_URL + " after "
                               + std::to_string(num_connect_attempts_)
-                              + "attempts: " };
+                              + " attempts: " };
         throw controller_error { err_msg + e.what() };
     }
 
@@ -113,14 +113,14 @@ void Controller::sendRequests() {
     valid_request.set<leatherman::json_container::JsonContainer>("request", track);
     valid_request.set<std::string>("details", "please send some good music");
 
-    std::vector<std::string> endpoints { "cth://*/" + AGENT_CLIENT_TYPE };
+    std::vector<std::string> endpoints { "pcp://*/" + AGENT_CLIENT_TYPE };
 
     try {
-        connector_ptr_->send(endpoints,
-                             REQUEST_SCHEMA_NAME,
-                             MSG_TIMEOUT_S,
-                             valid_request);
-        std::cout << "Valid request message sent\n";
+        auto id = connector_ptr_->send(endpoints,
+                                       REQUEST_SCHEMA_NAME,
+                                       MSG_TIMEOUT_S,
+                                       valid_request);
+        std::cout << "Valid request message sent; message id: " << id << "\n";
     } catch (PCPClient::connection_processing_error& e) {
         std::string err_msg { "failed to send the request message: " };
         throw controller_error { err_msg + e.what() };
@@ -135,11 +135,11 @@ void Controller::sendRequests() {
     bad_request.set<std::string>("details", "I'm not sure about this");
 
     try {
-        connector_ptr_->send(endpoints,
-                             REQUEST_SCHEMA_NAME,
-                             MSG_TIMEOUT_S,
-                             bad_request);
-        std::cout << "Bad request message sent\n";
+        auto id = connector_ptr_->send(endpoints,
+                                       REQUEST_SCHEMA_NAME,
+                                       MSG_TIMEOUT_S,
+                                       bad_request);
+        std::cout << "Bad request message sent; message id: " << id << "\n";
     } catch (PCPClient::connection_processing_error& e) {
         std::string err_msg { "failed to send the request message: " };
         throw controller_error { err_msg + e.what() };
@@ -153,11 +153,11 @@ void Controller::sendRequests() {
 
     try {
         // NB: use "cth:///server" with 3 '/' as the broker URI
-        connector_ptr_->send(std::vector<std::string> { "cth:///server" },
-                             PCPClient::Protocol::INVENTORY_REQ_TYPE,
-                             MSG_TIMEOUT_S,
-                             inventory_request);
-        std::cout << "Inventory request message sent\n";
+        auto id  = connector_ptr_->send(std::vector<std::string> { "cth:///server" },
+                                        PCPClient::Protocol::INVENTORY_REQ_TYPE,
+                                        MSG_TIMEOUT_S,
+                                        inventory_request);
+        std::cout << "Inventory request message sent; message id: " << id << "\n";
     } catch (PCPClient::connection_processing_error& e) {
         std::string err_msg { "failed to send the inventory request message: " };
         throw controller_error { err_msg + e.what() };

@@ -80,7 +80,7 @@ void Agent::start() {
     } catch (PCPClient::connection_fatal_error& e) {
         std::string err_msg { "failed to connect to " + BROKER_URL + " after "
                               + std::to_string(num_connect_attempts_)
-                              + "attempts: " };
+                              + " attempts: " };
         throw agent_error { err_msg + e.what() };
     }
 
