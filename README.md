@@ -20,6 +20,7 @@ A tutorial on how to create a PCP agent / controller pair with cpp-pcp-client is
  - gnumake
  - cmake (2.8.12 or newer)
  - boost (1.54 or newer)
+ - [leatherman][leatherman], installed as a standalone library (0.3.5 or newer)
 
 ### Build
 
@@ -475,3 +476,4 @@ Example usage:
 [specs]: https://github.com/puppetlabs/pcp-specifications
 [json_container]: https://github.com/puppetlabs/leatherman/tree/master/json_container
 [websocket++]: http://www.zaphoyd.com/websocketpp/
+[leatherman]: https://github.com/puppetlabs/leatherman
