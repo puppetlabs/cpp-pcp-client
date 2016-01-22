@@ -1,4 +1,4 @@
-## 1.0.3
+## master
 
 This is an improvement release. It is still based on PCP version 1
 [protocol](https://github.com/puppetlabs/pcp-specifications).
@@ -15,6 +15,10 @@ This is an improvement release. It is still based on PCP version 1
   on Websocket onOpen event.
 * [PCP-121](https://tickets.puppetlabs.com/browse/PCP-121) Only export needed
   symbols.
+
+## 1.0.3
+
+This was an cancelled release and the tag should not be used.
 
 ## 1.0.2
 
