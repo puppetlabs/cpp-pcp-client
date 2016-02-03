@@ -21,11 +21,13 @@ set(SOURCES
     src/validator/validator.cc
 )
 
+# TODO(ale): remove Thread dependency after LTH-81 changes
 set(LIBS
     ${LEATHERMAN_LIBRARIES}
     ${Boost_LIBRARIES}
     ${OPENSSL_SSL_LIBRARY}
     ${OPENSSL_CRYPTO_LIBRARY}
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 if (WIN32)

@@ -22,9 +22,11 @@ set(test_BIN cpp-pcp-client-unittests)
 find_package(Boost 1.54 REQUIRED
   COMPONENTS filesystem system date_time thread log regex random)
 
+# TODO(ale): remove Thread dependency after LTH-81 changes
 include_directories(
     ${LEATHERMAN_CATCH_INCLUDE}
     ${Boost_INCLUDE_DIRS}
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 add_executable(${test_BIN} ${SOURCES})
