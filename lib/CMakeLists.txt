@@ -37,6 +37,11 @@ elseif ("${CMAKE_SYSTEM_NAME}" MATCHES "SunOS")
 endif()
 
 add_library(libcpp-pcp-client SHARED ${SOURCES})
+
+# Explicit dependency on external projects to ensure they get
+# extracted when building with multiple jobs
+add_dependencies(libcpp-pcp-client websocketpp valijson)
+
 target_link_libraries(libcpp-pcp-client PRIVATE ${LIBS} ${PLATFORM_LIBS})
 set_target_properties(libcpp-pcp-client PROPERTIES PREFIX "" SUFFIX ".so" IMPORT_PREFIX "" IMPORT_SUFFIX ".so.a")
 
