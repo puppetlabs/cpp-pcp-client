@@ -40,7 +40,7 @@ endif()
 find_package(Leatherman REQUIRED
   COMPONENTS locale nowide catch logging rapidjson json_container util)
 find_package(Boost 1.54 REQUIRED
-  COMPONENTS filesystem system date_time thread log regex random)
+  COMPONENTS filesystem chrono system date_time thread log regex random)
 find_package(OpenSSL REQUIRED)
 # TODO(ale): same fix as FACT-1338; remove it once LTH-81 is done.
 # date_time and regex need threads on some platforms, and find_package
