@@ -26,11 +26,10 @@ find_package(Boost 1.54 REQUIRED
 include_directories(
     ${LEATHERMAN_CATCH_INCLUDE}
     ${Boost_INCLUDE_DIRS}
-    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 add_executable(${test_BIN} ${SOURCES})
-target_link_libraries(${test_BIN} libcpp-pcp-client ${LEATHERMAN_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(${test_BIN} libcpp-pcp-client ${LEATHERMAN_LIBRARIES} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 add_custom_target(check
     "${EXECUTABLE_OUTPUT_PATH}/${test_BIN}"
