@@ -1,7 +1,5 @@
 # cpp-pcp-client
 
-## Introduction
-
 cpp-pcp-client is a C++ client library for the [PCP protocol][specs]. It includes a
 collection of abstractions which can be used to initiate connections to a PCP
 broker, wrapping the PCP message format and performing schema validation for
@@ -13,26 +11,106 @@ cpp-pcp-client implements PCP by layering it upon WebSocket; it uses
 A tutorial on how to create a PCP agent / controller pair with cpp-pcp-client is
 [here][tutorial].
 
-## Building the library
+Dependencies
+------------
 
-### Requirements
  - a C++11 compiler (clang/gcc 4.7)
- - gnumake
- - cmake (2.8.12 or newer)
- - boost (1.54 or newer)
+ - CMake (3.2 or newer)
+ - Boost (1.54 or newer)
+ - OpenSSL
  - [leatherman][leatherman], installed as a standalone library (0.3.5 or newer)
 
-### Build
+Initial Setup
+-------------
 
-Building the library is simple, just run:
+#### Setup on Fedora 23
 
-    make
+The following will install all required tools and libraries:
 
-Tests can be run with:
+    yum install boost-devel openssl-devel gcc-c++ make wget tar cmake
 
-    make test
+#### Setup on Mac OSX El Capitan (homebrew)
 
-## Usage
+This assumes Clang is installed and the system OpenSSL libraries will be used.
+
+The following will install all required libraries:
+
+    brew install cmake boost
+
+#### Setup on Ubuntu 15.10 (Trusty)
+
+The following will install most required tools and libraries:
+
+    apt-get install build-essential libboost-all-dev libssl-dev wget tar cmake
+
+#### Setup on Windows
+
+[MinGW-w64][MinGW-w64] is used for full C++11 support, and
+[Chocolatey][Chocolatey] can be used to install. You should have at least 2GB of
+memory for compilation.
+
+* install [CMake][CMake-choco] & [7zip][7zip-choco]
+
+        choco install cmake 7zip.commandline
+
+* install [MinGW-w64][MinGW-w64-choco]
+
+        choco install mingw --params "/threads:win32"
+
+For the remaining tasks, build commands can be executed in the shell from
+
+    Start > MinGW-w64 project > Run Terminal
+
+* select an install location for dependencies, such as C:\\tools or cmake\\release\\ext;
+we'll refer to it as $install
+
+* build [Boost][Boost-download]
+
+        .\bootstrap mingw
+        .\b2 toolset=gcc --build-type=minimal install --prefix=$install --with-program_options --with-system --with-filesystem --with-date_time --with-thread --with-regex --with-log --with-locale --with-chrono boost.locale.iconv=off
+
+In Powershell:
+
+    choco install cmake 7zip.commandline -y
+    choco install mingw --params "/threads:win32" -y
+    $env:PATH = "C:\tools\mingw64\bin;$env:PATH"
+    $install = "C:\tools"
+
+    (New-Object Net.WebClient).DownloadFile("https://downloads.sourceforge.net/boost/boost_1_54_0.7z", "$pwd/boost_1_54_0.7z")
+    7za x boost_1_54_0.7z
+    pushd boost_1_54_0
+    .\bootstrap mingw
+    .\b2 toolset=gcc --build-type=minimal install --prefix=$install --with-program_options --with-system --with-filesystem --with-date_time --with-thread --with-regex --with-log --with-locale --with-chrono boost.locale.iconv=off
+    popd
+
+Build and install
+-----------------
+
+* build & install [leatherman][leatherman]
+
+* build and install cpp-pcp-client
+
+  Thanks to the CMake, the project can be built out-of-source tree, which allows
+  for multiple independent builds.
+
+  example release build:
+
+      mkdir release
+      cd release
+      cmake ..
+      make
+      sudo make install
+
+  example debug/test build:
+
+      mkdir debug
+      cd debug
+      cmake -DCMAKE_BUILD_TYPE=Debug ..
+      make
+      sudo make install
+
+Usage
+-----
 
 ##### Table of Contents
 - [Important Data Structures](#data_structures)
@@ -477,3 +555,9 @@ Example usage:
 [json_container]: https://github.com/puppetlabs/leatherman/tree/master/json_container
 [websocket++]: http://www.zaphoyd.com/websocketpp/
 [leatherman]: https://github.com/puppetlabs/leatherman
+[MinGW-w64]: http://mingw-w64.sourceforge.net/
+[Chocolatey]: https://chocolatey.org
+[CMake-choco]: https://chocolatey.org/packages/cmake
+[7zip-choco]: https://chocolatey.org/packages/7zip.commandline
+[MinGW-w64-choco]: https://chocolatey.org/packages/mingw
+[Boost-download]: http://sourceforge.net/projects/boost/files/latest/download
