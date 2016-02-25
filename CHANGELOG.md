@@ -1,9 +1,19 @@
-## master
+## 1.1.0
 
-This is an improvement release. It is still based on PCP version 1
-[protocol](https://github.com/puppetlabs/pcp-specifications).
+This is an improvement release. It is still based on the
+[PCP v1.0 protocol](https://github.com/puppetlabs/pcp-specifications/tree/master/pcp/versions/1.0).
 
-* [PCP-216](https://tickets.puppetlabs.com/browse/PCP-215) Improve the logic
+* [PCP-244](https://tickets.puppetlabs.com/browse/PCP-244) Improve building
+instructions on README and remove Makefile.
+* [#133](https://github.com/puppetlabs/cpp-pcp-client/pull/133) Add dependency
+on Boost.Chrono.
+* [PCP-269](https://tickets.puppetlabs.com/browse/PCP-269) Add dependencies on
+external projects on CMakeLists to guarantee a successful build.
+* [PCP-209](https://tickets.puppetlabs.com/browse/PCP-209) Unvendor leatherman
+and add dependency on the installed leatherman.
+* [PCP-217](https://tickets.puppetlabs.com/browse/PCP-217) The function for
+sending messages now returns the message ID
+* [PCP-216](https://tickets.puppetlabs.com/browse/PCP-216) Improve the logic
   that establishes the WebSocket connection.
 * [PCP-192](https://tickets.puppetlabs.com/browse/PCP-192) Add in-reply-to entry
   to PCP envelope schema definition.
