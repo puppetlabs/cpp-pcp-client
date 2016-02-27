@@ -288,6 +288,38 @@ void Connection::connect_() {
 //
 // Event handlers (private)
 //
+template <typename Verifier>
+class verbose_verification
+{
+public:
+  verbose_verification(Verifier verifier)
+    : verifier_(verifier)
+  {}
+
+  bool operator()(
+    bool preverified,
+    boost::asio::ssl::verify_context& ctx
+  )
+  {
+    char subject_name[256], issuer_name[256];
+    X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+    X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+    X509_NAME_oneline(X509_get_issuer_name(cert), issuer_name, 256);
+    bool verified = verifier_(preverified, ctx);
+    LOG_TRACE("Verifying %1%, issued by %2%. Verified: %3%", subject_name, issuer_name, verified);
+    return verified;
+  }
+private:
+  Verifier verifier_;
+};
+
+///@brief Auxiliary function to make verbose_verification objects.
+template <typename Verifier>
+static verbose_verification<Verifier>
+make_verbose_verification(Verifier verifier)
+{
+  return verbose_verification<Verifier>(verifier);
+}
 
 WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
     LOG_DEBUG("WebSocket TLS initialization event; about to validate the certificate");
@@ -304,6 +336,11 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
         ctx->use_private_key_file(client_metadata_.key,
                                   boost::asio::ssl::context::file_format::pem);
         ctx->load_verify_file(client_metadata_.ca);
+
+        auto uri = websocketpp::uri(broker_ws_uri_);
+        ctx->set_verify_mode(boost::asio::ssl::verify_peer);
+        ctx->set_verify_callback(make_verbose_verification(boost::asio::ssl::rfc2818_verification(uri.get_host())));
+        LOG_TRACE("Initialized SSL context to verify broker %1%", uri.get_host());
     } catch (std::exception& e) {
         // This is unexpected, as the CliendMetadata ctor does
         // validate the key / cert pair
