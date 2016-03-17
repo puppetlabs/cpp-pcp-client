@@ -110,7 +110,6 @@ void Connector::setAssociateCallback(MessageCallback callback) {
     associate_response_callback_ = callback;
 }
 
-
 // Manage the connection state
 
 void Connector::connect(int max_connect_attempts) {
