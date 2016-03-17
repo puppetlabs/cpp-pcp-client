@@ -1,3 +1,9 @@
+## 1.1.2
+
+## 1.1.1
+
+This version integrates the changes made for 1.0.4
+
 ## 1.1.0
 
 This is an improvement release. It is still based on the

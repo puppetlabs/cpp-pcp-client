@@ -321,6 +321,7 @@ void Connection::connect_() {
 //
 // Event handlers (private)
 //
+
 template <typename Verifier>
 class verbose_verification
 {
@@ -343,10 +344,10 @@ public:
     return verified;
   }
 private:
-  Verifier verifier_;
+    Verifier verifier_;
 };
 
-///@brief Auxiliary function to make verbose_verification objects.
+/// \brief Auxiliary function to make verbose_verification objects.
 template <typename Verifier>
 static verbose_verification<Verifier>
 make_verbose_verification(Verifier verifier)
