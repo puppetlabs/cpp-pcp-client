@@ -4,13 +4,18 @@
 
 #include "test.hpp"
 
+// To enable log messages:
+// #define ENABLE_LOGGING
+
+#ifdef ENABLE_LOGGING
 #define LEATHERMAN_LOGGING_NAMESPACE "puppetlabs.cpp_pcp_client.test"
 #include <leatherman/logging/logging.hpp>
+#endif
 
 int main(int argc, char* const argv[]) {
-    // set logging level to fatal
-    leatherman::logging::setup_logging(std::cout);
-    leatherman::logging::set_level(leatherman::logging::log_level::fatal);
+#ifdef ENABLE_LOGGING
+    leatherman::logging::set_level(leatherman::logging::log_level::debug);
+#endif
 
     // configure the Catch session and start it
     Catch::Session test_session;
