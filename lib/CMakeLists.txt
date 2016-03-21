@@ -11,6 +11,7 @@ set(SOURCES
     src/connector/client_metadata.cc
     src/connector/connection.cc
     src/connector/connector.cc
+    src/connector/session_association.cc
     src/connector/timings.cc
     src/protocol/chunks.cc
     src/protocol/message.cc
