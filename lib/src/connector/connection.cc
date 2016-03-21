@@ -57,7 +57,8 @@ Connection::Connection(const std::string& broker_ws_uri,
           client_metadata_ { client_metadata },
           connection_state_ { ConnectionStateValues::initialized },
           consecutive_pong_timeouts_ { 0 },
-          endpoint_ { new WS_Client_Type() }{
+          endpoint_ { new WS_Client_Type() }
+{
     // Turn off websocketpp logging to avoid runtime errors (see CTH-69)
     endpoint_->clear_access_channels(websocketpp::log::alevel::all);
     endpoint_->clear_error_channels(websocketpp::log::elevel::all);
@@ -323,27 +324,25 @@ void Connection::connect_() {
 //
 
 template <typename Verifier>
-class verbose_verification
-{
-public:
-  verbose_verification(Verifier verifier)
-    : verifier_(verifier)
-  {}
+class verbose_verification {
+  public:
+    verbose_verification(Verifier verifier)
+            : verifier_(verifier)
+    {}
 
-  bool operator()(
-    bool preverified,
-    boost::asio::ssl::verify_context& ctx
-  )
-  {
-    char subject_name[256], issuer_name[256];
-    X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
-    X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
-    X509_NAME_oneline(X509_get_issuer_name(cert), issuer_name, 256);
-    bool verified = verifier_(preverified, ctx);
-    LOG_TRACE("Verifying %1%, issued by %2%. Verified: %3%", subject_name, issuer_name, verified);
-    return verified;
-  }
-private:
+    bool operator()(bool preverified,
+                    boost::asio::ssl::verify_context& ctx) {
+        char subject_name[256], issuer_name[256];
+        X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+        X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+        X509_NAME_oneline(X509_get_issuer_name(cert), issuer_name, 256);
+        bool verified = verifier_(preverified, ctx);
+        LOG_TRACE("Verifying %1%, issued by %2%. Verified: %3%",
+                  subject_name, issuer_name, verified);
+        return verified;
+    }
+
+  private:
     Verifier verifier_;
 };
 
