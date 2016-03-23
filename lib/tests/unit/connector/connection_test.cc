@@ -11,7 +11,8 @@ TEST_CASE("Connection::connect", "[connector]") {
     SECTION("throws a connection_processing_error if the broker url is "
             "not a valid WebSocket url") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), 5000 };
+                             getKeyPath(), 6 };
+        // NB: the dtor will wait for the 6 ms specified above
         Connection connection { "foo", c_m };
 
         REQUIRE_THROWS_AS(connection.connect(),
