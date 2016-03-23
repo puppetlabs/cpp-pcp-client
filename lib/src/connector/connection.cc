@@ -213,7 +213,7 @@ void Connection::connect(int max_connect_attempts) {
     throw connection_fatal_error {
         (boost::format(
             "failed to establish a WebSocket connection after %1% attempt%2%")
-                % std::to_string(idx)
+                % idx
                 % (idx > 1 ? "s" : "")).str() };
 }
 

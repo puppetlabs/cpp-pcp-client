@@ -383,7 +383,7 @@ std::string Connector::sendMessage(const std::vector<std::string>& targets,
 // WebSocket onOpen callback - will send the associate session request
 
 void Connector::associateSession() {
-    Util::unique_lock<Util::mutex> the_lock { session_association_.mtx };
+    Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
 
     if (!session_association_.in_progress.load())
         LOG_DEBUG("About to send Associate Session request; unexpectedly the "
@@ -452,7 +452,7 @@ void Connector::processMessage(const std::string& msg_txt) {
         if (session_association_.in_progress.load()) {
             // Report that a bad message was received, as
             // associateResponseCallback() won't be executed
-            Util::unique_lock<Util::mutex> the_lock { session_association_.mtx };
+            Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
             session_association_.got_messaging_failure = true;
             session_association_.error = err_msg;
             session_association_.cond_var.notify_one();
@@ -480,7 +480,7 @@ void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
     assert(parsed_chunks.has_data);
     assert(parsed_chunks.data_type == PCPClient::ContentType::Json);
 
-    Util::unique_lock<Util::mutex> the_lock { session_association_.mtx };
+    Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
 
     auto response_id = parsed_chunks.envelope.get<std::string>("id");
     auto sender_uri = parsed_chunks.envelope.get<std::string>("sender");
@@ -554,7 +554,7 @@ void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
         error_callback_(parsed_chunks);
 
     if (session_association_.in_progress.load()) {
-        Util::unique_lock<Util::mutex> the_lock { session_association_.mtx };
+        Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
 
         if (!cause_id.empty() && cause_id == session_association_.request_id) {
             LOG_DEBUG("The error message %1% is due to the Associate Session "
