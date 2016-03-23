@@ -41,6 +41,22 @@ class connection_not_init_error : public connection_error {
             : connection_error(msg) {}
 };
 
+/// Connection error due to a timeout or a corrupted message during a
+/// session association exchange.
+class connection_association_error : public connection_error {
+  public:
+    explicit connection_association_error(std::string const& msg)
+            : connection_error(msg) {}
+};
+
+/// Connection error due to a Session Association response message
+/// that reports a failure.
+class connection_association_response_failure : public connection_error {
+  public:
+    explicit connection_association_response_failure(std::string const& msg)
+            : connection_error(msg) {}
+};
+
 }  // namespace PCPClient
 
 #endif  // CPP_PCP_CLIENT_SRC_CONNECTOR_ERRORS_H_
