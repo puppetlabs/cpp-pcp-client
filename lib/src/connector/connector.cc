@@ -561,8 +561,7 @@ void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
                       "request %2%",
                       error_id, cause_id);
             // The Associate Session request caused the error
-            session_association_.in_progress = false;
-            session_association_.success = false;
+            session_association_.got_messaging_failure = true;
             session_association_.error = description;
             session_association_.cond_var.notify_one();
         }
