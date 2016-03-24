@@ -205,9 +205,11 @@ void Connector::connect(int max_connect_attempts) {
             });
 
         if (session_association_.got_messaging_failure.load()) {
-            LOG_DEBUG("It seems that an invalid PCP message has been received "
-                      "while trying to perform the session association; we will "
-                      "consider it as a corrupted Associate Session response");
+            LOG_DEBUG("It seems that an error occurred during the Session "
+                      "Association (%1%)",
+                      (session_association_.error.empty()
+                            ? "undetermined error"
+                            : session_association_.error));
             session_association_.reset();
             throw connection_association_error { "invalid Associate Session response" };
         }
