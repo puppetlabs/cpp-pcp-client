@@ -80,6 +80,12 @@ Connector::Connector(const std::string& broker_ws_uri,
         [this](const ParsedChunks& parsed_chunks) {
             errorMessageCallback(parsed_chunks);
         });
+
+    registerMessageCallback(
+        Protocol::TTLExpiredSchema(),
+        [this](const ParsedChunks& parsed_chunks) {
+            TTLMessageCallback(parsed_chunks);
+        });
 }
 
 Connector::~Connector() {
@@ -111,6 +117,11 @@ void Connector::setPCPErrorCallback(MessageCallback callback) {
 // Set an optional callback for associate responses
 void Connector::setAssociateCallback(MessageCallback callback) {
     associate_response_callback_ = callback;
+}
+
+// Set an optional callback for TTL expired messages
+void Connector::setTTLExpiredCallback(MessageCallback callback) {
+    TTL_expired_callback_ = callback;
 }
 
 // Manage the connection state
@@ -565,6 +576,38 @@ void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
             // The Associate Session request caused the error
             session_association_.got_messaging_failure = true;
             session_association_.error = description;
+            session_association_.cond_var.notify_one();
+        }
+    }
+}
+
+// ttl_expired message callback
+
+void Connector::TTLMessageCallback(const ParsedChunks& parsed_chunks) {
+    assert(parsed_chunks.has_data);
+    assert(parsed_chunks.data_type == PCPClient::ContentType::Json);
+
+    auto ttl_msg_id = parsed_chunks.envelope.get<std::string>("id");
+    auto expired_msg_id = parsed_chunks.data.get<std::string>("id");
+
+    LOG_WARNING("Received TTL Expired message %1% from %2% related to message %3%",
+                ttl_msg_id, parsed_chunks.envelope.get<std::string>("sender"),
+                expired_msg_id);
+
+    if (TTL_expired_callback_)
+        TTL_expired_callback_(parsed_chunks);
+
+    if (session_association_.in_progress.load()) {
+        Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
+
+        if (!expired_msg_id.empty()
+                && expired_msg_id == session_association_.request_id) {
+            LOG_DEBUG("The TTL expired message %1% is related to the Associate "
+                      "Session request %2%",
+                      ttl_msg_id, expired_msg_id);
+            // The Associate Session request timed out
+            session_association_.got_messaging_failure = true;
+            session_association_.error = "Associate request's TTL expired";
             session_association_.cond_var.notify_one();
         }
     }

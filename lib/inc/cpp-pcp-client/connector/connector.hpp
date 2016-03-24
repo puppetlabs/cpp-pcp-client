@@ -56,6 +56,9 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// Set an optional callback for associate responses
     void setAssociateCallback(MessageCallback callback);
 
+    /// Set an optional callback for TTL expired messages
+    void setTTLExpiredCallback(MessageCallback callback);
+
     /// Open the WebSocket connection and perform Session Association
     ///
     /// Check the state of the underlying connection (WebSocket); in
@@ -82,6 +85,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// Throw a connection_association_error if:
     ///  - an invalid message is received;
     ///  - a PCP Error message is received, related to the current
+    ///    Associate Session request (matching done by message ID);
+    ///  - a TTL Expired message is received, related to the current
     ///    Associate Session request (matching done by message ID);
     ///  - an Associate Session response is not received after a time
     ///    interval equal to the ping period of monitorConnection()
@@ -199,6 +204,9 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// Associate response callback
     MessageCallback associate_response_callback_;
 
+    /// TTL Expired callback
+    MessageCallback TTL_expired_callback_;
+
     /// Flag; set to true if the dtor has been called
     bool is_destructing_;
 
@@ -244,6 +252,10 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     // PCP Callback executed by processMessage when an error message
     // is received.
     void errorMessageCallback(const PCPClient::ParsedChunks& parsed_chunks);
+
+    // PCP Callback executed by processMessage when a ttl_expired
+    // message is received.
+    void TTLMessageCallback(const PCPClient::ParsedChunks& parsed_chunks);
 
     // Monitor the underlying connection; reconnect or keep it alive.
     // If the underlying connection is dropped, unset the
