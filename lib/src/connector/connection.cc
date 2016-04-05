@@ -343,7 +343,7 @@ class verbose_verification {
         X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
         X509_NAME_oneline(X509_get_issuer_name(cert), issuer_name, 256);
         bool verified = verifier_(preverified, ctx);
-        LOG_TRACE("Verifying %1%, issued by %2%. Verified: %3%",
+        LOG_DEBUG("Verifying %1%, issued by %2%. Verified: %3%",
                   subject_name, issuer_name, verified);
         return verified;
     }
@@ -381,7 +381,7 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
         ctx->set_verify_callback(
             make_verbose_verification(
                 boost::asio::ssl::rfc2818_verification(uri.get_host())));
-        LOG_TRACE("Initialized SSL context to verify broker %1%", uri.get_host());
+        LOG_DEBUG("Initialized SSL context to verify broker %1%", uri.get_host());
     } catch (std::exception& e) {
         // This is unexpected, as the CliendMetadata ctor does
         // validate the key / cert pair
