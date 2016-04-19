@@ -18,7 +18,7 @@ Dependencies
  - CMake (3.2 or newer)
  - Boost (1.54 or newer)
  - OpenSSL
- - [leatherman][leatherman], installed as a standalone library (0.3.5 or newer)
+ - [leatherman][leatherman], installed as a standalone library (0.5.1 or newer)
 
 Initial Setup
 -------------
