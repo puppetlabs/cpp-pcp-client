@@ -26,6 +26,8 @@
 
 #include <leatherman/util/timer.hpp>
 
+#include <boost/format.hpp>
+
 #include <cstdio>
 #include <iostream>
 #include <random>
@@ -57,7 +59,8 @@ Connection::Connection(const std::string& broker_ws_uri,
           client_metadata_ { client_metadata },
           connection_state_ { ConnectionStateValues::initialized },
           consecutive_pong_timeouts_ { 0 },
-          endpoint_ { new WS_Client_Type() }{
+          endpoint_ { new WS_Client_Type() }
+{
     // Turn off websocketpp logging to avoid runtime errors (see CTH-69)
     endpoint_->clear_access_channels(websocketpp::log::alevel::all);
     endpoint_->clear_error_channels(websocketpp::log::elevel::all);
@@ -207,9 +210,11 @@ void Connection::connect(int max_connect_attempts) {
     } while (try_again);
 
     connection_backoff_ms_ = CONNECTION_BACKOFF_MS;
-    throw connection_fatal_error { "failed to establish a WebSocket connection "
-                                   "after " + std::to_string(idx) + " attempt"
-                                   + (idx > 1 ? "s" : "") };
+    throw connection_fatal_error {
+        (boost::format(
+            "failed to establish a WebSocket connection after %1% attempt%2%")
+                % idx
+                % (idx > 1 ? "s" : "")).str() };
 }
 
 void Connection::send(const std::string& msg) {
@@ -247,7 +252,7 @@ void Connection::ping(const std::string& binary_payload) {
 }
 
 void Connection::close(CloseCode code, const std::string& reason) {
-    LOG_DEBUG("About to close connection");
+    LOG_DEBUG("About to close the WebSocket connection");
     websocketpp::lib::error_code ec;
     endpoint_->close(connection_handle_, code, reason, ec);
     if (ec) {
@@ -275,7 +280,7 @@ void Connection::tryClose() {
     try {
         close();
     } catch (connection_processing_error& e) {
-        LOG_ERROR("Cleanup failure: %1%", e.what());
+        LOG_WARNING("Cleanup failure: %1%", e.what());
     }
 }
 
@@ -306,11 +311,13 @@ void Connection::connect_() {
     websocketpp::lib::error_code ec;
     WS_Client_Type::connection_ptr connection_ptr {
         endpoint_->get_connection(broker_ws_uri_, ec) };
-    if (ec) {
-        throw connection_processing_error { "failed to establish the WebSocket "
-                                            "connection with " + broker_ws_uri_
-                                            + ": " + ec.message() };
-    }
+    if (ec)
+        throw connection_processing_error {
+            (boost::format("failed to establish the WebSocket connection "
+                           "with %1%: %2%")
+                % broker_ws_uri_
+                % ec.message()).str() };
+
     connection_handle_ = connection_ptr->get_handle();
     LOG_INFO("Connecting to '%1%' with a connection timeout of %2% ms",
               broker_ws_uri_, client_metadata_.connection_timeout);
@@ -323,27 +330,25 @@ void Connection::connect_() {
 //
 
 template <typename Verifier>
-class verbose_verification
-{
-public:
-  verbose_verification(Verifier verifier)
-    : verifier_(verifier)
-  {}
+class verbose_verification {
+  public:
+    verbose_verification(Verifier verifier)
+            : verifier_(verifier)
+    {}
 
-  bool operator()(
-    bool preverified,
-    boost::asio::ssl::verify_context& ctx
-  )
-  {
-    char subject_name[256], issuer_name[256];
-    X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
-    X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
-    X509_NAME_oneline(X509_get_issuer_name(cert), issuer_name, 256);
-    bool verified = verifier_(preverified, ctx);
-    LOG_TRACE("Verifying %1%, issued by %2%. Verified: %3%", subject_name, issuer_name, verified);
-    return verified;
-  }
-private:
+    bool operator()(bool preverified,
+                    boost::asio::ssl::verify_context& ctx) {
+        char subject_name[256], issuer_name[256];
+        X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+        X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+        X509_NAME_oneline(X509_get_issuer_name(cert), issuer_name, 256);
+        bool verified = verifier_(preverified, ctx);
+        LOG_DEBUG("Verifying %1%, issued by %2%. Verified: %3%",
+                  subject_name, issuer_name, verified);
+        return verified;
+    }
+
+  private:
     Verifier verifier_;
 };
 
@@ -373,19 +378,25 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
 
         auto uri = websocketpp::uri(broker_ws_uri_);
         ctx->set_verify_mode(boost::asio::ssl::verify_peer);
-        ctx->set_verify_callback(make_verbose_verification(boost::asio::ssl::rfc2818_verification(uri.get_host())));
-        LOG_TRACE("Initialized SSL context to verify broker %1%", uri.get_host());
+        ctx->set_verify_callback(
+            make_verbose_verification(
+                boost::asio::ssl::rfc2818_verification(uri.get_host())));
+        LOG_DEBUG("Initialized SSL context to verify broker %1%", uri.get_host());
     } catch (std::exception& e) {
         // This is unexpected, as the CliendMetadata ctor does
         // validate the key / cert pair
-        throw connection_config_error { std::string { "TLS error: " } + e.what() };
+        throw connection_config_error {
+            (boost::format("TLS error: %1%") % e.what()).str() };
     }
     return ctx;
 }
 
 void Connection::onClose(WS_Connection_Handle hdl) {
     connection_timings_.close = Util::chrono::high_resolution_clock::now();
-    LOG_TRACE("WebSocket connection closed");
+    auto con = endpoint_->get_con_from_hdl(hdl);
+    LOG_DEBUG("WebSocket on close event: %1% (code: %2%) - %3%",
+              con->get_ec().message(), con->get_remote_close_code(),
+              connection_timings_.toString());
     connection_state_ = ConnectionStateValues::closed;
 }
 
@@ -394,8 +405,8 @@ void Connection::onFail(WS_Connection_Handle hdl) {
     connection_timings_.connection_failed = true;
     auto con = endpoint_->get_con_from_hdl(hdl);
     LOG_DEBUG("WebSocket on fail event - %1%", connection_timings_.toString());
-    LOG_WARNING("WebSocket on fail event (connection loss): status code %1% - %2%",
-                con->get_remote_close_code(), con->get_ec().message());
+    LOG_WARNING("WebSocket on fail event (connection loss): %1% (code: %2%)",
+                con->get_ec().message(), con->get_remote_close_code());
     connection_state_ = ConnectionStateValues::closed;
 }
 

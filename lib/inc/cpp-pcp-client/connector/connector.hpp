@@ -3,6 +3,7 @@
 
 #include <cpp-pcp-client/connector/connection.hpp>
 #include <cpp-pcp-client/connector/client_metadata.hpp>
+#include <cpp-pcp-client/connector/session_association.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
 #include <cpp-pcp-client/validator/validator.hpp>
 #include <cpp-pcp-client/validator/schema.hpp>
@@ -14,7 +15,6 @@
 #include <memory>
 #include <string>
 #include <map>
-#include <atomic>
 
 namespace PCPClient {
 
@@ -56,21 +56,48 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// Set an optional callback for associate responses
     void setAssociateCallback(MessageCallback callback);
 
+    /// Set an optional callback for TTL expired messages
+    void setTTLExpiredCallback(MessageCallback callback);
+
+    /// Open the WebSocket connection and perform Session Association
+    ///
     /// Check the state of the underlying connection (WebSocket); in
-    /// case it's not open, try to re-open it.
-    /// Try to reopen for max_connect_attempts times or idefinetely,
-    /// in case that parameter is 0 (as by default). This is done by
-    /// following an exponential backoff.
-    /// Once the underlying connection is open, send an associate
-    /// session request to the broker.
+    /// case it's 'open' or 'connecting', close it. Then open it and
+    /// perform the PCP Session Association.
+    /// Try to (re)open for max_connect_attempts times or
+    /// indefinitely, in case that parameter is 0 (as by default).
+    /// This is done by following an exponential backoff.
+    /// Once the underlying connection is open, send an Associate
+    /// Session request to the broker (asynchronously; done by the
+    /// onOpen handler). Wait until an Associate Session response is
+    /// received and process it; a timeout will be used for that - see
+    /// error section below. In the meantime, consider any invalid
+    /// message received as a possible corrupted Associate Session
+    /// response. Also, consider possible PCP Error messages.
+    ///
     /// Throw a connection_config_error if it fails to set up the
     /// underlying communications layer (ex. invalid certificates).
+    ///
     /// Throw a connection_fatal_error if it fails to open the
     /// underlying connection after the specified number of attempts
-    /// or if it fails to send the associate session request.
-    /// NB: the function does not wait for the associate response; it
-    ///     returns right after sending the associate request
-    /// NB: the function is not thread safe
+    /// (ex. the specified broker is down).
+    ///
+    /// Throw a connection_association_error if:
+    ///  - an invalid message is received;
+    ///  - a PCP Error message is received, related to the current
+    ///    Associate Session request (matching done by message ID);
+    ///  - a TTL Expired message is received, related to the current
+    ///    Associate Session request (matching done by message ID);
+    ///  - an Associate Session response is not received after a time
+    ///    interval equal to the ping period of monitorConnection()
+    ///    (15 s) after sending the Associate Session request.
+    ///
+    /// Throw a connection_association_response_failure if the
+    /// received associate session response does not indicate a
+    /// success.
+    ///
+    /// NB: this function is not thread safe; it should not be called
+    ///     when the monitor thread is executing
     void connect(int max_connect_attempts = 0);
 
     /// Returns true if the underlying connection is currently open,
@@ -177,20 +204,21 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// Associate response callback
     MessageCallback associate_response_callback_;
 
-    /// Flag; true if monitorConnection is executing
-    bool is_monitoring_;
-
-    /// To manage the monitoring task
-    Util::mutex mutex_;
-    Util::condition_variable cond_var_;
+    /// TTL Expired callback
+    MessageCallback TTL_expired_callback_;
 
     /// Flag; set to true if the dtor has been called
     bool is_destructing_;
 
-    /// Flag; set to true when a successful associate response is
-    /// received, set to false by the ctor or when the underlying
-    /// connection drops.
-    std::atomic<bool> is_associated_;
+    /// Flag; true if monitorConnection is executing
+    bool is_monitoring_;
+
+    /// To manage the monitoring task
+    Util::mutex monitor_mutex_;
+    Util::condition_variable monitor_cond_var_;
+
+    /// To manage the Associate Session process
+    SessionAssociation session_association_;
 
     void checkConnectionInitialization();
 
@@ -224,6 +252,10 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     // PCP Callback executed by processMessage when an error message
     // is received.
     void errorMessageCallback(const PCPClient::ParsedChunks& parsed_chunks);
+
+    // PCP Callback executed by processMessage when a ttl_expired
+    // message is received.
+    void TTLMessageCallback(const PCPClient::ParsedChunks& parsed_chunks);
 
     // Monitor the underlying connection; reconnect or keep it alive.
     // If the underlying connection is dropped, unset the
