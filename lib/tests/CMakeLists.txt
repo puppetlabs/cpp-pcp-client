@@ -29,7 +29,7 @@ include_directories(
 )
 
 add_executable(${test_BIN} ${SOURCES})
-target_link_libraries(${test_BIN} libcpp-pcp-client ${LEATHERMAN_LIBRARIES} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${test_BIN} libcpp-pcp-client ${LIBS})
 
 add_custom_target(check
     "${EXECUTABLE_OUTPUT_PATH}/${test_BIN}"

@@ -22,10 +22,21 @@ set(SOURCES
     src/validator/validator.cc
 )
 
+# Static libraries should come before shared libraries, or you can end up
+# with some really annoying link errors. However, we can configure whether
+# Boost and Leatherman are linked statically or dynamically.
+if (LEATHERMAN_SHARED)
+    # If Leatherman is shared, Boost should come first because
+    # it's static, or the order doesn't matter.
+    list(APPEND LIBS ${Boost_LIBRARIES} ${LEATHERMAN_LIBRARIES})
+else()
+    # If Leatherman is static, it should come first as it depends
+    # on Boost.
+    list(APPEND LIBS ${LEATHERMAN_LIBRARIES} ${Boost_LIBRARIES})
+endif()
+
 # TODO(ale): remove Thread dependency after LTH-81 changes
-set(LIBS
-    ${LEATHERMAN_LIBRARIES}
-    ${Boost_LIBRARIES}
+list(APPEND LIBS
     ${OPENSSL_SSL_LIBRARY}
     ${OPENSSL_CRYPTO_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
