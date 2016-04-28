@@ -48,7 +48,7 @@ elseif ("${CMAKE_SYSTEM_NAME}" MATCHES "SunOS")
     set(PLATFORM_LIBS socket nsl)
 endif()
 
-add_library(libcpp-pcp-client SHARED ${SOURCES})
+add_library(libcpp-pcp-client ${SOURCES})
 
 # Explicit dependency on external projects to ensure they get
 # extracted when building with multiple jobs

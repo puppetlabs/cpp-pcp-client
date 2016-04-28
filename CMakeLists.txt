@@ -19,6 +19,8 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif()
 
+option(BUILD_SHARED_LIBS "Build shared library for cpp-pcp-client if on, otherwise build static libs" ON)
+
 # Set the macro for leatherman's logging namespace
 add_definitions(-DCPP_PCP_CLIENT_LOGGING_PREFIX="puppetlabs.cpp_pcp_client")
 
