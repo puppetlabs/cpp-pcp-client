@@ -5,6 +5,7 @@
 /ext/packaging
 .DS_Store
 export.h
+/dev-resources/
 
 #Generated files
 /.idea/
