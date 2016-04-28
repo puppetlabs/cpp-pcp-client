@@ -3,9 +3,9 @@
 
 #define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".message"
 
-
 #include <leatherman/logging/logging.hpp>
-#include <leatherman/util/strings.hpp>
+
+#include <leatherman/locale/locale.hpp>
 
 #include <algorithm>  // find
 
@@ -16,8 +16,8 @@
 
 namespace PCPClient {
 
-namespace lth_jc = leatherman::json_container;
-namespace lth_util = leatherman::util;
+namespace lth_jc  = leatherman::json_container;
+namespace lth_loc = leatherman::locale;
 
 //
 // Constants
@@ -175,10 +175,10 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
             debug_content.push_back(parsed_debug);
         } catch (leatherman::json_container::data_parse_error& e) {
             num_invalid_debug++;
-            LOG_DEBUG("Invalid debug in message %1%: %2%", msg_id, e.what());
+            LOG_DEBUG("Invalid debug in message {1}: {2}", msg_id, e.what());
         } catch (validator_error& e) {
             num_invalid_debug++;
-            LOG_DEBUG("Invalid debug in message %1%: %2%", msg_id, e.what());
+            LOG_DEBUG("Invalid debug in message {1}: {2}", msg_id, e.what());
         }
     }
 
@@ -204,7 +204,7 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
                 err_msg = e.what();
             }
 
-            LOG_DEBUG("Invalid data in message %1%: %2%", msg_id, err_msg);
+            LOG_DEBUG("Invalid data in message {1}: {2}", msg_id, err_msg);
 
             // Bad JSON data content
             return ParsedChunks { envelope_content,
@@ -252,8 +252,9 @@ void Message::parseMessage(const std::string& transport_msg) {
 
     if (msg_size < MIN_ENVELOPE_SIZE) {
         LOG_ERROR("Invalid msg; envelope is too small");
-        LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
-        throw message_serialization_error { "invalid msg: envelope too small" };
+        LOG_TRACE("Invalid msg content (unserialized): '{1}'", transport_msg);
+        throw message_serialization_error {
+            lth_loc::translate("invalid msg: envelope too small") };
     }
 
     // Serialization buffer
@@ -272,16 +273,17 @@ void Message::parseMessage(const std::string& transport_msg) {
     auto envelope_desc_bit = envelope_desc & ChunkDescriptor::TYPE_MASK;
     if (envelope_desc_bit != ChunkDescriptor::ENVELOPE) {
         LOG_ERROR("Invalid msg; missing envelope descriptor");
-        LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
-        throw message_serialization_error { "invalid msg: no envelope "
-                                            "descriptor" };
+        LOG_TRACE("Invalid msg content (unserialized): '{1}'", transport_msg);
+        throw message_serialization_error {
+            lth_loc::translate("invalid msg: no envelope descriptor") };
     }
 
     auto envelope_size = deserialize<uint32_t>(4, next_itr);
     if (msg_size < VERSION_FIELD_SIZE + CHUNK_METADATA_SIZE + envelope_size) {
         LOG_ERROR("Invalid msg; missing envelope content");
-        LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
-        throw message_serialization_error { "invalid msg: no envelope" };
+        LOG_TRACE("Invalid msg content (unserialized): '{1}'", transport_msg);
+        throw message_serialization_error {
+            lth_loc::translate("invalid msg: no envelope") };
     }
 
     auto envelope_content = deserialize<std::string>(envelope_size, next_itr);
@@ -297,24 +299,23 @@ void Message::parseMessage(const std::string& transport_msg) {
 
         if (chunk_desc_bit != ChunkDescriptor::DATA
                 && chunk_desc_bit != ChunkDescriptor::DEBUG) {
-            LOG_ERROR("Invalid msg; invalid chunk descriptor %1%",
+            LOG_ERROR("Invalid msg; invalid chunk descriptor {1}",
                       static_cast<int>(chunk_desc));
-            LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
-            throw message_serialization_error { "invalid msg: invalid "
-                                                "chunk descriptor" };
+            LOG_TRACE("Invalid msg content (unserialized): '{1}'", transport_msg);
+            throw message_serialization_error {
+                lth_loc::translate("invalid msg: invalid chunk descriptor") };
         }
 
         auto chunk_size = deserialize<uint32_t>(4, next_itr);
         if (chunk_size > still_to_parse - CHUNK_METADATA_SIZE) {
-            LOG_ERROR("Invalid msg; missing part of the %1% chunk content (%2% "
-                      "byte%3% declared - missing %4% byte%5%)",
-                      ChunkDescriptor::names[chunk_desc_bit],
-                      chunk_size, lth_util::plural(chunk_size),
-                      still_to_parse - CHUNK_METADATA_SIZE,
-                      lth_util::plural(still_to_parse - CHUNK_METADATA_SIZE));
-            LOG_TRACE("Invalid msg content (unserialized): '%1%'", transport_msg);
-            throw message_serialization_error { "invalid msg: missing chunk "
-                                                "content" };
+            // TODO(ale): deal with locale & plural
+            LOG_ERROR("Invalid msg; missing part of the {1} chunk content ({2} "
+                      "bytes declared - missing {3} bytes)",
+                      ChunkDescriptor::names[chunk_desc_bit], chunk_size,
+                      still_to_parse - CHUNK_METADATA_SIZE);
+            LOG_TRACE("Invalid msg content (unserialized): '{1}'", transport_msg);
+            throw message_serialization_error {
+                lth_loc::translate("invalid msg: missing chunk content") };
         }
 
         auto chunk_content = deserialize<std::string>(chunk_size, next_itr);
@@ -323,10 +324,10 @@ void Message::parseMessage(const std::string& transport_msg) {
         if (chunk_desc_bit == ChunkDescriptor::DATA) {
             if (hasData()) {
                 LOG_ERROR("Invalid msg; multiple data chunks");
-                LOG_TRACE("Invalid msg content (unserialized): '%1%'",
+                LOG_TRACE("Invalid msg content (unserialized): '{1}'",
                           transport_msg);
-                throw message_serialization_error { "invalid msg: multiple "
-                                                    "data chunks" };
+                throw message_serialization_error {
+                    lth_loc::translate("invalid msg: multiple data chunks") };
             }
 
             data_chunk_ = chunk;
@@ -338,10 +339,10 @@ void Message::parseMessage(const std::string& transport_msg) {
     }
 
     if (still_to_parse > 0) {
-        LOG_ERROR("Failed to parse the entire msg (ignoring last %1% byte%2%); "
-                  "the msg will be processed anyway",
-                  still_to_parse, lth_util::plural(still_to_parse));
-        LOG_TRACE("Msg content (unserialized): '%1%'", transport_msg);
+        // TODO(ale): deal with locale & plural
+        LOG_ERROR("Failed to parse the entire msg (ignoring last {1} bytes); "
+                  "the msg will be processed anyway", still_to_parse);
+        LOG_TRACE("Msg content (unserialized): '{1}'", transport_msg);
     }
 
     version_ = msg_version;
@@ -354,9 +355,10 @@ void Message::validateVersion(const uint8_t& version) const {
     auto found = std::find(SUPPORTED_VERSIONS.begin(), SUPPORTED_VERSIONS.end(),
                            version);
     if (found == SUPPORTED_VERSIONS.end()) {
-        LOG_ERROR("Unsupported message version: %1%", static_cast<int>(version));
-        throw unsupported_version_error { "unsupported message version: "
-                                          + std::to_string(version) };
+        auto version_num = static_cast<int>(version);
+        LOG_ERROR("Unsupported message version: {1}", version_num);
+        throw unsupported_version_error {
+            lth_loc::format("unsupported message version: {1}", version_num) };
     }
 }
 
@@ -364,17 +366,16 @@ void Message::validateChunk(const MessageChunk& chunk) const {
     auto desc_bit = chunk.descriptor & ChunkDescriptor::TYPE_MASK;
 
     if (ChunkDescriptor::names.find(desc_bit) == ChunkDescriptor::names.end()) {
-        LOG_ERROR("Unknown chunk descriptor: %1%",
+        LOG_ERROR("Unknown chunk descriptor: {1}",
                   static_cast<int>(chunk.descriptor));
-        throw invalid_chunk_error { "unknown descriptor" };
+        throw invalid_chunk_error { lth_loc::translate("unknown descriptor") };
     }
 
     if (chunk.size != static_cast<uint32_t>(chunk.content.size())) {
-        LOG_ERROR("Incorrect size for %1% chunk; declared %2% byte%3%, "
-                  "got %4% byte%5%", ChunkDescriptor::names[desc_bit],
-                  chunk.size, lth_util::plural(chunk.size),
-                  chunk.content.size(), lth_util::plural(chunk.content.size()));
-        throw invalid_chunk_error { "invalid size" };
+        // TODO(ale): deal with locale and plural
+        LOG_ERROR("Incorrect size for {1} chunk; declared {2} bytes, got {3} bytes",
+                  ChunkDescriptor::names[desc_bit], chunk.size, chunk.content.size());
+        throw invalid_chunk_error { lth_loc::translate("invalid size") };
     }
 }
 

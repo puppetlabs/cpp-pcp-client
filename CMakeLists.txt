@@ -63,6 +63,14 @@ if(DEV_LOG_RAW_MESSAGE)
     add_definitions(-DDEV_LOG_RAW_MESSAGE)
 endif()
 
+# TODO(ale): enable i18n with add_definitions(-DLEATHERMAN_I18N) - PCP-257
+# TODO(ale): enable translation with set(LEATHERMAN_LOCALES "...;...") and
+# gettext_compile(${CMAKE_CURRENT_SOURCE_DIR}/locales share/locale)
+
+# Configure i18n
+file(GLOB_RECURSE PCP_CLIENT_SOURCES */src/*.cc */inc/*.hpp)
+gettext_templates(${CMAKE_CURRENT_SOURCE_DIR}/locales ${PCP_CLIENT_SOURCES})
+
 # Prefer openssl from ports
 if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
     set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/local/lib)
