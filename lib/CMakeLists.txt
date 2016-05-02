@@ -35,9 +35,11 @@ else()
     list(APPEND LIBS ${LEATHERMAN_LIBRARIES} ${Boost_LIBRARIES})
 endif()
 
+# TODO(ale): remove Thread dependency after LTH-81 changes
 list(APPEND LIBS
     ${OPENSSL_SSL_LIBRARY}
     ${OPENSSL_CRYPTO_LIBRARY}
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 if (WIN32)
