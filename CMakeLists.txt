@@ -44,9 +44,7 @@ find_package(Leatherman REQUIRED
 find_package(Boost 1.54 REQUIRED
   COMPONENTS filesystem chrono system date_time thread log regex random)
 find_package(OpenSSL REQUIRED)
-# TODO(ale): same fix as FACT-1338; remove it once LTH-81 is done.
-# date_time and regex need threads on some platforms, and find_package
-# Boost only includes pthreads if you require Boost.Thread component.
+# Needed for linking on AIX
 find_package(Threads)
 
 # Leatherman it up
