@@ -1,14 +1,17 @@
 #ifndef CPP_PCP_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
 #define CPP_PCP_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
 
-#include <cpp-pcp-client/protocol/errors.hpp>
 #include <cpp-pcp-client/export.h>
+#include <cpp-pcp-client/protocol/errors.hpp>
+
+#include <leatherman/locale/locale.hpp>
 
 #include <boost/detail/endian.hpp>
 
 #include <string>
 #include <vector>
 #include <stdint.h>  // uint8_t
+#include <utility>
 #include <stdexcept>
 
 // TODO(ale): disable assert() once we're confident with the code...
@@ -45,7 +48,7 @@ inline uint32_t getHostNumber(const uint32_t& number) {
 // Serialize
 //
 
-// Internal template function and speciatlizations
+// Internal template function and specializations
 
 template<typename T>
 inline void serialize_(const T& thing,
@@ -91,13 +94,15 @@ inline void serialize(const T& thing,
 
     try {
         buffer.resize(offset + thing_size);
-    } catch(std::bad_alloc) {
-        throw message_serialization_error { "serialization: bad allocation" };
-    } catch(const std::exception& e) {
+    } catch (std::bad_alloc) {
+        throw message_serialization_error {
+            leatherman::locale::translate("serialization: bad allocation") };
+    } catch (const std::exception& e) {
         throw message_serialization_error { e.what() };
-    } catch(...) {
-        throw message_serialization_error { "seriliazation: unexpected error "
-                                            "when allocating memory" };
+    } catch (...) {
+        throw message_serialization_error {
+            leatherman::locale::translate("serialization: unexpected error when "
+                                          "allocating memory") };
     }
 
     SerializedMessage::iterator buffer_itr = buffer.begin() + offset;

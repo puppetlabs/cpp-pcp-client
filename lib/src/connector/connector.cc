@@ -12,7 +12,7 @@
 #include <leatherman/util/time.hpp>
 #include <leatherman/util/timer.hpp>
 
-#include <boost/format.hpp>
+#include <leatherman/locale/locale.hpp>
 
 #include <cstdio>
 
@@ -23,8 +23,9 @@
 
 namespace PCPClient {
 
-namespace lth_jc = leatherman::json_container;
+namespace lth_jc   = leatherman::json_container;
 namespace lth_util = leatherman::util;
+namespace lth_loc  = leatherman::locale;
 
 //
 // Constants
@@ -162,7 +163,7 @@ void Connector::connect(int max_connect_attempts) {
                 connection_ptr_->close(CloseCodeValues::normal,
                                        "must Associate Session again");
                 LOG_TRACE("Waiting for the WebSocket connection to be closed, "
-                          "for a maximum of %1% s", WS_CONNECTION_CLOSE_TIMEOUT_S);
+                          "for a maximum of {1} s", WS_CONNECTION_CLOSE_TIMEOUT_S);
                 lth_util::Timer timer {};
 
                 while (connection_ptr_->getConnectionState()
@@ -178,7 +179,7 @@ void Connector::connect(int max_connect_attempts) {
                     LOG_TRACE("The WebSocket connection is now closed");
                 }
             } catch (connection_processing_error& e) {
-                LOG_WARNING("WebSocket close failure (%1%); will continue with "
+                LOG_WARNING("WebSocket close failure ({1}); will continue with "
                             "the Associate Session attempt", e.what());
             }
             break;
@@ -217,21 +218,23 @@ void Connector::connect(int max_connect_attempts) {
 
         if (session_association_.got_messaging_failure.load()) {
             LOG_DEBUG("It seems that an error occurred during the Session "
-                      "Association (%1%)",
+                      "Association ({1})",
                       (session_association_.error.empty()
-                            ? "undetermined error"
+                            ? lth_loc::translate("undetermined error")
                             : session_association_.error));
             session_association_.reset();
-            throw connection_association_error { "invalid Associate Session response" };
+            throw connection_association_error {
+                lth_loc::translate("invalid Associate Session response") };
         }
         if (session_association_.in_progress.load()) {
             LOG_DEBUG("Associate Session timed out");
             session_association_.reset();
-            throw connection_association_error { "operation timeout" };
+            throw connection_association_error {
+                lth_loc::translate("operation timeout") };
         }
         if (!session_association_.success.load()) {
-            LOG_DEBUG("Associate Session failure");
-            std::string msg { "Associate Session failure" };
+            std::string msg { lth_loc::translate("Associate Session failure") };
+            LOG_DEBUG(msg);
             if (!session_association_.error.empty())
                 msg += ": " + session_association_.error;
             session_association_.reset();
@@ -243,7 +246,7 @@ void Connector::connect(int max_connect_attempts) {
         //     propagated whereas _processing_errors must be converted
         //     to _config_errors (they can be thrown after the
         //     synchronous call websocketpp::Endpoint::connect())
-        LOG_DEBUG("Failed to establish the WebSocket connection: %1%", e.what());
+        LOG_DEBUG("Failed to establish the WebSocket connection: {1}", e.what());
         throw connection_config_error { e.what() };
     }
 }
@@ -273,7 +276,7 @@ void Connector::monitorConnection(int max_connect_attempts) {
 void Connector::send(const Message& msg) {
     checkConnectionInitialization();
     auto serialized_msg = msg.getSerialized();
-    LOG_DEBUG("Sending message of %1% bytes:\n%2%",
+    LOG_DEBUG("Sending message of {1} bytes:\n{2}",
               serialized_msg.size(), msg.toString());
     connection_ptr_->send(&serialized_msg[0], serialized_msg.size());
 }
@@ -340,7 +343,8 @@ std::string Connector::send(const std::vector<std::string>& targets,
 
 void Connector::checkConnectionInitialization() {
     if (connection_ptr_ == nullptr) {
-        throw connection_not_init_error { "connection not initialized" };
+        throw connection_not_init_error {
+            lth_loc::translate("connection not initialized") };
     }
 }
 
@@ -351,8 +355,9 @@ MessageChunk Connector::createEnvelope(const std::vector<std::string>& targets,
                                        std::string& msg_id) {
     msg_id = lth_util::get_UUID();
     auto expires = lth_util::get_ISO8601_time(timeout);
-    LOG_DEBUG("Creating message with id %1% for %2% receiver%3%",
-              msg_id, targets.size(), lth_util::plural(targets.size()));
+    // TODO(ale): deal with locale & plural (PCP-257)
+    LOG_DEBUG("Creating message with id {1} for {2} receivers",
+              msg_id, targets.size());
 
     lth_jc::JsonContainer envelope_content {};
 
@@ -417,7 +422,7 @@ void Connector::associateSession() {
     //     just let the onOpen handler close the WebSocket connection
     //     and let a connection_association_error be triggered
     Message msg { envelope };
-    LOG_INFO("Sending Associate Session request with id %1%",
+    LOG_INFO("Sending Associate Session request with id {1}",
              session_association_.request_id);
     send(msg);
 }
@@ -426,7 +431,7 @@ void Connector::associateSession() {
 
 void Connector::processMessage(const std::string& msg_txt) {
 #ifdef DEV_LOG_RAW_MESSAGE
-    LOG_DEBUG("Received message of %1% bytes - raw message:\n%2%",
+    LOG_DEBUG("Received message of {1} bytes - raw message:\n{2}",
               msg_txt.size(), msg_txt);
 #endif
 
@@ -437,8 +442,7 @@ void Connector::processMessage(const std::string& msg_txt) {
     try {
         msg_ptr.reset(new Message(msg_txt));
     } catch (const message_error& e) {
-        err_msg = (boost::format("Failed to deserialize message: %1%")
-                        % e.what()).str();
+        err_msg = lth_loc::format("Failed to deserialize message: {1}", e.what());
     }
 
     // Parse message chunks, if the deserialization succeeded
@@ -448,14 +452,13 @@ void Connector::processMessage(const std::string& msg_txt) {
         try {
             parsed_chunks = msg_ptr->getParsedChunks(validator_);
         } catch (const validation_error& e) {
-            err_msg = (boost::format("Invalid envelope - bad content: %1%")
-                            % e.what()).str();
+            err_msg = lth_loc::format("Invalid envelope - bad content: {1}", e.what());
         } catch (const lth_jc::data_parse_error& e) {
-            err_msg = (boost::format("Invalid envelope - invalid JSON content: %1%")
-                            % e.what()).str();
+            err_msg = lth_loc::format("Invalid envelope - invalid JSON content: {1}",
+                                      e.what());
         } catch (const schema_not_found_error& e) {
             // This is unexpected
-            err_msg = (boost::format("Unknown schema: %1%") % e.what()).str();
+            err_msg = lth_loc::format("Unknown schema: {1}", e.what());
         }
     }
 
@@ -478,11 +481,10 @@ void Connector::processMessage(const std::string& msg_txt) {
 
     if (schema_callback_pairs_.find(schema_name) != schema_callback_pairs_.end()) {
         auto c_b = schema_callback_pairs_.at(schema_name);
-        LOG_TRACE("Executing callback for a message with '%1%' schema",
-                  schema_name);
+        LOG_TRACE("Executing callback for a message with '{1}' schema", schema_name);
         c_b(parsed_chunks);
     } else {
-        LOG_WARNING("No message callback has be registered for '%1%' schema",
+        LOG_WARNING("No message callback has be registered for the '{1}' schema",
                     schema_name);
     }
 }
@@ -508,26 +510,24 @@ void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
 
     if (request_id != session_association_.request_id) {
         LOG_WARNING("Received an Associate Session response that refers to an "
-                    "unknown request ID (%1%, expected %2%); discarding it",
+                    "unknown request ID ({1}, expected {2}); discarding it",
                     request_id, session_association_.request_id);
         return;
     }
 
-    auto msg = (boost::format("Received an Associate Session response %1% "
-                              "from %2% for the request %3%")
-                    % response_id
-                    % sender_uri
-                    % request_id).str();
+    std::string msg { lth_loc::format("Received an Associate Session response "
+                                      "{1} from {2} for the request {3}",
+                                      response_id, sender_uri, request_id) };
 
     if (success) {
-        LOG_INFO("%1%: success", msg);
+        LOG_INFO("{1}: success", msg);
     } else {
         if (parsed_chunks.data.includes("reason")) {
             session_association_.error = parsed_chunks.data.get<std::string>("reason");
-            LOG_WARNING("%1%: failure - %2%", msg, session_association_.error);
+            LOG_WARNING("{1}: failure - {2}", msg, session_association_.error);
         } else {
             session_association_.error.clear();
-            LOG_WARNING("%1%: failure", msg);
+            LOG_WARNING("{1}: failure", msg);
         }
     }
 
@@ -551,15 +551,14 @@ void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
     auto description = parsed_chunks.data.get<std::string>("description");
 
     std::string cause_id {};
-    auto msg = (boost::format("Received error %1% from %2%")
-                    % error_id
-                    % sender_uri).str();
+    std::string msg { lth_loc::format("Received error {1} from {2}",
+                                      error_id, sender_uri) };
 
     if (parsed_chunks.data.includes("id")) {
         cause_id = parsed_chunks.data.get<std::string>("id");
-        LOG_WARNING("%1% caused by message %2%: %3%", msg, cause_id, description);
+        LOG_WARNING("{1} caused by message {2}: {3}", msg, cause_id, description);
     } else {
-        LOG_WARNING("%1% (the id of the message that caused it is unknown): %2%",
+        LOG_WARNING("{1} (the id of the message that caused it is unknown): {2}",
                     msg, description);
     }
 
@@ -570,8 +569,8 @@ void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
         Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
 
         if (!cause_id.empty() && cause_id == session_association_.request_id) {
-            LOG_DEBUG("The error message %1% is due to the Associate Session "
-                      "request %2%",
+            LOG_DEBUG("The error message {1} is due to the Associate Session "
+                      "request {2}",
                       error_id, cause_id);
             // The Associate Session request caused the error
             session_association_.got_messaging_failure = true;
@@ -590,7 +589,7 @@ void Connector::TTLMessageCallback(const ParsedChunks& parsed_chunks) {
     auto ttl_msg_id = parsed_chunks.envelope.get<std::string>("id");
     auto expired_msg_id = parsed_chunks.data.get<std::string>("id");
 
-    LOG_WARNING("Received TTL Expired message %1% from %2% related to message %3%",
+    LOG_WARNING("Received TTL Expired message {1} from {2} related to message {3}",
                 ttl_msg_id, parsed_chunks.envelope.get<std::string>("sender"),
                 expired_msg_id);
 
@@ -602,8 +601,8 @@ void Connector::TTLMessageCallback(const ParsedChunks& parsed_chunks) {
 
         if (!expired_msg_id.empty()
                 && expired_msg_id == session_association_.request_id) {
-            LOG_DEBUG("The TTL expired message %1% is related to the Associate "
-                      "Session request %2%",
+            LOG_DEBUG("The TTL expired message {1} is related to the Associate "
+                      "Session request {2}",
                       ttl_msg_id, expired_msg_id);
             // The Associate Session request timed out
             session_association_.got_messaging_failure = true;
@@ -643,21 +642,20 @@ void Connector::startMonitorTask(int max_connect_attempts) {
             // Connection::connect(), ping() or WebSocket TLS init
             // error - retry
             LOG_WARNING("The connection monitor task will continue after a "
-                        "WebSocket failure (%1%)", e.what());
+                        "WebSocket failure ({1})", e.what());
         } catch (const connection_association_error& e) {
             // Associate Session timeout or invalid response - retry
             LOG_WARNING("The connection monitor task will continue after an "
-                        "error during the Session Association (%1%)",
-                        e.what());
+                        "error during the Session Association ({1})", e.what());
         } catch (const connection_association_response_failure& e) {
             // Associate Session failure - stop
             LOG_WARNING("The connection monitor task will stop after an "
-                        "Session Association failure: %1%", e.what());
+                        "Session Association failure: {1}", e.what());
             is_monitoring_ = false;
             throw;
         } catch (const connection_fatal_error& e) {
             // Failed to reconnect after max_connect_attempts - stop
-            LOG_WARNING("The connection monitor task will stop: %1%", e.what());
+            LOG_WARNING("The connection monitor task will stop: {1}", e.what());
             is_monitoring_ = false;
             throw;
         }

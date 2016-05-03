@@ -7,11 +7,14 @@
 #include <cpp-pcp-client/valijson/rapidjson_adapter.hpp>
 #pragma GCC diagnostic pop
 
+#include <leatherman/locale/locale.hpp>
+
 #include <rapidjson/allocators.h>
 
 namespace PCPClient {
 
-namespace lth_jc = leatherman::json_container;
+namespace lth_jc  = leatherman::json_container;
+namespace lth_loc = leatherman::locale;
 
 //
 // Free functions
@@ -81,9 +84,9 @@ Schema::Schema(const std::string& name, const lth_jc::JsonContainer& metadata)
               pattern_properties_ { new V_C::PropertiesConstraint::PropertySchemaMap() },
               required_properties_ { new V_C::RequiredConstraint::RequiredProperties() } {
 } catch (std::exception& e) {
-    throw schema_error { std::string("failed to parse schema: ") + e.what() };
+    throw schema_error { lth_loc::format("failed to parse schema: {1}", e.what()) };
 } catch (...) {
-    throw schema_error { "failed to parse schema" };
+    throw schema_error { lth_loc::translate("failed to parse schema") };
 }
 
 // unique_ptr requires a complete type at time of destruction. this forces us to
@@ -173,11 +176,12 @@ V_C::TypeConstraint Schema::getConstraint(TypeConstraint type) const {
 
 void Schema::checkAddConstraint() {
     if (parsed_) {
-        throw schema_error { "schema was populate by parsing JSON" };
+        throw schema_error {
+            lth_loc::translate("schema was populate by parsing JSON") };
     }
 
     if (type_ != TypeConstraint::Object) {
-        throw schema_error { "type is not JSON Object" };
+        throw schema_error { lth_loc::translate("type is not JSON Object") };
     }
 }
 
