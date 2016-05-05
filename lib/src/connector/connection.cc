@@ -56,9 +56,16 @@ static const uint32_t CONNECTION_BACKOFF_MULTIPLIER { 2 };
 
 Connection::Connection(std::string broker_ws_uri,
                        ClientMetadata client_metadata)
-        : broker_ws_uri_ { std::move(broker_ws_uri) },
+        : Connection { std::vector<std::string> { std::move(broker_ws_uri) }, std::move(client_metadata) }
+{
+}
+
+Connection::Connection(std::vector<std::string> broker_ws_uris,
+                       ClientMetadata client_metadata)
+        : broker_ws_uris_ { std::move(broker_ws_uris) },
           client_metadata_ { std::move(client_metadata) },
           connection_state_ { ConnectionState::initialized },
+          connection_target_ { 0u },
           consecutive_pong_timeouts_ { 0 },
           endpoint_ { new WS_Client_Type() }
 {
@@ -198,6 +205,8 @@ void Connection::connect(int max_connect_attempts) {
                 LOG_WARNING("Failed to establish a WebSocket connection; "
                             "retrying in {1} seconds",
                             static_cast<int>(connection_backoff_ms_ / 1000));
+                // Connection attempt failed, next try should be against a failover broker.
+                switchWsUri();
                 // Randomly adjust the interval slightly to help calm
                 // a thundering herd
                 doSleep(connection_backoff_ms_ + dist(engine));
@@ -308,18 +317,28 @@ void Connection::connect_() {
     connection_state_ = ConnectionState::connecting;
     connection_timings_ = ConnectionTimings();
     websocketpp::lib::error_code ec;
+    auto ws_uri = getWsUri();
     WS_Client_Type::connection_ptr connection_ptr {
-        endpoint_->get_connection(broker_ws_uri_, ec) };
+        endpoint_->get_connection(ws_uri, ec) };
     if (ec)
         throw connection_processing_error {
             lth_loc::format("failed to establish the WebSocket connection "
-                            "with {1}: {2}", broker_ws_uri_, ec.message()) };
+                            "with {1}: {2}", ws_uri, ec.message()) };
 
     connection_handle_ = connection_ptr->get_handle();
     LOG_INFO("Connecting to '{1}' with a connection timeout of {2} ms",
-              broker_ws_uri_, client_metadata_.connection_timeout);
+              ws_uri, client_metadata_.connection_timeout);
     connection_ptr->set_open_handshake_timeout(client_metadata_.connection_timeout);
     endpoint_->connect(connection_ptr);
+}
+
+std::string const& Connection::getWsUri() {
+    auto c_t = connection_target_.load();
+    return broker_ws_uris_[c_t % broker_ws_uris_.size()];
+}
+
+void Connection::switchWsUri() {
+    ++connection_target_;
 }
 
 //
@@ -377,7 +396,7 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
                                   boost::asio::ssl::context::file_format::pem);
         ctx->load_verify_file(client_metadata_.ca);
 
-        auto uri = websocketpp::uri(broker_ws_uri_);
+        auto uri = websocketpp::uri(getWsUri());
         ctx->set_verify_mode(boost::asio::ssl::verify_peer);
         ctx->set_verify_callback(
             make_verbose_verification(
@@ -445,7 +464,7 @@ void Connection::onOpen(WS_Connection_Handle hdl) {
     connection_timings_.connection_started = true;
     LOG_DEBUG("WebSocket on open event - {1}", connection_timings_.toString());
     LOG_INFO("Successfully established a WebSocket connection with the PCP "
-             "broker at {1}", broker_ws_uri_);
+             "broker at {1}", getWsUri());
     connection_state_ = ConnectionState::open;
 
     if (onOpen_callback) {
