@@ -54,10 +54,10 @@ static const uint32_t CONNECTION_BACKOFF_MULTIPLIER { 2 };
 // Connection
 //
 
-Connection::Connection(const std::string& broker_ws_uri,
-                       const ClientMetadata& client_metadata)
-        : broker_ws_uri_ { broker_ws_uri },
-          client_metadata_ { client_metadata },
+Connection::Connection(std::string broker_ws_uri,
+                       ClientMetadata client_metadata)
+        : broker_ws_uri_ { std::move(broker_ws_uri) },
+          client_metadata_ { std::move(client_metadata) },
           connection_state_ { ConnectionStateValues::initialized },
           consecutive_pong_timeouts_ { 0 },
           endpoint_ { new WS_Client_Type() }

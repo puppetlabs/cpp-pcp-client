@@ -52,17 +52,17 @@ class LIBCPP_PCP_CLIENT_EXPORT Schema {
     // The following constructors instantiate an empty Schema with no
     // constraint
 
-    Schema(const std::string& name,
-           const ContentType content_type,
-           const TypeConstraint type);
+    Schema(std::string name,
+           ContentType content_type,
+           TypeConstraint type);
 
-    Schema(const std::string& name,
-           const ContentType content_type);
+    Schema(std::string name,
+           ContentType content_type);
 
-    Schema(const std::string& name,
-           const TypeConstraint type);
+    Schema(std::string name,
+           TypeConstraint type);
 
-    Schema(const std::string& name);
+    Schema(std::string name);
 
     Schema(const Schema& schema);
 
@@ -70,7 +70,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Schema {
     // JSON schema passed as a JsonContainer object.
     // It won't be possible to add further constraints to such schema
     // Throw a schema_error in case of parsing failure.
-    Schema(const std::string& name, const lth_jc::JsonContainer& json_schema);
+    Schema(std::string name, const lth_jc::JsonContainer& json_schema);
 
     ~Schema();
 

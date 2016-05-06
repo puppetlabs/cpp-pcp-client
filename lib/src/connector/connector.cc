@@ -41,17 +41,17 @@ static const std::string MY_BROKER_URI { "pcp:///server" };
 // Public api
 //
 
-Connector::Connector(const std::string& broker_ws_uri,
-                     const std::string& client_type,
-                     const std::string& ca_crt_path,
-                     const std::string& client_crt_path,
-                     const std::string& client_key_path,
-                     const long& connection_timeout)
-        : broker_ws_uri_ { broker_ws_uri },
-          client_metadata_ { client_type,
-                             ca_crt_path,
-                             client_crt_path,
-                             client_key_path,
+Connector::Connector(std::string broker_ws_uri,
+                     std::string client_type,
+                     std::string ca_crt_path,
+                     std::string client_crt_path,
+                     std::string client_key_path,
+                     long connection_timeout)
+        : broker_ws_uri_ { std::move(broker_ws_uri) },
+          client_metadata_ { std::move(client_type),
+                             std::move(ca_crt_path),
+                             std::move(client_crt_path),
+                             std::move(client_key_path),
                              connection_timeout },
           connection_ptr_ { nullptr },
           validator_ {},
@@ -103,7 +103,7 @@ Connector::~Connector() {
 }
 
 // Register schemas and onMessage callbacks
-void Connector::registerMessageCallback(const Schema schema,
+void Connector::registerMessageCallback(const Schema& schema,
                                         MessageCallback callback) {
     validator_.registerSchema(schema);
     auto p = std::pair<std::string, MessageCallback>(schema.getName(), callback);

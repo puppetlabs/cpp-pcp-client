@@ -36,18 +36,18 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// certificate file does not exist or is invalid; it fails to
     /// retrieve the client identity from the file; the client
     /// certificate and private key are not paired
-    Connector(const std::string& broker_ws_uri,
-              const std::string& client_type,
-              const std::string& ca_crt_path,
-              const std::string& client_crt_path,
-              const std::string& client_key_path,
-              const long& connection_timeout = 5000);
+    Connector(std::string broker_ws_uri,
+              std::string client_type,
+              std::string ca_crt_path,
+              std::string client_crt_path,
+              std::string client_key_path,
+              long connection_timeout = 5000);
 
     ~Connector();
 
     /// Throw a schema_redefinition_error if the specified schema has
     /// been already registred.
-    void registerMessageCallback(const Schema schema,
+    void registerMessageCallback(const Schema& schema,
                                  MessageCallback callback);
 
     /// Set an optional callback for error messages

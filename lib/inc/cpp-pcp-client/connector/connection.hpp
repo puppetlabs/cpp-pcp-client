@@ -98,8 +98,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     /// The constructor throws an connection_config_error if it fails
     /// to configure the underlying WebSocket endpoint and the event
     /// handlers.
-    Connection(const std::string& broker_ws_uri,
-               const ClientMetadata& client_metadata);
+    Connection(std::string broker_ws_uri,
+               ClientMetadata client_metadata);
 
     ~Connection();
 

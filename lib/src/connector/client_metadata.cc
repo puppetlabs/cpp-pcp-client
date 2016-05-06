@@ -101,15 +101,15 @@ std::string getCommonNameFromCert(const std::string& crt) {
 #pragma clang diagnostic pop
 #endif
 
-ClientMetadata::ClientMetadata(const std::string& _client_type,
-                               const std::string& _ca,
-                               const std::string& _crt,
-                               const std::string& _key,
-                               const long& _connection_timeout)
-        : ca { _ca },
-          crt { _crt },
-          key { _key },
-          client_type { _client_type },
+ClientMetadata::ClientMetadata(std::string _client_type,
+                               std::string _ca,
+                               std::string _crt,
+                               std::string _key,
+                               long _connection_timeout)
+        : ca { std::move(_ca) },
+          crt { std::move(_crt) },
+          key { std::move(_key) },
+          client_type { std::move(_client_type) },
           common_name { getCommonNameFromCert(crt) },
           uri { PCP_URI_SCHEME + common_name + "/" + client_type },
           connection_timeout { _connection_timeout } {

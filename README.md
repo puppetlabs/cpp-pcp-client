@@ -164,12 +164,12 @@ achieve this we must first create an instance of the Connector object.
 The constructor of the Connector class is defined as:
 
 ```
-    Connector(const std::string& broker_ws_uri,
-              const std::string& client_type,
-              const std::string& ca_crt_path,
-              const std::string& client_crt_path,
-              const std::string& client_key_path,
-              const long& connection_timeout = 5000)
+    Connector(std::string broker_ws_uri,
+              std::string client_type,
+              std::string ca_crt_path,
+              std::string client_crt_path,
+              std::string client_key_path,
+              long connection_timeout = 5000)
 ```
 
 The parameters are described as:
@@ -302,7 +302,7 @@ first create a schema object for a specific _data_schema_ value.
 The constructor for the Schema class is defined as:
 
 ```
-    Schema(const std::string& name, ContentType content_type)
+    Schema(std::string name, ContentType content_type)
 ```
 
 The parameters are described as:
@@ -361,7 +361,7 @@ message specific callbacks. This is done with the Connector's registerMessageCal
 method which is defined as follows:
 
 ```
-    void registerMessageCallback(const Schema schema, MessageCallback callback)
+    void registerMessageCallback(const Schema& schema, MessageCallback callback)
 ```
 
 The parameters are described as follows:
