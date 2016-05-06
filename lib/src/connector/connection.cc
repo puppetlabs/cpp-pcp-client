@@ -58,7 +58,7 @@ Connection::Connection(std::string broker_ws_uri,
                        ClientMetadata client_metadata)
         : broker_ws_uri_ { std::move(broker_ws_uri) },
           client_metadata_ { std::move(client_metadata) },
-          connection_state_ { ConnectionStateValues::initialized },
+          connection_state_ { ConnectionState::initialized },
           consecutive_pong_timeouts_ { 0 },
           endpoint_ { new WS_Client_Type() }
 {
@@ -142,7 +142,7 @@ inline static void doSleep(int ms = CONNECTION_MIN_INTERVAL_MS) {
 
 void Connection::connect(int max_connect_attempts) {
     // FSM
-    //  - states are ConnectionStateValues:
+    //  - states are ConnectionState:
     //      * initialized - connecting - open - closing - closed
     //  - for the transitions, we assume that the connection_state_:
     //      * can be set to 'initialized' only by the Connection ctor;
@@ -168,31 +168,31 @@ void Connection::connect(int max_connect_attempts) {
                             >= CONNECTION_BACKOFF_LIMIT_MS);
 
         switch (current_c_s) {
-        case(ConnectionStateValues::initialized):
-            assert(previous_c_s == ConnectionStateValues::initialized);
+        case(ConnectionState::initialized):
+            assert(previous_c_s == ConnectionState::initialized);
             connectAndWait();
-            if (connection_state_.load() == ConnectionStateValues::open)
+            if (connection_state_.load() == ConnectionState::open)
                 return;
             break;
 
-        case(ConnectionStateValues::connecting):
-            previous_c_s = ConnectionStateValues::connecting;
+        case(ConnectionState::connecting):
+            previous_c_s = ConnectionState::connecting;
             doSleep();
             continue;
 
-        case(ConnectionStateValues::open):
-            if (previous_c_s != ConnectionStateValues::open)
+        case(ConnectionState::open):
+            if (previous_c_s != ConnectionState::open)
                 connection_backoff_ms_ = CONNECTION_BACKOFF_MS;
             return;
 
-        case(ConnectionStateValues::closing):
-            previous_c_s = ConnectionStateValues::closing;
+        case(ConnectionState::closing):
+            previous_c_s = ConnectionState::closing;
             doSleep();
             continue;
 
-        case(ConnectionStateValues::closed):
-            if (previous_c_s == ConnectionStateValues::closed) {
-                previous_c_s = ConnectionStateValues::connecting;
+        case(ConnectionState::closed):
+            if (previous_c_s == ConnectionState::closed) {
+                previous_c_s = ConnectionState::connecting;
                 connectAndWait();
             } else {
                 LOG_WARNING("Failed to establish a WebSocket connection; "
@@ -268,7 +268,7 @@ void Connection::connectAndWait() {
         static_cast<int>(client_metadata_.connection_timeout / 1000);
     connect_();
     lth_util::Timer timer {};
-    while (connection_state_.load() != ConnectionStateValues::open
+    while (connection_state_.load() != ConnectionState::open
            && timer.elapsed_seconds() < connection_timeout_s) {
         doSleep();
     }
@@ -285,14 +285,14 @@ void Connection::tryClose() {
 void Connection::cleanUp() {
     auto c_s = connection_state_.load();
 
-    if (c_s == ConnectionStateValues::open) {
+    if (c_s == ConnectionState::open) {
         tryClose();
-    } else if (c_s == ConnectionStateValues::connecting) {
+    } else if (c_s == ConnectionState::connecting) {
         // Wait connection_timeout ms, in case of a concurrent onOpen
         LOG_WARNING("Will wait {1} ms before terminating the WebSocket connection",
                     client_metadata_.connection_timeout);
         doSleep(client_metadata_.connection_timeout);
-        if (connection_state_.load() == ConnectionStateValues::open)
+        if (connection_state_.load() == ConnectionState::open)
             tryClose();
     }
 
@@ -304,7 +304,7 @@ void Connection::cleanUp() {
 }
 
 void Connection::connect_() {
-    connection_state_ = ConnectionStateValues::connecting;
+    connection_state_ = ConnectionState::connecting;
     connection_timings_ = ConnectionTimings();
     websocketpp::lib::error_code ec;
     WS_Client_Type::connection_ptr connection_ptr {
@@ -393,7 +393,7 @@ void Connection::onClose(WS_Connection_Handle hdl) {
     LOG_DEBUG("WebSocket on close event: {1} (code: {2}) - {3}",
               con->get_ec().message(), con->get_remote_close_code(),
               connection_timings_.toString());
-    connection_state_ = ConnectionStateValues::closed;
+    connection_state_ = ConnectionState::closed;
 }
 
 void Connection::onFail(WS_Connection_Handle hdl) {
@@ -403,7 +403,7 @@ void Connection::onFail(WS_Connection_Handle hdl) {
     LOG_DEBUG("WebSocket on fail event - {1}", connection_timings_.toString());
     LOG_WARNING("WebSocket on fail event (connection loss): {1} (code: {2})",
                 con->get_ec().message(), con->get_remote_close_code());
-    connection_state_ = ConnectionStateValues::closed;
+    connection_state_ = ConnectionState::closed;
 }
 
 bool Connection::onPing(WS_Connection_Handle hdl, std::string binary_payload) {
@@ -441,7 +441,7 @@ void Connection::onOpen(WS_Connection_Handle hdl) {
     LOG_DEBUG("WebSocket on open event - {1}", connection_timings_.toString());
     LOG_INFO("Successfully established a WebSocket connection with the PCP "
              "broker at {1}", broker_ws_uri_);
-    connection_state_ = ConnectionStateValues::open;
+    connection_state_ = ConnectionState::open;
 
     if (onOpen_callback) {
         try {

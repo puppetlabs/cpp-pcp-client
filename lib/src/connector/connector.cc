@@ -155,8 +155,8 @@ void Connector::connect(int max_connect_attempts) {
     // only by the WebSocket onOpen handler, asynchronously. So, first
     // ensure that the connection is closed and then open it.
     switch (connection_ptr_->getConnectionState()) {
-        case(ConnectionStateValues::connecting):
-        case(ConnectionStateValues::open):
+        case(ConnectionState::connecting):
+        case(ConnectionState::open):
             LOG_DEBUG("There's an ongoing attempt to create a WebSocket connection; "
                       "ensuring that it's closed before Associate Session");
             try {
@@ -167,12 +167,12 @@ void Connector::connect(int max_connect_attempts) {
                 lth_util::Timer timer {};
 
                 while (connection_ptr_->getConnectionState()
-                            != ConnectionStateValues::closed
+                            != ConnectionState::closed
                        && timer.elapsed_seconds() < WS_CONNECTION_CLOSE_TIMEOUT_S)
                     Util::this_thread::sleep_for(Util::chrono::milliseconds(100));
 
                 if (connection_ptr_->getConnectionState()
-                        != ConnectionStateValues::closed) {
+                        != ConnectionState::closed) {
                     LOG_WARNING("Unexpected - failed to close the WebSocket "
                                 "connection");
                 } else {
@@ -253,7 +253,7 @@ void Connector::connect(int max_connect_attempts) {
 
 bool Connector::isConnected() const {
     return connection_ptr_ != nullptr
-           && connection_ptr_->getConnectionState() == ConnectionStateValues::open;
+           && connection_ptr_->getConnectionState() == ConnectionState::open;
 }
 
 bool Connector::isAssociated() const {
