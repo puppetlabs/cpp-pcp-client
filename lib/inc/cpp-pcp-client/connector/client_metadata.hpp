@@ -18,7 +18,7 @@ class LIBCPP_PCP_CLIENT_EXPORT ClientMetadata {
     std::string client_type;
     std::string common_name;
     std::string uri;
-    long connection_timeout;
+    int64_t connection_timeout;
 
     /// Throws a connection_config_error in case: the client
     /// certificate file does not exist or is invalid; it fails to
@@ -28,7 +28,7 @@ class LIBCPP_PCP_CLIENT_EXPORT ClientMetadata {
                    std::string _ca,
                    std::string _crt,
                    std::string _key,
-                   long _connection_timeout);
+                   int64_t _connection_timeout);
 };
 
 }  // namespace PCPClient

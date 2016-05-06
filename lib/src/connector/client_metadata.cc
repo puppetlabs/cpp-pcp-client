@@ -105,7 +105,7 @@ ClientMetadata::ClientMetadata(std::string _client_type,
                                std::string _ca,
                                std::string _crt,
                                std::string _key,
-                               long _connection_timeout)
+                               int64_t _connection_timeout)
         : ca { std::move(_ca) },
           crt { std::move(_crt) },
           key { std::move(_key) },

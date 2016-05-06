@@ -169,7 +169,7 @@ The constructor of the Connector class is defined as:
               std::string ca_crt_path,
               std::string client_crt_path,
               std::string client_key_path,
-              long connection_timeout = 5000)
+              int64_t connection_timeout = 5000)
 ```
 
 The parameters are described as:
