@@ -12,6 +12,7 @@
 #ifdef ENABLE_LOGGING
 #define LEATHERMAN_LOGGING_NAMESPACE "puppetlabs.cpp_pcp_client.test"
 #include <leatherman/logging/logging.hpp>
+#include <boost/nowide/iostream.hpp>
 #endif
 
 int main(int argc, char** argv) {
