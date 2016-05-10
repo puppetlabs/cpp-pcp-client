@@ -16,11 +16,9 @@ elif [ ${TRAVIS_TARGET} == DEBUG ]; then
 fi
 
 # Generate build files
-if [ ${TRAVIS_TARGET} == DEBUG ]; then
-  cmake -DCMAKE_BUILD_TYPE=Debug -DCOVERALLS=ON .
-else
-  cmake .
-fi
+[ $1 == "debug" ] && export CMAKE_VARS="-DCMAKE_BUILD_TYPE=Debug -DCOVERALLS=ON"
+[ $1 == "shared_release" ] && export CMAKE_VARS="-DBUILD_SHARED_LIBS=ON"
+cmake $CMAKE_VARS .
 
 if [ ${TRAVIS_TARGET} == CPPLINT ]; then
   make cpplint
