@@ -63,19 +63,16 @@ using WS_Connection_Handle = websocketpp::connection_hdl;
 
 // Connection States
 
-namespace ConnectionStateValues {
-    enum value_ {
-        initialized = -1,
-        connecting = 0,
-        open = 1,
-        closing = 2,
-        closed = 3
-    };
-}  // namespace ConnectionStateValues
-
-using ConnectionState = ConnectionStateValues::value_;
+enum class ConnectionState {
+    initialized = -1,
+    connecting = 0,
+    open = 1,
+    closing = 2,
+    closed = 3
+};
 
 // Close Codes
+// Implemented as a plain enum so they cast to Websocketpp's close::status::value
 
 namespace CloseCodeValues {
     enum value_ : uint16_t {
@@ -98,8 +95,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     /// The constructor throws an connection_config_error if it fails
     /// to configure the underlying WebSocket endpoint and the event
     /// handlers.
-    Connection(const std::string& broker_ws_uri,
-               const ClientMetadata& client_metadata);
+    Connection(std::string broker_ws_uri,
+               ClientMetadata client_metadata);
 
     ~Connection();
 

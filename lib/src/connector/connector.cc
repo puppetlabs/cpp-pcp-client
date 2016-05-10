@@ -41,17 +41,17 @@ static const std::string MY_BROKER_URI { "pcp:///server" };
 // Public api
 //
 
-Connector::Connector(const std::string& broker_ws_uri,
-                     const std::string& client_type,
-                     const std::string& ca_crt_path,
-                     const std::string& client_crt_path,
-                     const std::string& client_key_path,
-                     const long& connection_timeout)
-        : broker_ws_uri_ { broker_ws_uri },
-          client_metadata_ { client_type,
-                             ca_crt_path,
-                             client_crt_path,
-                             client_key_path,
+Connector::Connector(std::string broker_ws_uri,
+                     std::string client_type,
+                     std::string ca_crt_path,
+                     std::string client_crt_path,
+                     std::string client_key_path,
+                     int64_t connection_timeout)
+        : broker_ws_uri_ { std::move(broker_ws_uri) },
+          client_metadata_ { std::move(client_type),
+                             std::move(ca_crt_path),
+                             std::move(client_crt_path),
+                             std::move(client_key_path),
                              connection_timeout },
           connection_ptr_ { nullptr },
           validator_ {},
@@ -103,7 +103,7 @@ Connector::~Connector() {
 }
 
 // Register schemas and onMessage callbacks
-void Connector::registerMessageCallback(const Schema schema,
+void Connector::registerMessageCallback(const Schema& schema,
                                         MessageCallback callback) {
     validator_.registerSchema(schema);
     auto p = std::pair<std::string, MessageCallback>(schema.getName(), callback);
@@ -155,8 +155,8 @@ void Connector::connect(int max_connect_attempts) {
     // only by the WebSocket onOpen handler, asynchronously. So, first
     // ensure that the connection is closed and then open it.
     switch (connection_ptr_->getConnectionState()) {
-        case(ConnectionStateValues::connecting):
-        case(ConnectionStateValues::open):
+        case(ConnectionState::connecting):
+        case(ConnectionState::open):
             LOG_DEBUG("There's an ongoing attempt to create a WebSocket connection; "
                       "ensuring that it's closed before Associate Session");
             try {
@@ -167,12 +167,12 @@ void Connector::connect(int max_connect_attempts) {
                 lth_util::Timer timer {};
 
                 while (connection_ptr_->getConnectionState()
-                            != ConnectionStateValues::closed
+                            != ConnectionState::closed
                        && timer.elapsed_seconds() < WS_CONNECTION_CLOSE_TIMEOUT_S)
                     Util::this_thread::sleep_for(Util::chrono::milliseconds(100));
 
                 if (connection_ptr_->getConnectionState()
-                        != ConnectionStateValues::closed) {
+                        != ConnectionState::closed) {
                     LOG_WARNING("Unexpected - failed to close the WebSocket "
                                 "connection");
                 } else {
@@ -253,7 +253,7 @@ void Connector::connect(int max_connect_attempts) {
 
 bool Connector::isConnected() const {
     return connection_ptr_ != nullptr
-           && connection_ptr_->getConnectionState() == ConnectionStateValues::open;
+           && connection_ptr_->getConnectionState() == ConnectionState::open;
 }
 
 bool Connector::isAssociated() const {

@@ -33,31 +33,31 @@ valijson::Schema parseSchema(const lth_jc::JsonContainer& metadata) {
 // Public API
 //
 
-Schema::Schema(const std::string& name,
-               const ContentType content_type,
-               const TypeConstraint type)
-        : name_ { name },
-          content_type_ { content_type },
+Schema::Schema(std::string name,
+               ContentType content_type,
+               TypeConstraint type)
+        : name_ { std::move(name) },
+          content_type_ { std::move(content_type) },
           parsed_json_schema_ { new valijson::Schema() },
           parsed_ { false },
-          type_ { type },
+          type_ { std::move(type) },
           properties_ { new V_C::PropertiesConstraint::PropertySchemaMap() },
           pattern_properties_ { new V_C::PropertiesConstraint::PropertySchemaMap() },
           required_properties_ { new V_C::RequiredConstraint::RequiredProperties() } {
 }
 
-Schema::Schema(const std::string& name,
-               const ContentType content_type)
-        : Schema(name, content_type, TypeConstraint::Object) {
+Schema::Schema(std::string name,
+               ContentType content_type)
+        : Schema(std::move(name), std::move(content_type), TypeConstraint::Object) {
 }
 
-Schema::Schema(const std::string& name,
-               const TypeConstraint type)
-        : Schema(name, ContentType::Json, type) {
+Schema::Schema(std::string name,
+               TypeConstraint type)
+        : Schema(std::move(name), ContentType::Json, std::move(type)) {
 }
 
-Schema::Schema(const std::string& name)
-        : Schema(name, ContentType::Json, TypeConstraint::Object) {
+Schema::Schema(std::string name)
+        : Schema(std::move(name), ContentType::Json, TypeConstraint::Object) {
 }
 
 Schema::Schema(const Schema& s)
@@ -74,8 +74,8 @@ Schema::Schema(const Schema& s)
             new V_C::RequiredConstraint::RequiredProperties(*s.required_properties_)} {
 }
 
-Schema::Schema(const std::string& name, const lth_jc::JsonContainer& metadata)
-        try : name_ { name },
+Schema::Schema(std::string name, const lth_jc::JsonContainer& metadata)
+        try : name_ { std::move(name) },
               content_type_ { ContentType::Json },
               parsed_json_schema_ { new valijson::Schema(parseSchema(metadata)) },
               parsed_ { true },
