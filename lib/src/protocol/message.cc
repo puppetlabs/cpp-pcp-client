@@ -307,12 +307,21 @@ void Message::parseMessage(const std::string& transport_msg) {
         }
 
         auto chunk_size = deserialize<uint32_t>(4, next_itr);
-        if (chunk_size > still_to_parse - CHUNK_METADATA_SIZE) {
+        auto missing_bytes = still_to_parse - CHUNK_METADATA_SIZE;
+        if (chunk_size > missing_bytes) {
             // TODO(ale): deal with locale & plural
-            LOG_ERROR("Invalid msg; missing part of the {1} chunk content ({2} "
-                      "bytes declared - missing {3} bytes)",
-                      ChunkDescriptor::names[chunk_desc_bit], chunk_size,
-                      still_to_parse - CHUNK_METADATA_SIZE);
+            assert(chunk_size > 1);
+            if (missing_bytes == 1) {
+                LOG_ERROR("Invalid msg; missing part of the {1} chunk content ({2} "
+                          "bytes declared - missing {3} byte)",
+                          ChunkDescriptor::names[chunk_desc_bit], chunk_size,
+                          missing_bytes);
+            } else {
+                LOG_ERROR("Invalid msg; missing part of the {1} chunk content ({2} "
+                          "bytes declared - missing {3} bytes)",
+                          ChunkDescriptor::names[chunk_desc_bit], chunk_size,
+                          missing_bytes);
+            }
             LOG_TRACE("Invalid msg content (unserialized): '{1}'", transport_msg);
             throw message_serialization_error {
                 lth_loc::translate("invalid msg: missing chunk content") };
@@ -340,8 +349,13 @@ void Message::parseMessage(const std::string& transport_msg) {
 
     if (still_to_parse > 0) {
         // TODO(ale): deal with locale & plural
-        LOG_ERROR("Failed to parse the entire msg (ignoring last {1} bytes); "
-                  "the msg will be processed anyway", still_to_parse);
+        if (still_to_parse == 1) {
+            LOG_ERROR("Failed to parse the entire msg (ignoring last {1} byte); "
+                      "the msg will be processed anyway", still_to_parse);
+        } else {
+            LOG_ERROR("Failed to parse the entire msg (ignoring last {1} bytes); "
+                      "the msg will be processed anyway", still_to_parse);
+        }
         LOG_TRACE("Msg content (unserialized): '{1}'", transport_msg);
     }
 
@@ -373,8 +387,19 @@ void Message::validateChunk(const MessageChunk& chunk) const {
 
     if (chunk.size != static_cast<uint32_t>(chunk.content.size())) {
         // TODO(ale): deal with locale and plural
-        LOG_ERROR("Incorrect size for {1} chunk; declared {2} bytes, got {3} bytes",
-                  ChunkDescriptor::names[desc_bit], chunk.size, chunk.content.size());
+        if (chunk.size == 1) {
+            assert(chunk.content.size() != 1);
+            LOG_ERROR("Incorrect size for {1} chunk; declared {2} byte, got {3} bytes",
+                      ChunkDescriptor::names[desc_bit], chunk.size, chunk.content.size());
+        } else {
+            if (chunk.content.size() == 1) {
+                LOG_ERROR("Incorrect size for {1} chunk; declared {2} bytes, got {3} byte",
+                          ChunkDescriptor::names[desc_bit], chunk.size, chunk.content.size());
+            } else {
+                LOG_ERROR("Incorrect size for {1} chunk; declared {2} bytes, got {3} bytes",
+                          ChunkDescriptor::names[desc_bit], chunk.size, chunk.content.size());
+            }
+        }
         throw invalid_chunk_error { lth_loc::translate("invalid size") };
     }
 }
