@@ -53,7 +53,7 @@ TEST_CASE("PCPClient::serialize", "[message]") {
         REQUIRE(std::string(buffer.begin(), buffer.end()) == s_1 + s_2 + s_3);
     }
 
-    SECTION("can serialize an unsigned integer (4 bytes)") {
+    SECTION("can serialize an unsigned long integer (4 bytes)") {
         uint32_t n { 42 };
         SerializedMessage buffer;
         serialize<uint32_t>(n, 4, buffer);
@@ -62,7 +62,7 @@ TEST_CASE("PCPClient::serialize", "[message]") {
         REQUIRE(buffer == std::vector<uint8_t>({ 0, 0, 0, 0x2A }));
     }
 
-    SECTION("can serialize an unsigned integer (4 bytes) storing a number "
+    SECTION("can serialize an unsigned long integer (4 bytes) storing a number "
             "encoded with multiple bytes") {
         uint32_t n { 271828 };
         SerializedMessage buffer;
@@ -72,7 +72,7 @@ TEST_CASE("PCPClient::serialize", "[message]") {
         REQUIRE(buffer == std::vector<uint8_t>({ 0, 0x4, 0x25, 0xD4 }));
     }
 
-    SECTION("can serialize multiple integers") {
+    SECTION("can serialize multiple long integers") {
         uint32_t n_1 { 271828 };
         uint32_t n_2 { 314159 };
 
@@ -136,7 +136,7 @@ TEST_CASE("PCPClient::deserialize", "[message]") {
         REQUIRE(n_4 == 127);
     }
 
-    SECTION("can deserialize an integer") {
+    SECTION("can deserialize a long integer") {
         uint32_t n { 271828 };
         SerializedMessage n_buffer;
         serialize<uint32_t>(n, 4, n_buffer);
@@ -147,7 +147,7 @@ TEST_CASE("PCPClient::deserialize", "[message]") {
         REQUIRE(n_deserialized == 271828);
     }
 
-    SECTION("can deserialize multiple integers") {
+    SECTION("can deserialize multiple long integers") {
         auto n_vector = std::vector<uint32_t>({ 271828, 0, 1, 128, 1025 });
         SerializedMessage n_buffer;
         for (const auto& n : n_vector)
