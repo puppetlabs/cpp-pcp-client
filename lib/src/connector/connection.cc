@@ -212,9 +212,10 @@ void Connection::connect(int max_connect_attempts) {
 
     connection_backoff_ms_ = CONNECTION_BACKOFF_MS;
     // TODO(ale): deal with locale & plural (PCP-257)
-    throw connection_fatal_error {
-        lth_loc::format("failed to establish a WebSocket connection after "
-                        "{1} attempts", idx) };
+    auto msg = (idx == 1) ?
+      lth_loc::format("failed to establish a WebSocket connection after {1} attempt", idx) :
+      lth_loc::format("failed to establish a WebSocket connection after {1} attempts", idx);
+    throw connection_fatal_error { msg };
 }
 
 void Connection::send(const std::string& msg) {

@@ -356,8 +356,13 @@ MessageChunk Connector::createEnvelope(const std::vector<std::string>& targets,
     msg_id = lth_util::get_UUID();
     auto expires = lth_util::get_ISO8601_time(timeout);
     // TODO(ale): deal with locale & plural (PCP-257)
-    LOG_DEBUG("Creating message with id {1} for {2} receivers",
-              msg_id, targets.size());
+    if (targets.size() == 1) {
+        LOG_DEBUG("Creating message with id {1} for {2} receiver",
+                  msg_id, targets.size());
+    } else {
+        LOG_DEBUG("Creating message with id {1} for {2} receivers",
+                  msg_id, targets.size());
+    }
 
     lth_jc::JsonContainer envelope_content {};
 

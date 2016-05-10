@@ -84,118 +84,122 @@ msgid "Failed to establish a WebSocket connection; retrying in {1} seconds"
 msgstr ""
 
 #: lib/src/connector/connection.cc:216
+msgid "failed to establish a WebSocket connection after {1} attempt"
+msgstr ""
+
+#: lib/src/connector/connection.cc:217
 msgid "failed to establish a WebSocket connection after {1} attempts"
 msgstr ""
 
-#: lib/src/connector/connection.cc:228
-#: lib/src/connector/connection.cc:240
+#: lib/src/connector/connection.cc:229
+#: lib/src/connector/connection.cc:241
 msgid "failed to send message: {1}"
 msgstr ""
 
-#: lib/src/connector/connection.cc:248
+#: lib/src/connector/connection.cc:249
 msgid "failed to send WebSocket ping: {1}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:253
+#: lib/src/connector/connection.cc:254
 msgid "About to close the WebSocket connection"
 msgstr ""
 
-#: lib/src/connector/connection.cc:258
+#: lib/src/connector/connection.cc:259
 msgid "failed to close WebSocket connection: {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:281
+#: lib/src/connector/connection.cc:282
 msgid "Cleanup failure: {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:292
+#: lib/src/connector/connection.cc:293
 msgid "Will wait {1} ms before terminating the WebSocket connection"
 msgstr ""
 
-#: lib/src/connector/connection.cc:314
+#: lib/src/connector/connection.cc:315
 msgid "failed to establish the WebSocket connection with {1}: {2}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connection.cc:318
+#: lib/src/connector/connection.cc:319
 msgid "Connecting to '{1}' with a connection timeout of {2} ms"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:342
+#: lib/src/connector/connection.cc:343
 msgid "Verifying {1}, issued by {2}. Verified: {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:360
+#: lib/src/connector/connection.cc:361
 msgid "WebSocket TLS initialization event; about to validate the certificate"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:380
+#: lib/src/connector/connection.cc:381
 msgid "Initialized SSL context to verify broker {1}"
 msgstr ""
 
-#: lib/src/connector/connection.cc:385
+#: lib/src/connector/connection.cc:386
 msgid "TLS error: {1}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:393
+#: lib/src/connector/connection.cc:394
 msgid "WebSocket on close event: {1} (code: {2}) - {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:403
+#: lib/src/connector/connection.cc:404
 msgid "WebSocket on fail event - {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:404
+#: lib/src/connector/connection.cc:405
 msgid "WebSocket on fail event (connection loss): {1} (code: {2})"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:416
+#: lib/src/connector/connection.cc:417
 msgid "WebSocket onPong event"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:424
+#: lib/src/connector/connection.cc:425
 msgid "WebSocket onPongTimeout event ({1} consecutive)"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:441
+#: lib/src/connector/connection.cc:442
 msgid "WebSocket on open event - {1}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connection.cc:442
+#: lib/src/connector/connection.cc:443
 msgid ""
 "Successfully established a WebSocket connection with the PCP broker at {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:451
+#: lib/src/connector/connection.cc:452
 msgid "onOpen callback failure: {1}; closing the WebSocket connection"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:454
+#: lib/src/connector/connection.cc:455
 msgid "onOpen callback failure; closing the WebSocket connection"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:470
+#: lib/src/connector/connection.cc:471
 msgid "onMessage WebSocket callback failure: {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:472
+#: lib/src/connector/connection.cc:473
 msgid "onMessage WebSocket callback failure: unexpected error"
 msgstr ""
 
@@ -276,153 +280,158 @@ msgid "connection not initialized"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:359
+#: lib/src/connector/connector.cc:360
+msgid "Creating message with id {1} for {2} receiver"
+msgstr ""
+
+#. debug
+#: lib/src/connector/connector.cc:363
 msgid "Creating message with id {1} for {2} receivers"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:407
+#: lib/src/connector/connector.cc:412
 msgid ""
 "About to send Associate Session request; unexpectedly the Connector does not "
 "seem to be in the associating state"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:425
+#: lib/src/connector/connector.cc:430
 msgid "Sending Associate Session request with id {1}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:434
+#: lib/src/connector/connector.cc:439
 msgid ""
 "Received message of {1} bytes - raw message:\n"
 "{2}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:445
+#: lib/src/connector/connector.cc:450
 msgid "Failed to deserialize message: {1}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:455
+#: lib/src/connector/connector.cc:460
 msgid "Invalid envelope - bad content: {1}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:457
+#: lib/src/connector/connector.cc:462
 msgid "Invalid envelope - invalid JSON content: {1}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:461
+#: lib/src/connector/connector.cc:466
 msgid "Unknown schema: {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:487
+#: lib/src/connector/connector.cc:492
 msgid "No message callback has be registered for the '{1}' schema"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:506
+#: lib/src/connector/connector.cc:511
 msgid "Received an unexpected Associate Session response; discarding it"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:512
+#: lib/src/connector/connector.cc:517
 msgid ""
 "Received an Associate Session response that refers to an unknown request ID "
 "({1}, expected {2}); discarding it"
 msgstr ""
 
-#: lib/src/connector/connector.cc:518
+#: lib/src/connector/connector.cc:523
 msgid "Received an Associate Session response {1} from {2} for the request {3}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:523
+#: lib/src/connector/connector.cc:528
 msgid "{1}: success"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:527
+#: lib/src/connector/connector.cc:532
 msgid "{1}: failure - {2}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:530
+#: lib/src/connector/connector.cc:535
 msgid "{1}: failure"
 msgstr ""
 
-#: lib/src/connector/connector.cc:554
+#: lib/src/connector/connector.cc:559
 msgid "Received error {1} from {2}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:559
+#: lib/src/connector/connector.cc:564
 msgid "{1} caused by message {2}: {3}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:561
+#: lib/src/connector/connector.cc:566
 msgid "{1} (the id of the message that caused it is unknown): {2}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:572
+#: lib/src/connector/connector.cc:577
 msgid "The error message {1} is due to the Associate Session request {2}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:592
+#: lib/src/connector/connector.cc:597
 msgid "Received TTL Expired message {1} from {2} related to message {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:604
+#: lib/src/connector/connector.cc:609
 msgid ""
 "The TTL expired message {1} is related to the Associate Session request {2}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:619
+#: lib/src/connector/connector.cc:624
 msgid "Starting the monitor task"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:635
+#: lib/src/connector/connector.cc:640
 msgid "WebSocket connection to PCP broker lost; retrying"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:638
+#: lib/src/connector/connector.cc:643
 msgid "Sending heartbeat ping"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:644
+#: lib/src/connector/connector.cc:649
 msgid ""
 "The connection monitor task will continue after a WebSocket failure ({1})"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:648
+#: lib/src/connector/connector.cc:653
 msgid ""
 "The connection monitor task will continue after an error during the Session "
 "Association ({1})"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:652
+#: lib/src/connector/connector.cc:657
 msgid ""
 "The connection monitor task will stop after an Session Association failure: "
 "{1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:658
+#: lib/src/connector/connector.cc:663
 msgid "The connection monitor task will stop: {1}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:664
+#: lib/src/connector/connector.cc:669
 msgid "Stopping the monitor task"
 msgstr ""
 
@@ -491,56 +500,80 @@ msgid "invalid msg: invalid chunk descriptor"
 msgstr ""
 
 #. error
-#: lib/src/protocol/message.cc:312
+#: lib/src/protocol/message.cc:315
+msgid ""
+"Invalid msg; missing part of the {1} chunk content ({2} bytes declared - "
+"missing {3} byte)"
+msgstr ""
+
+#. error
+#: lib/src/protocol/message.cc:320
 msgid ""
 "Invalid msg; missing part of the {1} chunk content ({2} bytes declared - "
 "missing {3} bytes)"
 msgstr ""
 
-#: lib/src/protocol/message.cc:318
+#: lib/src/protocol/message.cc:327
 msgid "invalid msg: missing chunk content"
 msgstr ""
 
 #. error
-#: lib/src/protocol/message.cc:326
+#: lib/src/protocol/message.cc:335
 msgid "Invalid msg; multiple data chunks"
 msgstr ""
 
-#: lib/src/protocol/message.cc:330
+#: lib/src/protocol/message.cc:339
 msgid "invalid msg: multiple data chunks"
 msgstr ""
 
 #. error
-#: lib/src/protocol/message.cc:343
+#: lib/src/protocol/message.cc:353
+msgid ""
+"Failed to parse the entire msg (ignoring last {1} byte); the msg will be "
+"processed anyway"
+msgstr ""
+
+#. error
+#: lib/src/protocol/message.cc:356
 msgid ""
 "Failed to parse the entire msg (ignoring last {1} bytes); the msg will be "
 "processed anyway"
 msgstr ""
 
 #. error
-#: lib/src/protocol/message.cc:359
+#: lib/src/protocol/message.cc:373
 msgid "Unsupported message version: {1}"
 msgstr ""
 
-#: lib/src/protocol/message.cc:361
+#: lib/src/protocol/message.cc:375
 msgid "unsupported message version: {1}"
 msgstr ""
 
 #. error
-#: lib/src/protocol/message.cc:369
+#: lib/src/protocol/message.cc:383
 msgid "Unknown chunk descriptor: {1}"
 msgstr ""
 
-#: lib/src/protocol/message.cc:371
+#: lib/src/protocol/message.cc:385
 msgid "unknown descriptor"
 msgstr ""
 
 #. error
-#: lib/src/protocol/message.cc:376
+#: lib/src/protocol/message.cc:392
+msgid "Incorrect size for {1} chunk; declared {2} byte, got {3} bytes"
+msgstr ""
+
+#. error
+#: lib/src/protocol/message.cc:396
+msgid "Incorrect size for {1} chunk; declared {2} bytes, got {3} byte"
+msgstr ""
+
+#. error
+#: lib/src/protocol/message.cc:399
 msgid "Incorrect size for {1} chunk; declared {2} bytes, got {3} bytes"
 msgstr ""
 
-#: lib/src/protocol/message.cc:378
+#: lib/src/protocol/message.cc:403
 msgid "invalid size"
 msgstr ""
 
