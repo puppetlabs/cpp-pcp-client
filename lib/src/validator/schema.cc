@@ -7,11 +7,14 @@
 #include <cpp-pcp-client/valijson/rapidjson_adapter.hpp>
 #pragma GCC diagnostic pop
 
+#include <leatherman/locale/locale.hpp>
+
 #include <rapidjson/allocators.h>
 
 namespace PCPClient {
 
-namespace lth_jc = leatherman::json_container;
+namespace lth_jc  = leatherman::json_container;
+namespace lth_loc = leatherman::locale;
 
 //
 // Free functions
@@ -30,31 +33,31 @@ valijson::Schema parseSchema(const lth_jc::JsonContainer& metadata) {
 // Public API
 //
 
-Schema::Schema(const std::string& name,
-               const ContentType content_type,
-               const TypeConstraint type)
-        : name_ { name },
-          content_type_ { content_type },
+Schema::Schema(std::string name,
+               ContentType content_type,
+               TypeConstraint type)
+        : name_ { std::move(name) },
+          content_type_ { std::move(content_type) },
           parsed_json_schema_ { new valijson::Schema() },
           parsed_ { false },
-          type_ { type },
+          type_ { std::move(type) },
           properties_ { new V_C::PropertiesConstraint::PropertySchemaMap() },
           pattern_properties_ { new V_C::PropertiesConstraint::PropertySchemaMap() },
           required_properties_ { new V_C::RequiredConstraint::RequiredProperties() } {
 }
 
-Schema::Schema(const std::string& name,
-               const ContentType content_type)
-        : Schema(name, content_type, TypeConstraint::Object) {
+Schema::Schema(std::string name,
+               ContentType content_type)
+        : Schema(std::move(name), std::move(content_type), TypeConstraint::Object) {
 }
 
-Schema::Schema(const std::string& name,
-               const TypeConstraint type)
-        : Schema(name, ContentType::Json, type) {
+Schema::Schema(std::string name,
+               TypeConstraint type)
+        : Schema(std::move(name), ContentType::Json, std::move(type)) {
 }
 
-Schema::Schema(const std::string& name)
-        : Schema(name, ContentType::Json, TypeConstraint::Object) {
+Schema::Schema(std::string name)
+        : Schema(std::move(name), ContentType::Json, TypeConstraint::Object) {
 }
 
 Schema::Schema(const Schema& s)
@@ -71,8 +74,8 @@ Schema::Schema(const Schema& s)
             new V_C::RequiredConstraint::RequiredProperties(*s.required_properties_)} {
 }
 
-Schema::Schema(const std::string& name, const lth_jc::JsonContainer& metadata)
-        try : name_ { name },
+Schema::Schema(std::string name, const lth_jc::JsonContainer& metadata)
+        try : name_ { std::move(name) },
               content_type_ { ContentType::Json },
               parsed_json_schema_ { new valijson::Schema(parseSchema(metadata)) },
               parsed_ { true },
@@ -81,9 +84,9 @@ Schema::Schema(const std::string& name, const lth_jc::JsonContainer& metadata)
               pattern_properties_ { new V_C::PropertiesConstraint::PropertySchemaMap() },
               required_properties_ { new V_C::RequiredConstraint::RequiredProperties() } {
 } catch (std::exception& e) {
-    throw schema_error { std::string("failed to parse schema: ") + e.what() };
+    throw schema_error { lth_loc::format("failed to parse schema: {1}", e.what()) };
 } catch (...) {
-    throw schema_error { "failed to parse schema" };
+    throw schema_error { lth_loc::translate("failed to parse schema") };
 }
 
 // unique_ptr requires a complete type at time of destruction. this forces us to
@@ -173,11 +176,12 @@ V_C::TypeConstraint Schema::getConstraint(TypeConstraint type) const {
 
 void Schema::checkAddConstraint() {
     if (parsed_) {
-        throw schema_error { "schema was populate by parsing JSON" };
+        throw schema_error {
+            lth_loc::translate("schema was populate by parsing JSON") };
     }
 
     if (type_ != TypeConstraint::Object) {
-        throw schema_error { "type is not JSON Object" };
+        throw schema_error { lth_loc::translate("type is not JSON Object") };
     }
 }
 

@@ -26,6 +26,8 @@
 
 #include <leatherman/util/timer.hpp>
 
+#include <leatherman/locale/locale.hpp>
+
 #include <cstdio>
 #include <iostream>
 #include <random>
@@ -38,6 +40,7 @@
 namespace PCPClient {
 
 namespace lth_util = leatherman::util;
+namespace lth_loc  = leatherman::locale;
 
 //
 // Constants
@@ -51,13 +54,14 @@ static const uint32_t CONNECTION_BACKOFF_MULTIPLIER { 2 };
 // Connection
 //
 
-Connection::Connection(const std::string& broker_ws_uri,
-                       const ClientMetadata& client_metadata)
-        : broker_ws_uri_ { broker_ws_uri },
-          client_metadata_ { client_metadata },
-          connection_state_ { ConnectionStateValues::initialized },
+Connection::Connection(std::string broker_ws_uri,
+                       ClientMetadata client_metadata)
+        : broker_ws_uri_ { std::move(broker_ws_uri) },
+          client_metadata_ { std::move(client_metadata) },
+          connection_state_ { ConnectionState::initialized },
           consecutive_pong_timeouts_ { 0 },
-          endpoint_ { new WS_Client_Type() }{
+          endpoint_ { new WS_Client_Type() }
+{
     // Turn off websocketpp logging to avoid runtime errors (see CTH-69)
     endpoint_->clear_access_channels(websocketpp::log::alevel::all);
     endpoint_->clear_error_channels(websocketpp::log::elevel::all);
@@ -99,7 +103,7 @@ Connection::Connection(const std::string& broker_ws_uri,
         LOG_DEBUG("Failed to configure the WebSocket endpoint; about to stop "
                   "the event loop");
         cleanUp();
-        throw connection_config_error { "failed to initialize" };
+        throw connection_config_error { lth_loc::translate("failed to initialize") };
     }
 }
 
@@ -138,7 +142,7 @@ inline static void doSleep(int ms = CONNECTION_MIN_INTERVAL_MS) {
 
 void Connection::connect(int max_connect_attempts) {
     // FSM
-    //  - states are ConnectionStateValues:
+    //  - states are ConnectionState:
     //      * initialized - connecting - open - closing - closed
     //  - for the transitions, we assume that the connection_state_:
     //      * can be set to 'initialized' only by the Connection ctor;
@@ -164,35 +168,35 @@ void Connection::connect(int max_connect_attempts) {
                             >= CONNECTION_BACKOFF_LIMIT_MS);
 
         switch (current_c_s) {
-        case(ConnectionStateValues::initialized):
-            assert(previous_c_s == ConnectionStateValues::initialized);
+        case(ConnectionState::initialized):
+            assert(previous_c_s == ConnectionState::initialized);
             connectAndWait();
-            if (connection_state_.load() == ConnectionStateValues::open)
+            if (connection_state_.load() == ConnectionState::open)
                 return;
             break;
 
-        case(ConnectionStateValues::connecting):
-            previous_c_s = ConnectionStateValues::connecting;
+        case(ConnectionState::connecting):
+            previous_c_s = ConnectionState::connecting;
             doSleep();
             continue;
 
-        case(ConnectionStateValues::open):
-            if (previous_c_s != ConnectionStateValues::open)
+        case(ConnectionState::open):
+            if (previous_c_s != ConnectionState::open)
                 connection_backoff_ms_ = CONNECTION_BACKOFF_MS;
             return;
 
-        case(ConnectionStateValues::closing):
-            previous_c_s = ConnectionStateValues::closing;
+        case(ConnectionState::closing):
+            previous_c_s = ConnectionState::closing;
             doSleep();
             continue;
 
-        case(ConnectionStateValues::closed):
-            if (previous_c_s == ConnectionStateValues::closed) {
-                previous_c_s = ConnectionStateValues::connecting;
+        case(ConnectionState::closed):
+            if (previous_c_s == ConnectionState::closed) {
+                previous_c_s = ConnectionState::connecting;
                 connectAndWait();
             } else {
                 LOG_WARNING("Failed to establish a WebSocket connection; "
-                            "retrying in %1% seconds",
+                            "retrying in {1} seconds",
                             static_cast<int>(connection_backoff_ms_ / 1000));
                 // Randomly adjust the interval slightly to help calm
                 // a thundering herd
@@ -207,53 +211,53 @@ void Connection::connect(int max_connect_attempts) {
     } while (try_again);
 
     connection_backoff_ms_ = CONNECTION_BACKOFF_MS;
-    throw connection_fatal_error { "failed to establish a WebSocket connection "
-                                   "after " + std::to_string(idx) + " attempt"
-                                   + (idx > 1 ? "s" : "") };
+    // TODO(ale): deal with locale & plural (PCP-257)
+    auto msg = (idx == 1) ?
+      lth_loc::format("failed to establish a WebSocket connection after {1} attempt", idx) :
+      lth_loc::format("failed to establish a WebSocket connection after {1} attempts", idx);
+    throw connection_fatal_error { msg };
 }
 
 void Connection::send(const std::string& msg) {
     websocketpp::lib::error_code ec;
     endpoint_->send(connection_handle_,
-                   msg,
-                   websocketpp::frame::opcode::binary,
-                   ec);
-    if (ec) {
-        throw connection_processing_error { "failed to send message: "
-                                            + ec.message() };
-    }
+                    msg,
+                    websocketpp::frame::opcode::binary,
+                    ec);
+    if (ec)
+        throw connection_processing_error {
+            lth_loc::format("failed to send message: {1}", ec.message()) };
 }
 
 void Connection::send(void* const serialized_msg_ptr, size_t msg_len) {
     websocketpp::lib::error_code ec;
     endpoint_->send(connection_handle_,
-                   serialized_msg_ptr,
-                   msg_len,
-                   websocketpp::frame::opcode::binary,
-                   ec);
-    if (ec) {
-        throw connection_processing_error { "failed to send message: "
-                                            + ec.message() };
-    }
+                    serialized_msg_ptr,
+                    msg_len,
+                    websocketpp::frame::opcode::binary,
+                    ec);
+    if (ec)
+        throw connection_processing_error {
+            lth_loc::format("failed to send message: {1}", ec.message()) };
 }
 
 void Connection::ping(const std::string& binary_payload) {
     websocketpp::lib::error_code ec;
     endpoint_->ping(connection_handle_, binary_payload, ec);
-    if (ec) {
-        throw connection_processing_error { "failed to send WebSocket ping: "
-                                            + ec.message() };
-    }
+    if (ec)
+        throw connection_processing_error {
+            lth_loc::format("failed to send WebSocket ping: {1}",
+                            ec.message()) };
 }
 
 void Connection::close(CloseCode code, const std::string& reason) {
-    LOG_DEBUG("About to close connection");
+    LOG_DEBUG("About to close the WebSocket connection");
     websocketpp::lib::error_code ec;
     endpoint_->close(connection_handle_, code, reason, ec);
-    if (ec) {
-        throw connection_processing_error { "failed to close WebSocket "
-                                            "connection: " + ec.message() };
-    }
+    if (ec)
+        throw connection_processing_error {
+            lth_loc::format("failed to close WebSocket connection: {1}",
+                            ec.message()) };
 }
 
 //
@@ -265,7 +269,7 @@ void Connection::connectAndWait() {
         static_cast<int>(client_metadata_.connection_timeout / 1000);
     connect_();
     lth_util::Timer timer {};
-    while (connection_state_.load() != ConnectionStateValues::open
+    while (connection_state_.load() != ConnectionState::open
            && timer.elapsed_seconds() < connection_timeout_s) {
         doSleep();
     }
@@ -275,21 +279,21 @@ void Connection::tryClose() {
     try {
         close();
     } catch (connection_processing_error& e) {
-        LOG_ERROR("Cleanup failure: %1%", e.what());
+        LOG_WARNING("Cleanup failure: {1}", e.what());
     }
 }
 
 void Connection::cleanUp() {
     auto c_s = connection_state_.load();
 
-    if (c_s == ConnectionStateValues::open) {
+    if (c_s == ConnectionState::open) {
         tryClose();
-    } else if (c_s == ConnectionStateValues::connecting) {
+    } else if (c_s == ConnectionState::connecting) {
         // Wait connection_timeout ms, in case of a concurrent onOpen
-        LOG_WARNING("Will wait %1% ms before terminating the WebSocket connection",
+        LOG_WARNING("Will wait {1} ms before terminating the WebSocket connection",
                     client_metadata_.connection_timeout);
         doSleep(client_metadata_.connection_timeout);
-        if (connection_state_.load() == ConnectionStateValues::open)
+        if (connection_state_.load() == ConnectionState::open)
             tryClose();
     }
 
@@ -301,18 +305,18 @@ void Connection::cleanUp() {
 }
 
 void Connection::connect_() {
-    connection_state_ = ConnectionStateValues::connecting;
+    connection_state_ = ConnectionState::connecting;
     connection_timings_ = ConnectionTimings();
     websocketpp::lib::error_code ec;
     WS_Client_Type::connection_ptr connection_ptr {
         endpoint_->get_connection(broker_ws_uri_, ec) };
-    if (ec) {
-        throw connection_processing_error { "failed to establish the WebSocket "
-                                            "connection with " + broker_ws_uri_
-                                            + ": " + ec.message() };
-    }
+    if (ec)
+        throw connection_processing_error {
+            lth_loc::format("failed to establish the WebSocket connection "
+                            "with {1}: {2}", broker_ws_uri_, ec.message()) };
+
     connection_handle_ = connection_ptr->get_handle();
-    LOG_INFO("Connecting to '%1%' with a connection timeout of %2% ms",
+    LOG_INFO("Connecting to '{1}' with a connection timeout of {2} ms",
               broker_ws_uri_, client_metadata_.connection_timeout);
     connection_ptr->set_open_handshake_timeout(client_metadata_.connection_timeout);
     endpoint_->connect(connection_ptr);
@@ -323,27 +327,25 @@ void Connection::connect_() {
 //
 
 template <typename Verifier>
-class verbose_verification
-{
-public:
-  verbose_verification(Verifier verifier)
-    : verifier_(verifier)
-  {}
+class verbose_verification {
+  public:
+    verbose_verification(Verifier verifier)
+            : verifier_(verifier)
+    {}
 
-  bool operator()(
-    bool preverified,
-    boost::asio::ssl::verify_context& ctx
-  )
-  {
-    char subject_name[256], issuer_name[256];
-    X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
-    X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
-    X509_NAME_oneline(X509_get_issuer_name(cert), issuer_name, 256);
-    bool verified = verifier_(preverified, ctx);
-    LOG_TRACE("Verifying %1%, issued by %2%. Verified: %3%", subject_name, issuer_name, verified);
-    return verified;
-  }
-private:
+    bool operator()(bool preverified,
+                    boost::asio::ssl::verify_context& ctx) {
+        char subject_name[256], issuer_name[256];
+        X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+        X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+        X509_NAME_oneline(X509_get_issuer_name(cert), issuer_name, 256);
+        bool verified = verifier_(preverified, ctx);
+        LOG_DEBUG("Verifying {1}, issued by {2}. Verified: {3}",
+                  subject_name, issuer_name, verified);
+        return verified;
+    }
+
+  private:
     Verifier verifier_;
 };
 
@@ -373,34 +375,40 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
 
         auto uri = websocketpp::uri(broker_ws_uri_);
         ctx->set_verify_mode(boost::asio::ssl::verify_peer);
-        ctx->set_verify_callback(make_verbose_verification(boost::asio::ssl::rfc2818_verification(uri.get_host())));
-        LOG_TRACE("Initialized SSL context to verify broker %1%", uri.get_host());
+        ctx->set_verify_callback(
+            make_verbose_verification(
+                boost::asio::ssl::rfc2818_verification(uri.get_host())));
+        LOG_DEBUG("Initialized SSL context to verify broker {1}", uri.get_host());
     } catch (std::exception& e) {
         // This is unexpected, as the CliendMetadata ctor does
         // validate the key / cert pair
-        throw connection_config_error { std::string { "TLS error: " } + e.what() };
+        throw connection_config_error {
+            lth_loc::format("TLS error: {1}", e.what()) };
     }
     return ctx;
 }
 
 void Connection::onClose(WS_Connection_Handle hdl) {
     connection_timings_.close = Util::chrono::high_resolution_clock::now();
-    LOG_TRACE("WebSocket connection closed");
-    connection_state_ = ConnectionStateValues::closed;
+    auto con = endpoint_->get_con_from_hdl(hdl);
+    LOG_DEBUG("WebSocket on close event: {1} (code: {2}) - {3}",
+              con->get_ec().message(), con->get_remote_close_code(),
+              connection_timings_.toString());
+    connection_state_ = ConnectionState::closed;
 }
 
 void Connection::onFail(WS_Connection_Handle hdl) {
     connection_timings_.close = Util::chrono::high_resolution_clock::now();
     connection_timings_.connection_failed = true;
     auto con = endpoint_->get_con_from_hdl(hdl);
-    LOG_DEBUG("WebSocket on fail event - %1%", connection_timings_.toString());
-    LOG_WARNING("WebSocket on fail event (connection loss): status code %1% - %2%",
-                con->get_remote_close_code(), con->get_ec().message());
-    connection_state_ = ConnectionStateValues::closed;
+    LOG_DEBUG("WebSocket on fail event - {1}", connection_timings_.toString());
+    LOG_WARNING("WebSocket on fail event (connection loss): {1} (code: {2})",
+                con->get_ec().message(), con->get_remote_close_code());
+    connection_state_ = ConnectionState::closed;
 }
 
 bool Connection::onPing(WS_Connection_Handle hdl, std::string binary_payload) {
-    LOG_TRACE("WebSocket onPing event - payload: %1%", binary_payload);
+    LOG_TRACE("WebSocket onPing event - payload: {1}", binary_payload);
     // Returning true so the transport layer will send back a pong
     return true;
 }
@@ -414,7 +422,7 @@ void Connection::onPong(WS_Connection_Handle hdl, std::string binary_payload) {
 
 void Connection::onPongTimeout(WS_Connection_Handle hdl,
                                std::string binary_payload) {
-    LOG_WARNING("WebSocket onPongTimeout event (%1% consecutive)",
+    LOG_WARNING("WebSocket onPongTimeout event ({1} consecutive)",
                 consecutive_pong_timeouts_++);
 }
 
@@ -431,17 +439,17 @@ void Connection::onPostTCPInit(WS_Connection_Handle hdl) {
 void Connection::onOpen(WS_Connection_Handle hdl) {
     connection_timings_.open = Util::chrono::high_resolution_clock::now();
     connection_timings_.connection_started = true;
-    LOG_DEBUG("WebSocket on open event - %1%", connection_timings_.toString());
+    LOG_DEBUG("WebSocket on open event - {1}", connection_timings_.toString());
     LOG_INFO("Successfully established a WebSocket connection with the PCP "
-             "broker at %1%", broker_ws_uri_);
-    connection_state_ = ConnectionStateValues::open;
+             "broker at {1}", broker_ws_uri_);
+    connection_state_ = ConnectionState::open;
 
     if (onOpen_callback) {
         try {
             onOpen_callback();
             return;
         } catch (std::exception&  e) {
-            LOG_ERROR("onOpen callback failure: %1%; closing the "
+            LOG_ERROR("onOpen callback failure: {1}; closing the "
                       "WebSocket connection", e.what());
         } catch (...) {
             LOG_ERROR("onOpen callback failure; closing the WebSocket "
@@ -460,7 +468,7 @@ void Connection::onMessage(WS_Connection_Handle hdl,
             // failure; it must be able to notify back the error...
             onMessage_callback_(msg->get_payload());
         } catch (std::exception&  e) {
-            LOG_ERROR("onMessage WebSocket callback failure: %1%", e.what());
+            LOG_ERROR("onMessage WebSocket callback failure: {1}", e.what());
         } catch (...) {
             LOG_ERROR("onMessage WebSocket callback failure: unexpected error");
         }

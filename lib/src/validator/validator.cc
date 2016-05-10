@@ -3,6 +3,8 @@
 #define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".validator"
 #include <leatherman/logging/logging.hpp>
 
+#include <leatherman/locale/locale.hpp>
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"
@@ -14,7 +16,8 @@
 
 namespace PCPClient {
 
-namespace lth_jc = leatherman::json_container;
+namespace lth_jc  = leatherman::json_container;
+namespace lth_loc = leatherman::locale;
 
 ///
 /// Auxiliary functions
@@ -24,13 +27,14 @@ std::string getValidationError(valijson::ValidationResults& validation_results) 
     std::string err_msg {};
     valijson::ValidationResults::Error error;
     unsigned int err_idx { 0 };
+    static std::string err_label { lth_loc::translate("ERROR") };
 
     while (validation_results.popError(error)) {
         if (!err_msg.empty()) {
             err_msg += "  - ";
         }
         err_idx++;
-        err_msg += "ERROR " + std::to_string(err_idx) + ":";
+        err_msg += err_label + std::to_string(err_idx) + ":";
         for (const auto& context_element : error.context) {
             err_msg += " " + context_element;
         }
@@ -48,7 +52,7 @@ bool validateJsonContainer(const lth_jc::JsonContainer& data, const Schema& sche
 
     if (!success) {
         auto err_msg = getValidationError(validation_results);
-        LOG_DEBUG("Schema validation failure: %1%", err_msg);
+        LOG_DEBUG("Schema validation failure: {1}", err_msg);
     }
 
     return success;
@@ -72,8 +76,8 @@ void Validator::registerSchema(const Schema& schema) {
     Util::lock_guard<Util::mutex> lock(lookup_mutex_);
     auto schema_name = schema.getName();
     if (includesSchema(schema_name)) {
-        throw schema_redefinition_error { "Schema '" + schema_name +
-                                          "' already defined." };
+        throw schema_redefinition_error {
+            lth_loc::format("schema '{1}' already defined", schema_name) };
     }
 
     auto p = std::pair<std::string, Schema>(schema_name, schema);
@@ -84,15 +88,16 @@ void Validator::validate(const lth_jc::JsonContainer& data,
                          std::string schema_name) const {
     Util::unique_lock<Util::mutex> lock(lookup_mutex_);
     if (!includesSchema(schema_name)) {
-        throw schema_not_found_error { "'" + schema_name
-                                       + "' is not a registred schema" };
+        throw schema_not_found_error {
+            lth_loc::format("'{1}' is not a registered schema", schema_name) };
     }
     lock.unlock();
 
     // we can freely unlock. When a schema has been set it cannot be modified
 
     if (!validateJsonContainer(data, schema_map_.at(schema_name))) {
-        throw validation_error { "does not match schema: '" + schema_name + "'" };
+        throw validation_error {
+            lth_loc::format("does not match schema: '{1}'", schema_name) };
     }
 }
 
@@ -103,8 +108,8 @@ bool Validator::includesSchema(std::string schema_name) const {
 ContentType Validator::getSchemaContentType(std::string schema_name) const {
     Util::unique_lock<Util::mutex> lock(lookup_mutex_);
     if (!includesSchema(schema_name)) {
-        throw schema_not_found_error { "'" + schema_name +
-                                       "' is not a registred schema" };
+        throw schema_not_found_error {
+            lth_loc::format("'{1}' is not a registered schema", schema_name) };
     }
     lock.unlock();
 

@@ -19,6 +19,8 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif()
 
+option(BUILD_SHARED_LIBS "Build shared library for cpp-pcp-client if on, otherwise build static libs" ON)
+
 # Set the macro for leatherman's logging namespace
 add_definitions(-DCPP_PCP_CLIENT_LOGGING_PREFIX="puppetlabs.cpp_pcp_client")
 
@@ -42,9 +44,7 @@ find_package(Leatherman REQUIRED
 find_package(Boost 1.54 REQUIRED
   COMPONENTS filesystem chrono system date_time thread log regex random)
 find_package(OpenSSL REQUIRED)
-# TODO(ale): same fix as FACT-1338; remove it once LTH-81 is done.
-# date_time and regex need threads on some platforms, and find_package
-# Boost only includes pthreads if you require Boost.Thread component.
+# Needed for linking on AIX
 find_package(Threads)
 
 # Leatherman it up
@@ -60,6 +60,14 @@ add_definitions(${LEATHERMAN_DEFINITIONS})
 if(DEV_LOG_RAW_MESSAGE)
     add_definitions(-DDEV_LOG_RAW_MESSAGE)
 endif()
+
+# TODO(ale): enable i18n with add_definitions(-DLEATHERMAN_I18N) - PCP-257
+# TODO(ale): enable translation with set(LEATHERMAN_LOCALES "...;...") and
+# gettext_compile(${CMAKE_CURRENT_SOURCE_DIR}/locales share/locale)
+
+# Configure i18n
+file(GLOB_RECURSE PCP_CLIENT_SOURCES */src/*.cc */inc/*.hpp)
+gettext_templates(${CMAKE_CURRENT_SOURCE_DIR}/locales ${PCP_CLIENT_SOURCES})
 
 # Prefer openssl from ports
 if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")

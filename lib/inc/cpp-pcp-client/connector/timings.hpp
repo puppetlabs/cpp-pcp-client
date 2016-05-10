@@ -2,6 +2,7 @@
 #define CPP_PCP_CLIENT_SRC_CONNECTOR_TIMINGS_H_
 
 #include <boost/chrono/chrono.hpp>
+
 #include <string>
 
 namespace PCPClient {
@@ -40,21 +41,6 @@ class ConnectionTimings {
     /// Returns a string with the timings
     std::string toString() const;
 };
-
-inline std::string ConnectionTimings::toString() const {
-    if (connection_started) {
-        return "connection timings: TCP "
-             + std::to_string(getTCPInterval().count()) + " us, WS handshake "
-             + std::to_string(getHandshakeInterval().count())
-             + " us, overall " + std::to_string(getWebSocketInterval().count())
-             + " us";
-    }
-    if (connection_failed) {
-        return "time to failure "
-             + std::to_string(getCloseInterval().count()) + " us";
-    }
-    return "the endpoint has not been connected yet";
-}
 
 }  // namespace PCPClient
 
