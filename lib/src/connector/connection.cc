@@ -362,8 +362,12 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
     WS_Context_Ptr ctx {
         new boost::asio::ssl::context(boost::asio::ssl::context::tlsv1) };
     try {
+        // no_sslv2 and no_sslv3 here are not strictly necessary, as the tlsv1 method above
+        // ensures we will not try to initiate any connection below TLSv1. However, this avoids
+        // any ambiguity in what we support.
         ctx->set_options(boost::asio::ssl::context::default_workarounds |
                          boost::asio::ssl::context::no_sslv2 |
+                         boost::asio::ssl::context::no_sslv3 |
                          boost::asio::ssl::context::single_dh_use);
         ctx->use_certificate_file(client_metadata_.crt,
                                   boost::asio::ssl::context::file_format::pem);
