@@ -46,7 +46,7 @@ Connector::Connector(std::string broker_ws_uri,
                      std::string ca_crt_path,
                      std::string client_crt_path,
                      std::string client_key_path,
-                     int64_t connection_timeout)
+                     long connection_timeout)
         : broker_ws_uri_ { std::move(broker_ws_uri) },
           client_metadata_ { std::move(client_type),
                              std::move(ca_crt_path),
