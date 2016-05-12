@@ -101,7 +101,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     ~Connection();
 
     /// Return the connection state
-    ConnectionState getConnectionState();
+    ConnectionState getConnectionState() const;
 
     /// Set the onOpen callback.
     void setOnOpenCallback(std::function<void()> onOpen_callback);

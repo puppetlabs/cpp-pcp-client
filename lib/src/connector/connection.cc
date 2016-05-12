@@ -111,7 +111,7 @@ Connection::~Connection() {
     cleanUp();
 }
 
-ConnectionState Connection::getConnectionState() {
+ConnectionState Connection::getConnectionState() const {
     return connection_state_.load();
 }
 
