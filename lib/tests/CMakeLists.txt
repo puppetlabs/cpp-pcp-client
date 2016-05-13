@@ -3,7 +3,6 @@ set(BASEPATH "${CMAKE_CURRENT_LIST_DIR}/..")
 include_directories("${BASEPATH}")
 SET(SOURCE_DIR "${BASEPATH}/src")
 include_directories("${SOURCE_DIR}")
-set(CATCH_DIRECTORY "${VENDOR_DIRECTORY}/catch")
 
 set(SOURCES
     main.cc
@@ -19,12 +18,8 @@ set(SOURCES
 
 set(test_BIN cpp-pcp-client-unittests)
 
-find_package(Boost 1.54 REQUIRED
-  COMPONENTS filesystem system date_time thread log regex random)
-
 include_directories(
     ${LEATHERMAN_CATCH_INCLUDE}
-    ${Boost_INCLUDE_DIRS}
 )
 
 add_executable(${test_BIN} ${SOURCES})
