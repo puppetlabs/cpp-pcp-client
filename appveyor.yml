@@ -1,5 +1,8 @@
 environment:
   LEATHERMAN_VERSION: 0.6.0
+  matrix:
+  - shared: OFF
+  - shared: ON
 
 install:
   - choco install -y mingw-w64 -Version 4.8.3 -source https://www.myget.org/F/puppetlabs
@@ -26,7 +29,7 @@ install:
   - SET PATH=C:\tools\bin;%PATH%
 
 build_script:
-  - ps: cmake -G "MinGW Makefiles" -DBOOST_ROOT="C:\tools\boost_1_58_0-x86_64_mingw-w64_4.8.3_win32_seh" -DBOOST_STATIC=ON -DCURL_STATIC=ON -DCMAKE_PREFIX_PATH="C:\tools\leatherman;C:\tools\curl-7.42.1-x86_64_mingw-w64_4.8.3_win32_seh" -Wno-dev .
+  - ps: cmake -G "MinGW Makefiles" -DBOOST_ROOT="C:\tools\boost_1_58_0-x86_64_mingw-w64_4.8.3_win32_seh" -DBOOST_STATIC=ON -DCURL_STATIC=ON -DBUILD_SHARED_LIBS="$env:shared" -DCMAKE_PREFIX_PATH="C:\tools\leatherman;C:\tools\curl-7.42.1-x86_64_mingw-w64_4.8.3_win32_seh" -Wno-dev .
   - ps: mingw32-make install
 
 test_script:

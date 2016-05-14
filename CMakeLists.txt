@@ -24,6 +24,9 @@ option(BUILD_SHARED_LIBS "Build shared library for cpp-pcp-client if on, otherwi
 # Set the macro for leatherman's logging namespace
 add_definitions(-DCPP_PCP_CLIENT_LOGGING_PREFIX="puppetlabs.cpp_pcp_client")
 
+# Disable SSLv2 and SSLv3 (in Boost.Asio) for reals. Needed for some builds of OpenSSL.
+add_definitions(-DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3)
+
 # Defined further options
 option(DEV_LOG_RAW_MESSAGE "Enable logging serialized messages (development setting - avoid this on Windows)" OFF)
 

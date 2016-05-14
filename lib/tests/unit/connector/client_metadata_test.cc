@@ -31,15 +31,14 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("retrieves correctly the client common name from the certificate") {
         std::string type { "test" };
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(), 5000 };
-        std::string expected_id { "pcp://cthun-client/" + type };
 
-        REQUIRE(c_m.common_name == "cthun-client");
+        REQUIRE(c_m.common_name == "localhost");
     }
 
     SECTION("determines correctly the client URI") {
         std::string type { "test" };
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(), 5000 };
-        std::string expected_uri { "pcp://cthun-client/" + type };
+        std::string expected_uri { "pcp://localhost/" + type };
 
         REQUIRE(c_m.uri == expected_uri);
     }

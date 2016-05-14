@@ -43,6 +43,13 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
               std::string client_key_path,
               long connection_timeout = 5000);
 
+    Connector(std::vector<std::string> broker_ws_uris,
+              std::string client_type,
+              std::string ca_crt_path,
+              std::string client_crt_path,
+              std::string client_key_path,
+              long connection_timeout = 5000);
+
     ~Connector();
 
     /// Throw a schema_redefinition_error if the specified schema has
@@ -183,8 +190,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
                         = std::vector<lth_jc::JsonContainer> {});
 
   private:
-    /// WebSocket URI of the PCP broker
-    std::string broker_ws_uri_;
+    /// WebSocket URIs of PCP brokers; first entry is the default
+    std::vector<std::string> broker_ws_uris_;
 
     /// Client metadata
     ClientMetadata client_metadata_;

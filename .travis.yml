@@ -45,6 +45,7 @@ env:
     - TRAVIS_TARGET=CPPCHECK
     - TRAVIS_TARGET=RELEASE
     - TRAVIS_TARGET=DEBUG
+    - TRAVIS_TARGET=SHARED_RELEASE
 
 notifications:
   email: false

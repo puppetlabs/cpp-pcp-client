@@ -98,10 +98,13 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     Connection(std::string broker_ws_uri,
                ClientMetadata client_metadata);
 
+    Connection(std::vector<std::string> broker_ws_uris,
+               ClientMetadata client_metadata);
+
     ~Connection();
 
     /// Return the connection state
-    ConnectionState getConnectionState();
+    ConnectionState getConnectionState() const;
 
     /// Set the onOpen callback.
     void setOnOpenCallback(std::function<void()> onOpen_callback);
@@ -142,8 +145,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
                const std::string& reason = DEFAULT_CLOSE_REASON);
 
   private:
-    /// WebSocket URI of the PCP broker
-    std::string broker_ws_uri_;
+    /// WebSocket URIs of PCP brokers; first entry is the default
+    std::vector<std::string> broker_ws_uris_;
 
     /// Client metadata
     ClientMetadata client_metadata_;
@@ -151,9 +154,17 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     /// Transport layer connection handle
     WS_Connection_Handle connection_handle_;
 
-    /// State of the connection (initialized, connectig, open,
+    /// State of the connection (initialized, connecting, open,
     /// closing, or closed)
     std::atomic<ConnectionState> connection_state_;
+
+    /// Tracks the broker we should be trying to connect to.
+    /// Defaults to 0, and increments when a successful
+    /// connection and the first reconnect attempt against that
+    /// connection fail, or when an attempt to connect to a new
+    /// broker fails. This value module size of the broker list
+    /// identifies the current broker to target.
+    std::atomic<size_t> connection_target_;
 
     /// Consecutive pong timeouts counter (NB: useful for debug msgs)
     uint32_t consecutive_pong_timeouts_ { 0 };
@@ -188,6 +199,12 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
 
     // Connect the endpoint
     void connect_();
+
+    /// Return the current broker WebSocket URI to target
+    std::string const& getWsUri();
+
+    /// Switch broker WebSocket URI targets
+    void switchWsUri();
 
     /// Event handlers
     WS_Context_Ptr onTlsInit(WS_Connection_Handle hdl);

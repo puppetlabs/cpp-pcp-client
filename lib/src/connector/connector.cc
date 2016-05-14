@@ -47,12 +47,23 @@ Connector::Connector(std::string broker_ws_uri,
                      std::string client_crt_path,
                      std::string client_key_path,
                      long connection_timeout)
-        : broker_ws_uri_ { std::move(broker_ws_uri) },
+        : Connector { std::vector<std::string> { std::move(broker_ws_uri) }, std::move(client_type),
+            std::move(ca_crt_path), std::move(client_crt_path), std::move(client_key_path), std::move(connection_timeout) }
+{
+}
+
+Connector::Connector(std::vector<std::string> broker_ws_uris,
+                     std::string client_type,
+                     std::string ca_crt_path,
+                     std::string client_crt_path,
+                     std::string client_key_path,
+                     long connection_timeout)
+        : broker_ws_uris_ { std::move(broker_ws_uris) },
           client_metadata_ { std::move(client_type),
                              std::move(ca_crt_path),
                              std::move(client_crt_path),
                              std::move(client_key_path),
-                             connection_timeout },
+                             std::move(connection_timeout) },
           connection_ptr_ { nullptr },
           validator_ {},
           schema_callback_pairs_ {},
@@ -130,7 +141,7 @@ void Connector::setTTLExpiredCallback(MessageCallback callback) {
 void Connector::connect(int max_connect_attempts) {
     if (connection_ptr_ == nullptr) {
         // Initialize the WebSocket connection
-        connection_ptr_.reset(new Connection(broker_ws_uri_, client_metadata_));
+        connection_ptr_.reset(new Connection(broker_ws_uris_, client_metadata_));
 
         // Set WebSocket callbacks
         connection_ptr_->setOnMessageCallback(
