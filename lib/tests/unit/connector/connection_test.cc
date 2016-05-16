@@ -35,7 +35,7 @@ static void let_connection_stop(Connection const& connection, int timeout = 2)
     REQUIRE(connection.getConnectionState() != ConnectionState::open);
 }
 
-static constexpr int TEST_TIMEOUT = 100;
+static constexpr int TEST_TIMEOUT = 1000;
 
 TEST_CASE("Connection::connect", "[connector]") {
     SECTION("successfully connects") {
