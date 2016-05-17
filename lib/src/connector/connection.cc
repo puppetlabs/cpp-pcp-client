@@ -338,7 +338,12 @@ std::string const& Connection::getWsUri() {
 }
 
 void Connection::switchWsUri() {
+    auto old_t = connection_target_.load();
     ++connection_target_;
+    auto current_t = connection_target_.load();
+    if (old_t != current_t)
+        LOG_WARNING("Failed to connect to {1}; switching to {2}",
+                    old_t, current_t);
 }
 
 //
