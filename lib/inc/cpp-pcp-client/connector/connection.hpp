@@ -162,9 +162,9 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     /// Defaults to 0, and increments when a successful
     /// connection and the first reconnect attempt against that
     /// connection fail, or when an attempt to connect to a new
-    /// broker fails. This value module size of the broker list
+    /// broker fails. This value modulo size of the broker list
     /// identifies the current broker to target.
-    std::atomic<size_t> connection_target_;
+    std::atomic<size_t> connection_target_index_;
 
     /// Consecutive pong timeouts counter (NB: useful for debug msgs)
     uint32_t consecutive_pong_timeouts_ { 0 };
