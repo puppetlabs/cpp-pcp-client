@@ -65,7 +65,7 @@ Connection::Connection(std::vector<std::string> broker_ws_uris,
         : broker_ws_uris_ { std::move(broker_ws_uris) },
           client_metadata_ { std::move(client_metadata) },
           connection_state_ { ConnectionState::initialized },
-          connection_target_ { 0u },
+          connection_target_index_ { 0u },
           consecutive_pong_timeouts_ { 0 },
           endpoint_ { new WS_Client_Type() }
 {
@@ -333,14 +333,14 @@ void Connection::connect_() {
 }
 
 std::string const& Connection::getWsUri() {
-    auto c_t = connection_target_.load();
+    auto c_t = connection_target_index_.load();
     return broker_ws_uris_[c_t % broker_ws_uris_.size()];
 }
 
 void Connection::switchWsUri() {
-    auto old_t = connection_target_.load();
-    ++connection_target_;
-    auto current_t = connection_target_.load();
+    auto old_t = getWsUri();
+    ++connection_target_index_;
+    auto current_t = getWsUri();
     if (old_t != current_t)
         LOG_WARNING("Failed to connect to {1}; switching to {2}",
                     old_t, current_t);
