@@ -128,78 +128,83 @@ msgstr ""
 msgid "Connecting to '{1}' with a connection timeout of {2} ms"
 msgstr ""
 
+#. warning
+#: lib/src/connector/connection.cc:344
+msgid "Failed to connect to {1}; switching to {2}"
+msgstr ""
+
 #. debug
-#: lib/src/connector/connection.cc:362
+#: lib/src/connector/connection.cc:366
 msgid "Verifying {1}, issued by {2}. Verified: {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:380
+#: lib/src/connector/connection.cc:384
 msgid "WebSocket TLS initialization event; about to validate the certificate"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:404
+#: lib/src/connector/connection.cc:408
 msgid "Initialized SSL context to verify broker {1}"
 msgstr ""
 
-#: lib/src/connector/connection.cc:409
+#: lib/src/connector/connection.cc:413
 msgid "TLS error: {1}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:417
+#: lib/src/connector/connection.cc:421
 msgid "WebSocket on close event: {1} (code: {2}) - {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:427
+#: lib/src/connector/connection.cc:431
 msgid "WebSocket on fail event - {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:428
+#: lib/src/connector/connection.cc:432
 msgid "WebSocket on fail event (connection loss): {1} (code: {2})"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:440
+#: lib/src/connector/connection.cc:444
 msgid "WebSocket onPong event"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:448
+#: lib/src/connector/connection.cc:452
 msgid "WebSocket onPongTimeout event ({1} consecutive)"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:465
+#: lib/src/connector/connection.cc:469
 msgid "WebSocket on open event - {1}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connection.cc:466
+#: lib/src/connector/connection.cc:470
 msgid ""
 "Successfully established a WebSocket connection with the PCP broker at {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:475
+#: lib/src/connector/connection.cc:479
 msgid "onOpen callback failure: {1}; closing the WebSocket connection"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:478
+#: lib/src/connector/connection.cc:482
 msgid "onOpen callback failure; closing the WebSocket connection"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:494
+#: lib/src/connector/connection.cc:498
 msgid "onMessage WebSocket callback failure: {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:496
+#: lib/src/connector/connection.cc:500
 msgid "onMessage WebSocket callback failure: unexpected error"
 msgstr ""
 
