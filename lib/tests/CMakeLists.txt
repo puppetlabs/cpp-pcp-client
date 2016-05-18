@@ -36,6 +36,7 @@ target_link_libraries(mock-server PRIVATE
     ${OPENSSL_SSL_LIBRARY}
     ${OPENSSL_CRYPTO_LIBRARY}
     ${PLATFORM_LIBS})
+add_dependencies(mock-server websocketpp)
 
 set(test_BIN cpp-pcp-client-unittests)
 add_executable(${test_BIN} ${SOURCES})
