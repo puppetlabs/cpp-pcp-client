@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: cpp-pcp-client 1.1.4\n"
+"Project-Id-Version: cpp-pcp-client 1.2.0\n"
 "Report-Msgid-Bugs-To: docs@puppetlabs.com\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -129,82 +129,82 @@ msgid "Connecting to '{1}' with a connection timeout of {2} ms"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:344
+#: lib/src/connector/connection.cc:345
 msgid "Failed to connect to {1}; switching to {2}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:366
+#: lib/src/connector/connection.cc:367
 msgid "Verifying {1}, issued by {2}. Verified: {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:384
+#: lib/src/connector/connection.cc:385
 msgid "WebSocket TLS initialization event; about to validate the certificate"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:408
+#: lib/src/connector/connection.cc:409
 msgid "Initialized SSL context to verify broker {1}"
 msgstr ""
 
-#: lib/src/connector/connection.cc:413
+#: lib/src/connector/connection.cc:414
 msgid "TLS error: {1}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:421
+#: lib/src/connector/connection.cc:422
 msgid "WebSocket on close event: {1} (code: {2}) - {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:431
+#: lib/src/connector/connection.cc:432
 msgid "WebSocket on fail event - {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:432
+#: lib/src/connector/connection.cc:433
 msgid "WebSocket on fail event (connection loss): {1} (code: {2})"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:444
+#: lib/src/connector/connection.cc:445
 msgid "WebSocket onPong event"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:452
+#: lib/src/connector/connection.cc:453
 msgid "WebSocket onPongTimeout event ({1} consecutive)"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:469
+#: lib/src/connector/connection.cc:470
 msgid "WebSocket on open event - {1}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connection.cc:470
+#: lib/src/connector/connection.cc:471
 msgid ""
 "Successfully established a WebSocket connection with the PCP broker at {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:479
+#: lib/src/connector/connection.cc:480
 msgid "onOpen callback failure: {1}; closing the WebSocket connection"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:482
+#: lib/src/connector/connection.cc:483
 msgid "onOpen callback failure; closing the WebSocket connection"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:498
+#: lib/src/connector/connection.cc:499
 msgid "onMessage WebSocket callback failure: {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:500
+#: lib/src/connector/connection.cc:501
 msgid "onMessage WebSocket callback failure: unexpected error"
 msgstr ""
 
