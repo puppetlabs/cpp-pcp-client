@@ -274,8 +274,9 @@ void Connection::close(CloseCode code, const std::string& reason) {
 //
 
 void Connection::connectAndWait() {
+    // TODO(ale): use Timer::elapsed_milliseconds once it's released
     static auto connection_timeout_s =
-        static_cast<int>(client_metadata_.connection_timeout / 1000);
+        static_cast<double>(client_metadata_.connection_timeout) / 1000.0;
     connect_();
     lth_util::Timer timer {};
     while (connection_state_.load() != ConnectionState::open

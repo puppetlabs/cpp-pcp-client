@@ -121,4 +121,52 @@ TEST_CASE("Connection::connect", "[connector]") {
     }
 }
 
+TEST_CASE("Connection::~Connection", "[connector]") {
+    MockServer mock_server;
+    bool connected = false;
+    mock_server.set_open_handler([&connected](websocketpp::connection_hdl hdl) {
+        connected = true;
+    });
+    mock_server.go();
+
+    ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
+                         getKeyPath(), TEST_TIMEOUT };
+
+    SECTION("connecting with a single attempt") {
+        SECTION("connection timeout = 1 ms") {
+            c_m.connection_timeout = 1;
+        }
+
+        SECTION("connection timeout = 990 ms") {
+            c_m.connection_timeout = 990;
+        }
+
+        {
+            Connection connection {
+                    "wss://localhost:" + std::to_string(mock_server.port()) + "/pcp",
+                    c_m };
+
+            // In case the connection timeout fires, this will trigger a
+            // WebSocket onFail event
+            REQUIRE_NOTHROW(connection.connect(1));
+
+            lth_util::Timer timer {};
+            while (connection.getConnectionState() == ConnectionState::connecting
+                   && timer.elapsed_seconds() < 2)
+                Util::this_thread::sleep_for(Util::chrono::milliseconds(1));
+
+            auto c_s = connection.getConnectionState();
+            auto open_or_closed = c_s == ConnectionState::open
+                                  || c_s == ConnectionState::closed;
+            REQUIRE(open_or_closed);
+
+            // Triggering the dtor
+        }
+
+        // Connector's dtor should be able to effectively stop the
+        // event handler and join its thread
+        REQUIRE(true);
+    }
+}
+
 }  // namespace PCPClient
