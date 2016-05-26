@@ -49,7 +49,8 @@ TEST_CASE("Connection::connect", "[connector]") {
         });
         mock_server.go();
 
-        Connection connection { "wss://localhost:" + std::to_string(mock_server.port()) + "/pcp", c_m };
+        Connection connection {
+            "wss://localhost:" + std::to_string(mock_server.port()) + "/pcp", c_m };
         connection.connect(10);
         REQUIRE(connected);
 
@@ -69,8 +70,10 @@ TEST_CASE("Connection::connect", "[connector]") {
         mock_server.go();
 
         auto port = mock_server.port();
-        Connection connection { std::vector<std::string> { "wss://localhost:" + std::to_string(port+1) + "/pcp",
-                                                           "wss://localhost:" + std::to_string(port) + "/pcp" }, c_m };
+        Connection connection {
+            std::vector<std::string> { "wss://localhost:" + std::to_string(port+1) + "/pcp",
+                                       "wss://localhost:" + std::to_string(port) + "/pcp" },
+            c_m };
         connection.connect(30);
         REQUIRE(connected);
 
@@ -96,8 +99,10 @@ TEST_CASE("Connection::connect", "[connector]") {
 
         auto port_a = mock_server_a->port();
         auto port_b = mock_server_b->port();
-        Connection connection { std::vector<std::string> { "wss://localhost:" + std::to_string(port_a) + "/pcp",
-                                                           "wss://localhost:" + std::to_string(port_b) + "/pcp" }, c_m };
+        Connection connection {
+            std::vector<std::string> { "wss://localhost:" + std::to_string(port_a) + "/pcp",
+                                       "wss://localhost:" + std::to_string(port_b) + "/pcp" },
+            c_m };
 
         mock_server_a->go();
         connection.connect(10);
