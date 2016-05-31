@@ -187,6 +187,9 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     /// Keep track of connection timings
     ConnectionTimings connection_timings_;
 
+    /// To manage the connection state
+    Util::mutex state_mutex_;
+
     /// Connect and wait until the connection is open or for the
     /// configured connection_timeout
     void connectAndWait();

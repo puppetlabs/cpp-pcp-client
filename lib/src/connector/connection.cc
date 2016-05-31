@@ -31,6 +31,7 @@
 #include <cstdio>
 #include <iostream>
 #include <random>
+#include <algorithm>
 
 // TODO(ale): disable assert() once we're confident with the code...
 // To disable assert()
@@ -261,12 +262,17 @@ void Connection::ping(const std::string& binary_payload) {
 
 void Connection::close(CloseCode code, const std::string& reason) {
     LOG_DEBUG("About to close the WebSocket connection");
-    websocketpp::lib::error_code ec;
-    endpoint_->close(connection_handle_, code, reason, ec);
-    if (ec)
-        throw connection_processing_error {
-            lth_loc::format("failed to close WebSocket connection: {1}",
-                            ec.message()) };
+    Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
+    auto c_s = connection_state_.load();
+    if (c_s != ConnectionState::closed) {
+        websocketpp::lib::error_code ec;
+        endpoint_->close(connection_handle_, code, reason, ec);
+        if (ec)
+            throw connection_processing_error {
+                    lth_loc::format("failed to close WebSocket connection: {1}",
+                                    ec.message()) };
+        connection_state_ = ConnectionState::closing;
+    }
 }
 
 //
@@ -296,22 +302,49 @@ void Connection::tryClose() {
 void Connection::cleanUp() {
     auto c_s = connection_state_.load();
 
-    if (c_s == ConnectionState::open) {
-        tryClose();
-    } else if (c_s == ConnectionState::connecting) {
-        // Wait connection_timeout ms, in case of a concurrent onOpen
-        LOG_WARNING("Will wait {1} ms before terminating the WebSocket connection",
-                    client_metadata_.connection_timeout);
-        doSleep(client_metadata_.connection_timeout);
-        if (connection_state_.load() == ConnectionState::open)
+    switch (c_s) {
+        case (ConnectionState::closed):
+        case (ConnectionState::initialized):
+            break;
+
+        case (ConnectionState::open):
             tryClose();
+        case (ConnectionState::closing):
+        {
+            lth_util::Timer timer{};
+            while (connection_state_.load() == ConnectionState::closing
+                   && timer.elapsed_seconds() < 2)
+                doSleep();
+            break;
+        }
+
+        case(ConnectionState::connecting):
+        {
+            // This is unexpected; the underlying WebSocket could be
+            // in an invalid state and we may fail to close it
+            LOG_WARNING("WebSocket in 'connecting' state; will try to close");
+            tryClose();
+            if (connection_state_.load() == ConnectionState::closed)
+                break;
+            // Wait at least 5000 ms, in case of a concurrent onOpen
+            auto timeout = std::max<long>(5000,
+                                          client_metadata_.connection_timeout);
+            LOG_WARNING("Failed to close the WebSocket; will wait at most "
+                        "{1} ms before trying again", timeout);
+            lth_util::Timer timer{};
+            // TODO(ale): use Timer::elapsed_milliseconds once it's released
+            auto timeout_s = static_cast<double>(timeout) / 1000.0;
+            while (connection_state_.load() == ConnectionState::connecting
+                   && timer.elapsed_seconds() < timeout_s)
+                doSleep();
+            tryClose();
+        }
     }
 
     endpoint_->stop_perpetual();
 
-    if (endpoint_thread_ != nullptr && endpoint_thread_->joinable()) {
+    if (endpoint_thread_ != nullptr && endpoint_thread_->joinable())
         endpoint_thread_->join();
-    }
 }
 
 void Connection::connect_() {
@@ -330,7 +363,14 @@ void Connection::connect_() {
     LOG_INFO("Connecting to '{1}' with a connection timeout of {2} ms",
               ws_uri, client_metadata_.connection_timeout);
     connection_ptr->set_open_handshake_timeout(client_metadata_.connection_timeout);
-    endpoint_->connect(connection_ptr);
+
+    try {
+        endpoint_->connect(connection_ptr);
+    } catch (const std::exception& e) {
+        throw connection_processing_error {
+                lth_loc::format("failed to establish the WebSocket connection "
+                                "with {1}: {2}", ws_uri, e.what()) };
+    }
 }
 
 std::string const& Connection::getWsUri() {
@@ -418,6 +458,7 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
 }
 
 void Connection::onClose(WS_Connection_Handle hdl) {
+    Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
     connection_timings_.close = Util::chrono::high_resolution_clock::now();
     auto con = endpoint_->get_con_from_hdl(hdl);
     LOG_DEBUG("WebSocket on close event: {1} (code: {2}) - {3}",
@@ -427,6 +468,7 @@ void Connection::onClose(WS_Connection_Handle hdl) {
 }
 
 void Connection::onFail(WS_Connection_Handle hdl) {
+    Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
     connection_timings_.close = Util::chrono::high_resolution_clock::now();
     connection_timings_.connection_failed = true;
     auto con = endpoint_->get_con_from_hdl(hdl);
