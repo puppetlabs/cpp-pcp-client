@@ -2,6 +2,7 @@
 #define CPP_PCP_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_
 
 #include <cpp-pcp-client/export.h>
+
 #include <string>
 
 namespace PCPClient {

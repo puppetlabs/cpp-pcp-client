@@ -57,7 +57,8 @@ static const uint32_t CONNECTION_BACKOFF_MULTIPLIER { 2 };
 
 Connection::Connection(std::string broker_ws_uri,
                        ClientMetadata client_metadata)
-        : Connection { std::vector<std::string> { std::move(broker_ws_uri) }, std::move(client_metadata) }
+        : Connection { std::vector<std::string> { std::move(broker_ws_uri) },
+                       std::move(client_metadata) }
 {
 }
 

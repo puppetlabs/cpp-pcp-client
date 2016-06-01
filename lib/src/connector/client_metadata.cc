@@ -28,13 +28,15 @@ static const std::string PCP_URI_SCHEME { "pcp://" };
 
 // TODO(ale): consider moving the SSL functions elsewhere
 
-int pwdCallback(char *buf, int size, int rwflag, void *password) {
+int pwdCallback(char *buf, int size, int rwflag, void *password)
+{
     throw connection_config_error {
         lth_loc::translate("key is protected by password") };
     return EXIT_FAILURE;
 }
 
-void validatePrivateKeyCertPair(const std::string& key, const std::string& crt) {
+void validatePrivateKeyCertPair(const std::string& key, const std::string& crt)
+{
     LOG_TRACE("About to validate private key / certificate pair: '{1}' / '{2}'",
               key, crt);
     auto ctx = SSL_CTX_new(SSLv23_method());
@@ -63,7 +65,8 @@ void validatePrivateKeyCertPair(const std::string& key, const std::string& crt) 
     LOG_TRACE("Private key / certificate pair has been successfully validated");
 }
 
-std::string getCommonNameFromCert(const std::string& crt) {
+std::string getCommonNameFromCert(const std::string& crt)
+{
     LOG_TRACE("Retrieving client name from certificate '{1}'", crt);
     std::unique_ptr<std::FILE, int(*)(std::FILE*)> fp {
         std::fopen(crt.data(), "r"), std::fclose };
