@@ -57,7 +57,8 @@ static const uint32_t CONNECTION_BACKOFF_MULTIPLIER { 2 };
 
 Connection::Connection(std::string broker_ws_uri,
                        ClientMetadata client_metadata)
-        : Connection { std::vector<std::string> { std::move(broker_ws_uri) }, std::move(client_metadata) }
+        : Connection { std::vector<std::string> { std::move(broker_ws_uri) },
+                       std::move(client_metadata) }
 {
 }
 
@@ -282,7 +283,7 @@ void Connection::close(CloseCode code, const std::string& reason) {
 void Connection::connectAndWait() {
     // TODO(ale): use Timer::elapsed_milliseconds once it's released
     static auto connection_timeout_s =
-        static_cast<double>(client_metadata_.connection_timeout) / 1000.0;
+        static_cast<double>(client_metadata_.ws_connection_timeout_ms) / 1000.0;
     connect_();
     lth_util::Timer timer {};
     while (connection_state_.load() != ConnectionState::open
@@ -328,7 +329,7 @@ void Connection::cleanUp() {
                 break;
             // Wait at least 5000 ms, in case of a concurrent onOpen
             auto timeout = std::max<long>(5000,
-                                          client_metadata_.connection_timeout);
+                                          client_metadata_.ws_connection_timeout_ms);
             LOG_WARNING("Failed to close the WebSocket; will wait at most "
                         "{1} ms before trying again", timeout);
             lth_util::Timer timer{};
@@ -360,9 +361,9 @@ void Connection::connect_() {
                             "with {1}: {2}", ws_uri, ec.message()) };
 
     connection_handle_ = connection_ptr->get_handle();
-    LOG_INFO("Connecting to '{1}' with a connection timeout of {2} ms",
-              ws_uri, client_metadata_.connection_timeout);
-    connection_ptr->set_open_handshake_timeout(client_metadata_.connection_timeout);
+    LOG_INFO("Establishing the WebSocket connection with '{1}' with a timeout of {2} ms",
+              ws_uri, client_metadata_.ws_connection_timeout_ms);
+    connection_ptr->set_open_handshake_timeout(client_metadata_.ws_connection_timeout_ms);
 
     try {
         endpoint_->connect(connection_ptr);

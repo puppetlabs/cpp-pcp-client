@@ -28,13 +28,15 @@ static const std::string PCP_URI_SCHEME { "pcp://" };
 
 // TODO(ale): consider moving the SSL functions elsewhere
 
-int pwdCallback(char *buf, int size, int rwflag, void *password) {
+int pwdCallback(char *buf, int size, int rwflag, void *password)
+{
     throw connection_config_error {
         lth_loc::translate("key is protected by password") };
     return EXIT_FAILURE;
 }
 
-void validatePrivateKeyCertPair(const std::string& key, const std::string& crt) {
+void validatePrivateKeyCertPair(const std::string& key, const std::string& crt)
+{
     LOG_TRACE("About to validate private key / certificate pair: '{1}' / '{2}'",
               key, crt);
     auto ctx = SSL_CTX_new(SSLv23_method());
@@ -63,7 +65,8 @@ void validatePrivateKeyCertPair(const std::string& key, const std::string& crt) 
     LOG_TRACE("Private key / certificate pair has been successfully validated");
 }
 
-std::string getCommonNameFromCert(const std::string& crt) {
+std::string getCommonNameFromCert(const std::string& crt)
+{
     LOG_TRACE("Retrieving client name from certificate '{1}'", crt);
     std::unique_ptr<std::FILE, int(*)(std::FILE*)> fp {
         std::fopen(crt.data(), "r"), std::fclose };
@@ -105,14 +108,17 @@ ClientMetadata::ClientMetadata(std::string _client_type,
                                std::string _ca,
                                std::string _crt,
                                std::string _key,
-                               long _connection_timeout)
+                               long _ws_connection_timeout_ms,
+                               uint32_t _association_timeout_s)
         : ca { std::move(_ca) },
           crt { std::move(_crt) },
           key { std::move(_key) },
           client_type { std::move(_client_type) },
           common_name { getCommonNameFromCert(crt) },
           uri { PCP_URI_SCHEME + common_name + "/" + client_type },
-          connection_timeout { _connection_timeout } {
+          ws_connection_timeout_ms { std::move(_ws_connection_timeout_ms) },
+          association_timeout_s { std::move(_association_timeout_s) }
+{
     LOG_INFO("Retrieved common name from the certificate and determined "
              "the client URI: {1}", uri);
     validatePrivateKeyCertPair(key, crt);

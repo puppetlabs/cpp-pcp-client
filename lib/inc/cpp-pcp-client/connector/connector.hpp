@@ -15,6 +15,7 @@
 #include <memory>
 #include <string>
 #include <map>
+#include <cstdint>
 
 namespace PCPClient {
 
@@ -41,14 +42,16 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
               std::string ca_crt_path,
               std::string client_crt_path,
               std::string client_key_path,
-              long connection_timeout = 5000);
+              long ws_connection_timeout_ms = 5000,
+              uint32_t association_timeout_s = 10);
 
     Connector(std::vector<std::string> broker_ws_uris,
               std::string client_type,
               std::string ca_crt_path,
               std::string client_crt_path,
               std::string client_key_path,
-              long connection_timeout = 5000);
+              long ws_connection_timeout = 5000,
+              uint32_t association_timeout_s = 10);
 
     ~Connector();
 
