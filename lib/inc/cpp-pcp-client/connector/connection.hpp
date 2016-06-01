@@ -118,7 +118,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
 
     /// Check the state of the WebSocket connection; in case it's not
     /// open, try to re-open it.
-    /// Try to reopen for max_connect_attempts times or idefinetely,
+    /// Try to reopen for max_connect_attempts times or indefinitely,
     /// in case that parameter is 0 (as by default). This is done by
     /// following an exponential backoff.
     /// Throw a connection_processing_error in case of error during a
