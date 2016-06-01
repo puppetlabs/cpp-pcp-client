@@ -27,17 +27,22 @@ TEST_CASE("validatePrivateKeyCertPair", "[connector]") {
     }
 }
 
+static constexpr int WS_TIMEOUT { 5000 };
+static constexpr uint32_t ASSOCIATION_TIMEOUT { 10 };
+
 TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("retrieves correctly the client common name from the certificate") {
         std::string type { "test" };
-        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(), 5000 };
+        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(),
+                             WS_TIMEOUT, ASSOCIATION_TIMEOUT };
 
         REQUIRE(c_m.common_name == "localhost");
     }
 
     SECTION("determines correctly the client URI") {
         std::string type { "test" };
-        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(), 5000 };
+        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(),
+                             WS_TIMEOUT, ASSOCIATION_TIMEOUT };
         std::string expected_uri { "pcp://localhost/" + type };
 
         REQUIRE(c_m.uri == expected_uri);
@@ -47,14 +52,15 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
             "file does not exist") {
         REQUIRE_THROWS_AS(ClientMetadata("test", getCaPath(),
                                          getNotExistentFilePath(), getKeyPath(),
-                                         5000),
+                                         WS_TIMEOUT, ASSOCIATION_TIMEOUT),
                           connection_config_error);
     }
 
     SECTION("throws a connection_config_error if the provided certificate "
             "is invalid") {
         REQUIRE_THROWS_AS(ClientMetadata("test", getCaPath(), getNotACertPath(),
-                                         getKeyPath(), 5000),
+                                         getKeyPath(),
+                                         WS_TIMEOUT, ASSOCIATION_TIMEOUT),
                           connection_config_error);
     }
 }

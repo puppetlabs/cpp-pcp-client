@@ -4,6 +4,7 @@
 #include <cpp-pcp-client/export.h>
 
 #include <string>
+#include <cstdint>
 
 namespace PCPClient {
 
@@ -19,7 +20,8 @@ class LIBCPP_PCP_CLIENT_EXPORT ClientMetadata {
     std::string client_type;
     std::string common_name;
     std::string uri;
-    long connection_timeout;
+    long ws_connection_timeout_ms;
+    uint32_t association_timeout_s;
 
     /// Throws a connection_config_error in case: the client
     /// certificate file does not exist or is invalid; it fails to
@@ -29,7 +31,8 @@ class LIBCPP_PCP_CLIENT_EXPORT ClientMetadata {
                    std::string _ca,
                    std::string _crt,
                    std::string _key,
-                   long _connection_timeout);
+                   long _ws_connection_timeout_ms,
+                   uint32_t _association_timeout_s);
 };
 
 }  // namespace PCPClient

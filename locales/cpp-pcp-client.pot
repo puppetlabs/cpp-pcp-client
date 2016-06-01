@@ -25,418 +25,426 @@ msgstr ""
 msgid "serialization: unexpected error when allocating memory"
 msgstr ""
 
-#: lib/src/connector/client_metadata.cc:33
+#: lib/src/connector/client_metadata.cc:34
 msgid "key is protected by password"
 msgstr ""
 
-#: lib/src/connector/client_metadata.cc:46
+#: lib/src/connector/client_metadata.cc:48
 msgid "failed to create SSL context"
 msgstr ""
 
-#: lib/src/connector/client_metadata.cc:51
+#: lib/src/connector/client_metadata.cc:53
 msgid "failed to open cert"
 msgstr ""
 
-#: lib/src/connector/client_metadata.cc:56
+#: lib/src/connector/client_metadata.cc:58
 msgid "failed to load private key"
 msgstr ""
 
-#: lib/src/connector/client_metadata.cc:61
+#: lib/src/connector/client_metadata.cc:63
 msgid "mismatch between private key and cert"
 msgstr ""
 
-#: lib/src/connector/client_metadata.cc:73
+#: lib/src/connector/client_metadata.cc:76
 msgid "certificate file '{1}' does not exist"
 msgstr ""
 
-#: lib/src/connector/client_metadata.cc:81
+#: lib/src/connector/client_metadata.cc:84
 msgid "certificate file '{1}' is invalid"
 msgstr ""
 
-#: lib/src/connector/client_metadata.cc:89
+#: lib/src/connector/client_metadata.cc:92
 msgid "failed to retrieve the client common name from '{1}'"
 msgstr ""
 
 #. info
-#: lib/src/connector/client_metadata.cc:116
+#: lib/src/connector/client_metadata.cc:122
 msgid ""
 "Retrieved common name from the certificate and determined the client URI: {1}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/client_metadata.cc:119
+#: lib/src/connector/client_metadata.cc:125
 msgid "Validated the private key / certificate pair"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:110
+#: lib/src/connector/connection.cc:112
 msgid ""
 "Failed to configure the WebSocket endpoint; about to stop the event loop"
 msgstr ""
 
-#: lib/src/connector/connection.cc:113
+#: lib/src/connector/connection.cc:115
 msgid "failed to initialize"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:205
+#: lib/src/connector/connection.cc:207
 msgid "Failed to establish a WebSocket connection; retrying in {1} seconds"
 msgstr ""
 
-#: lib/src/connector/connection.cc:225
+#: lib/src/connector/connection.cc:227
 msgid "failed to establish a WebSocket connection after {1} attempt"
 msgstr ""
 
-#: lib/src/connector/connection.cc:226
+#: lib/src/connector/connection.cc:228
 msgid "failed to establish a WebSocket connection after {1} attempts"
 msgstr ""
 
-#: lib/src/connector/connection.cc:238
-#: lib/src/connector/connection.cc:250
+#: lib/src/connector/connection.cc:240
+#: lib/src/connector/connection.cc:252
 msgid "failed to send message: {1}"
 msgstr ""
 
-#: lib/src/connector/connection.cc:258
+#: lib/src/connector/connection.cc:260
 msgid "failed to send WebSocket ping: {1}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:263
+#: lib/src/connector/connection.cc:265
 msgid "About to close the WebSocket connection"
 msgstr ""
 
-#: lib/src/connector/connection.cc:268
+#: lib/src/connector/connection.cc:273
 msgid "failed to close WebSocket connection: {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:292
+#: lib/src/connector/connection.cc:299
 msgid "Cleanup failure: {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:303
-msgid "Will wait {1} ms before terminating the WebSocket connection"
+#: lib/src/connector/connection.cc:326
+msgid "WebSocket in 'connecting' state; will try to close"
 msgstr ""
 
-#: lib/src/connector/connection.cc:326
+#. warning
+#: lib/src/connector/connection.cc:333
+msgid ""
+"Failed to close the WebSocket; will wait at most {1} ms before trying again"
+msgstr ""
+
+#: lib/src/connector/connection.cc:360
+#: lib/src/connector/connection.cc:372
 msgid "failed to establish the WebSocket connection with {1}: {2}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connection.cc:330
-msgid "Connecting to '{1}' with a connection timeout of {2} ms"
+#: lib/src/connector/connection.cc:364
+msgid ""
+"Establishing the WebSocket connection with '{1}' with a timeout of {2} ms"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:346
+#: lib/src/connector/connection.cc:387
 msgid "Failed to connect to {1}; switching to {2}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:368
+#: lib/src/connector/connection.cc:409
 msgid "Verifying {1}, issued by {2}. Verified: {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:386
+#: lib/src/connector/connection.cc:427
 msgid "WebSocket TLS initialization event; about to validate the certificate"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:410
+#: lib/src/connector/connection.cc:451
 msgid "Initialized SSL context to verify broker {1}"
 msgstr ""
 
-#: lib/src/connector/connection.cc:415
+#: lib/src/connector/connection.cc:456
 msgid "TLS error: {1}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:423
+#: lib/src/connector/connection.cc:465
 msgid "WebSocket on close event: {1} (code: {2}) - {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:433
+#: lib/src/connector/connection.cc:476
 msgid "WebSocket on fail event - {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:434
+#: lib/src/connector/connection.cc:477
 msgid "WebSocket on fail event (connection loss): {1} (code: {2})"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:446
+#: lib/src/connector/connection.cc:489
 msgid "WebSocket onPong event"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:454
+#: lib/src/connector/connection.cc:497
 msgid "WebSocket onPongTimeout event ({1} consecutive)"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:471
+#: lib/src/connector/connection.cc:514
 msgid "WebSocket on open event - {1}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connection.cc:472
+#: lib/src/connector/connection.cc:515
 msgid ""
 "Successfully established a WebSocket connection with the PCP broker at {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:481
+#: lib/src/connector/connection.cc:524
 msgid "onOpen callback failure: {1}; closing the WebSocket connection"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:484
+#: lib/src/connector/connection.cc:527
 msgid "onOpen callback failure; closing the WebSocket connection"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:500
+#: lib/src/connector/connection.cc:543
 msgid "onMessage WebSocket callback failure: {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:502
+#: lib/src/connector/connection.cc:545
 msgid "onMessage WebSocket callback failure: unexpected error"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:107
+#: lib/src/connector/connector.cc:114
 msgid "Resetting the WebSocket event callbacks"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:171
+#: lib/src/connector/connector.cc:178
 msgid ""
 "There's an ongoing attempt to create a WebSocket connection; ensuring that "
 "it's closed before Associate Session"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:187
+#: lib/src/connector/connector.cc:194
 msgid "Unexpected - failed to close the WebSocket connection"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:193
+#: lib/src/connector/connector.cc:200
 msgid ""
 "WebSocket close failure ({1}); will continue with the Associate Session "
 "attempt"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:220
+#: lib/src/connector/connector.cc:227
 msgid "Waiting for the PCP Session Association to complete"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:231
+#: lib/src/connector/connector.cc:238
 msgid "It seems that an error occurred during the Session Association ({1})"
 msgstr ""
 
-#: lib/src/connector/connector.cc:234
+#: lib/src/connector/connector.cc:241
 msgid "undetermined error"
 msgstr ""
 
-#: lib/src/connector/connector.cc:238
+#: lib/src/connector/connector.cc:245
 msgid "invalid Associate Session response"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:241
+#: lib/src/connector/connector.cc:248
 msgid "Associate Session timed out"
 msgstr ""
 
-#: lib/src/connector/connector.cc:244
+#: lib/src/connector/connector.cc:251
 msgid "operation timeout"
 msgstr ""
 
-#: lib/src/connector/connector.cc:247
+#: lib/src/connector/connector.cc:254
 msgid "Associate Session failure"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:260
+#: lib/src/connector/connector.cc:267
 msgid "Failed to establish the WebSocket connection: {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:281
+#: lib/src/connector/connector.cc:288
 msgid "The monitorConnection function has already been called"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:290
+#: lib/src/connector/connector.cc:297
 msgid ""
 "Sending message of {1} bytes:\n"
 "{2}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:358
+#: lib/src/connector/connector.cc:365
 msgid "connection not initialized"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:371
+#: lib/src/connector/connector.cc:378
 msgid "Creating message with id {1} for {2} receiver"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:374
+#: lib/src/connector/connector.cc:381
 msgid "Creating message with id {1} for {2} receivers"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:423
+#: lib/src/connector/connector.cc:430
 msgid ""
 "About to send Associate Session request; unexpectedly the Connector does not "
 "seem to be in the associating state"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:441
-msgid "Sending Associate Session request with id {1}"
+#: lib/src/connector/connector.cc:448
+msgid "Sending Associate Session request with id {1} and a TTL of {2} s"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:450
+#: lib/src/connector/connector.cc:457
 msgid ""
 "Received message of {1} bytes - raw message:\n"
 "{2}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:461
+#: lib/src/connector/connector.cc:468
 msgid "Failed to deserialize message: {1}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:471
+#: lib/src/connector/connector.cc:478
 msgid "Invalid envelope - bad content: {1}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:473
+#: lib/src/connector/connector.cc:480
 msgid "Invalid envelope - invalid JSON content: {1}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:477
+#: lib/src/connector/connector.cc:484
 msgid "Unknown schema: {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:503
+#: lib/src/connector/connector.cc:510
 msgid "No message callback has be registered for the '{1}' schema"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:522
+#: lib/src/connector/connector.cc:529
 msgid "Received an unexpected Associate Session response; discarding it"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:528
+#: lib/src/connector/connector.cc:535
 msgid ""
 "Received an Associate Session response that refers to an unknown request ID "
 "({1}, expected {2}); discarding it"
 msgstr ""
 
-#: lib/src/connector/connector.cc:534
+#: lib/src/connector/connector.cc:541
 msgid "Received an Associate Session response {1} from {2} for the request {3}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:539
+#: lib/src/connector/connector.cc:546
 msgid "{1}: success"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:543
+#: lib/src/connector/connector.cc:550
 msgid "{1}: failure - {2}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:546
+#: lib/src/connector/connector.cc:553
 msgid "{1}: failure"
 msgstr ""
 
-#: lib/src/connector/connector.cc:570
+#: lib/src/connector/connector.cc:577
 msgid "Received error {1} from {2}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:575
+#: lib/src/connector/connector.cc:582
 msgid "{1} caused by message {2}: {3}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:577
+#: lib/src/connector/connector.cc:584
 msgid "{1} (the id of the message that caused it is unknown): {2}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:588
+#: lib/src/connector/connector.cc:595
 msgid "The error message {1} is due to the Associate Session request {2}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:608
+#: lib/src/connector/connector.cc:615
 msgid "Received TTL Expired message {1} from {2} related to message {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:620
+#: lib/src/connector/connector.cc:627
 msgid ""
 "The TTL expired message {1} is related to the Associate Session request {2}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:635
+#: lib/src/connector/connector.cc:642
 msgid "Starting the monitor task"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:651
+#: lib/src/connector/connector.cc:658
 msgid "WebSocket connection to PCP broker lost; retrying"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:654
+#: lib/src/connector/connector.cc:661
 msgid "Sending heartbeat ping"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:660
+#: lib/src/connector/connector.cc:667
 msgid ""
 "The connection monitor task will continue after a WebSocket failure ({1})"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:664
+#: lib/src/connector/connector.cc:671
 msgid ""
 "The connection monitor task will continue after an error during the Session "
 "Association ({1})"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:668
+#: lib/src/connector/connector.cc:675
 msgid ""
 "The connection monitor task will stop after an Session Association failure: "
 "{1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:674
+#: lib/src/connector/connector.cc:681
 msgid "The connection monitor task will stop: {1}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:680
+#: lib/src/connector/connector.cc:687
 msgid "Stopping the monitor task"
 msgstr ""
 

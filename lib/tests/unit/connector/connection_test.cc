@@ -13,11 +13,14 @@ namespace PCPClient {
 
 namespace lth_util = leatherman::util;
 
+static constexpr int WS_TIMEOUT { 5000 };
+static constexpr uint32_t ASSOCIATION_TIMEOUT { 10 };
+
 TEST_CASE("Connection::connect errors", "[connector]") {
     SECTION("throws a connection_processing_error if the broker url is "
             "not a valid WebSocket url") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), 6 };
+                             getKeyPath(), 6, ASSOCIATION_TIMEOUT };
         // NB: the dtor will wait for the 6 ms specified above
         Connection connection { "foo", c_m };
 
@@ -35,12 +38,10 @@ static void let_connection_stop(Connection const& connection, int timeout = 2)
     REQUIRE(connection.getConnectionState() != ConnectionState::open);
 }
 
-static constexpr int TEST_TIMEOUT = 1000;
-
 TEST_CASE("Connection::connect", "[connector]") {
     SECTION("successfully connects") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), TEST_TIMEOUT };
+                             getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT };
 
         MockServer mock_server;
         bool connected = false;
@@ -60,7 +61,7 @@ TEST_CASE("Connection::connect", "[connector]") {
 
     SECTION("successfully connects to failover broker") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), TEST_TIMEOUT };
+                             getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT };
 
         MockServer mock_server;
         bool connected = false;
@@ -83,7 +84,7 @@ TEST_CASE("Connection::connect", "[connector]") {
 
     SECTION("successfully connects to failover when primary broker disappears") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), TEST_TIMEOUT };
+                             getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT };
 
         bool connected_a = false, connected_b = false, connected_c = false;
 
@@ -135,15 +136,15 @@ TEST_CASE("Connection::~Connection", "[connector]") {
     mock_server.go();
 
     ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                         getKeyPath(), TEST_TIMEOUT };
+                         getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT };
 
     SECTION("connecting with a single attempt") {
         SECTION("connection timeout = 1 ms") {
-            c_m.connection_timeout = 1;
+            c_m.ws_connection_timeout_ms = 1;
         }
 
         SECTION("connection timeout = 990 ms") {
-            c_m.connection_timeout = 990;
+            c_m.ws_connection_timeout_ms = 990;
         }
 
         {

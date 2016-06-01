@@ -32,7 +32,6 @@ namespace lth_loc  = leatherman::locale;
 //
 
 static const uint32_t CONNECTION_CHECK_S { 15 };  // [s]
-static const int DEFAULT_MSG_TIMEOUT_S { 10 };  // [s]
 static const int WS_CONNECTION_CLOSE_TIMEOUT_S { 5 };  // [s]
 
 static const std::string MY_BROKER_URI { "pcp:///server" };
@@ -46,9 +45,15 @@ Connector::Connector(std::string broker_ws_uri,
                      std::string ca_crt_path,
                      std::string client_crt_path,
                      std::string client_key_path,
-                     long connection_timeout)
-        : Connector { std::vector<std::string> { std::move(broker_ws_uri) }, std::move(client_type),
-            std::move(ca_crt_path), std::move(client_crt_path), std::move(client_key_path), std::move(connection_timeout) }
+                     long ws_connection_timeout_ms,
+                     uint32_t association_timeout_s)
+        : Connector { std::vector<std::string> { std::move(broker_ws_uri) },
+                      std::move(client_type),
+                      std::move(ca_crt_path),
+                      std::move(client_crt_path),
+                      std::move(client_key_path),
+                      std::move(ws_connection_timeout_ms),
+                      std::move(association_timeout_s) }
 {
 }
 
@@ -57,13 +62,15 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
                      std::string ca_crt_path,
                      std::string client_crt_path,
                      std::string client_key_path,
-                     long connection_timeout)
+                     long ws_connection_timeout_ms,
+                     uint32_t association_timeout_s)
         : broker_ws_uris_ { std::move(broker_ws_uris) },
           client_metadata_ { std::move(client_type),
                              std::move(ca_crt_path),
                              std::move(client_crt_path),
                              std::move(client_key_path),
-                             std::move(connection_timeout) },
+                             std::move(ws_connection_timeout_ms),
+                             std::move(association_timeout_s) },
           connection_ptr_ { nullptr },
           validator_ {},
           schema_callback_pairs_ {},
@@ -429,7 +436,7 @@ void Connector::associateSession() {
     // Envelope
     auto envelope = createEnvelope(std::vector<std::string> { MY_BROKER_URI },
                                    Protocol::ASSOCIATE_REQ_TYPE,
-                                   DEFAULT_MSG_TIMEOUT_S,
+                                   client_metadata_.association_timeout_s,
                                    false,
                                    session_association_.request_id);
 
@@ -438,8 +445,8 @@ void Connector::associateSession() {
     //     just let the onOpen handler close the WebSocket connection
     //     and let a connection_association_error be triggered
     Message msg { envelope };
-    LOG_INFO("Sending Associate Session request with id {1}",
-             session_association_.request_id);
+    LOG_INFO("Sending Associate Session request with id {1} and a TTL of {2} s",
+             session_association_.request_id, client_metadata_.association_timeout_s);
     send(msg);
 }
 
