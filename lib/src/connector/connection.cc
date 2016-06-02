@@ -494,8 +494,17 @@ void Connection::onPong(WS_Connection_Handle hdl, std::string binary_payload) {
 
 void Connection::onPongTimeout(WS_Connection_Handle hdl,
                                std::string binary_payload) {
-    LOG_WARNING("WebSocket onPongTimeout event ({1} consecutive)",
-                consecutive_pong_timeouts_++);
+    ++consecutive_pong_timeouts_;
+    if (consecutive_pong_timeouts_ >= client_metadata_.pong_timeouts_before_retry) {
+        LOG_WARNING("WebSocket onPongTimeout event ({1} consecutive); "
+                    "closing the WebSocket connection", consecutive_pong_timeouts_);
+        close(CloseCodeValues::normal, "consecutive onPongTimeouts");
+    } else if (consecutive_pong_timeouts_ == 1) {
+        LOG_WARNING("WebSocket onPongTimeout event");
+    } else {
+        LOG_WARNING("WebSocket onPongTimeout event ({1} consecutive)",
+                    consecutive_pong_timeouts_);
+    }
 }
 
 void Connection::onPreTCPInit(WS_Connection_Handle hdl) {

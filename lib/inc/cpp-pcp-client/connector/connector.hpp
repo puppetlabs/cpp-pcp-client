@@ -43,7 +43,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
               std::string client_crt_path,
               std::string client_key_path,
               long ws_connection_timeout_ms = 5000,
-              uint32_t association_timeout_s = 10);
+              uint32_t association_timeout_s = 10,
+              uint32_t pong_timeouts_before_retry = 3);
 
     Connector(std::vector<std::string> broker_ws_uris,
               std::string client_type,
@@ -51,7 +52,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
               std::string client_crt_path,
               std::string client_key_path,
               long ws_connection_timeout = 5000,
-              uint32_t association_timeout_s = 10);
+              uint32_t association_timeout_s = 10,
+              uint32_t pong_timeouts_before_retry = 3);
 
     ~Connector();
 
