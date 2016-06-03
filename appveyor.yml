@@ -1,5 +1,5 @@
 environment:
-  LEATHERMAN_VERSION: 0.6.0
+  LEATHERMAN_VERSION: 0.7.2
   matrix:
   - shared: OFF
   - shared: ON

@@ -281,13 +281,10 @@ void Connection::close(CloseCode code, const std::string& reason) {
 //
 
 void Connection::connectAndWait() {
-    // TODO(ale): use Timer::elapsed_milliseconds once it's released
-    static auto connection_timeout_s =
-        static_cast<double>(client_metadata_.ws_connection_timeout_ms) / 1000.0;
     connect_();
     lth_util::Timer timer {};
     while (connection_state_.load() != ConnectionState::open
-           && timer.elapsed_seconds() < connection_timeout_s) {
+           && timer.elapsed_milliseconds() < client_metadata_.ws_connection_timeout_ms) {
         doSleep();
     }
 }
@@ -333,10 +330,8 @@ void Connection::cleanUp() {
             LOG_WARNING("Failed to close the WebSocket; will wait at most "
                         "{1} ms before trying again", timeout);
             lth_util::Timer timer{};
-            // TODO(ale): use Timer::elapsed_milliseconds once it's released
-            auto timeout_s = static_cast<double>(timeout) / 1000.0;
             while (connection_state_.load() == ConnectionState::connecting
-                   && timer.elapsed_seconds() < timeout_s)
+                   && timer.elapsed_milliseconds() < timeout)
                 doSleep();
             tryClose();
         }
