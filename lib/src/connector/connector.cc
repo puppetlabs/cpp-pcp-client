@@ -80,10 +80,11 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
           schema_callback_pairs_ {},
           error_callback_ {},
           associate_response_callback_ {},
-          is_destructing_ { false },
           is_monitoring_ { false },
+          monitor_thread_ {},
           monitor_mutex_ {},
           monitor_cond_var_ {},
+          must_stop_monitoring_ { false },
           session_association_ {}
 {
     // Add PCP schemas to the Validator instance member
@@ -119,9 +120,8 @@ Connector::~Connector() {
         connection_ptr_->resetCallbacks();
     }
 
-    Util::lock_guard<Util::mutex> the_lock { monitor_mutex_ };
-    is_destructing_ = true;
-    monitor_cond_var_.notify_one();
+    if (is_monitoring_)
+        stopMonitorTaskAndWait();
 }
 
 // Register schemas and onMessage callbacks
@@ -282,14 +282,26 @@ bool Connector::isAssociated() const {
     return isConnected() && session_association_.success.load();
 }
 
-void Connector::monitorConnection(int max_connect_attempts) {
+void Connector::startMonitoring(int max_connect_attempts) {
     checkConnectionInitialization();
 
     if (!is_monitoring_) {
         is_monitoring_ = true;
-        startMonitorTask(max_connect_attempts);
+        monitor_thread_ = Util::thread { &Connector::startMonitorTask,
+                                         this,
+                                         max_connect_attempts };
     } else {
-        LOG_WARNING("The monitorConnection function has already been called");
+        LOG_WARNING("The Monitoring Thread is already running");
+    }
+}
+
+void Connector::stopMonitoring() {
+    checkConnectionInitialization();
+
+    if (!is_monitoring_) {
+        LOG_WARNING("The Monitoring Thread is not running");
+    } else {
+        stopMonitorTaskAndWait();
     }
 }
 
@@ -647,14 +659,14 @@ void Connector::startMonitorTask(int max_connect_attempts) {
     Util::chrono::system_clock::time_point now {};
     Util::unique_lock<Util::mutex> the_lock { monitor_mutex_ };
 
-    while (!is_destructing_) {
+    while (!must_stop_monitoring_) {
         now = Util::chrono::system_clock::now();
 
         monitor_cond_var_.wait_until(
             the_lock,
             now + Util::chrono::seconds(CONNECTION_CHECK_S));
 
-        if (is_destructing_)
+        if (must_stop_monitoring_)
             break;
 
         try {
@@ -690,6 +702,18 @@ void Connector::startMonitorTask(int max_connect_attempts) {
 
     LOG_INFO("Stopping the monitor task");
     is_monitoring_ = false;
+}
+
+void Connector::stopMonitorTaskAndWait() {
+    LOG_INFO("Stopping the Monitoring Thread");
+    must_stop_monitoring_ = true;
+    monitor_cond_var_.notify_one();
+
+    if (monitor_thread_.joinable()) {
+        monitor_thread_.join();
+    } else {
+        LOG_WARNING("The Monitoring Thread is not joinable");
+    }
 }
 
 }  // namespace PCPClient
