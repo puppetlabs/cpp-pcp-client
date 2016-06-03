@@ -29,12 +29,13 @@ TEST_CASE("validatePrivateKeyCertPair", "[connector]") {
 
 static constexpr int WS_TIMEOUT { 5000 };
 static constexpr uint32_t ASSOCIATION_TIMEOUT { 10 };
+static constexpr uint32_t PONG_TIMEOUTS_BEFORE_RETRY { 3 };
 
 TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("retrieves correctly the client common name from the certificate") {
         std::string type { "test" };
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(),
-                             WS_TIMEOUT, ASSOCIATION_TIMEOUT };
+                             WS_TIMEOUT, ASSOCIATION_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY };
 
         REQUIRE(c_m.common_name == "localhost");
     }
@@ -42,7 +43,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("determines correctly the client URI") {
         std::string type { "test" };
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(),
-                             WS_TIMEOUT, ASSOCIATION_TIMEOUT };
+                             WS_TIMEOUT, ASSOCIATION_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY };
         std::string expected_uri { "pcp://localhost/" + type };
 
         REQUIRE(c_m.uri == expected_uri);
@@ -52,7 +53,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
             "file does not exist") {
         REQUIRE_THROWS_AS(ClientMetadata("test", getCaPath(),
                                          getNotExistentFilePath(), getKeyPath(),
-                                         WS_TIMEOUT, ASSOCIATION_TIMEOUT),
+                                         WS_TIMEOUT, ASSOCIATION_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY),
                           connection_config_error);
     }
 
@@ -60,7 +61,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
             "is invalid") {
         REQUIRE_THROWS_AS(ClientMetadata("test", getCaPath(), getNotACertPath(),
                                          getKeyPath(),
-                                         WS_TIMEOUT, ASSOCIATION_TIMEOUT),
+                                         WS_TIMEOUT, ASSOCIATION_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY),
                           connection_config_error);
     }
 }

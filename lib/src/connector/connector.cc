@@ -46,14 +46,16 @@ Connector::Connector(std::string broker_ws_uri,
                      std::string client_crt_path,
                      std::string client_key_path,
                      long ws_connection_timeout_ms,
-                     uint32_t association_timeout_s)
+                     uint32_t association_timeout_s,
+                     uint32_t pong_timeouts_before_retry)
         : Connector { std::vector<std::string> { std::move(broker_ws_uri) },
                       std::move(client_type),
                       std::move(ca_crt_path),
                       std::move(client_crt_path),
                       std::move(client_key_path),
                       std::move(ws_connection_timeout_ms),
-                      std::move(association_timeout_s) }
+                      std::move(association_timeout_s),
+                      std::move(pong_timeouts_before_retry) }
 {
 }
 
@@ -63,14 +65,16 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
                      std::string client_crt_path,
                      std::string client_key_path,
                      long ws_connection_timeout_ms,
-                     uint32_t association_timeout_s)
+                     uint32_t association_timeout_s,
+                     uint32_t pong_timeouts_before_retry)
         : broker_ws_uris_ { std::move(broker_ws_uris) },
           client_metadata_ { std::move(client_type),
                              std::move(ca_crt_path),
                              std::move(client_crt_path),
                              std::move(client_key_path),
                              std::move(ws_connection_timeout_ms),
-                             std::move(association_timeout_s) },
+                             std::move(association_timeout_s),
+                             std::move(pong_timeouts_before_retry) },
           connection_ptr_ { nullptr },
           validator_ {},
           schema_callback_pairs_ {},
