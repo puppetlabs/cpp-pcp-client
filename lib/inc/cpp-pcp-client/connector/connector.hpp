@@ -121,16 +121,15 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// then, false otherwise.
     bool isAssociated() const;
 
-    /// Periodically check the state of the underlying connection.
-    /// Re-establish the connection in case it has dropped, otherwise
-    /// send a ping mst to the broker in order to keep the connection
-    /// alive.
-    /// The max_connect_attempts parameters is used to reconnect; it
-    /// works as for the above connect() function.
+    /// Starts the monitoring task in a separate thread.
+    //  Such task will periodically check the state of the
+    //  underlying connection and re-establish it in case it has
+    //  dropped, otherwise it will send a WebSocket ping to the
+    //  current broker in to keep the connection alive.
+    /// The max_connect_attempts parameters is used to reconnect;
+    /// it works as for the above connect() function.
     ///
-    /// Note that this is a blocking call; this task will not be
-    /// executed in a separate thread.
-    /// Also, monitorConnection simply returns in case of multiple
+    /// Note that monitorConnection simply returns in case of multiple
     /// calls.
     ///
     /// It is safe to call monitorConnection in a multithreading
@@ -141,7 +140,14 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// specified maximum number of attempts.
     /// Throws a connection_not_init_error in case the connection has
     /// not been opened previously.
-    void monitorConnection(int max_connect_attempts = 0);
+    void startMonitoring(int max_connect_attempts = 0);
+
+    /// Stops the monitoring task in case it's running, otherwise the
+    /// function simply logs a warning.
+    ///
+    /// Throws a connection_not_init_error in case the connection has
+    /// not been opened previously.
+    void stopMonitoring();
 
     /// Send the specified message.
     /// Throw a connection_processing_error in case of failure;
@@ -219,15 +225,14 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// TTL Expired callback
     MessageCallback TTL_expired_callback_;
 
-    /// Flag; set to true if the dtor has been called
-    bool is_destructing_;
-
     /// Flag; true if monitorConnection is executing
     bool is_monitoring_;
 
     /// To manage the monitoring task
+    Util::thread monitor_thread_;
     Util::mutex monitor_mutex_;
     Util::condition_variable monitor_cond_var_;
+    bool must_stop_monitoring_;
 
     /// To manage the Associate Session process
     SessionAssociation session_association_;
@@ -273,6 +278,9 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     // If the underlying connection is dropped, unset the
     // is_associated_ flag.
     void startMonitorTask(int max_connect_attempts);
+
+    // Stop the monitoring thread and wait for it to terminate.
+    void stopMonitorTaskAndWait();
 };
 
 }  // namespace PCPClient
