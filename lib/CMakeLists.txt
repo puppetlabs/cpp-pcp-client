@@ -56,13 +56,7 @@ add_dependencies(libcpp-pcp-client websocketpp valijson)
 target_link_libraries(libcpp-pcp-client PRIVATE ${LIBS} ${PLATFORM_LIBS})
 
 # Generate the export header
-include(GenerateExportHeader)
-generate_export_header(libcpp-pcp-client EXPORT_FILE_NAME "${CMAKE_CURRENT_LIST_DIR}/inc/cpp-pcp-client/export.h")
-target_compile_definitions(libcpp-pcp-client PRIVATE -Dlibcpp_pcp_client_EXPORTS)
-
-if ((NOT APPLE) AND (NOT CMAKE_SYSTEM_NAME MATCHES "AIX") AND BUILD_SHARED_LIBS)
-    set_target_properties(libcpp-pcp-client PROPERTIES VISIBILITY_INLINES_HIDDEN ON)
-endif()
+symbol_exports(libcpp-pcp-client "${CMAKE_CURRENT_LIST_DIR}/inc/cpp-pcp-client/export.h")
 
 leatherman_install(libcpp-pcp-client)
 install(DIRECTORY inc/cpp-pcp-client DESTINATION include)

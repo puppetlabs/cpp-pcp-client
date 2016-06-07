@@ -31,9 +31,7 @@ namespace lth_loc  = leatherman::locale;
 // Constants
 //
 
-static const uint32_t CONNECTION_CHECK_S { 15 };  // [s]
 static const int WS_CONNECTION_CLOSE_TIMEOUT_S { 5 };  // [s]
-
 static const std::string MY_BROKER_URI { "pcp:///server" };
 
 //
@@ -298,14 +296,17 @@ bool Connector::isAssociated() const
     return isConnected() && session_association_.success.load();
 }
 
-void Connector::startMonitoring(int max_connect_attempts) {
+void Connector::startMonitoring(const uint32_t max_connect_attempts,
+                                const uint32_t connection_check_interval_s)
+{
     checkConnectionInitialization();
 
     if (!is_monitoring_) {
         is_monitoring_ = true;
         monitor_thread_ = Util::thread { &Connector::startMonitorTask,
                                          this,
-                                         max_connect_attempts };
+                                         max_connect_attempts,
+                                         connection_check_interval_s };
     } else {
         LOG_WARNING("The Monitoring Thread is already running");
     }
@@ -683,7 +684,9 @@ void Connector::TTLMessageCallback(const ParsedChunks& parsed_chunks)
 
 // Monitor task
 
-void Connector::startMonitorTask(int max_connect_attempts) {
+void Connector::startMonitorTask(const uint32_t max_connect_attempts,
+                                 const uint32_t connection_check_interval_s)
+{
     assert(connection_ptr_ != nullptr);
     LOG_INFO("Starting the monitor task");
     Util::chrono::system_clock::time_point now {};
@@ -694,7 +697,7 @@ void Connector::startMonitorTask(int max_connect_attempts) {
 
         monitor_cond_var_.wait_until(
             the_lock,
-            now + Util::chrono::seconds(CONNECTION_CHECK_S));
+            now + Util::chrono::seconds(connection_check_interval_s));
 
         if (must_stop_monitoring_)
             break;

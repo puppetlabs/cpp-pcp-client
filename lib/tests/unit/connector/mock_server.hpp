@@ -16,6 +16,16 @@ namespace websocketpp {
         struct asio_tls;
     }
 
+    namespace message_buffer {
+        namespace alloc {
+            template <typename message>
+            class con_msg_manager;
+        }
+
+        template <template<class> class con_msg_manager>
+        class message;
+    }
+
     using connection_hdl = std::weak_ptr<void>;
 }
 
@@ -33,10 +43,19 @@ public:
 
     void set_open_handler(std::function<void(websocketpp::connection_hdl)> func);
 
+    void set_ping_handler(std::function<bool(websocketpp::connection_hdl,
+                                             std::string)> func);
+
 private:
     std::string certPath_, keyPath_;
     std::unique_ptr<boost::thread> bt_;
     std::unique_ptr<websocketpp::server<websocketpp::config::asio_tls>> server_;
+
+    void association_request_handler(
+        websocketpp::connection_hdl hdl,
+        std::shared_ptr<
+            class websocketpp::message_buffer::message<
+                websocketpp::message_buffer::alloc::con_msg_manager>> req);
 };
 
 }
