@@ -47,7 +47,9 @@ Connector::Connector(std::string broker_ws_uri,
                      std::string client_key_path,
                      long ws_connection_timeout_ms,
                      uint32_t association_timeout_s,
-                     uint32_t pong_timeouts_before_retry)
+                     uint32_t association_request_ttl_s,
+                     uint32_t pong_timeouts_before_retry,
+                     long ws_pong_timeout_ms)
         : Connector { std::vector<std::string> { std::move(broker_ws_uri) },
                       std::move(client_type),
                       std::move(ca_crt_path),
@@ -55,7 +57,9 @@ Connector::Connector(std::string broker_ws_uri,
                       std::move(client_key_path),
                       std::move(ws_connection_timeout_ms),
                       std::move(association_timeout_s),
-                      std::move(pong_timeouts_before_retry) }
+                      std::move(association_request_ttl_s),
+                      std::move(pong_timeouts_before_retry),
+                      std::move(ws_pong_timeout_ms)}
 {
 }
 
@@ -66,7 +70,9 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
                      std::string client_key_path,
                      long ws_connection_timeout_ms,
                      uint32_t association_timeout_s,
-                     uint32_t pong_timeouts_before_retry)
+                     uint32_t association_request_ttl_s,
+                     uint32_t pong_timeouts_before_retry,
+                     long ws_pong_timeout_ms)
         : broker_ws_uris_ { std::move(broker_ws_uris) },
           client_metadata_ { std::move(client_type),
                              std::move(ca_crt_path),
@@ -74,7 +80,9 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
                              std::move(client_key_path),
                              std::move(ws_connection_timeout_ms),
                              std::move(association_timeout_s),
-                             std::move(pong_timeouts_before_retry) },
+                             std::move(association_request_ttl_s),
+                             std::move(pong_timeouts_before_retry),
+                             std::move(ws_pong_timeout_ms)},
           connection_ptr_ { nullptr },
           validator_ {},
           schema_callback_pairs_ {},
@@ -224,16 +232,16 @@ void Connector::connect(int max_connect_attempts) {
     Util::unique_lock<Util::mutex> the_lock { session_association_.mtx };
     session_association_.reset();
     session_association_.in_progress = true;
+    Util::chrono::seconds assoc_timeout { client_metadata_.association_timeout_s };
 
     try {
         // Open the WebSocket connection (blocking call)
         connection_ptr_->connect(max_connect_attempts);
         LOG_INFO("Waiting for the PCP Session Association to complete");
         session_association_.cond_var.wait_until(
-            the_lock,                                         // lock
-            Util::chrono::system_clock::now()
-                + Util::chrono::seconds(CONNECTION_CHECK_S),  // timeout
-            [this]() -> bool {                                // predicate
+            the_lock,                                           // lock
+            Util::chrono::system_clock::now() + assoc_timeout,  // timeout
+            [this]() -> bool {                                  // predicate
                 return !session_association_.in_progress.load()
                         || session_association_.got_messaging_failure.load();
             });

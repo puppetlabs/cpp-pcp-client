@@ -14,15 +14,16 @@ namespace PCPClient {
 namespace lth_util = leatherman::util;
 
 static constexpr int WS_TIMEOUT { 5000 };
-static constexpr uint32_t ASSOCIATION_TIMEOUT { 10 };
+static constexpr uint32_t ASSOCIATION_TIMEOUT_S { 15 };
+static constexpr uint32_t ASSOCIATION_REQUEST_TTL_S { 10 };
 static constexpr uint32_t PONG_TIMEOUTS_BEFORE_RETRY { 3 };
 
 TEST_CASE("Connection::connect errors", "[connector]") {
     SECTION("throws a connection_processing_error if the broker url is "
             "not a valid WebSocket url") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), 6, ASSOCIATION_TIMEOUT,
-                             PONG_TIMEOUTS_BEFORE_RETRY };
+                             getKeyPath(), 6, ASSOCIATION_TIMEOUT_S,
+                             ASSOCIATION_REQUEST_TTL_S, PONG_TIMEOUTS_BEFORE_RETRY };
         // NB: the dtor will wait for the 6 ms specified above
         Connection connection { "foo", c_m };
 
@@ -43,8 +44,8 @@ static void let_connection_stop(Connection const& connection, int timeout = 2)
 TEST_CASE("Connection::connect", "[connector]") {
     SECTION("successfully connects") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT,
-                             PONG_TIMEOUTS_BEFORE_RETRY };
+                             getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT_S,
+                             ASSOCIATION_REQUEST_TTL_S, PONG_TIMEOUTS_BEFORE_RETRY };
 
         MockServer mock_server;
         bool connected = false;
@@ -64,8 +65,8 @@ TEST_CASE("Connection::connect", "[connector]") {
 
     SECTION("successfully connects to failover broker") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT,
-                             PONG_TIMEOUTS_BEFORE_RETRY };
+                             getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT_S,
+                             ASSOCIATION_REQUEST_TTL_S, PONG_TIMEOUTS_BEFORE_RETRY };
 
         MockServer mock_server;
         bool connected = false;
@@ -88,8 +89,8 @@ TEST_CASE("Connection::connect", "[connector]") {
 
     SECTION("successfully connects to failover when primary broker disappears") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT,
-                             PONG_TIMEOUTS_BEFORE_RETRY };
+                             getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT_S,
+                             ASSOCIATION_REQUEST_TTL_S, PONG_TIMEOUTS_BEFORE_RETRY };
 
         bool connected_a = false, connected_b = false, connected_c = false;
 
@@ -141,8 +142,8 @@ TEST_CASE("Connection::~Connection", "[connector]") {
     mock_server.go();
 
     ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                         getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT,
-                         PONG_TIMEOUTS_BEFORE_RETRY };
+                         getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT_S,
+                         ASSOCIATION_REQUEST_TTL_S, PONG_TIMEOUTS_BEFORE_RETRY };
 
     SECTION("connecting with a single attempt") {
         SECTION("connection timeout = 1 ms") {
