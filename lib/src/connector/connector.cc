@@ -120,7 +120,8 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
         });
 }
 
-Connector::~Connector() {
+Connector::~Connector()
+{
     if (connection_ptr_ != nullptr) {
         // reset callbacks to avoid breaking the Connection instance
         // due to callbacks having an invalid reference context
@@ -134,30 +135,35 @@ Connector::~Connector() {
 
 // Register schemas and onMessage callbacks
 void Connector::registerMessageCallback(const Schema& schema,
-                                        MessageCallback callback) {
+                                        MessageCallback callback)
+{
     validator_.registerSchema(schema);
     auto p = std::pair<std::string, MessageCallback>(schema.getName(), callback);
     schema_callback_pairs_.insert(p);
 }
 
 // Set an optional callback for error messages
-void Connector::setPCPErrorCallback(MessageCallback callback) {
+void Connector::setPCPErrorCallback(MessageCallback callback)
+{
     error_callback_ = callback;
 }
 
 // Set an optional callback for associate responses
-void Connector::setAssociateCallback(MessageCallback callback) {
+void Connector::setAssociateCallback(MessageCallback callback)
+{
     associate_response_callback_ = callback;
 }
 
 // Set an optional callback for TTL expired messages
-void Connector::setTTLExpiredCallback(MessageCallback callback) {
+void Connector::setTTLExpiredCallback(MessageCallback callback)
+{
     TTL_expired_callback_ = callback;
 }
 
 // Manage the connection state
 
-void Connector::connect(int max_connect_attempts) {
+void Connector::connect(int max_connect_attempts)
+{
     if (connection_ptr_ == nullptr) {
         // Initialize the WebSocket connection
         connection_ptr_.reset(new Connection(broker_ws_uris_, client_metadata_));
@@ -281,12 +287,14 @@ void Connector::connect(int max_connect_attempts) {
     }
 }
 
-bool Connector::isConnected() const {
+bool Connector::isConnected() const
+{
     return connection_ptr_ != nullptr
            && connection_ptr_->getConnectionState() == ConnectionState::open;
 }
 
-bool Connector::isAssociated() const {
+bool Connector::isAssociated() const
+{
     return isConnected() && session_association_.success.load();
 }
 
@@ -303,7 +311,8 @@ void Connector::startMonitoring(int max_connect_attempts) {
     }
 }
 
-void Connector::stopMonitoring() {
+void Connector::stopMonitoring()
+{
     checkConnectionInitialization();
 
     if (!is_monitoring_) {
@@ -315,7 +324,8 @@ void Connector::stopMonitoring() {
 
 // Send messages
 
-void Connector::send(const Message& msg) {
+void Connector::send(const Message& msg)
+{
     checkConnectionInitialization();
     auto serialized_msg = msg.getSerialized();
     LOG_DEBUG("Sending message of {1} bytes:\n{2}",
@@ -327,7 +337,8 @@ std::string Connector::send(const std::vector<std::string>& targets,
                      const std::string& message_type,
                      unsigned int timeout,
                      const lth_jc::JsonContainer& data_json,
-                     const std::vector<lth_jc::JsonContainer>& debug) {
+                     const std::vector<lth_jc::JsonContainer>& debug)
+{
     return sendMessage(targets,
                        message_type,
                        timeout,
@@ -340,7 +351,8 @@ std::string Connector::send(const std::vector<std::string>& targets,
                      const std::string& message_type,
                      unsigned int timeout,
                      const std::string& data_binary,
-                     const std::vector<lth_jc::JsonContainer>& debug) {
+                     const std::vector<lth_jc::JsonContainer>& debug)
+{
     return sendMessage(targets,
                        message_type,
                        timeout,
@@ -354,7 +366,8 @@ std::string Connector::send(const std::vector<std::string>& targets,
                      unsigned int timeout,
                      bool destination_report,
                      const lth_jc::JsonContainer& data_json,
-                     const std::vector<lth_jc::JsonContainer>& debug) {
+                     const std::vector<lth_jc::JsonContainer>& debug)
+{
     return sendMessage(targets,
                        message_type,
                        timeout,
@@ -368,7 +381,8 @@ std::string Connector::send(const std::vector<std::string>& targets,
                      unsigned int timeout,
                      bool destination_report,
                      const std::string& data_binary,
-                     const std::vector<lth_jc::JsonContainer>& debug) {
+                     const std::vector<lth_jc::JsonContainer>& debug)
+{
     return sendMessage(targets,
                        message_type,
                        timeout,
@@ -383,7 +397,8 @@ std::string Connector::send(const std::vector<std::string>& targets,
 
 // Utility functions
 
-void Connector::checkConnectionInitialization() {
+void Connector::checkConnectionInitialization()
+{
     if (connection_ptr_ == nullptr) {
         throw connection_not_init_error {
             lth_loc::translate("connection not initialized") };
@@ -394,7 +409,8 @@ MessageChunk Connector::createEnvelope(const std::vector<std::string>& targets,
                                        const std::string& message_type,
                                        unsigned int timeout,
                                        bool destination_report,
-                                       std::string& msg_id) {
+                                       std::string& msg_id)
+{
     msg_id = lth_util::get_UUID();
     auto expires = lth_util::get_ISO8601_time(timeout);
     // TODO(ale): deal with locale & plural (PCP-257)
@@ -426,7 +442,8 @@ std::string Connector::sendMessage(const std::vector<std::string>& targets,
                                    unsigned int timeout,
                                    bool destination_report,
                                    const std::string& data_txt,
-                                   const std::vector<lth_jc::JsonContainer>& debug) {
+                                   const std::vector<lth_jc::JsonContainer>& debug)
+{
     std::string msg_id {};
     auto envelope_chunk = createEnvelope(targets,
                                          message_type,
@@ -447,7 +464,8 @@ std::string Connector::sendMessage(const std::vector<std::string>& targets,
 
 // WebSocket onOpen callback - will send the associate session request
 
-void Connector::associateSession() {
+void Connector::associateSession()
+{
     Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
 
     if (!session_association_.in_progress.load())
@@ -476,7 +494,8 @@ void Connector::associateSession() {
 
 // WebSocket onMessage callback
 
-void Connector::processMessage(const std::string& msg_txt) {
+void Connector::processMessage(const std::string& msg_txt)
+{
 #ifdef DEV_LOG_RAW_MESSAGE
     LOG_DEBUG("Received message of {1} bytes - raw message:\n{2}",
               msg_txt.size(), msg_txt);
@@ -538,7 +557,8 @@ void Connector::processMessage(const std::string& msg_txt) {
 
 // Associate session response callback
 
-void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
+void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks)
+{
     assert(parsed_chunks.has_data);
     assert(parsed_chunks.data_type == PCPClient::ContentType::Json);
 
@@ -589,7 +609,8 @@ void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks) {
 
 // PCP error message callback
 
-void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
+void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks)
+{
     assert(parsed_chunks.has_data);
     assert(parsed_chunks.data_type == PCPClient::ContentType::Json);
 
@@ -629,7 +650,8 @@ void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks) {
 
 // ttl_expired message callback
 
-void Connector::TTLMessageCallback(const ParsedChunks& parsed_chunks) {
+void Connector::TTLMessageCallback(const ParsedChunks& parsed_chunks)
+{
     assert(parsed_chunks.has_data);
     assert(parsed_chunks.data_type == PCPClient::ContentType::Json);
 
