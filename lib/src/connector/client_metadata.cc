@@ -110,7 +110,9 @@ ClientMetadata::ClientMetadata(std::string _client_type,
                                std::string _key,
                                long _ws_connection_timeout_ms,
                                uint32_t _association_timeout_s,
-                               uint32_t _pong_timeouts_before_retry)
+                               uint32_t _association_request_ttl_s,
+                               uint32_t _pong_timeouts_before_retry,
+                               long _pong_timeout_ms)
         : ca { std::move(_ca) },
           crt { std::move(_crt) },
           key { std::move(_key) },
@@ -119,7 +121,9 @@ ClientMetadata::ClientMetadata(std::string _client_type,
           uri { PCP_URI_SCHEME + common_name + "/" + client_type },
           ws_connection_timeout_ms { std::move(_ws_connection_timeout_ms) },
           association_timeout_s { std::move(_association_timeout_s) },
-          pong_timeouts_before_retry { std::move(_pong_timeouts_before_retry) }
+          association_request_ttl_s { std::move(_association_request_ttl_s) },
+          pong_timeouts_before_retry { std::move(_pong_timeouts_before_retry) },
+          pong_timeout_ms { std::move(_pong_timeout_ms) }
 {
     LOG_INFO("Retrieved common name from the certificate and determined "
              "the client URI: {1}", uri);
