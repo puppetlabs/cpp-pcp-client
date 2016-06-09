@@ -421,57 +421,57 @@ msgid ""
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:691
+#: lib/src/connector/connector.cc:693
 msgid "Starting the monitor task"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:707
+#: lib/src/connector/connector.cc:709
 msgid "WebSocket connection to PCP broker lost; retrying"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:710
+#: lib/src/connector/connector.cc:712
 msgid "Sending heartbeat ping"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:716
+#: lib/src/connector/connector.cc:718
 msgid ""
 "The connection monitor task will continue after a WebSocket failure ({1})"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:720
+#: lib/src/connector/connector.cc:722
 msgid ""
 "The connection monitor task will continue after an error during the Session "
 "Association ({1})"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:724
+#: lib/src/connector/connector.cc:726
 msgid ""
 "The connection monitor task will stop after an Session Association failure: "
 "{1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:730
+#: lib/src/connector/connector.cc:732
 msgid "The connection monitor task will stop: {1}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:736
+#: lib/src/connector/connector.cc:743
 msgid "Stopping the monitor task"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:741
+#: lib/src/connector/connector.cc:748
 msgid "Stopping the Monitoring Thread"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:748
+#: lib/src/connector/connector.cc:755
 msgid "The Monitoring Thread is not joinable"
 msgstr ""
 
