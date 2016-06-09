@@ -126,12 +126,14 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     bool isAssociated() const;
 
     /// Starts the monitoring task in a separate thread.
-    //  Such task will periodically check the state of the
-    //  underlying connection and re-establish it in case it has
-    //  dropped, otherwise it will send a WebSocket ping to the
-    //  current broker in to keep the connection alive.
-    /// The max_connect_attempts parameters is used to reconnect;
-    /// it works as for the above connect() function.
+    /// Such task will periodically check the state of the
+    /// underlying connection and re-establish it in case it has
+    /// dropped, otherwise it will send a WebSocket ping to the
+    /// current broker in to keep the connection alive.
+    /// The check period is specified by connection_check_interval_s
+    /// (optional, in seconds).
+    /// The max_connect_attempts parameters is used to reconnect
+    /// (optional); it works as for the above connect() function.
     ///
     /// Note that monitorConnection simply returns in case of multiple
     /// calls.
@@ -144,7 +146,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// specified maximum number of attempts.
     /// Throws a connection_not_init_error in case the connection has
     /// not been opened previously.
-    void startMonitoring(int max_connect_attempts = 0);
+    void startMonitoring(const uint32_t max_connect_attempts = 0,
+                         const uint32_t connection_check_interval_s = 15);
 
     /// Stops the monitoring task in case it's running, otherwise the
     /// function simply logs a warning.
@@ -281,7 +284,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     // Monitor the underlying connection; reconnect or keep it alive.
     // If the underlying connection is dropped, unset the
     // is_associated_ flag.
-    void startMonitorTask(int max_connect_attempts);
+    void startMonitorTask(const uint32_t max_connect_attempts,
+                          const uint32_t connection_check_interval_s);
 
     // Stop the monitoring thread and wait for it to terminate.
     void stopMonitorTaskAndWait();

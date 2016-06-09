@@ -81,6 +81,7 @@ Connection::Connection(std::vector<std::string> broker_ws_uris,
     endpoint_->start_perpetual();
 
     try {
+        // Handlers
         endpoint_->set_tls_init_handler(
             std::bind(&Connection::onTlsInit, this, std::placeholders::_1));
         endpoint_->set_open_handler(
@@ -105,6 +106,9 @@ Connection::Connection(std::vector<std::string> broker_ws_uris,
             std::bind(&Connection::onPreTCPInit, this, std::placeholders::_1));
         endpoint_->set_tcp_post_init_handler(
             std::bind(&Connection::onPostTCPInit, this, std::placeholders::_1));
+
+        // Pong timeout
+        endpoint_->set_pong_timeout(client_metadata_.pong_timeout_ms);
 
         // Start the event loop thread
         endpoint_thread_.reset(new Util::thread(&WS_Client_Type::run, endpoint_.get()));

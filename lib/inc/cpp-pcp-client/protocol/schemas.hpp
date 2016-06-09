@@ -12,7 +12,7 @@ namespace Protocol {
 //
 
 static const std::string ENVELOPE_SCHEMA_NAME { "envelope_schema" };
-Schema EnvelopeSchema();
+LIBCPP_PCP_CLIENT_EXPORT Schema EnvelopeSchema();
 
 //
 // data
