@@ -60,10 +60,10 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
               uint32_t pong_timeouts_before_retry = 3,
               long ws_pong_timeout_ms = 30000);
 
-    /// Calls stopMonitorTaskAndWait if the monitoring thread is
-    /// still active. This can result in throwing, so to safely handle
-    /// any exceptions that occured in the monitoring thread, first
-    /// call stopMonitoring and catch exceptions from that.
+    /// Calls stopMonitorTaskAndWait if the Monitoring Task thread is
+    /// still active. In case an exception was previously stored by
+    /// the Monitoring Task, the error message will be logged, but
+    /// the exception won't be rethrown.
     ~Connector();
 
     /// Throw a schema_redefinition_error if the specified schema has
@@ -130,7 +130,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// then, false otherwise.
     bool isAssociated() const;
 
-    /// Starts the monitoring task in a separate thread.
+    /// Starts the Monitoring Task in a separate thread.
     /// Such task will periodically check the state of the
     /// underlying connection and re-establish it in case it has
     /// dropped, otherwise it will send a WebSocket ping to the
@@ -140,30 +140,50 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// The max_connect_attempts parameters is used to reconnect
     /// (optional); it works as for the above connect() function.
     ///
-    /// Note that monitorConnection simply returns in case of multiple
+    /// Note that startMonitoring simply returns in case of multiple
     /// calls.
     ///
-    /// It is safe to call monitorConnection in a multithreading
+    /// It is safe to call startMonitoring in a multithreading
     /// context; it will return as soon as the dtor has been invoked.
     ///
-    /// Throws a connection_fatal_error if, in case of dropped
-    /// underlying connection, it fails to re-connect after the
-    /// specified maximum number of attempts.
     /// Throws a connection_not_init_error in case the connection has
     /// not been opened previously.
+    ///
+    /// Propagates a possible exception thrown while spawning the
+    /// Monitor Thread.
+    ///
+    /// Exceptions caught by the Monitoring Task may be stored
+    /// and propagated later, by a subsequent call to stopMonitoring
+    /// or the destructor. In that case, the task will terminate.
+    /// Otherwise, in case the exception is not stored, the error
+    /// will be logged as a warning.
+    /// The following exceptions are simply logged:
+    ///   - connection_config_error (invalid certificates);
+    ///   - connection_association_error (failure during the Association);
+    /// The following exceptions are stored:
+    ///   - connection_association_response_failure (the Association
+    ///     response was not successful);
+    ///   - connection_fatal_error (failed to re-connect after the
+    ///     specified maximum number of attempts);
+    ///   - all other exceptions.
     void startMonitoring(const uint32_t max_connect_attempts = 0,
                          const uint32_t connection_check_interval_s = 15);
 
-    /// Stops the monitoring task in case it's running, otherwise the
+    /// Stops the Monitoring Task in case it's running, otherwise the
     /// function simply logs a warning.
     ///
     /// Throws a connection_not_init_error in case the connection has
     /// not been opened previously.
-    /// Also rethrows any exception that can be thrown by
-    /// startMonitoring.
+    /// Rethrows a possible exception stored by the Monitoring Task
+    /// (see startMonitoring doc above).
     void stopMonitoring();
 
     /// A blocking version of startMonitoring.
+    ///
+    /// Throws a connection_not_init_error in case the connection has
+    /// not been opened previously.
+    /// Rethrows a possible exception stored by the Monitoring Task
+    /// (see the startMonitoring doc above).
     void monitorConnection(const uint32_t max_connect_attempts = 0,
                            const uint32_t connection_check_interval_s = 15);
 
@@ -246,7 +266,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// Flag; true if monitorConnection is executing
     bool is_monitoring_;
 
-    /// To manage the monitoring task
+    /// To manage the Monitoring Task
     Util::thread monitor_thread_;
     Util::mutex monitor_mutex_;
     Util::condition_variable monitor_cond_var_;

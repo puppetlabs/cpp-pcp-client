@@ -233,246 +233,261 @@ msgstr ""
 msgid "Resetting the WebSocket event callbacks"
 msgstr ""
 
+#. error
+#: lib/src/connector/connector.cc:137
+msgid "Error previously caught by the Monitor Thread: {1}"
+msgstr ""
+
+#. error
+#: lib/src/connector/connector.cc:139
+msgid "An unexpected error has been previously caught by the Monitor Thread"
+msgstr ""
+
 #. debug
-#: lib/src/connector/connector.cc:194
+#: lib/src/connector/connector.cc:203
 msgid ""
 "There's an ongoing attempt to create a WebSocket connection; ensuring that "
 "it's closed before Associate Session"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:210
+#: lib/src/connector/connector.cc:219
 msgid "Unexpected - failed to close the WebSocket connection"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:216
+#: lib/src/connector/connector.cc:225
 msgid ""
 "WebSocket close failure ({1}); will continue with the Associate Session "
 "attempt"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:244
+#: lib/src/connector/connector.cc:253
 msgid "Waiting for the PCP Session Association to complete"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:254
+#: lib/src/connector/connector.cc:263
 msgid "It seems that an error occurred during the Session Association ({1})"
 msgstr ""
 
-#: lib/src/connector/connector.cc:257
+#: lib/src/connector/connector.cc:266
 msgid "undetermined error"
 msgstr ""
 
-#: lib/src/connector/connector.cc:261
+#: lib/src/connector/connector.cc:270
 msgid "invalid Associate Session response"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:264
+#: lib/src/connector/connector.cc:273
 msgid "Associate Session timed out"
 msgstr ""
 
-#: lib/src/connector/connector.cc:267
+#: lib/src/connector/connector.cc:276
 msgid "operation timeout"
 msgstr ""
 
-#: lib/src/connector/connector.cc:270
+#: lib/src/connector/connector.cc:279
 msgid "Associate Session failure"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:283
+#: lib/src/connector/connector.cc:292
 msgid "Failed to establish the WebSocket connection: {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:311
-#: lib/src/connector/connector.cc:342
+#: lib/src/connector/connector.cc:320
+#: lib/src/connector/connector.cc:355
 msgid "The Monitoring Thread is already running"
 msgstr ""
 
+#. debug
+#: lib/src/connector/connector.cc:331
+msgid "The Monitoring Thread previously caught an exception; re-throwing it"
+msgstr ""
+
 #. warning
-#: lib/src/connector/connector.cc:320
+#: lib/src/connector/connector.cc:335
 msgid "The Monitoring Thread is not running"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:352
+#: lib/src/connector/connector.cc:365
 msgid ""
 "Sending message of {1} bytes:\n"
 "{2}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:425
+#: lib/src/connector/connector.cc:438
 msgid "connection not initialized"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:439
+#: lib/src/connector/connector.cc:452
 msgid "Creating message with id {1} for {2} receiver"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:442
+#: lib/src/connector/connector.cc:455
 msgid "Creating message with id {1} for {2} receivers"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:493
+#: lib/src/connector/connector.cc:506
 msgid ""
 "About to send Associate Session request; unexpectedly the Connector does not "
 "seem to be in the associating state"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:511
+#: lib/src/connector/connector.cc:524
 msgid "Sending Associate Session request with id {1} and a TTL of {2} s"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:521
+#: lib/src/connector/connector.cc:534
 msgid ""
 "Received message of {1} bytes - raw message:\n"
 "{2}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:532
+#: lib/src/connector/connector.cc:545
 msgid "Failed to deserialize message: {1}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:542
+#: lib/src/connector/connector.cc:555
 msgid "Invalid envelope - bad content: {1}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:544
+#: lib/src/connector/connector.cc:557
 msgid "Invalid envelope - invalid JSON content: {1}"
 msgstr ""
 
-#: lib/src/connector/connector.cc:548
+#: lib/src/connector/connector.cc:561
 msgid "Unknown schema: {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:574
+#: lib/src/connector/connector.cc:587
 msgid "No message callback has be registered for the '{1}' schema"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:594
+#: lib/src/connector/connector.cc:607
 msgid "Received an unexpected Associate Session response; discarding it"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:600
+#: lib/src/connector/connector.cc:613
 msgid ""
 "Received an Associate Session response that refers to an unknown request ID "
 "({1}, expected {2}); discarding it"
 msgstr ""
 
-#: lib/src/connector/connector.cc:606
+#: lib/src/connector/connector.cc:619
 msgid "Received an Associate Session response {1} from {2} for the request {3}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:611
+#: lib/src/connector/connector.cc:624
 msgid "{1}: success"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:615
+#: lib/src/connector/connector.cc:628
 msgid "{1}: failure - {2}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:618
+#: lib/src/connector/connector.cc:631
 msgid "{1}: failure"
 msgstr ""
 
-#: lib/src/connector/connector.cc:643
+#: lib/src/connector/connector.cc:656
 msgid "Received error {1} from {2}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:648
+#: lib/src/connector/connector.cc:661
 msgid "{1} caused by message {2}: {3}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:650
+#: lib/src/connector/connector.cc:663
 msgid "{1} (the id of the message that caused it is unknown): {2}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:661
+#: lib/src/connector/connector.cc:674
 msgid "The error message {1} is due to the Associate Session request {2}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:682
+#: lib/src/connector/connector.cc:695
 msgid "Received TTL Expired message {1} from {2} related to message {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:694
+#: lib/src/connector/connector.cc:707
 msgid ""
 "The TTL expired message {1} is related to the Associate Session request {2}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:713
+#: lib/src/connector/connector.cc:726
 msgid "Starting the monitor task"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:729
+#: lib/src/connector/connector.cc:742
 msgid "WebSocket connection to PCP broker lost; retrying"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector.cc:732
+#: lib/src/connector/connector.cc:745
 msgid "Sending heartbeat ping"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:738
+#: lib/src/connector/connector.cc:751
 msgid ""
 "The connection monitor task will continue after a WebSocket failure ({1})"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:742
+#: lib/src/connector/connector.cc:755
 msgid ""
 "The connection monitor task will continue after an error during the Session "
 "Association ({1})"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:746
+#: lib/src/connector/connector.cc:759
 msgid ""
 "The connection monitor task will stop after an Session Association failure: "
 "{1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:752
+#: lib/src/connector/connector.cc:765
 msgid "The connection monitor task will stop: {1}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:763
+#: lib/src/connector/connector.cc:776
 msgid "Stopping the monitor task"
 msgstr ""
 
 #. info
-#: lib/src/connector/connector.cc:768
+#: lib/src/connector/connector.cc:781
 msgid "Stopping the Monitoring Thread"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connector.cc:775
+#: lib/src/connector/connector.cc:788
 msgid "The Monitoring Thread is not joinable"
 msgstr ""
 

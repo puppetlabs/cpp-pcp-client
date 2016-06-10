@@ -127,8 +127,17 @@ Connector::~Connector()
         connection_ptr_->resetCallbacks();
     }
 
-    if (is_monitoring_)
-        stopMonitorTaskAndWait();
+    try {
+        if (is_monitoring_) {
+            stopMonitorTaskAndWait();
+        } else if (monitor_exception_) {
+            std::rethrow_exception(monitor_exception_);
+        }
+    } catch (const std::exception& e) {
+        LOG_ERROR("Error previously caught by the Monitor Thread: {1}", e.what());
+    } catch (...) {
+        LOG_ERROR("An unexpected error has been previously caught by the Monitor Thread");
+    }
 }
 
 // Register schemas and onMessage callbacks
@@ -316,10 +325,14 @@ void Connector::stopMonitoring()
 {
     checkConnectionInitialization();
 
-    if (!is_monitoring_) {
-        LOG_WARNING("The Monitoring Thread is not running");
-    } else {
+    if (is_monitoring_) {
         stopMonitorTaskAndWait();
+    } else if (monitor_exception_) {
+        LOG_DEBUG("The Monitoring Thread previously caught an exception; "
+                  "re-throwing it");
+        std::rethrow_exception(monitor_exception_);
+    } else {
+        LOG_WARNING("The Monitoring Thread is not running");
     }
 }
 
