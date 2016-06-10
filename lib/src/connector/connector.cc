@@ -323,6 +323,26 @@ void Connector::stopMonitoring()
     }
 }
 
+void Connector::monitorConnection(const uint32_t max_connect_attempts,
+                                  const uint32_t connection_check_interval_s)
+{
+    checkConnectionInitialization();
+
+    if (!is_monitoring_) {
+        is_monitoring_ = true;
+        startMonitorTask(max_connect_attempts, connection_check_interval_s);
+
+        // If startMonitorTask exits because of an exception, rethrow it now.
+        // Avoid a race condition if the thread is stopped asynchronously by
+        // checking must_stop_monitoring_.
+        if (!must_stop_monitoring_ && monitor_exception_) {
+            std::rethrow_exception(monitor_exception_);
+        }
+    } else {
+        LOG_WARNING("The Monitoring Thread is already running");
+    }
+}
+
 // Send messages
 
 void Connector::send(const Message& msg)

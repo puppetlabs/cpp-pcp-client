@@ -163,6 +163,10 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// startMonitoring.
     void stopMonitoring();
 
+    /// A blocking version of startMonitoring.
+    void monitorConnection(const uint32_t max_connect_attempts = 0,
+                           const uint32_t connection_check_interval_s = 15);
+
     /// Send the specified message.
     /// Throw a connection_processing_error in case of failure;
     /// throw a connection_not_init_error in case the connection

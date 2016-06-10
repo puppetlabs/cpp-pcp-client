@@ -18,7 +18,7 @@ static constexpr uint32_t ASSOCIATION_TIMEOUT_S { 15 };
 static constexpr uint32_t ASSOCIATION_REQUEST_TTL_S { 10 };
 static constexpr uint32_t PONG_TIMEOUTS_BEFORE_RETRY { 3 };
 
-TEST_CASE("Connection::connect errors", "[connector]") {
+TEST_CASE("Connection::connect errors", "[connection]") {
     SECTION("throws a connection_processing_error if the broker url is "
             "not a valid WebSocket url") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
@@ -41,7 +41,7 @@ static void let_connection_stop(Connection const& connection, int timeout = 2)
     REQUIRE(connection.getConnectionState() != ConnectionState::open);
 }
 
-TEST_CASE("Connection::connect", "[connector]") {
+TEST_CASE("Connection::connect", "[connection]") {
     SECTION("successfully connects") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
                              getKeyPath(), WS_TIMEOUT, ASSOCIATION_TIMEOUT_S,
@@ -133,7 +133,7 @@ TEST_CASE("Connection::connect", "[connector]") {
     }
 }
 
-TEST_CASE("Connection::~Connection", "[connector]") {
+TEST_CASE("Connection::~Connection", "[connection]") {
     MockServer mock_server;
     bool connected = false;
     mock_server.set_open_handler([&connected](websocketpp::connection_hdl hdl) {
