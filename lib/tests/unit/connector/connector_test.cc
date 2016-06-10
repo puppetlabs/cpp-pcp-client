@@ -71,102 +71,18 @@ TEST_CASE("Connector::connect", "[connector]") {
     }
 }
 
-TEST_CASE("Connector::startMonitoring", "[connector]") {
+TEST_CASE("Connector's monitor task", "[connector]") {
+    bool use_blocking_call;
+
     SECTION("reconnects after the broker stops") {
-        std::unique_ptr<Connector> c_ptr;
-        uint16_t port;
-
-        {
-            MockServer mock_server;
-            bool connected = false;
-            mock_server.set_open_handler(
-                    [&connected](websocketpp::connection_hdl hdl) {
-                        connected = true;
-                    });
-            mock_server.go();
-            port = mock_server.port();
-
-            c_ptr.reset(new Connector("wss://localhost:" + std::to_string(port) + "/pcp",
-                                      "test_client",
-                                      getCaPath(), getCertPath(), getKeyPath(),
-                                      WS_TIMEOUT_MS, ASSOCIATION_TIMEOUT_S,
-                                      ASSOCIATION_REQUEST_TTL_S,
-                                      PONG_TIMEOUTS_BEFORE_RETRY));
-
-            REQUIRE_FALSE(connected);
-            REQUIRE_NOTHROW(c_ptr->connect(1));
-            REQUIRE(c_ptr->isConnected());
-            REQUIRE(connected);
-
-            // Infinite retries; 1 s between each WebSocket ping
-            REQUIRE_NOTHROW(c_ptr->startMonitoring(0, 1));
+        SECTION("when using NON blocking calls (start/stopMonitoring") {
+            use_blocking_call = false;
         }
 
-        // The broker does not exist anymore (RAII)
-        wait_for([&c_ptr](){return !c_ptr->isConnected();});
+        SECTION("when using blocking calls (monitorConnection and dtor)") {
+            use_blocking_call = true;
+        }
 
-        REQUIRE_FALSE(c_ptr->isConnected());
-
-        MockServer mock_server {port};
-        mock_server.go();
-
-        wait_for([&c_ptr](){return c_ptr->isConnected();});
-
-        REQUIRE(c_ptr->isConnected());
-
-        wait_for([&c_ptr](){return c_ptr->isAssociated();});
-
-        REQUIRE(c_ptr->isAssociated());
-
-        REQUIRE_NOTHROW(c_ptr->stopMonitoring());
-    }
-
-    SECTION("reconnects after 1 pong timeout") {
-        MockServer mock_server;
-        std::atomic<int> num_connections {0};
-        std::atomic<int> num_pings {0};
-        mock_server.set_open_handler(
-                [&num_connections](websocketpp::connection_hdl hdl) {
-                    ++num_connections;
-                });
-        mock_server.set_ping_handler(
-                [&num_pings](websocketpp::connection_hdl hdl, std::string) -> bool {
-                    ++num_pings;
-                    return false;
-                });
-        mock_server.go();
-        auto port = mock_server.port();
-
-        // Setting the pong timeout to 500 ms and the Association
-        // timeout to 1 s (Connector::connect will hang waiting for
-        // for the Association completion that won't happen because
-        // we'll be done as soon as num_connections > 1)
-        Connector c { "wss://localhost:" + std::to_string(port) + "/pcp",
-                      "test_client",
-                      getCaPath(), getCertPath(), getKeyPath(),
-                      WS_TIMEOUT_MS, 1, ASSOCIATION_REQUEST_TTL_S, 1, 500 };
-
-        REQUIRE(num_connections == 0);
-        REQUIRE(num_pings == 0);
-        REQUIRE_NOTHROW(c.connect(1));
-        REQUIRE(c.isConnected());
-        REQUIRE(num_connections == 1);
-
-        // Infinite retries; 1 s between each WebSocket ping
-        REQUIRE_NOTHROW(c.startMonitoring(0, 1));
-
-        // After 1 pong timeout, the Connector should close and reconnect
-        wait_for([&num_connections](){return num_connections > 1;}, 30);
-
-        REQUIRE(num_connections > 1);
-        REQUIRE(num_pings > 0);
-
-        REQUIRE_NOTHROW(c.stopMonitoring());
-    }
-}
-
-TEST_CASE("Connector::monitorConnection", "[connector]") {
-    SECTION("reconnects after the broker stops") {
         std::unique_ptr<Connector> c_ptr;
         uint16_t port;
         Util::thread monitor;
@@ -193,10 +109,15 @@ TEST_CASE("Connector::monitorConnection", "[connector]") {
             REQUIRE(c_ptr->isConnected());
             REQUIRE(connected);
 
-            // Infinite retries; 1 s between each WebSocket ping
-            monitor = Util::thread { [&]() {
-                REQUIRE_NOTHROW(c_ptr->monitorConnection(0, 1));
-            } };
+            // Monitor with infinite retries and 1 s between each WebSocket ping
+            if (use_blocking_call) {
+                monitor = Util::thread(
+                    [&]() {
+                        REQUIRE_NOTHROW(c_ptr->monitorConnection(0, 1));
+                    });
+            } else {
+                REQUIRE_NOTHROW(c_ptr->startMonitoring(0, 1));
+            }
         }
 
         // The broker does not exist anymore (RAII)
@@ -216,14 +137,30 @@ TEST_CASE("Connector::monitorConnection", "[connector]") {
         REQUIRE(c_ptr->isAssociated());
 
         REQUIRE_NOTHROW(c_ptr->stopMonitoring());
-        // Ensure monitoring halts completely before we attempt to destroy the connection.
-        // Otherwise destruction will attempt to cleanup the object before startMonitorTask
-        // has exited.
-        monitor.join();
+
+        if (use_blocking_call) {
+            if (monitor.joinable()) {
+                // Ensure monitoring halts completely before we attempt to
+                // destroy the connection. Otherwise destruction will attempt to
+                // cleanup the object before startMonitorTask has exited.
+                monitor.join();
+            } else {
+                FAIL("the monitor thread is not joinable");
+            }
+        }
     }
 
     SECTION("reconnects after 1 pong timeout") {
+        SECTION("when using NON blocking calls (start/stopMonitoring") {
+            use_blocking_call = false;
+        }
+
+        SECTION("when using blocking calls (monitorConnection and dtor)") {
+            use_blocking_call = true;
+        }
+
         MockServer mock_server;
+        Util::thread monitor;
         std::atomic<int> num_connections {0};
         std::atomic<int> num_pings {0};
         mock_server.set_open_handler(
@@ -253,10 +190,15 @@ TEST_CASE("Connector::monitorConnection", "[connector]") {
         REQUIRE(c.isConnected());
         REQUIRE(num_connections == 1);
 
-        // Infinite retries; 1 s between each WebSocket ping
-        Util::thread monitor { [&]() {
-            REQUIRE_NOTHROW(c.monitorConnection(0, 1));
-        } };
+        // Monitor with infinite retries and 1 s between each WebSocket ping
+        if (use_blocking_call) {
+            monitor = Util::thread(
+                [&]() {
+                    REQUIRE_NOTHROW(c.monitorConnection(0, 1));
+                });
+        } else {
+            REQUIRE_NOTHROW(c.startMonitoring(0, 1));
+        }
 
         // After 1 pong timeout, the Connector should close and reconnect
         wait_for([&num_connections](){return num_connections > 1;}, 30);
@@ -265,10 +207,17 @@ TEST_CASE("Connector::monitorConnection", "[connector]") {
         REQUIRE(num_pings > 0);
 
         REQUIRE_NOTHROW(c.stopMonitoring());
-        // Ensure monitoring halts completely before we attempt to destroy the connection.
-        // Otherwise destruction will attempt to cleanup the object before startMonitorTask
-        // has exited.
-        monitor.join();
+
+        if (use_blocking_call) {
+            if (monitor.joinable()) {
+                // Ensure monitoring halts completely before we attempt to
+                // destroy the connection. Otherwise destruction will attempt to
+                // cleanup the object before startMonitorTask has exited.
+                monitor.join();
+            } else {
+                FAIL("the monitor thread is not joinable");
+            }
+        }
     }
 }
 
