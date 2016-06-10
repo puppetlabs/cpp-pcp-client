@@ -23,6 +23,7 @@ static constexpr int WS_TIMEOUT_MS { 5000 };
 static constexpr uint32_t ASSOCIATION_TIMEOUT_S { 15 };
 static constexpr uint32_t ASSOCIATION_REQUEST_TTL_S { 10 };
 static constexpr uint32_t PONG_TIMEOUTS_BEFORE_RETRY { 3 };
+static constexpr uint32_t PONG_TIMEOUT { 30000 };
 
 TEST_CASE("Connector::Connector", "[connector]") {
     SECTION("can instantiate") {
@@ -30,7 +31,7 @@ TEST_CASE("Connector::Connector", "[connector]") {
                                   getCaPath(), getCertPath(), getKeyPath(),
                                   WS_TIMEOUT_MS,
                                   ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
-                                  PONG_TIMEOUTS_BEFORE_RETRY));
+                                  PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT));
     }
 }
 
@@ -57,7 +58,8 @@ TEST_CASE("Connector::connect", "[connector]") {
                       "test_client",
                       getCaPath(), getCertPath(), getKeyPath(),
                       WS_TIMEOUT_MS, ASSOCIATION_TIMEOUT_S,
-                      ASSOCIATION_REQUEST_TTL_S, PONG_TIMEOUTS_BEFORE_RETRY };
+                      ASSOCIATION_REQUEST_TTL_S,
+                      PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         REQUIRE_FALSE(connected);
         REQUIRE_NOTHROW(c.connect(1));
 
@@ -71,7 +73,7 @@ TEST_CASE("Connector::connect", "[connector]") {
     }
 }
 
-TEST_CASE("Connector's monitor task", "[connector]") {
+TEST_CASE("Connector Monitoring Task", "[connector]") {
     bool use_blocking_call;
 
     SECTION("reconnects after the broker stops") {
@@ -102,7 +104,7 @@ TEST_CASE("Connector's monitor task", "[connector]") {
                                       getCaPath(), getCertPath(), getKeyPath(),
                                       WS_TIMEOUT_MS, ASSOCIATION_TIMEOUT_S,
                                       ASSOCIATION_REQUEST_TTL_S,
-                                      PONG_TIMEOUTS_BEFORE_RETRY));
+                                      PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT));
 
             REQUIRE_FALSE(connected);
             REQUIRE_NOTHROW(c_ptr->connect(1));
@@ -112,7 +114,7 @@ TEST_CASE("Connector's monitor task", "[connector]") {
             // Monitor with infinite retries and 1 s between each WebSocket ping
             if (use_blocking_call) {
                 monitor = Util::thread(
-                    [&]() {
+                    [&c_ptr]() {
                         REQUIRE_NOTHROW(c_ptr->monitorConnection(0, 1));
                     });
             } else {
@@ -193,7 +195,7 @@ TEST_CASE("Connector's monitor task", "[connector]") {
         // Monitor with infinite retries and 1 s between each WebSocket ping
         if (use_blocking_call) {
             monitor = Util::thread(
-                [&]() {
+                [&c]() {
                     REQUIRE_NOTHROW(c.monitorConnection(0, 1));
                 });
         } else {
@@ -236,10 +238,6 @@ TEST_CASE("Connector's monitor task", "[connector]") {
                 [&connected](websocketpp::connection_hdl hdl) {
                     connected = true;
                 });
-        mock_server_ptr->set_ping_handler(
-                [](websocketpp::connection_hdl hdl, std::string) -> bool {
-                    return true;
-                });
         mock_server_ptr->go();
         auto port = mock_server_ptr->port();
 
@@ -247,7 +245,7 @@ TEST_CASE("Connector's monitor task", "[connector]") {
         Connector c { "wss://localhost:" + std::to_string(port) + "/pcp",
                       "test_client",
                       getCaPath(), getCertPath(), getKeyPath(),
-                      900, 1, ASSOCIATION_REQUEST_TTL_S, 1 };
+                      900, 1, ASSOCIATION_REQUEST_TTL_S, 1, PONG_TIMEOUT };
 
         REQUIRE_FALSE(connected);
         REQUIRE_NOTHROW(c.connect(1));
@@ -275,8 +273,12 @@ TEST_CASE("Connector's monitor task", "[connector]") {
         if (!use_blocking_call)
             REQUIRE_THROWS_AS(c.stopMonitoring(), connection_fatal_error);
 
-        if (use_blocking_call && monitor.joinable())
+        if (use_blocking_call && monitor.joinable()) {
+            // Ensure monitoring halts completely before we attempt to
+            // destroy the connection. Otherwise destruction will attempt to
+            // cleanup the object before startMonitorTask has exited
             monitor.join();
+        }
     }
 }
 
