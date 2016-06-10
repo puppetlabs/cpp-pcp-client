@@ -16,6 +16,7 @@
 #include <string>
 #include <map>
 #include <cstdint>
+#include <exception>
 
 namespace PCPClient {
 
@@ -59,6 +60,10 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
               uint32_t pong_timeouts_before_retry = 3,
               long ws_pong_timeout_ms = 30000);
 
+    /// Calls stopMonitorTaskAndWait if the monitoring thread is
+    /// still active. This can result in throwing, so to safely handle
+    /// any exceptions that occured in the monitoring thread, first
+    /// call stopMonitoring and catch exceptions from that.
     ~Connector();
 
     /// Throw a schema_redefinition_error if the specified schema has
@@ -141,7 +146,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// It is safe to call monitorConnection in a multithreading
     /// context; it will return as soon as the dtor has been invoked.
     ///
-    /// Throw a connection_fatal_error if, in case of dropped
+    /// Throws a connection_fatal_error if, in case of dropped
     /// underlying connection, it fails to re-connect after the
     /// specified maximum number of attempts.
     /// Throws a connection_not_init_error in case the connection has
@@ -154,7 +159,13 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     ///
     /// Throws a connection_not_init_error in case the connection has
     /// not been opened previously.
+    /// Also rethrows any exception that can be thrown by
+    /// startMonitoring.
     void stopMonitoring();
+
+    /// A blocking version of startMonitoring.
+    void monitorConnection(const uint32_t max_connect_attempts = 0,
+                           const uint32_t connection_check_interval_s = 15);
 
     /// Send the specified message.
     /// Throw a connection_processing_error in case of failure;
@@ -240,6 +251,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     Util::mutex monitor_mutex_;
     Util::condition_variable monitor_cond_var_;
     bool must_stop_monitoring_;
+    std::exception_ptr monitor_exception_;
 
     /// To manage the Associate Session process
     SessionAssociation session_association_;
@@ -288,6 +300,8 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
                           const uint32_t connection_check_interval_s);
 
     // Stop the monitoring thread and wait for it to terminate.
+    // Then rethrows any exceptions encountered while startMonitorTask
+    // was running in its own thread.
     void stopMonitorTaskAndWait();
 };
 

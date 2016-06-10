@@ -323,6 +323,26 @@ void Connector::stopMonitoring()
     }
 }
 
+void Connector::monitorConnection(const uint32_t max_connect_attempts,
+                                  const uint32_t connection_check_interval_s)
+{
+    checkConnectionInitialization();
+
+    if (!is_monitoring_) {
+        is_monitoring_ = true;
+        startMonitorTask(max_connect_attempts, connection_check_interval_s);
+
+        // If startMonitorTask exits because of an exception, rethrow it now.
+        // Avoid a race condition if the thread is stopped asynchronously by
+        // checking must_stop_monitoring_.
+        if (!must_stop_monitoring_ && monitor_exception_) {
+            std::rethrow_exception(monitor_exception_);
+        }
+    } else {
+        LOG_WARNING("The Monitoring Thread is already running");
+    }
+}
+
 // Send messages
 
 void Connector::send(const Message& msg)
@@ -688,6 +708,8 @@ void Connector::startMonitorTask(const uint32_t max_connect_attempts,
                                  const uint32_t connection_check_interval_s)
 {
     assert(connection_ptr_ != nullptr);
+    // Reset the exception, in case one was previously triggered and handled.
+    monitor_exception_ = {};
     LOG_INFO("Starting the monitor task");
     Util::chrono::system_clock::time_point now {};
     Util::unique_lock<Util::mutex> the_lock { monitor_mutex_ };
@@ -723,13 +745,18 @@ void Connector::startMonitorTask(const uint32_t max_connect_attempts,
             // Associate Session failure - stop
             LOG_WARNING("The connection monitor task will stop after an "
                         "Session Association failure: {1}", e.what());
-            is_monitoring_ = false;
-            throw;
+            monitor_exception_ = std::current_exception();
+            break;
         } catch (const connection_fatal_error& e) {
             // Failed to reconnect after max_connect_attempts - stop
             LOG_WARNING("The connection monitor task will stop: {1}", e.what());
-            is_monitoring_ = false;
-            throw;
+            monitor_exception_ = std::current_exception();
+            break;
+        } catch (...) {
+            // Make sure unexpected exceptions don't cause std::terminate yet,
+            // and can be handled by the caller.
+            monitor_exception_ = std::current_exception();
+            break;
         }
     }
 
@@ -746,6 +773,10 @@ void Connector::stopMonitorTaskAndWait() {
         monitor_thread_.join();
     } else {
         LOG_WARNING("The Monitoring Thread is not joinable");
+    }
+
+    if (monitor_exception_) {
+        std::rethrow_exception(monitor_exception_);
     }
 }
 
