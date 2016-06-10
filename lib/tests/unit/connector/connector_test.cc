@@ -219,6 +219,65 @@ TEST_CASE("Connector's monitor task", "[connector]") {
             }
         }
     }
+
+    SECTION("in case of an exception caught by the monitoring task") {
+        SECTION("when using NON blocking calls, stopMonitoring rethrows the exception") {
+            use_blocking_call = false;
+        }
+
+        SECTION("when using blocking calls, monitorConnection propagates the exception") {
+            use_blocking_call = true;
+        }
+
+        std::unique_ptr<MockServer> mock_server_ptr {new MockServer()};
+        Util::thread monitor;
+        bool connected {false};
+        mock_server_ptr->set_open_handler(
+                [&connected](websocketpp::connection_hdl hdl) {
+                    connected = true;
+                });
+        mock_server_ptr->set_ping_handler(
+                [](websocketpp::connection_hdl hdl, std::string) -> bool {
+                    return true;
+                });
+        mock_server_ptr->go();
+        auto port = mock_server_ptr->port();
+
+        // Setting pong timeout to 500 ms and Association timeout to 1 s
+        Connector c { "wss://localhost:" + std::to_string(port) + "/pcp",
+                      "test_client",
+                      getCaPath(), getCertPath(), getKeyPath(),
+                      900, 1, ASSOCIATION_REQUEST_TTL_S, 1 };
+
+        REQUIRE_FALSE(connected);
+        REQUIRE_NOTHROW(c.connect(1));
+        REQUIRE(c.isConnected());
+
+        // Monitor with 1 connection retry and 1 s between each WebSocket ping
+        if (use_blocking_call) {
+            monitor = Util::thread(
+                    [&]() {
+                        REQUIRE_THROWS_AS(c.monitorConnection(1, 1),
+                                          connection_fatal_error);
+                    });
+        } else {
+            REQUIRE_NOTHROW(c.startMonitoring(1, 1));
+        }
+
+        // Destroy the broker
+        mock_server_ptr.reset(nullptr);
+
+        // Wait for the connection to drop plus 3 seconds to let the monitor
+        // task fail (monitoring period is 1 s)
+        wait_for([&c](){return !c.isConnected();});
+        Util::this_thread::sleep_for(Util::chrono::seconds(3));
+
+        if (!use_blocking_call)
+            REQUIRE_THROWS_AS(c.stopMonitoring(), connection_fatal_error);
+
+        if (use_blocking_call && monitor.joinable())
+            monitor.join();
+    }
 }
 
 }  // namespace PCPClient
