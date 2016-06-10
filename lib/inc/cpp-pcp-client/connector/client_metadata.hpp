@@ -38,7 +38,7 @@ class LIBCPP_PCP_CLIENT_EXPORT ClientMetadata {
                    uint32_t _association_timeout_s,
                    uint32_t _association_request_ttl_s,
                    uint32_t _pong_timeouts_before_retry,
-                   long _pong_timeout_ms = 30);
+                   long _pong_timeout_ms);
 };
 
 }  // namespace PCPClient

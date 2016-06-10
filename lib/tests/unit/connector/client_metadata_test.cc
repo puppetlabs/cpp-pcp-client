@@ -31,13 +31,15 @@ static constexpr int WS_TIMEOUT { 5000 };
 static constexpr uint32_t ASSOCIATION_TIMEOUT_S { 15 };
 static constexpr uint32_t ASSOCIATION_REQUEST_TTL_S { 10 };
 static constexpr uint32_t PONG_TIMEOUTS_BEFORE_RETRY { 3 };
+static constexpr uint32_t PONG_TIMEOUT_MS { 10000 };
 
 TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("retrieves correctly the client common name from the certificate") {
         std::string type { "test" };
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(),
-                             WS_TIMEOUT, ASSOCIATION_TIMEOUT_S,
-                             ASSOCIATION_REQUEST_TTL_S, PONG_TIMEOUTS_BEFORE_RETRY };
+                             WS_TIMEOUT,
+                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
+                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
 
         REQUIRE(c_m.common_name == "localhost");
     }
@@ -45,8 +47,9 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("determines correctly the client URI") {
         std::string type { "test" };
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(),
-                             WS_TIMEOUT, ASSOCIATION_TIMEOUT_S,
-                             ASSOCIATION_REQUEST_TTL_S, PONG_TIMEOUTS_BEFORE_RETRY };
+                             WS_TIMEOUT,
+                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
+                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
         std::string expected_uri { "pcp://localhost/" + type };
 
         REQUIRE(c_m.uri == expected_uri);
@@ -58,7 +61,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
                                          getNotExistentFilePath(), getKeyPath(),
                                          WS_TIMEOUT, ASSOCIATION_TIMEOUT_S,
                                          ASSOCIATION_REQUEST_TTL_S,
-                                         PONG_TIMEOUTS_BEFORE_RETRY),
+                                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS),
                           connection_config_error);
     }
 
@@ -68,7 +71,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
                                          getKeyPath(),
                                          WS_TIMEOUT, ASSOCIATION_TIMEOUT_S,
                                          ASSOCIATION_REQUEST_TTL_S,
-                                         PONG_TIMEOUTS_BEFORE_RETRY),
+                                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS),
                           connection_config_error);
     }
 }
