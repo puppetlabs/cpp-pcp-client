@@ -5,11 +5,16 @@
 #include <cpp-pcp-client/connector/client_metadata.hpp>
 #include <cpp-pcp-client/connector/session_association.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
+#include <cpp-pcp-client/connector/timings.hpp>
+
 #include <cpp-pcp-client/validator/validator.hpp>
 #include <cpp-pcp-client/validator/schema.hpp>
+
 #include <cpp-pcp-client/protocol/chunks.hpp>
 #include <cpp-pcp-client/protocol/message.hpp>
+
 #include <cpp-pcp-client/util/thread.hpp>
+
 #include <cpp-pcp-client/export.h>
 
 #include <memory>
