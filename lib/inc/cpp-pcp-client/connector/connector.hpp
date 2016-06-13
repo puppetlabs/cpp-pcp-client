@@ -135,6 +135,11 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// then, false otherwise.
     bool isAssociated() const;
 
+    /// Returns the connection timings of the underlying connection
+    /// if established, otherwise the ConnectionTimings' default
+    /// constructor.
+    ConnectionTimings getConnectionTimings() const;
+
     /// Starts the Monitoring Task in a separate thread.
     /// Such task will periodically check the state of the
     /// underlying connection and re-establish it in case it has

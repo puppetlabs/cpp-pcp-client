@@ -1,6 +1,8 @@
 #ifndef CPP_PCP_CLIENT_SRC_CONNECTOR_TIMINGS_H_
 #define CPP_PCP_CLIENT_SRC_CONNECTOR_TIMINGS_H_
 
+#include <cpp-pcp-client/export.h>
+
 #include <boost/chrono/chrono.hpp>
 
 #include <string>
@@ -11,8 +13,7 @@ namespace PCPClient {
 // ConnectionTimings
 //
 
-class ConnectionTimings {
-  public:
+struct LIBCPP_PCP_CLIENT_EXPORT ConnectionTimings {
     using Duration_us = boost::chrono::duration<int, boost::micro>;
 
     boost::chrono::high_resolution_clock::time_point start;
@@ -24,7 +25,9 @@ class ConnectionTimings {
     bool connection_started { false };
     bool connection_failed { false };
 
-    ConnectionTimings();
+    /// Sets the `start` time_point member to the current instant,
+    /// the other time_points to epoch, and the flags to false
+    void reset();
 
     /// Time interval to establish the TCP connection [us]
     Duration_us getTCPInterval() const;

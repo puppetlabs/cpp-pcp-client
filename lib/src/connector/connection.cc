@@ -64,7 +64,8 @@ Connection::Connection(std::string broker_ws_uri,
 
 Connection::Connection(std::vector<std::string> broker_ws_uris,
                        ClientMetadata client_metadata)
-        : broker_ws_uris_ { std::move(broker_ws_uris) },
+        : timings {},
+          broker_ws_uris_ { std::move(broker_ws_uris) },
           client_metadata_ { std::move(client_metadata) },
           connection_state_ { ConnectionState::initialized },
           connection_target_index_ { 0u },
@@ -364,7 +365,7 @@ void Connection::cleanUp()
 void Connection::connect_()
 {
     connection_state_ = ConnectionState::connecting;
-    connection_timings_ = ConnectionTimings();
+    timings.reset();
     websocketpp::lib::error_code ec;
     auto ws_uri = getWsUri();
     WS_Client_Type::connection_ptr connection_ptr {
@@ -479,21 +480,21 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl)
 void Connection::onClose(WS_Connection_Handle hdl)
 {
     Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
-    connection_timings_.close = Util::chrono::high_resolution_clock::now();
+    timings.close = Util::chrono::high_resolution_clock::now();
     auto con = endpoint_->get_con_from_hdl(hdl);
     LOG_DEBUG("WebSocket on close event: {1} (code: {2}) - {3}",
               con->get_ec().message(), con->get_remote_close_code(),
-              connection_timings_.toString());
+              timings.toString());
     connection_state_ = ConnectionState::closed;
 }
 
 void Connection::onFail(WS_Connection_Handle hdl)
 {
     Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
-    connection_timings_.close = Util::chrono::high_resolution_clock::now();
-    connection_timings_.connection_failed = true;
+    timings.close = Util::chrono::high_resolution_clock::now();
+    timings.connection_failed = true;
     auto con = endpoint_->get_con_from_hdl(hdl);
-    LOG_DEBUG("WebSocket on fail event - {1}", connection_timings_.toString());
+    LOG_DEBUG("WebSocket on fail event - {1}", timings.toString());
     LOG_WARNING("WebSocket on fail event (connection loss): {1} (code: {2})",
                 con->get_ec().message(), con->get_remote_close_code());
     connection_state_ = ConnectionState::closed;
@@ -532,20 +533,20 @@ void Connection::onPongTimeout(WS_Connection_Handle hdl,
 
 void Connection::onPreTCPInit(WS_Connection_Handle hdl)
 {
-    connection_timings_.tcp_pre_init = Util::chrono::high_resolution_clock::now();
+    timings.tcp_pre_init = Util::chrono::high_resolution_clock::now();
     LOG_TRACE("WebSocket pre-TCP initialization event");
 }
 
 void Connection::onPostTCPInit(WS_Connection_Handle hdl)
 {
-    connection_timings_.tcp_post_init = Util::chrono::high_resolution_clock::now();
+    timings.tcp_post_init = Util::chrono::high_resolution_clock::now();
     LOG_TRACE("WebSocket post-TCP initialization event");
 }
 
 void Connection::onOpen(WS_Connection_Handle hdl) {
-    connection_timings_.open = Util::chrono::high_resolution_clock::now();
-    connection_timings_.connection_started = true;
-    LOG_DEBUG("WebSocket on open event - {1}", connection_timings_.toString());
+    timings.open = Util::chrono::high_resolution_clock::now();
+    timings.connection_started = true;
+    LOG_DEBUG("WebSocket on open event - {1}", timings.toString());
     LOG_INFO("Successfully established a WebSocket connection with the PCP "
              "broker at {1}", getWsUri());
     connection_state_ = ConnectionState::open;

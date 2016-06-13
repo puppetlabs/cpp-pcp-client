@@ -5,8 +5,12 @@
 #include <cpp-pcp-client/connector/connection.hpp>
 #include <cpp-pcp-client/connector/client_metadata.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
+#include <cpp-pcp-client/connector/timings.hpp>
+
 #include <cpp-pcp-client/util/chrono.hpp>
+
 #include <leatherman/util/timer.hpp>
+
 #include <memory>
 
 namespace PCPClient {
@@ -31,6 +35,35 @@ TEST_CASE("Connection::connect errors", "[connection]") {
 
         REQUIRE_THROWS_AS(connection.connect(),
                           connection_processing_error);
+    }
+}
+
+TEST_CASE("Connection timings", "[connection]") {
+    ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
+                         getKeyPath(), WS_TIMEOUT,
+                         ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
+                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+
+    SECTION("can stringify timings") {
+        Connection connection { "wss://localhost:8142/pcp", c_m };
+        REQUIRE_NOTHROW(connection.timings.toString());
+    }
+
+    SECTION("WebSocket timings are retrieved") {
+        auto start = boost::chrono::high_resolution_clock::now();
+        MockServer mock_server;
+        mock_server.go();
+        Connection connection {
+            "wss://localhost:" + std::to_string(mock_server.port()) + "/pcp", c_m };
+        connection.connect(1);
+        auto tot = boost::chrono::duration_cast<ConnectionTimings::Duration_us>(
+                boost::chrono::high_resolution_clock::now() - start);
+        auto duration_zero = boost::chrono::high_resolution_clock::duration::zero();
+
+        REQUIRE(duration_zero < connection.timings.getTCPInterval());
+        REQUIRE(duration_zero < connection.timings.getHandshakeInterval());
+        REQUIRE(duration_zero < connection.timings.getWebSocketInterval());
+        REQUIRE(connection.timings.getWebSocketInterval() < tot);
     }
 }
 
