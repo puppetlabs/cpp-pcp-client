@@ -43,6 +43,26 @@ static void wait_for(std::function<bool()> func, uint16_t pause_s = 2)
         Util::this_thread::sleep_for(Util::chrono::milliseconds(1));
 }
 
+TEST_CASE("Connector::getConnectionTimings", "[connector]") {
+    Connector c { "wss://localhost:8142/pcp",
+                  "test_client",
+                  getCaPath(), getCertPath(), getKeyPath(),
+                  WS_TIMEOUT_MS, ASSOCIATION_TIMEOUT_S,
+                  ASSOCIATION_REQUEST_TTL_S,
+                  PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
+
+    SECTION("can get WebSocket timings from the Connection instance") {
+        REQUIRE_NOTHROW(c.getConnectionTimings());
+    }
+
+    SECTION("timings will say if the connection was not established") {
+        auto timings = c.getConnectionTimings();
+
+        REQUIRE_FALSE(timings.connection_started);
+        REQUIRE_FALSE(timings.connection_failed);
+    }
+}
+
 TEST_CASE("Connector::connect", "[connector]") {
     MockServer mock_server;
     bool connected = false;
@@ -68,8 +88,11 @@ TEST_CASE("Connector::connect", "[connector]") {
         REQUIRE(connected);
 
         wait_for([&c](){return c.isAssociated();});
+        auto ws_i = c.getConnectionTimings().getWebSocketInterval();
 
         REQUIRE(c.isAssociated());
+
+        REQUIRE(boost::chrono::high_resolution_clock::duration::zero() < ws_i);
     }
 }
 

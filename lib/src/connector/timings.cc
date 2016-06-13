@@ -6,8 +6,19 @@ namespace PCPClient {
 
 namespace lth_loc = leatherman::locale;
 
-ConnectionTimings::ConnectionTimings()
-        : start { boost::chrono::high_resolution_clock::now() } {
+//
+// ConnectionTimings
+//
+
+void ConnectionTimings::reset()
+{
+    start         = boost::chrono::high_resolution_clock::now();
+    tcp_pre_init  = boost::chrono::high_resolution_clock::time_point();
+    tcp_post_init = boost::chrono::high_resolution_clock::time_point();
+    open          = boost::chrono::high_resolution_clock::time_point();
+    close         = boost::chrono::high_resolution_clock::time_point();
+    connection_started = false;
+    connection_failed  = false;
 }
 
 ConnectionTimings::Duration_us ConnectionTimings::getTCPInterval() const {

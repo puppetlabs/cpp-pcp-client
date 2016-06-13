@@ -5,11 +5,16 @@
 #include <cpp-pcp-client/connector/client_metadata.hpp>
 #include <cpp-pcp-client/connector/session_association.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
+#include <cpp-pcp-client/connector/timings.hpp>
+
 #include <cpp-pcp-client/validator/validator.hpp>
 #include <cpp-pcp-client/validator/schema.hpp>
+
 #include <cpp-pcp-client/protocol/chunks.hpp>
 #include <cpp-pcp-client/protocol/message.hpp>
+
 #include <cpp-pcp-client/util/thread.hpp>
+
 #include <cpp-pcp-client/export.h>
 
 #include <memory>
@@ -129,6 +134,11 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// received and the underlying connection did not drop since
     /// then, false otherwise.
     bool isAssociated() const;
+
+    /// Returns the connection timings of the underlying connection
+    /// if established, otherwise the ConnectionTimings' default
+    /// constructor.
+    ConnectionTimings getConnectionTimings() const;
 
     /// Starts the Monitoring Task in a separate thread.
     /// Such task will periodically check the state of the

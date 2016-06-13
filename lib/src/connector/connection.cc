@@ -64,7 +64,8 @@ Connection::Connection(std::string broker_ws_uri,
 
 Connection::Connection(std::vector<std::string> broker_ws_uris,
                        ClientMetadata client_metadata)
-        : broker_ws_uris_ { std::move(broker_ws_uris) },
+        : timings {},
+          broker_ws_uris_ { std::move(broker_ws_uris) },
           client_metadata_ { std::move(client_metadata) },
           connection_state_ { ConnectionState::initialized },
           connection_target_index_ { 0u },
@@ -120,11 +121,13 @@ Connection::Connection(std::vector<std::string> broker_ws_uris,
     }
 }
 
-Connection::~Connection() {
+Connection::~Connection()
+{
     cleanUp();
 }
 
-ConnectionState Connection::getConnectionState() const {
+ConnectionState Connection::getConnectionState() const
+{
     return connection_state_.load();
 }
 
@@ -132,15 +135,18 @@ ConnectionState Connection::getConnectionState() const {
 // Callback modifiers
 //
 
-void Connection::setOnOpenCallback(std::function<void()> c_b) {
+void Connection::setOnOpenCallback(std::function<void()> c_b)
+{
     onOpen_callback = c_b;
 }
 
-void Connection::setOnMessageCallback(std::function<void(std::string msg)> c_b) {
+void Connection::setOnMessageCallback(std::function<void(std::string msg)> c_b)
+{
     onMessage_callback_ = c_b;
 }
 
-void Connection::resetCallbacks() {
+void Connection::resetCallbacks()
+{
     onOpen_callback = [](){};  // NOLINT [false positive readability/braces]
     onMessage_callback_ = [](std::string message){};  // NOLINT [false positive readability/braces]
 }
@@ -149,11 +155,13 @@ void Connection::resetCallbacks() {
 // Synchronous calls
 //
 
-inline static void doSleep(int ms = CONNECTION_MIN_INTERVAL_MS) {
+inline static void doSleep(int ms = CONNECTION_MIN_INTERVAL_MS)
+{
     Util::this_thread::sleep_for(Util::chrono::milliseconds(ms));
 }
 
-void Connection::connect(int max_connect_attempts) {
+void Connection::connect(int max_connect_attempts)
+{
     // FSM
     //  - states are ConnectionState:
     //      * initialized - connecting - open - closing - closed
@@ -233,7 +241,8 @@ void Connection::connect(int max_connect_attempts) {
     throw connection_fatal_error { msg };
 }
 
-void Connection::send(const std::string& msg) {
+void Connection::send(const std::string& msg)
+{
     websocketpp::lib::error_code ec;
     endpoint_->send(connection_handle_,
                     msg,
@@ -244,7 +253,8 @@ void Connection::send(const std::string& msg) {
             lth_loc::format("failed to send message: {1}", ec.message()) };
 }
 
-void Connection::send(void* const serialized_msg_ptr, size_t msg_len) {
+void Connection::send(void* const serialized_msg_ptr, size_t msg_len)
+{
     websocketpp::lib::error_code ec;
     endpoint_->send(connection_handle_,
                     serialized_msg_ptr,
@@ -256,7 +266,8 @@ void Connection::send(void* const serialized_msg_ptr, size_t msg_len) {
             lth_loc::format("failed to send message: {1}", ec.message()) };
 }
 
-void Connection::ping(const std::string& binary_payload) {
+void Connection::ping(const std::string& binary_payload)
+{
     websocketpp::lib::error_code ec;
     endpoint_->ping(connection_handle_, binary_payload, ec);
     if (ec)
@@ -265,7 +276,8 @@ void Connection::ping(const std::string& binary_payload) {
                             ec.message()) };
 }
 
-void Connection::close(CloseCode code, const std::string& reason) {
+void Connection::close(CloseCode code, const std::string& reason)
+{
     LOG_DEBUG("About to close the WebSocket connection");
     Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
     auto c_s = connection_state_.load();
@@ -284,7 +296,8 @@ void Connection::close(CloseCode code, const std::string& reason) {
 // Private interface
 //
 
-void Connection::connectAndWait() {
+void Connection::connectAndWait()
+{
     connect_();
     lth_util::Timer timer {};
     while (connection_state_.load() != ConnectionState::open
@@ -293,7 +306,8 @@ void Connection::connectAndWait() {
     }
 }
 
-void Connection::tryClose() {
+void Connection::tryClose()
+{
     try {
         close();
     } catch (connection_processing_error& e) {
@@ -301,7 +315,8 @@ void Connection::tryClose() {
     }
 }
 
-void Connection::cleanUp() {
+void Connection::cleanUp()
+{
     auto c_s = connection_state_.load();
 
     switch (c_s) {
@@ -347,9 +362,10 @@ void Connection::cleanUp() {
         endpoint_thread_->join();
 }
 
-void Connection::connect_() {
+void Connection::connect_()
+{
     connection_state_ = ConnectionState::connecting;
-    connection_timings_ = ConnectionTimings();
+    timings.reset();
     websocketpp::lib::error_code ec;
     auto ws_uri = getWsUri();
     WS_Client_Type::connection_ptr connection_ptr {
@@ -373,12 +389,14 @@ void Connection::connect_() {
     }
 }
 
-std::string const& Connection::getWsUri() {
+std::string const& Connection::getWsUri()
+{
     auto c_t = connection_target_index_.load();
     return broker_ws_uris_[c_t % broker_ws_uris_.size()];
 }
 
-void Connection::switchWsUri() {
+void Connection::switchWsUri()
+{
     auto old_t = getWsUri();
     ++connection_target_index_;
     auto current_t = getWsUri();
@@ -392,7 +410,8 @@ void Connection::switchWsUri() {
 //
 
 template <typename Verifier>
-class verbose_verification {
+class verbose_verification
+{
   public:
     verbose_verification(Verifier verifier)
             : verifier_(verifier)
@@ -422,7 +441,8 @@ make_verbose_verification(Verifier verifier)
   return verbose_verification<Verifier>(verifier);
 }
 
-WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
+WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl)
+{
     LOG_DEBUG("WebSocket TLS initialization event; about to validate the certificate");
     // NB: for TLS certificates, refer to:
     // www.boost.org/doc/libs/1_56_0/doc/html/boost_asio/reference/ssl__context.html
@@ -457,34 +477,38 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
     return ctx;
 }
 
-void Connection::onClose(WS_Connection_Handle hdl) {
+void Connection::onClose(WS_Connection_Handle hdl)
+{
     Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
-    connection_timings_.close = Util::chrono::high_resolution_clock::now();
+    timings.close = Util::chrono::high_resolution_clock::now();
     auto con = endpoint_->get_con_from_hdl(hdl);
     LOG_DEBUG("WebSocket on close event: {1} (code: {2}) - {3}",
               con->get_ec().message(), con->get_remote_close_code(),
-              connection_timings_.toString());
+              timings.toString());
     connection_state_ = ConnectionState::closed;
 }
 
-void Connection::onFail(WS_Connection_Handle hdl) {
+void Connection::onFail(WS_Connection_Handle hdl)
+{
     Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
-    connection_timings_.close = Util::chrono::high_resolution_clock::now();
-    connection_timings_.connection_failed = true;
+    timings.close = Util::chrono::high_resolution_clock::now();
+    timings.connection_failed = true;
     auto con = endpoint_->get_con_from_hdl(hdl);
-    LOG_DEBUG("WebSocket on fail event - {1}", connection_timings_.toString());
+    LOG_DEBUG("WebSocket on fail event - {1}", timings.toString());
     LOG_WARNING("WebSocket on fail event (connection loss): {1} (code: {2})",
                 con->get_ec().message(), con->get_remote_close_code());
     connection_state_ = ConnectionState::closed;
 }
 
-bool Connection::onPing(WS_Connection_Handle hdl, std::string binary_payload) {
+bool Connection::onPing(WS_Connection_Handle hdl, std::string binary_payload)
+{
     LOG_TRACE("WebSocket onPing event - payload: {1}", binary_payload);
     // Returning true so the transport layer will send back a pong
     return true;
 }
 
-void Connection::onPong(WS_Connection_Handle hdl, std::string binary_payload) {
+void Connection::onPong(WS_Connection_Handle hdl, std::string binary_payload)
+{
     LOG_DEBUG("WebSocket onPong event");
     if (consecutive_pong_timeouts_) {
         consecutive_pong_timeouts_ = 0;
@@ -492,7 +516,8 @@ void Connection::onPong(WS_Connection_Handle hdl, std::string binary_payload) {
 }
 
 void Connection::onPongTimeout(WS_Connection_Handle hdl,
-                               std::string binary_payload) {
+                               std::string binary_payload)
+{
     ++consecutive_pong_timeouts_;
     if (consecutive_pong_timeouts_ >= client_metadata_.pong_timeouts_before_retry) {
         LOG_WARNING("WebSocket onPongTimeout event ({1} consecutive); "
@@ -506,20 +531,22 @@ void Connection::onPongTimeout(WS_Connection_Handle hdl,
     }
 }
 
-void Connection::onPreTCPInit(WS_Connection_Handle hdl) {
-    connection_timings_.tcp_pre_init = Util::chrono::high_resolution_clock::now();
+void Connection::onPreTCPInit(WS_Connection_Handle hdl)
+{
+    timings.tcp_pre_init = Util::chrono::high_resolution_clock::now();
     LOG_TRACE("WebSocket pre-TCP initialization event");
 }
 
-void Connection::onPostTCPInit(WS_Connection_Handle hdl) {
-    connection_timings_.tcp_post_init = Util::chrono::high_resolution_clock::now();
+void Connection::onPostTCPInit(WS_Connection_Handle hdl)
+{
+    timings.tcp_post_init = Util::chrono::high_resolution_clock::now();
     LOG_TRACE("WebSocket post-TCP initialization event");
 }
 
 void Connection::onOpen(WS_Connection_Handle hdl) {
-    connection_timings_.open = Util::chrono::high_resolution_clock::now();
-    connection_timings_.connection_started = true;
-    LOG_DEBUG("WebSocket on open event - {1}", connection_timings_.toString());
+    timings.open = Util::chrono::high_resolution_clock::now();
+    timings.connection_started = true;
+    LOG_DEBUG("WebSocket on open event - {1}", timings.toString());
     LOG_INFO("Successfully established a WebSocket connection with the PCP "
              "broker at {1}", getWsUri());
     connection_state_ = ConnectionState::open;
@@ -541,7 +568,8 @@ void Connection::onOpen(WS_Connection_Handle hdl) {
 }
 
 void Connection::onMessage(WS_Connection_Handle hdl,
-                           WS_Client_Type::message_ptr msg) {
+                           WS_Client_Type::message_ptr msg)
+{
     if (onMessage_callback_) {
         try {
             // NB: on_message_callback_ should not raise; in case of

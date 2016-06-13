@@ -305,6 +305,11 @@ bool Connector::isAssociated() const
     return isConnected() && session_association_.success.load();
 }
 
+ConnectionTimings Connector::getConnectionTimings() const
+{
+    return (connection_ptr_ == nullptr ? ConnectionTimings() : connection_ptr_->timings);
+}
+
 void Connector::startMonitoring(const uint32_t max_connect_attempts,
                                 const uint32_t connection_check_interval_s)
 {

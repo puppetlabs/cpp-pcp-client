@@ -90,6 +90,9 @@ using CloseCode = CloseCodeValues::value_;
 
 class LIBCPP_PCP_CLIENT_EXPORT Connection {
   public:
+    /// To keep track of WebSocket timings
+    ConnectionTimings timings;
+
     /// The Connection class provides the necessary logic to establish
     /// and use a PCP connection over WebSocket.
     /// The constructor throws an connection_config_error if it fails
@@ -183,9 +186,6 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
 
     /// Exponential backoff interval for re-connect
     uint32_t connection_backoff_ms_ { CONNECTION_BACKOFF_MS };
-
-    /// Keep track of connection timings
-    ConnectionTimings connection_timings_;
 
     /// To manage the connection state
     Util::mutex state_mutex_;
