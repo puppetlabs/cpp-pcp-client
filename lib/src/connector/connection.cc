@@ -137,7 +137,7 @@ ConnectionState Connection::getConnectionState() const
 
 void Connection::setOnOpenCallback(std::function<void()> c_b)
 {
-    onOpen_callback = c_b;
+    onOpen_callback_ = c_b;
 }
 
 void Connection::setOnMessageCallback(std::function<void(std::string msg)> c_b)
@@ -147,7 +147,7 @@ void Connection::setOnMessageCallback(std::function<void(std::string msg)> c_b)
 
 void Connection::resetCallbacks()
 {
-    onOpen_callback = [](){};  // NOLINT [false positive readability/braces]
+    onOpen_callback_    = [](){};  // NOLINT [false positive readability/braces]
     onMessage_callback_ = [](std::string message){};  // NOLINT [false positive readability/braces]
 }
 
@@ -551,9 +551,9 @@ void Connection::onOpen(WS_Connection_Handle hdl) {
              "broker at {1}", getWsUri());
     connection_state_ = ConnectionState::open;
 
-    if (onOpen_callback) {
+    if (onOpen_callback_) {
         try {
-            onOpen_callback();
+            onOpen_callback_();
             return;
         } catch (std::exception&  e) {
             LOG_ERROR("onOpen callback failure: {1}; closing the "

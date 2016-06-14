@@ -179,9 +179,9 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     std::shared_ptr<Util::thread> endpoint_thread_;
 
     // Callback function called by the onOpen handler.
-    std::function<void()> onOpen_callback;
 
     /// Callback function executed by the onMessage handler
+    std::function<void()> onOpen_callback_;
     std::function<void(const std::string& message)> onMessage_callback_;
 
     /// Exponential backoff interval for re-connect
