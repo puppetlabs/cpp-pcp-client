@@ -92,7 +92,7 @@ TEST_CASE("Connector::connect", "[connector]") {
 
         REQUIRE(c.isAssociated());
 
-        REQUIRE(boost::chrono::high_resolution_clock::duration::zero() < ws_i);
+        REQUIRE(ConnectionTimings::Duration_us::zero() < ws_i);
     }
 }
 
