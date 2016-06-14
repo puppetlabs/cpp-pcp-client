@@ -140,15 +140,27 @@ void Connection::setOnOpenCallback(std::function<void()> c_b)
     onOpen_callback_ = c_b;
 }
 
-void Connection::setOnMessageCallback(std::function<void(std::string msg)> c_b)
+void Connection::setOnMessageCallback(std::function<void(const std::string& msg)> c_b)
 {
     onMessage_callback_ = c_b;
+}
+
+void Connection::setOnCloseCallback(std::function<void()> c_b)
+{
+    onClose_callback_ = c_b;
+}
+
+void Connection::setOnFailCallback(std::function<void()> c_b)
+{
+    onFail_callback_ = c_b;
 }
 
 void Connection::resetCallbacks()
 {
     onOpen_callback_    = [](){};  // NOLINT [false positive readability/braces]
     onMessage_callback_ = [](std::string message){};  // NOLINT [false positive readability/braces]
+    onClose_callback_   = [](){};  // NOLINT [false positive readability/braces]
+    onFail_callback_    = [](){};  // NOLINT [false positive readability/braces]
 }
 
 //
@@ -486,6 +498,16 @@ void Connection::onClose(WS_Connection_Handle hdl)
               con->get_ec().message(), con->get_remote_close_code(),
               timings.toString());
     connection_state_ = ConnectionState::closed;
+
+    if (onClose_callback_) {
+        try {
+            onClose_callback_();
+        } catch (std::exception&  e) {
+            LOG_ERROR("onClose WebSocket callback failure: {1}", e.what());
+        } catch (...) {
+            LOG_ERROR("onClose WebSocket callback failure: unexpected error");
+        }
+    }
 }
 
 void Connection::onFail(WS_Connection_Handle hdl)
@@ -498,6 +520,16 @@ void Connection::onFail(WS_Connection_Handle hdl)
     LOG_WARNING("WebSocket on fail event (connection loss): {1} (code: {2})",
                 con->get_ec().message(), con->get_remote_close_code());
     connection_state_ = ConnectionState::closed;
+
+    if (onFail_callback_) {
+        try {
+            onFail_callback_();
+        } catch (std::exception&  e) {
+            LOG_ERROR("onFail WebSocket callback failure: {1}", e.what());
+        } catch (...) {
+            LOG_ERROR("onFail WebSocket callback failure: unexpected error");
+        }
+    }
 }
 
 bool Connection::onPing(WS_Connection_Handle hdl, std::string binary_payload)

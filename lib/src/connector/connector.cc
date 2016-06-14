@@ -185,6 +185,16 @@ void Connector::connect(int max_connect_attempts)
             [this]() {
                 associateSession();
             });
+
+        connection_ptr_->setOnCloseCallback(
+            [this]() {
+                closeAssociationTimings();
+            });
+
+        connection_ptr_->setOnFailCallback(
+            [this]() {
+                closeAssociationTimings();
+            });
     }
 
     // Check the state of the Connection instance, to avoid waiting
@@ -259,37 +269,51 @@ void Connector::connect(int max_connect_attempts)
                         || session_association_.got_messaging_failure.load();
             });
 
+        // Look for failures
         if (session_association_.got_messaging_failure.load()) {
+            association_timings_.setCompleted(false);
             LOG_DEBUG("It seems that an error occurred during the Session "
-                      "Association ({1})",
+                      "Association ({1}) - {2}",
                       (session_association_.error.empty()
                             ? lth_loc::translate("undetermined error")
-                            : session_association_.error));
+                            : session_association_.error),
+                       association_timings_.toString());
             session_association_.reset();
             throw connection_association_error {
                 lth_loc::translate("invalid Associate Session response") };
         }
         if (session_association_.in_progress.load()) {
+            // HERE(ale): don't set the associate_timings_ completion
+            // as we can't be sure whether the request was sent
             LOG_DEBUG("Associate Session timed out");
             session_association_.reset();
             throw connection_association_error {
                 lth_loc::translate("operation timeout") };
         }
         if (!session_association_.success.load()) {
+            association_timings_.setCompleted(false);
+            LOG_DEBUG(association_timings_.toString());
             std::string msg { lth_loc::translate("Associate Session failure") };
-            LOG_DEBUG(msg);
             if (!session_association_.error.empty())
                 msg += ": " + session_association_.error;
             session_association_.reset();
             throw connection_association_response_failure { msg };
         }
+
+        // Success!
+        association_timings_.setCompleted();
+        LOG_DEBUG(association_timings_.toString(false));
     } catch (const connection_processing_error& e) {
         // NB: connection_fatal_errors (can't connect after n tries)
         //     and _config_errors (TLS initialization error) are
         //     propagated whereas _processing_errors must be converted
         //     to _config_errors (they can be thrown after the
         //     synchronous call websocketpp::Endpoint::connect())
-        LOG_DEBUG("Failed to establish the WebSocket connection: {1}", e.what());
+        LOG_DEBUG("Failed to establish the WebSocket connection ({1})", e.what());
+
+        // NB: We don't update the association_timings here as we
+        // can't be sure that the Association request was sent
+        association_timings_.setCompleted(false);
         throw connection_config_error { e.what() };
     }
 }
@@ -308,6 +332,11 @@ bool Connector::isAssociated() const
 ConnectionTimings Connector::getConnectionTimings() const
 {
     return (connection_ptr_ == nullptr ? ConnectionTimings() : connection_ptr_->timings);
+}
+
+AssociationTimings Connector::getAssociationTimings() const
+{
+    return association_timings_;
 }
 
 void Connector::startMonitoring(const uint32_t max_connect_attempts,
@@ -501,20 +530,27 @@ std::string Connector::sendMessage(const std::vector<std::string>& targets,
     return msg_id;
 }
 
-// WebSocket onOpen callback - will send the associate session request
+//
+// Callbacks
+//
+
+// WebSocket - onOpen callback (will send the PCP Associate Session request)
 
 void Connector::associateSession()
 {
     Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
 
     if (!session_association_.in_progress.load())
-        LOG_DEBUG("About to send Associate Session request; unexpectedly the "
-                  "Connector does not seem to be in the associating state");
+        LOG_DEBUG("About to send the Associate Session request; unexpectedly the "
+                  "Connector does not seem to be in the associating state. "
+                  "Note that the Association timings will be reset.");
 
     session_association_.got_messaging_failure = false;
     session_association_.error.clear();
+    association_timings_.reset();
 
     // Envelope
+    // NB: createEnvelope will update session_association_.request_id
     auto envelope = createEnvelope(std::vector<std::string> { MY_BROKER_URI },
                                    Protocol::ASSOCIATE_REQ_TYPE,
                                    client_metadata_.association_timeout_s,
@@ -531,7 +567,7 @@ void Connector::associateSession()
     send(msg);
 }
 
-// WebSocket onMessage callback
+// WebSocket - onMessage callback
 
 void Connector::processMessage(const std::string& msg_txt)
 {
@@ -594,7 +630,17 @@ void Connector::processMessage(const std::string& msg_txt)
     }
 }
 
-// Associate session response callback
+// WebSocket - onFail & onClose callback
+
+void Connector::closeAssociationTimings()
+{
+    if (association_timings_.completed && !association_timings_.closed) {
+        association_timings_.setClosed();
+        LOG_DEBUG(association_timings_.toString());
+    }
+}
+
+// PCP - Associate session response callback
 
 void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks)
 {
@@ -625,6 +671,9 @@ void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks)
                                       "{1} from {2} for the request {3}",
                                       response_id, sender_uri, request_id) };
 
+    // HERE(ale): connect() is in charge of updating association_timings_
+    // whereas the onOpen callback will reset it
+
     if (success) {
         LOG_INFO("{1}: success", msg);
     } else {
@@ -646,7 +695,7 @@ void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks)
     session_association_.cond_var.notify_one();
 }
 
-// PCP error message callback
+// PCP - PCP Error message callback
 
 void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks)
 {
@@ -687,7 +736,7 @@ void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks)
     }
 }
 
-// ttl_expired message callback
+// PCP - ttl_expired message callback
 
 void Connector::TTLMessageCallback(const ParsedChunks& parsed_chunks)
 {
@@ -720,7 +769,9 @@ void Connector::TTLMessageCallback(const ParsedChunks& parsed_chunks)
     }
 }
 
-// Monitor task
+//
+// Monitoring Task
+//
 
 void Connector::startMonitorTask(const uint32_t max_connect_attempts,
                                  const uint32_t connection_check_interval_s)

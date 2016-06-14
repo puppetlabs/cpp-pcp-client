@@ -5,6 +5,7 @@
 #include <cpp-pcp-client/connector/connector.hpp>
 #include <cpp-pcp-client/connector/client_metadata.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
+#include <cpp-pcp-client/connector/timings.hpp>
 
 #include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/util/chrono.hpp>
@@ -63,6 +64,25 @@ TEST_CASE("Connector::getConnectionTimings", "[connector]") {
     }
 }
 
+TEST_CASE("Connector::getAssociationTimings", "[connector]") {
+    Connector c { "wss://localhost:8142/pcp",
+                  "test_client",
+                  getCaPath(), getCertPath(), getKeyPath(),
+                  WS_TIMEOUT_MS, ASSOCIATION_TIMEOUT_S,
+                  ASSOCIATION_REQUEST_TTL_S,
+                  PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
+
+    SECTION("can get PCP Association timings") {
+        REQUIRE_NOTHROW(c.getAssociationTimings());
+    }
+
+    SECTION("timings will say if the session was not associated") {
+        auto timings = c.getAssociationTimings();
+
+        REQUIRE_FALSE(timings.completed);
+    }
+}
+
 TEST_CASE("Connector::connect", "[connector]") {
     MockServer mock_server;
     bool connected = false;
@@ -73,7 +93,7 @@ TEST_CASE("Connector::connect", "[connector]") {
     mock_server.go();
     auto port = mock_server.port();
 
-    SECTION("successfully connects") {
+    SECTION("successfully connects and update WebSocket and Association timings") {
         Connector c { "wss://localhost:" + std::to_string(port) + "/pcp",
                       "test_client",
                       getCaPath(), getCertPath(), getKeyPath(),
@@ -89,9 +109,12 @@ TEST_CASE("Connector::connect", "[connector]") {
 
         wait_for([&c](){return c.isAssociated();});
         auto ws_i = c.getConnectionTimings().getWebSocketInterval();
+        auto ass_timings = c.getAssociationTimings();
 
         REQUIRE(c.isAssociated());
-
+        REQUIRE(ass_timings.completed);
+        REQUIRE(ass_timings.success);
+        REQUIRE(ass_timings.start < ass_timings.association);
         REQUIRE(ConnectionTimings::Duration_us::zero() < ws_i);
     }
 }
@@ -99,7 +122,7 @@ TEST_CASE("Connector::connect", "[connector]") {
 TEST_CASE("Connector Monitoring Task", "[connector]") {
     bool use_blocking_call;
 
-    SECTION("reconnects after the broker stops") {
+    SECTION("reconnects after the broker stops (also updates Association metrics)") {
         SECTION("when using NON blocking calls (start/stopMonitoring") {
             use_blocking_call = false;
         }
@@ -147,8 +170,13 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
 
         // The broker does not exist anymore (RAII)
         wait_for([&c_ptr](){return !c_ptr->isConnected();});
+        auto ass_timings = c_ptr->getAssociationTimings();
 
         REQUIRE_FALSE(c_ptr->isConnected());
+        REQUIRE(ass_timings.closed);
+        // NB: using timepoints directly as getOverallSessionInterval
+        //     returns minutes
+        REQUIRE(ass_timings.close > ass_timings.start);
 
         MockServer mock_server {port};
         mock_server.go();
