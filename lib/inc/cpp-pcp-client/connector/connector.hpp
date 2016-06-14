@@ -130,15 +130,18 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// false otherwise.
     bool isConnected() const;
 
-    /// Returns true if a successful associate response has been
+    /// Returns true if a successful Associate response has been
     /// received and the underlying connection did not drop since
     /// then, false otherwise.
     bool isAssociated() const;
 
-    /// Returns the connection timings of the underlying connection
-    /// if established, otherwise the ConnectionTimings' default
-    /// constructor.
+    /// Returns the timings of the underlying WebSocket connection
+    /// if established, otherwise invokes and returns the
+    /// ConnectionTimings' default constructor.
     ConnectionTimings getConnectionTimings() const;
+
+    /// Returns the timings of the PCP Associate Session.
+    AssociationTimings getAssociationTimings() const;
 
     /// Starts the Monitoring Task in a separate thread.
     /// Such task will periodically check the state of the
@@ -286,6 +289,9 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     /// To manage the Associate Session process
     SessionAssociation session_association_;
 
+    /// To keep track of Associate Session timings
+    AssociationTimings association_timings_;
+
     void checkConnectionInitialization();
 
     MessageChunk createEnvelope(const std::vector<std::string>& targets,
@@ -310,6 +316,10 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     // Parse and validate the passed message; execute the callback
     // associated with the schema specified in the envelope.
     void processMessage(const std::string& msg_txt);
+
+    // WebSocket Callback for the Connection instance to be triggered
+    // on onClose or onFail events.
+    void closeAssociationTimings();
 
     // PCP Callback executed by processMessage in case of an
     // associate session response.

@@ -58,7 +58,7 @@ TEST_CASE("Connection timings", "[connection]") {
         connection.connect(1);
         auto tot = boost::chrono::duration_cast<ConnectionTimings::Duration_us>(
                 boost::chrono::high_resolution_clock::now() - start);
-        auto duration_zero = boost::chrono::high_resolution_clock::duration::zero();
+        auto duration_zero = ConnectionTimings::Duration_us::zero();
 
         REQUIRE(duration_zero < connection.timings.getTCPInterval());
         REQUIRE(duration_zero < connection.timings.getHandshakeInterval());

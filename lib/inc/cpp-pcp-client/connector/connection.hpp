@@ -109,14 +109,14 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     /// Return the connection state
     ConnectionState getConnectionState() const;
 
-    /// Set the onOpen callback.
+    /// Callback setters (callbacks will be executed by the
+    /// WebSocket event handlers).
     void setOnOpenCallback(std::function<void()> onOpen_callback);
+    void setOnMessageCallback(std::function<void(const std::string& msg)> onMessage_callback);
+    void setOnCloseCallback(std::function<void()> onClose_callback);
+    void setOnFailCallback(std::function<void()> onFail_callback);
 
-    /// Set the onMessage callback
-    void setOnMessageCallback(
-        std::function<void(std::string msg)> onMessage_callback);
-
-    // Reset the onMessage and postLogin callbacks
+    /// Reset all the callbacks
     void resetCallbacks();
 
     /// Check the state of the WebSocket connection; in case it's not
@@ -178,11 +178,11 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     /// Transport layer event loop thread
     std::shared_ptr<Util::thread> endpoint_thread_;
 
-    // Callback function called by the onOpen handler.
-    std::function<void()> onOpen_callback;
-
-    /// Callback function executed by the onMessage handler
+    // Callback functions called by the WebSocket event handlers.
+    std::function<void()> onOpen_callback_;
     std::function<void(const std::string& message)> onMessage_callback_;
+    std::function<void()> onClose_callback_;
+    std::function<void()> onFail_callback_;
 
     /// Exponential backoff interval for re-connect
     uint32_t connection_backoff_ms_ { CONNECTION_BACKOFF_MS };
