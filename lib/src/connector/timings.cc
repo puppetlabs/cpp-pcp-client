@@ -21,27 +21,32 @@ void ConnectionTimings::reset()
     connection_failed  = false;
 }
 
-ConnectionTimings::Duration_us ConnectionTimings::getTCPInterval() const {
+ConnectionTimings::Duration_us ConnectionTimings::getTCPInterval() const
+{
     return boost::chrono::duration_cast<ConnectionTimings::Duration_us>(
         tcp_pre_init - start);
 }
 
-ConnectionTimings::Duration_us ConnectionTimings::getHandshakeInterval() const {
+ConnectionTimings::Duration_us ConnectionTimings::getHandshakeInterval() const
+{
     return boost::chrono::duration_cast<ConnectionTimings::Duration_us>(
         tcp_post_init - tcp_pre_init);
 }
 
-ConnectionTimings::Duration_us ConnectionTimings::getWebSocketInterval() const {
+ConnectionTimings::Duration_us ConnectionTimings::getWebSocketInterval() const
+{
     return boost::chrono::duration_cast<ConnectionTimings::Duration_us>(
         open - start);
 }
 
-ConnectionTimings::Duration_us ConnectionTimings::getCloseInterval() const {
+ConnectionTimings::Duration_us ConnectionTimings::getCloseInterval() const
+{
     return boost::chrono::duration_cast<ConnectionTimings::Duration_us>(
         close - start);
 }
 
-std::string ConnectionTimings::toString() const {
+std::string ConnectionTimings::toString() const
+{
     if (connection_started)
         return lth_loc::format(
             "connection timings: TCP {1} us, WS handshake {2} us, overall {3} us",
