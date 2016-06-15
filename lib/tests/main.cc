@@ -6,17 +6,15 @@
 
 #include <vector>
 
-// To enable log messages:
-// #define ENABLE_LOGGING
-
-#ifdef ENABLE_LOGGING
+// NB: ENABLE_PCP_LOGGING could be defined in test.hpp
+#ifdef ENABLE_PCP_LOGGING
 #define LEATHERMAN_LOGGING_NAMESPACE "puppetlabs.cpp_pcp_client.test"
 #include <leatherman/logging/logging.hpp>
 #include <boost/nowide/iostream.hpp>
 #endif
 
 int main(int argc, char** argv) {
-#ifdef ENABLE_LOGGING
+#ifdef ENABLE_PCP_LOGGING
     leatherman::logging::setup_logging(boost::nowide::cout);
     leatherman::logging::set_level(leatherman::logging::log_level::debug);
 #endif
