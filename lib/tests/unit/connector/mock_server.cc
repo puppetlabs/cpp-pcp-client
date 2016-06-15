@@ -7,8 +7,9 @@
 #define _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
 #define _WEBSOCKETPP_NO_CPP11_THREAD_
 
-#include "mock_server.hpp"
-#include "certs.hpp"
+#include "tests/test.hpp"
+#include "tests/unit/connector/certs.hpp"
+#include "tests/unit/connector/mock_server.hpp"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -44,6 +45,12 @@ MockServer::MockServer(uint16_t port,
       keyPath_(std::move(keyPath)),
       server_(new websocketpp::server<websocketpp::config::asio_tls>())
 {
+    // NB: ENABLE_MOCKSERVER_WEBSOCKETPP_LOGGING could be defined in test.hpp
+#ifndef ENABLE_MOCKSERVER_WEBSOCKETPP_LOGGING
+    server_->clear_access_channels(websocketpp::log::alevel::all);
+    server_->clear_error_channels(websocketpp::log::elevel::all);
+#endif
+
     namespace asio = websocketpp::lib::asio;
     server_->init_asio();
 
