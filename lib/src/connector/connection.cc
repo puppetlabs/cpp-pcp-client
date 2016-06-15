@@ -495,9 +495,15 @@ void Connection::onClose(WS_Connection_Handle hdl)
     Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
     timings.setClosed();
     auto con = endpoint_->get_con_from_hdl(hdl);
-    LOG_DEBUG("WebSocket on close event: {1} (code: {2}) - {3}",
-              con->get_ec().message(), con->get_remote_close_code(),
-              timings.toString());
+    auto close_code = con->get_remote_close_code();
+
+    if (close_code == 1000) {
+        // Normal closure; don't log error code
+        LOG_DEBUG("WebSocket on close event (nromal) - {1}", timings.toString());
+    } else {
+        LOG_DEBUG("WebSocket on close event: {1} (code: {2}) - {3}",
+                  con->get_ec().message(), close_code, timings.toString());
+    }
 
     if (timings.isClosingStarted())
         LOG_DEBUG("WebSocket on close event - Closing Handshake {1} us",
