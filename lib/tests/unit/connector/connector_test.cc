@@ -57,10 +57,12 @@ TEST_CASE("Connector::getConnectionTimings", "[connector]") {
     }
 
     SECTION("timings will say if the connection was not established") {
-        auto timings = c.getConnectionTimings();
+        auto ws_timings = c.getConnectionTimings();
 
-        REQUIRE_FALSE(timings.connection_started);
-        REQUIRE_FALSE(timings.connection_failed);
+        REQUIRE_FALSE(ws_timings.isOpen());
+        REQUIRE_FALSE(ws_timings.isClosingStarted());
+        REQUIRE_FALSE(ws_timings.isFailed());
+        REQUIRE_FALSE(ws_timings.isClosed());
     }
 }
 
@@ -77,9 +79,9 @@ TEST_CASE("Connector::getAssociationTimings", "[connector]") {
     }
 
     SECTION("timings will say if the session was not associated") {
-        auto timings = c.getAssociationTimings();
+        auto ass_timings = c.getAssociationTimings();
 
-        REQUIRE_FALSE(timings.completed);
+        REQUIRE_FALSE(ass_timings.completed);
     }
 }
 
@@ -108,14 +110,20 @@ TEST_CASE("Connector::connect", "[connector]") {
         REQUIRE(connected);
 
         wait_for([&c](){return c.isAssociated();});
-        auto ws_i = c.getConnectionTimings().getWebSocketInterval();
+        auto ws_timings  = c.getConnectionTimings();
         auto ass_timings = c.getAssociationTimings();
+        auto us_zero     = ConnectionTimings::Duration_us::zero();
+        auto min_zero    = ConnectionTimings::Duration_min::zero();
 
         REQUIRE(c.isAssociated());
         REQUIRE(ass_timings.completed);
         REQUIRE(ass_timings.success);
         REQUIRE(ass_timings.start < ass_timings.association);
-        REQUIRE(ConnectionTimings::Duration_us::zero() < ws_i);
+        REQUIRE(us_zero   < ws_timings.getOpeningHandshakeInterval());
+        REQUIRE(us_zero   < ws_timings.getWebSocketInterval());
+        REQUIRE(us_zero   < ws_timings.getOverallConnectionInterval_us());
+        REQUIRE(min_zero == ws_timings.getOverallConnectionInterval_min());
+        REQUIRE(us_zero  == ws_timings.getClosingHandshakeInterval());
     }
 }
 
@@ -171,12 +179,18 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
         // The broker does not exist anymore (RAII)
         wait_for([&c_ptr](){return !c_ptr->isConnected();});
         auto ass_timings = c_ptr->getAssociationTimings();
+        auto ws_timings  = c_ptr->getConnectionTimings();
+        auto us_zero     = ConnectionTimings::Duration_us::zero();
 
         REQUIRE_FALSE(c_ptr->isConnected());
+        REQUIRE_FALSE(ws_timings.isFailed());
+        REQUIRE(ws_timings.isClosed());
         REQUIRE(ass_timings.closed);
         // NB: using timepoints directly as getOverallSessionInterval
         //     returns minutes
         REQUIRE(ass_timings.close > ass_timings.start);
+        // NB: We didn't initiate the WS Closing Handshake
+        REQUIRE(us_zero == ws_timings.getClosingHandshakeInterval());
 
         MockServer mock_server {port};
         mock_server.go();

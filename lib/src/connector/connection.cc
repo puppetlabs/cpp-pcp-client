@@ -292,6 +292,7 @@ void Connection::close(CloseCode code, const std::string& reason)
 {
     LOG_DEBUG("About to close the WebSocket connection");
     Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
+    timings.setClosing();
     auto c_s = connection_state_.load();
     if (c_s != ConnectionState::closed) {
         websocketpp::lib::error_code ec;
@@ -492,11 +493,16 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl)
 void Connection::onClose(WS_Connection_Handle hdl)
 {
     Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
-    timings.close = Util::chrono::high_resolution_clock::now();
+    timings.setClosed();
     auto con = endpoint_->get_con_from_hdl(hdl);
     LOG_DEBUG("WebSocket on close event: {1} (code: {2}) - {3}",
               con->get_ec().message(), con->get_remote_close_code(),
               timings.toString());
+
+    if (timings.isClosingStarted())
+        LOG_DEBUG("WebSocket on close event - Closing Handshake {1} us",
+                  timings.getClosingHandshakeInterval().count());
+
     connection_state_ = ConnectionState::closed;
 
     if (onClose_callback_) {
@@ -513,8 +519,7 @@ void Connection::onClose(WS_Connection_Handle hdl)
 void Connection::onFail(WS_Connection_Handle hdl)
 {
     Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
-    timings.close = Util::chrono::high_resolution_clock::now();
-    timings.connection_failed = true;
+    timings.setClosed(true);
     auto con = endpoint_->get_con_from_hdl(hdl);
     LOG_DEBUG("WebSocket on fail event - {1}", timings.toString());
     LOG_WARNING("WebSocket on fail event (connection loss): {1} (code: {2})",
@@ -576,8 +581,7 @@ void Connection::onPostTCPInit(WS_Connection_Handle hdl)
 }
 
 void Connection::onOpen(WS_Connection_Handle hdl) {
-    timings.open = Util::chrono::high_resolution_clock::now();
-    timings.connection_started = true;
+    timings.setOpen();
     LOG_DEBUG("WebSocket on open event - {1}", timings.toString());
     LOG_INFO("Successfully established a WebSocket connection with the PCP "
              "broker at {1}", getWsUri());

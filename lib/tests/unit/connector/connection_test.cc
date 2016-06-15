@@ -61,8 +61,10 @@ TEST_CASE("Connection timings", "[connection]") {
         auto duration_zero = ConnectionTimings::Duration_us::zero();
 
         REQUIRE(duration_zero < connection.timings.getTCPInterval());
-        REQUIRE(duration_zero < connection.timings.getHandshakeInterval());
+        REQUIRE(duration_zero < connection.timings.getOpeningHandshakeInterval());
         REQUIRE(duration_zero < connection.timings.getWebSocketInterval());
+        REQUIRE(duration_zero < connection.timings.getOverallConnectionInterval_us());
+        REQUIRE(duration_zero == connection.timings.getClosingHandshakeInterval());
         REQUIRE(connection.timings.getWebSocketInterval() < tot);
     }
 }
@@ -77,7 +79,7 @@ static void let_connection_stop(Connection const& connection, int timeout = 2)
 }
 
 TEST_CASE("Connection::connect", "[connection]") {
-    SECTION("successfully connects") {
+    SECTION("successfully connects, closes, and sets Closing Handshake timings)") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
                              getKeyPath(), WS_TIMEOUT,
                              ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
@@ -96,7 +98,19 @@ TEST_CASE("Connection::connect", "[connection]") {
         REQUIRE(connected);
 
         connection.close();
-        let_connection_stop(connection);
+        auto duration_zero = ConnectionTimings::Duration_us::zero();
+
+        // Let's wait for the connection to close and retrieve the duration
+        // NB: we can't use let_connection_stop as the connection state
+        // will become `closing`
+        lth_util::Timer timer {};
+
+        while (connection.getConnectionState() != ConnectionState::closed
+               && timer.elapsed_seconds() < 2)
+            Util::this_thread::sleep_for(Util::chrono::milliseconds(1));
+
+        REQUIRE(connection.getConnectionState() == ConnectionState::closed);
+        REQUIRE(duration_zero < connection.timings.getClosingHandshakeInterval());
     }
 
     SECTION("successfully connects to failover broker") {

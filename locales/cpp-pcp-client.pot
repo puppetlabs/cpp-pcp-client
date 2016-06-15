@@ -105,146 +105,151 @@ msgstr ""
 msgid "About to close the WebSocket connection"
 msgstr ""
 
-#: lib/src/connector/connection.cc:301
+#: lib/src/connector/connection.cc:302
 msgid "failed to close WebSocket connection: {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:326
+#: lib/src/connector/connection.cc:327
 msgid "Cleanup failure: {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:354
+#: lib/src/connector/connection.cc:355
 msgid "WebSocket in 'connecting' state; will try to close"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:361
+#: lib/src/connector/connection.cc:362
 msgid ""
 "Failed to close the WebSocket; will wait at most {1} ms before trying again"
 msgstr ""
 
-#: lib/src/connector/connection.cc:387
-#: lib/src/connector/connection.cc:399
+#: lib/src/connector/connection.cc:388
+#: lib/src/connector/connection.cc:400
 msgid "failed to establish the WebSocket connection with {1}: {2}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connection.cc:391
+#: lib/src/connector/connection.cc:392
 msgid ""
 "Establishing the WebSocket connection with '{1}' with a timeout of {2} ms"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:416
+#: lib/src/connector/connection.cc:417
 msgid "Failed to connect to {1}; switching to {2}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:439
+#: lib/src/connector/connection.cc:440
 msgid "Verifying {1}, issued by {2}. Verified: {3}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:458
+#: lib/src/connector/connection.cc:459
 msgid "WebSocket TLS initialization event; about to validate the certificate"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:482
+#: lib/src/connector/connection.cc:483
 msgid "Initialized SSL context to verify broker {1}"
 msgstr ""
 
-#: lib/src/connector/connection.cc:487
+#: lib/src/connector/connection.cc:488
 msgid "TLS error: {1}"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:497
+#: lib/src/connector/connection.cc:498
 msgid "WebSocket on close event: {1} (code: {2}) - {3}"
 msgstr ""
 
+#. debug
+#: lib/src/connector/connection.cc:503
+msgid "WebSocket on close event - Closing Handshake {1} us"
+msgstr ""
+
 #. error
-#: lib/src/connector/connection.cc:506
+#: lib/src/connector/connection.cc:512
 msgid "onClose WebSocket callback failure: {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:508
+#: lib/src/connector/connection.cc:514
 msgid "onClose WebSocket callback failure: unexpected error"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:519
+#: lib/src/connector/connection.cc:524
 msgid "WebSocket on fail event - {1}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:520
+#: lib/src/connector/connection.cc:525
 msgid "WebSocket on fail event (connection loss): {1} (code: {2})"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:528
+#: lib/src/connector/connection.cc:533
 msgid "onFail WebSocket callback failure: {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:530
+#: lib/src/connector/connection.cc:535
 msgid "onFail WebSocket callback failure: unexpected error"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:544
+#: lib/src/connector/connection.cc:549
 msgid "WebSocket onPong event"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:555
+#: lib/src/connector/connection.cc:560
 msgid ""
 "WebSocket onPongTimeout event ({1} consecutive); closing the WebSocket "
 "connection"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:559
+#: lib/src/connector/connection.cc:564
 msgid "WebSocket onPongTimeout event"
 msgstr ""
 
 #. warning
-#: lib/src/connector/connection.cc:561
+#: lib/src/connector/connection.cc:566
 msgid "WebSocket onPongTimeout event ({1} consecutive)"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connection.cc:581
+#: lib/src/connector/connection.cc:585
 msgid "WebSocket on open event - {1}"
 msgstr ""
 
 #. info
-#: lib/src/connector/connection.cc:582
+#: lib/src/connector/connection.cc:586
 msgid ""
 "Successfully established a WebSocket connection with the PCP broker at {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:591
+#: lib/src/connector/connection.cc:595
 msgid "onOpen callback failure: {1}; closing the WebSocket connection"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:594
+#: lib/src/connector/connection.cc:598
 msgid "onOpen callback failure; closing the WebSocket connection"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:611
+#: lib/src/connector/connection.cc:615
 msgid "onMessage WebSocket callback failure: {1}"
 msgstr ""
 
 #. error
-#: lib/src/connector/connection.cc:613
+#: lib/src/connector/connection.cc:617
 msgid "onMessage WebSocket callback failure: unexpected error"
 msgstr ""
 
@@ -513,47 +518,51 @@ msgstr ""
 msgid "The Monitoring Thread is not joinable"
 msgstr ""
 
-#: lib/src/connector/timings.cc:54
-msgid "connection timings: TCP {1} us, WS handshake {2} us, overall {3} us"
-msgstr ""
-
-#: lib/src/connector/timings.cc:60
-msgid "time to failure {1} us"
-msgstr ""
-
-#: lib/src/connector/timings.cc:62
-msgid "the endpoint has not been connected yet"
-msgstr ""
-
-#: lib/src/connector/timings.cc:123
+#: lib/src/connector/timings.cc:19
 msgid "{1} hrs {2} min"
 msgstr ""
 
-#: lib/src/connector/timings.cc:125
+#: lib/src/connector/timings.cc:21
 msgid "{1} min"
 msgstr ""
 
-#: lib/src/connector/timings.cc:131
+#: lib/src/connector/timings.cc:132
+msgid "connection timings: TCP {1} us, WS handshake {2} us, overall {3} us"
+msgstr ""
+
+#: lib/src/connector/timings.cc:138
+msgid "time to failure {1}"
+msgstr ""
+
+#: lib/src/connector/timings.cc:140
+msgid "the endpoint has not been connected yet"
+msgstr ""
+
+#: lib/src/connector/timings.cc:151
+msgid "{1} us"
+msgstr ""
+
+#: lib/src/connector/timings.cc:209
 msgid "the endpoint has not been associated yet"
 msgstr ""
 
-#: lib/src/connector/timings.cc:136
+#: lib/src/connector/timings.cc:214
 msgid ""
 "PCP Session Association successfully completed in {1} ms, then closed after "
 "{2}"
 msgstr ""
 
-#: lib/src/connector/timings.cc:142
+#: lib/src/connector/timings.cc:220
 msgid ""
 "PCP Session Association successfully completed in {1} ms; the current "
 "session has been associated for {2}"
 msgstr ""
 
-#: lib/src/connector/timings.cc:148
+#: lib/src/connector/timings.cc:226
 msgid "PCP Session Association successfully completed in {1} ms"
 msgstr ""
 
-#: lib/src/connector/timings.cc:152
+#: lib/src/connector/timings.cc:230
 msgid "PCP Session Association failed after {1} ms"
 msgstr ""
 

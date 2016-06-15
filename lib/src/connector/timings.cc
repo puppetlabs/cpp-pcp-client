@@ -8,19 +8,60 @@ namespace PCPClient {
 
 namespace lth_loc = leatherman::locale;
 
+// Helper
+
+static std::string normalizeTimeInterval(uint32_t duration_min)
+{
+    auto hours   = duration_min / 60;
+    auto minutes = duration_min % 60;
+
+    if (hours > 0)
+        return lth_loc::format("{1} hrs {2} min", hours, minutes);
+
+    return lth_loc::format("{1} min", minutes);
+}
+
 //
 // ConnectionTimings
 //
 
+bool ConnectionTimings::isOpen() const { return _open; }
+bool ConnectionTimings::isClosingStarted() const { return _closing_started; }
+bool ConnectionTimings::isFailed() const { return _failed; }
+bool ConnectionTimings::isClosed() const { return _closed; }
+
 void ConnectionTimings::reset()
 {
-    start         = boost::chrono::high_resolution_clock::now();
-    tcp_pre_init  = boost::chrono::high_resolution_clock::time_point();
-    tcp_post_init = boost::chrono::high_resolution_clock::time_point();
-    open          = boost::chrono::high_resolution_clock::time_point();
-    close         = boost::chrono::high_resolution_clock::time_point();
-    connection_started = false;
-    connection_failed  = false;
+    start              = boost::chrono::high_resolution_clock::now();
+    tcp_pre_init       = boost::chrono::high_resolution_clock::time_point();
+    tcp_post_init      = boost::chrono::high_resolution_clock::time_point();
+    open               = boost::chrono::high_resolution_clock::time_point();
+    closing_handshake  = boost::chrono::high_resolution_clock::time_point();
+    close              = boost::chrono::high_resolution_clock::time_point();
+
+    _open            = false;
+    _closing_started = false;
+    _failed          = false;
+    _closed          = false;
+}
+
+void ConnectionTimings::setOpen()
+{
+    open = boost::chrono::high_resolution_clock::now();
+    _open = true;
+}
+
+void ConnectionTimings::setClosing()
+{
+    closing_handshake = boost::chrono::high_resolution_clock::now();
+    _closing_started = true;
+}
+
+void ConnectionTimings::setClosed(bool onFail_event)
+{
+    close = boost::chrono::high_resolution_clock::now();
+    _closed = true;
+    _failed = onFail_event;
 }
 
 ConnectionTimings::Duration_us ConnectionTimings::getTCPInterval() const
@@ -29,37 +70,85 @@ ConnectionTimings::Duration_us ConnectionTimings::getTCPInterval() const
         tcp_pre_init - start);
 }
 
-ConnectionTimings::Duration_us ConnectionTimings::getHandshakeInterval() const
+ConnectionTimings::Duration_us
+ConnectionTimings::getOpeningHandshakeInterval() const
 {
+    if (!_open)
+        return Duration_us::zero();
+
     return boost::chrono::duration_cast<ConnectionTimings::Duration_us>(
         tcp_post_init - tcp_pre_init);
 }
 
 ConnectionTimings::Duration_us ConnectionTimings::getWebSocketInterval() const
 {
+    if (!_open)
+        return Duration_us::zero();
+
     return boost::chrono::duration_cast<ConnectionTimings::Duration_us>(
         open - start);
 }
 
-ConnectionTimings::Duration_us ConnectionTimings::getCloseInterval() const
+ConnectionTimings::Duration_us
+ConnectionTimings::getClosingHandshakeInterval() const
 {
+    if (!_open || !_closing_started || !_closed)
+        return Duration_us::zero();
+
     return boost::chrono::duration_cast<ConnectionTimings::Duration_us>(
-        close - start);
+            close - closing_handshake);
+}
+
+ConnectionTimings::Duration_min
+ConnectionTimings::getOverallConnectionInterval_min() const
+{
+    if (!_open)
+        return Duration_min::zero();
+
+    if (!_closed)
+        return boost::chrono::duration_cast<Duration_min>(
+                boost::chrono::high_resolution_clock::now() - start);
+
+    return boost::chrono::duration_cast<Duration_min>(close - start);
+}
+
+ConnectionTimings::Duration_us
+ConnectionTimings::getOverallConnectionInterval_us() const
+{
+    if (!_open)
+        return Duration_us::zero();
+
+    if (_closed)
+        return boost::chrono::duration_cast<Duration_us>(close - start);
+
+    return boost::chrono::duration_cast<Duration_us>(
+            boost::chrono::high_resolution_clock::now() - start);
 }
 
 std::string ConnectionTimings::toString() const
 {
-    if (connection_started)
+    if (_open)
         return lth_loc::format(
             "connection timings: TCP {1} us, WS handshake {2} us, overall {3} us",
             getTCPInterval().count(),
-            getHandshakeInterval().count(),
+            getOpeningHandshakeInterval().count(),
             getWebSocketInterval().count());
 
-    if (connection_failed)
-        return lth_loc::format("time to failure {1} us", getCloseInterval().count());
+    if (_failed)
+        return lth_loc::format("time to failure {1}", getOverallDurationTxt());
 
     return lth_loc::translate("the endpoint has not been connected yet");
+}
+
+// Private helper
+std::string ConnectionTimings::getOverallDurationTxt() const
+{
+    auto duration_min = getOverallConnectionInterval_min().count();
+
+    if (duration_min)
+        return normalizeTimeInterval(duration_min);
+
+    return lth_loc::format("{1} us", getOverallConnectionInterval_us().count());
 }
 
 //
@@ -112,17 +201,6 @@ AssociationTimings::Duration_min AssociationTimings::getOverallSessionInterval()
 
     return boost::chrono::duration_cast<AssociationTimings::Duration_min>(
             boost::chrono::high_resolution_clock::now() - association);
-}
-
-static std::string normalizeTimeInterval(uint32_t duration_min)
-{
-    auto hours   = duration_min / 60;
-    auto minutes = duration_min % 60;
-
-    if (hours > 0)
-        return lth_loc::format("{1} hrs {2} min", hours, minutes);
-
-    return lth_loc::format("{1} min", minutes);
 }
 
 std::string AssociationTimings::toString(bool include_completion) const
