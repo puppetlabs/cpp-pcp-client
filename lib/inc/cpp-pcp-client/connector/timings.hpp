@@ -120,7 +120,10 @@ struct LIBCPP_PCP_CLIENT_EXPORT AssociationTimings {
     /// and flags `closed`
     void setClosed();
 
-    /// Time interval to establish the TCP connection [ms]
+    /// Time interval to perform the Session Association [ms];
+    /// it will return:
+    ///  - a null duration, if the Session Association was not completed;
+    ///  - the (association - start) duration, otherwise.
     Duration_ms getAssociationInterval() const;
 
     /// Duration of the PCP Session [minutes]; it will return:

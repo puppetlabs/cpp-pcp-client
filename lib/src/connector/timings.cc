@@ -186,6 +186,9 @@ void AssociationTimings::setClosed()
 
 AssociationTimings::Duration_ms AssociationTimings::getAssociationInterval() const
 {
+    if (!completed)
+        return Duration_ms::zero();
+
     return boost::chrono::duration_cast<AssociationTimings::Duration_ms>(
         association - start);
 }
