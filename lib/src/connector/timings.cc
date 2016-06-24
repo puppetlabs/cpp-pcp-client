@@ -193,7 +193,7 @@ AssociationTimings::Duration_ms AssociationTimings::getAssociationInterval() con
         association - start);
 }
 
-AssociationTimings::Duration_min AssociationTimings::getOverallSessionInterval() const
+AssociationTimings::Duration_min AssociationTimings::getOverallSessionInterval_min() const
 {
     if (!completed)
         return Duration_min::zero();
@@ -203,6 +203,19 @@ AssociationTimings::Duration_min AssociationTimings::getOverallSessionInterval()
                 close - association);
 
     return boost::chrono::duration_cast<AssociationTimings::Duration_min>(
+            boost::chrono::high_resolution_clock::now() - association);
+}
+
+AssociationTimings::Duration_ms AssociationTimings::getOverallSessionInterval_ms() const
+{
+    if (!completed)
+        return Duration_ms::zero();
+
+    if (closed)
+        return boost::chrono::duration_cast<AssociationTimings::Duration_ms>(
+                close - association);
+
+    return boost::chrono::duration_cast<AssociationTimings::Duration_ms>(
             boost::chrono::high_resolution_clock::now() - association);
 }
 
@@ -217,13 +230,13 @@ std::string AssociationTimings::toString(bool include_completion) const
                 "PCP Session Association successfully completed in {1} ms, "
                 "then closed after {2}",
                 getAssociationInterval().count(),
-                normalizeTimeInterval(getOverallSessionInterval().count()));
+                normalizeTimeInterval(getOverallSessionInterval_min().count()));
         } else if (include_completion) {
             return lth_loc::format(
                 "PCP Session Association successfully completed in {1} ms; "
                 "the current session has been associated for {2}",
                 getAssociationInterval().count(),
-                normalizeTimeInterval(getOverallSessionInterval().count()));
+                normalizeTimeInterval(getOverallSessionInterval_min().count()));
         } else {
             return lth_loc::format(
                 "PCP Session Association successfully completed in {1} ms",

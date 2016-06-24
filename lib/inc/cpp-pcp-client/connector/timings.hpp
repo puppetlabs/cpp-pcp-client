@@ -130,7 +130,10 @@ struct LIBCPP_PCP_CLIENT_EXPORT AssociationTimings {
     ///  - a null duration, in case the Association was not completed;
     ///  - the (close - start) duration, in case the session was closed;
     ///  - the (now - start) duration, otherwise.
-    Duration_min getOverallSessionInterval() const;
+    Duration_min getOverallSessionInterval_min() const;
+
+    /// As getOverallSessionInterval_min, but the duration is in ms.
+    Duration_ms getOverallSessionInterval_ms() const;
 
     /// Returns a string with the Association interval [ms];
     /// if `include_completion` is flagged and the Association was

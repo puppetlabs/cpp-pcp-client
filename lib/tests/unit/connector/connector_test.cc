@@ -186,7 +186,7 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
         REQUIRE_FALSE(ws_timings.isFailed());
         REQUIRE(ws_timings.isClosed());
         REQUIRE(ass_timings.closed);
-        // NB: using timepoints directly as getOverallSessionInterval
+        // NB: using timepoints directly as getOverallSessionInterval_min
         //     returns minutes
         REQUIRE(ass_timings.close > ass_timings.start);
         // NB: We didn't initiate the WS Closing Handshake
