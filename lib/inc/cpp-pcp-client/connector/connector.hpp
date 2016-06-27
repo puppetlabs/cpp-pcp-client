@@ -251,15 +251,16 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
                      const std::vector<lth_jc::JsonContainer>& debug
                         = std::vector<lth_jc::JsonContainer> {});
 
+  protected:
+    /// Connection instance pointer
+    std::unique_ptr<Connection> connection_ptr_;
+
   private:
     /// WebSocket URIs of PCP brokers; first entry is the default
     std::vector<std::string> broker_ws_uris_;
 
     /// Client metadata
     ClientMetadata client_metadata_;
-
-    /// Connection instance pointer
-    std::unique_ptr<Connection> connection_ptr_;
 
     /// Content validator
     Validator validator_;
