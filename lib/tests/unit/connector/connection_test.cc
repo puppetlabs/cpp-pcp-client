@@ -79,7 +79,7 @@ static void let_connection_stop(Connection const& connection, int timeout = 2)
 }
 
 TEST_CASE("Connection::connect", "[connection]") {
-    SECTION("successfully connects, closes, and sets Closing Handshake timings)") {
+    SECTION("successfully connects, closes, and sets Closing Handshake timings") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
                              getKeyPath(), WS_TIMEOUT,
                              ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
