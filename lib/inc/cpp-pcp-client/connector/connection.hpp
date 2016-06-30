@@ -178,6 +178,10 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     /// Transport layer event loop thread
     std::shared_ptr<Util::thread> endpoint_thread_;
 
+    /// To synchronize the onOpen event
+    Util::condition_variable onOpen_cv;
+    Util::mutex onOpen_mtx;
+
     // Callback functions called by the WebSocket event handlers.
     std::function<void()> onOpen_callback_;
     std::function<void(const std::string& message)> onMessage_callback_;
