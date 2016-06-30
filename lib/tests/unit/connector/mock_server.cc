@@ -95,6 +95,11 @@ uint16_t MockServer::port()
     return ec ? 0 : ep.port();
 }
 
+void MockServer::set_tcp_pre_init_handler(std::function<void(websocketpp::connection_hdl)> func)
+{
+    server_->set_tcp_pre_init_handler(func);
+}
+
 void MockServer::set_open_handler(std::function<void(websocketpp::connection_hdl)> func)
 {
     server_->set_open_handler(func);

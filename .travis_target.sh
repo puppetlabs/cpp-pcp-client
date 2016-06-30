@@ -4,6 +4,13 @@ set -ev
 # Set compiler to GCC 4.8 here, as Travis overrides the global variables.
 export CC=gcc-4.8 CXX=g++-4.8
 
+get_gettext() {
+  wget https://s3.amazonaws.com/kylo-pl-bucket/gettext-0.19.6_install.tar.bz2
+  tar xjvf gettext-0.19.6_install.tar.bz2 --strip 1 -C $USERDIR
+  rm -f ../locales/cpp-pcp-client.pot
+  export MAKE_TARGET="all"
+}
+
 if [ ${TRAVIS_TARGET} == CPPCHECK ]; then
   # grab a pre-built cppcheck from s3
   wget https://s3.amazonaws.com/kylo-pl-bucket/pcre-8.36_install.tar.bz2
@@ -13,6 +20,9 @@ if [ ${TRAVIS_TARGET} == CPPCHECK ]; then
 elif [ ${TRAVIS_TARGET} == DEBUG ]; then
   # Install coveralls.io update utility
   pip install --user cpp-coveralls
+  get_gettext
+else
+  get_gettext
 fi
 
 # Generate build files
