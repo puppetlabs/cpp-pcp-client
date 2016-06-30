@@ -200,6 +200,21 @@ This means that you can instantiate a Connector object as follows:
                           5 };   // PCP Association timeout
 ```
 
+An alternate constructor for Connector also exists that takes a list of brokers, as in:
+
+```
+    Connector connector { {"wss://broker1.example.com:8142/pcp/", "wss://broker2.example.com:8142/pcp/"},
+                          "controller",
+                          "/etc/puppet/ssl/ca/ca_crt.pem",
+                          "/etc/puppet/ssl/certs/client_crt.pem",
+                          "/etc/puppet/ssl/public_keys/client_key.pem",
+                          4000,  // WebSocket connection timeout
+                          5 };   // PCP Association timeout
+```
+
+When multiple brokers are specified, if one is unavailable it will attempt to connect to
+another in the list, rotating through them with a delay between repeated attempts.
+
 When you have created a Connector object you are ready to connect. To do that,
 you'll use Connector's `connect` that will establish the WebSocket connection
 and perform the PCP Association with the broker. Such method is defined as:
