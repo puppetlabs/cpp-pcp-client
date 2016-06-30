@@ -41,6 +41,8 @@ public:
     void go();
     uint16_t port();
 
+    void set_tcp_pre_init_handler(std::function<void(websocketpp::connection_hdl)> func);
+
     void set_open_handler(std::function<void(websocketpp::connection_hdl)> func);
 
     void set_ping_handler(std::function<bool(websocketpp::connection_hdl,
