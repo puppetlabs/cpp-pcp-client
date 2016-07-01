@@ -206,9 +206,10 @@ TEST_CASE("Connection::~Connection", "[connection]") {
                              PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
 
         // The WebSocket connection must not be established before 10 ms
-        mock_server.set_tcp_pre_init_handler(
+        mock_server.set_validate_handler(
                 [](websocketpp::connection_hdl hdl) {
                     Util::this_thread::sleep_for(Util::chrono::milliseconds(10));
+                    return true;
                 });
 
         mock_server.go();

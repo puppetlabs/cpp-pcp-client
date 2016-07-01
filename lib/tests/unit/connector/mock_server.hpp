@@ -43,6 +43,10 @@ public:
 
     void set_tcp_pre_init_handler(std::function<void(websocketpp::connection_hdl)> func);
 
+    // NOTE(ale): pausing  more than 15 ms in the `validate` handler
+    // may end up invalidating the received message
+    void set_validate_handler(std::function<bool(websocketpp::connection_hdl)> func);
+
     void set_open_handler(std::function<void(websocketpp::connection_hdl)> func);
 
     void set_ping_handler(std::function<bool(websocketpp::connection_hdl,
