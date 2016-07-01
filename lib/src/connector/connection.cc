@@ -312,11 +312,12 @@ void Connection::close(CloseCode code, const std::string& reason)
 void Connection::connectAndWait()
 {
     connect_();
-    lth_util::Timer timer {};
-    while (connection_state_.load() != ConnectionState::open
-           && timer.elapsed_milliseconds() < client_metadata_.ws_connection_timeout_ms) {
-        doSleep();
-    }
+    Util::unique_lock<Util::mutex> lck { onOpen_mtx };
+    onOpen_cv.wait_for(lck,
+                       Util::chrono::milliseconds(client_metadata_.ws_connection_timeout_ms),
+                       [this]() -> bool {
+                           return connection_state_.load() == ConnectionState::open;
+                       });
 }
 
 void Connection::tryClose()
@@ -591,7 +592,12 @@ void Connection::onOpen(WS_Connection_Handle hdl) {
     LOG_DEBUG("WebSocket on open event - {1}", timings.toString());
     LOG_INFO("Successfully established a WebSocket connection with the PCP "
              "broker at {1}", getWsUri());
-    connection_state_ = ConnectionState::open;
+
+    {
+        Util::lock_guard<Util::mutex> { onOpen_mtx };
+        connection_state_ = ConnectionState::open;
+    }
+    onOpen_cv.notify_one();
 
     if (onOpen_callback_) {
         try {

@@ -78,6 +78,12 @@ static void let_connection_stop(Connection const& connection, int timeout = 2)
     REQUIRE(connection.getConnectionState() != ConnectionState::open);
 }
 
+static void wait_for_server_open()
+{
+    static Util::chrono::milliseconds pause {20};
+    Util::this_thread::sleep_for(pause);
+}
+
 TEST_CASE("Connection::connect", "[connection]") {
     SECTION("successfully connects, closes, and sets Closing Handshake timings") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
@@ -95,6 +101,7 @@ TEST_CASE("Connection::connect", "[connection]") {
         Connection connection {
             "wss://localhost:" + std::to_string(mock_server.port()) + "/pcp", c_m };
         connection.connect(10);
+        wait_for_server_open();
         REQUIRE(connected);
 
         connection.close();
@@ -132,6 +139,7 @@ TEST_CASE("Connection::connect", "[connection]") {
                                        "wss://localhost:" + std::to_string(port) + "/pcp" },
             c_m };
         connection.connect(30);
+        wait_for_server_open();
         REQUIRE(connected);
 
         connection.close();
@@ -165,12 +173,14 @@ TEST_CASE("Connection::connect", "[connection]") {
 
         mock_server_a->go();
         connection.connect(10);
+        wait_for_server_open();
         REQUIRE(connected_a);
         mock_server_a.reset();
         let_connection_stop(connection);
 
         mock_server_b->go();
         connection.connect(30);
+        wait_for_server_open();
         REQUIRE(connected_b);
         mock_server_b.reset();
         let_connection_stop(connection);
@@ -181,58 +191,70 @@ TEST_CASE("Connection::connect", "[connection]") {
         });
         mock_server_a->go();
         connection.connect(30);
+
+        wait_for_server_open();
         REQUIRE(connected_c);
     }
 }
 
 TEST_CASE("Connection::~Connection", "[connection]") {
-    MockServer mock_server;
-    bool connected = false;
-    mock_server.set_open_handler([&connected](websocketpp::connection_hdl hdl) {
-        connected = true;
-    });
-    mock_server.go();
+    SECTION("connect fails with connection timeout < server's processing time") {
+        MockServer mock_server;
+        ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
+                             getKeyPath(), WS_TIMEOUT,
+                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
+                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
 
-    ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                         getKeyPath(), WS_TIMEOUT,
-                         ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
-                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+        // The WebSocket connection must not be established before 10 ms
+        mock_server.set_tcp_pre_init_handler(
+                [](websocketpp::connection_hdl hdl) {
+                    Util::this_thread::sleep_for(Util::chrono::milliseconds(10));
+                });
 
-    SECTION("connecting with a single attempt") {
-        SECTION("connection timeout = 1 ms") {
-            c_m.ws_connection_timeout_ms = 1;
-        }
+        mock_server.go();
+        c_m.ws_connection_timeout_ms = 1;
+        Connection connection {
+                "wss://localhost:" + std::to_string(mock_server.port()) + "/pcp",
+                c_m };
 
-        SECTION("connection timeout = 990 ms") {
-            c_m.ws_connection_timeout_ms = 990;
-        }
+        // The connection timeout should fire and an onFail event
+        // should be triggered, followed by a connection_fatal_error
+        REQUIRE_THROWS_AS(connection.connect(1),
+                          connection_fatal_error);
 
-        {
-            Connection connection {
-                    "wss://localhost:" + std::to_string(mock_server.port()) + "/pcp",
-                    c_m };
-
-            // In case the connection timeout fires, this will trigger a
-            // WebSocket onFail event
-            REQUIRE_NOTHROW(connection.connect(1));
-
-            lth_util::Timer timer {};
-            while (connection.getConnectionState() == ConnectionState::connecting
-                   && timer.elapsed_seconds() < 2)
-                Util::this_thread::sleep_for(Util::chrono::milliseconds(1));
-
-            auto c_s = connection.getConnectionState();
-            auto open_or_closed = c_s == ConnectionState::open
-                                  || c_s == ConnectionState::closed;
-            REQUIRE(open_or_closed);
-
-            // Triggering the dtor
-        }
-
-        // Connector's dtor should be able to effectively stop the
-        // event handler and join its thread
-        REQUIRE(true);
+        // Triggering the dtor
     }
+
+    SECTION("succeeds with connection timeout = 990 ms") {
+        MockServer mock_server;
+        ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
+                             getKeyPath(), WS_TIMEOUT,
+                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
+                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+        mock_server.go();
+        c_m.ws_connection_timeout_ms = 990;
+        Connection connection {
+                "wss://localhost:" + std::to_string(mock_server.port()) + "/pcp",
+                c_m };
+
+        REQUIRE_NOTHROW(connection.connect(1));
+
+        lth_util::Timer timer {};
+        while (connection.getConnectionState() == ConnectionState::connecting
+               && timer.elapsed_seconds() < 2)
+            Util::this_thread::sleep_for(Util::chrono::milliseconds(1));
+
+        auto c_s = connection.getConnectionState();
+        auto open_or_closed = c_s == ConnectionState::open
+                              || c_s == ConnectionState::closed;
+        REQUIRE(open_or_closed);
+
+        // Triggering the dtor
+    }
+
+    // Connector's dtor should be able to effectively stop the
+    // event handler and join its thread
+    REQUIRE(true);
 }
 
 }  // namespace PCPClient
