@@ -100,6 +100,11 @@ void MockServer::set_tcp_pre_init_handler(std::function<void(websocketpp::connec
     server_->set_tcp_pre_init_handler(func);
 }
 
+void MockServer::set_validate_handler(std::function<bool(websocketpp::connection_hdl)> func)
+{
+    server_->set_validate_handler(func);
+}
+
 void MockServer::set_open_handler(std::function<void(websocketpp::connection_hdl)> func)
 {
     server_->set_open_handler(func);
