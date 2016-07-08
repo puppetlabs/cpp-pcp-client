@@ -132,6 +132,11 @@ msgstr ""
 msgid "Verifying {1}, issued by {2}. Verified: {3}"
 msgstr ""
 
+#. warning
+#: lib/src/connector/connection.cc
+msgid "TLS handshake failed, no subject name matching {1} found."
+msgstr ""
+
 #. debug
 #: lib/src/connector/connection.cc
 msgid "WebSocket TLS initialization event; about to validate the certificate"
