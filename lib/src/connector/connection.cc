@@ -345,7 +345,7 @@ class verbose_verification {
         if (!verified) {
             // Issue a warning. Avoid throwing exceptions because this will be called
             // by OpenSSL, and that code likely doesn't handle cleanup on exceptions.
-            LOG_WARNING("TLS handshake failed, no subject name matching {1} found.", uri_);
+            LOG_WARNING("TLS handshake failed, no subject name matching {1} found", uri_);
         }
         return verified;
     }
@@ -360,7 +360,7 @@ template <typename Verifier>
 static verbose_verification<Verifier>
 make_verbose_verification(Verifier verifier, std::string uri)
 {
-  return verbose_verification<Verifier>(verifier, std::move(uri));
+    return verbose_verification<Verifier>(verifier, std::move(uri));
 }
 
 WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl) {
