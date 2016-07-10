@@ -48,6 +48,7 @@ elseif ("${CMAKE_SYSTEM_NAME}" MATCHES "SunOS")
 endif()
 
 add_library(libcpp-pcp-client ${SOURCES})
+set_target_properties(libcpp-pcp-client PROPERTIES VERSION ${PROJECT_VERSION})
 
 # Explicit dependency on external projects to ensure they get
 # extracted when building with multiple jobs
