@@ -99,6 +99,10 @@ fabric (inventory) by relying on the associate response sent by the broker. This
 is done by 1) registering an associate response callback for processing and
 displaying the inventory list and 2) sending an inventory request to the broker.
 
+### Step 10
+
+Register a failover broker in case the original broker becomes unavailable.
+
 [1]: https://github.com/puppetlabs/leatherman
 [2]: https://github.com/puppetlabs/pcp-broker
 [3]: https://github.com/puppetlabs/pcp-specifications
