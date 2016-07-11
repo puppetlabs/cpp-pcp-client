@@ -427,8 +427,8 @@ template <typename Verifier>
 class verbose_verification
 {
   public:
-    verbose_verification(Verifier verifier)
-            : verifier_(verifier)
+    verbose_verification(Verifier verifier, std::string uri)
+            : verifier_(verifier), uri_(std::move(uri))
     {}
 
     bool operator()(bool preverified,
@@ -440,19 +440,25 @@ class verbose_verification
         bool verified = verifier_(preverified, ctx);
         LOG_DEBUG("Verifying {1}, issued by {2}. Verified: {3}",
                   subject_name, issuer_name, verified);
+        if (!verified) {
+            // Issue a warning. Avoid throwing exceptions because this will be called
+            // by OpenSSL, and that code likely doesn't handle cleanup on exceptions.
+            LOG_WARNING("TLS handshake failed, no subject name matching {1} found", uri_);
+        }
         return verified;
     }
 
   private:
     Verifier verifier_;
+    std::string uri_;
 };
 
 /// \brief Auxiliary function to make verbose_verification objects.
 template <typename Verifier>
 static verbose_verification<Verifier>
-make_verbose_verification(Verifier verifier)
+make_verbose_verification(Verifier verifier, std::string uri)
 {
-  return verbose_verification<Verifier>(verifier);
+    return verbose_verification<Verifier>(verifier, std::move(uri));
 }
 
 WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl)
@@ -476,11 +482,12 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl)
                                   boost::asio::ssl::context::file_format::pem);
         ctx->load_verify_file(client_metadata_.ca);
 
-        auto uri = websocketpp::uri(getWsUri());
+        auto uri_txt = getWsUri();
+        auto uri = websocketpp::uri(uri_txt);
         ctx->set_verify_mode(boost::asio::ssl::verify_peer);
         ctx->set_verify_callback(
             make_verbose_verification(
-                boost::asio::ssl::rfc2818_verification(uri.get_host())));
+                boost::asio::ssl::rfc2818_verification(uri.get_host()), uri_txt));
         LOG_DEBUG("Initialized SSL context to verify broker {1}", uri.get_host());
     } catch (std::exception& e) {
         // This is unexpected, as the CliendMetadata ctor does
