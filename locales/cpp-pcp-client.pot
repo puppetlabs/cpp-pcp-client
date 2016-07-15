@@ -332,6 +332,11 @@ msgstr ""
 msgid "Failed to establish the WebSocket connection ({1})"
 msgstr ""
 
+#: lib/src/connector/connector.cc
+msgid ""
+"pong timeout ({1} ms) must be less than connection check interval ({2} ms)"
+msgstr ""
+
 #. warning
 #: lib/src/connector/connector.cc
 msgid "The Monitoring Thread is already running"

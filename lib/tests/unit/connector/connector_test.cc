@@ -24,7 +24,7 @@ static constexpr int WS_TIMEOUT_MS { 5000 };
 static constexpr uint32_t ASSOCIATION_TIMEOUT_S { 15 };
 static constexpr uint32_t ASSOCIATION_REQUEST_TTL_S { 10 };
 static constexpr uint32_t PONG_TIMEOUTS_BEFORE_RETRY { 3 };
-static constexpr uint32_t PONG_TIMEOUT { 30000 };
+static constexpr uint32_t PONG_TIMEOUT { 900 };
 
 TEST_CASE("Connector::Connector", "[connector]") {
     SECTION("can instantiate") {
@@ -124,6 +124,34 @@ TEST_CASE("Connector::connect", "[connector]") {
         REQUIRE(us_zero   < ws_timings.getOverallConnectionInterval_us());
         REQUIRE(min_zero == ws_timings.getOverallConnectionInterval_min());
         REQUIRE(us_zero  == ws_timings.getClosingHandshakeInterval());
+    }
+}
+
+TEST_CASE("Connector monitor connection throws if pong timeout would be ignored", "[connector]") {
+    MockServer mock_server;
+    mock_server.go();
+    auto port = mock_server.port();
+
+    Connector c { "wss://localhost:" + std::to_string(port) + "/pcp",
+                  "test_client", getCaPath(), getCertPath(), getKeyPath(),
+                  WS_TIMEOUT_MS, ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
+                  PONG_TIMEOUTS_BEFORE_RETRY, 2000 };
+    c.connect(1);
+
+    SECTION("monitorConnection ping every second") {
+        REQUIRE_THROWS_AS(c.monitorConnection(0, 1), connection_config_error);
+    }
+
+    SECTION("monitorConnection ping every 2 seconds") {
+        REQUIRE_THROWS_AS(c.monitorConnection(0, 2), connection_config_error);
+    }
+
+    SECTION("startMonitoring ping every second") {
+        REQUIRE_THROWS_AS(c.startMonitoring(0, 1), connection_config_error);
+    }
+
+    SECTION("startMonitoring ping every 2 seconds") {
+        REQUIRE_THROWS_AS(c.startMonitoring(0, 2), connection_config_error);
     }
 }
 
