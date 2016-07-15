@@ -52,7 +52,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
               uint32_t association_timeout_s = 15,
               uint32_t association_request_ttl_s = 10,
               uint32_t pong_timeouts_before_retry = 3,
-              long ws_pong_timeout_ms = 30000);
+              long ws_pong_timeout_ms = 5000);
 
     Connector(std::vector<std::string> broker_ws_uris,
               std::string client_type,
@@ -63,7 +63,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
               uint32_t association_timeout_s = 15,
               uint32_t association_request_ttl_s = 10,
               uint32_t pong_timeouts_before_retry = 3,
-              long ws_pong_timeout_ms = 30000);
+              long ws_pong_timeout_ms = 5000);
 
     /// Calls stopMonitorTaskAndWait if the Monitoring Task thread is
     /// still active. In case an exception was previously stored by

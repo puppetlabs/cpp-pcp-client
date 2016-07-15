@@ -339,10 +339,21 @@ AssociationTimings Connector::getAssociationTimings() const
     return association_timings_;
 }
 
+static void checkPingTimings(uint32_t ping_interval_ms, uint32_t pong_timeout_ms)
+{
+    if (ping_interval_ms <= pong_timeout_ms) {
+        throw connection_config_error {
+            leatherman::locale::format("pong timeout ({1} ms) must be less "
+                                       "than connection check interval ({2} ms)",
+                                       pong_timeout_ms, ping_interval_ms) };
+    }
+}
+
 void Connector::startMonitoring(const uint32_t max_connect_attempts,
                                 const uint32_t connection_check_interval_s)
 {
     checkConnectionInitialization();
+    checkPingTimings(connection_check_interval_s*1000, client_metadata_.pong_timeout_ms);
 
     if (!is_monitoring_) {
         is_monitoring_ = true;
@@ -374,6 +385,7 @@ void Connector::monitorConnection(const uint32_t max_connect_attempts,
                                   const uint32_t connection_check_interval_s)
 {
     checkConnectionInitialization();
+    checkPingTimings(connection_check_interval_s*1000, client_metadata_.pong_timeout_ms);
 
     if (!is_monitoring_) {
         is_monitoring_ = true;
