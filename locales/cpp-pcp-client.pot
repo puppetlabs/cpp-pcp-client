@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: cpp-pcp-client 1.1.4\n"
+"Project-Id-Version: cpp-pcp-client 1.1.5\n"
 "Report-Msgid-Bugs-To: docs@puppet.com\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -134,7 +134,7 @@ msgstr ""
 
 #. warning
 #: lib/src/connector/connection.cc
-msgid "TLS handshake failed, no subject name matching {1} found."
+msgid "TLS handshake failed, no subject name matching {1} found"
 msgstr ""
 
 #. debug
