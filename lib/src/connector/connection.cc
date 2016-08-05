@@ -443,7 +443,7 @@ class verbose_verification
         if (!verified) {
             // Issue a warning. Avoid throwing exceptions because this will be called
             // by OpenSSL, and that code likely doesn't handle cleanup on exceptions.
-            LOG_WARNING("TLS handshake failed, no subject name matching {1} found", uri_);
+            LOG_WARNING("TLS handshake failed, no subject name matching {1} found, or ca mismatch", uri_);
         }
         return verified;
     }
