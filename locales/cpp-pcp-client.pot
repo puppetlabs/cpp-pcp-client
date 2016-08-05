@@ -146,7 +146,8 @@ msgstr ""
 
 #. warning
 #: lib/src/connector/connection.cc
-msgid "TLS handshake failed, no subject name matching {1} found"
+msgid ""
+"TLS handshake failed, no subject name matching {1} found, or ca mismatch"
 msgstr ""
 
 #. debug
