@@ -7,13 +7,13 @@
 #include <cpp-pcp-client/connector/errors.hpp>
 #include <cpp-pcp-client/connector/timings.hpp>
 
-#include <cpp-pcp-client/validator/validator.hpp>
-#include <cpp-pcp-client/validator/schema.hpp>
-
 #include <cpp-pcp-client/protocol/chunks.hpp>
 #include <cpp-pcp-client/protocol/message.hpp>
 
 #include <cpp-pcp-client/export.h>
+
+#include <leatherman/json_container/validator.hpp>
+#include <leatherman/json_container/schema.hpp>
 #include <leatherman/util/thread.hpp>
 
 #include <memory>
@@ -72,7 +72,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
 
     /// Throw a schema_redefinition_error if the specified schema has
     /// been already registred.
-    void registerMessageCallback(const Schema& schema,
+    void registerMessageCallback(const lth_jc::Schema& schema,
                                  MessageCallback callback);
 
     /// Set an optional callback for error messages
@@ -262,7 +262,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     ClientMetadata client_metadata_;
 
     /// Content validator
-    Validator validator_;
+    lth_jc::Validator validator_;
 
     /// Schema - onMessage callback map
     std::map<std::string, MessageCallback> schema_callback_pairs_;

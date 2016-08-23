@@ -150,7 +150,7 @@ SerializedMessage Message::getSerialized() const {
 
 // Parse JSON, validate schema, and return the content of chunks
 
-ParsedChunks Message::getParsedChunks(const Validator& validator) const {
+ParsedChunks Message::getParsedChunks(const lth_jc::Validator& validator) const {
     // Envelope
     lth_jc::JsonContainer envelope_content { envelope_chunk_.content };
     validator.validate(envelope_content, Protocol::ENVELOPE_SCHEMA_NAME);
@@ -173,10 +173,10 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
             }
 
             debug_content.push_back(parsed_debug);
-        } catch (leatherman::json_container::data_parse_error& e) {
+        } catch (lth_jc::data_parse_error& e) {
             num_invalid_debug++;
             LOG_DEBUG("Invalid debug in message {1}: {2}", msg_id, e.what());
-        } catch (validator_error& e) {
+        } catch (lth_jc::validator_error& e) {
             num_invalid_debug++;
             LOG_DEBUG("Invalid debug in message {1}: {2}", msg_id, e.what());
         }
@@ -187,7 +187,7 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
         auto message_type = envelope_content.get<std::string>("message_type");
         auto content_type = validator.getSchemaContentType(message_type);
 
-        if (content_type == ContentType::Json) {
+        if (content_type == lth_jc::ContentType::Json) {
             std::string err_msg {};
             try {
                 lth_jc::JsonContainer data_content_json { data_chunk_.content };
@@ -198,9 +198,9 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
                                       data_content_json,
                                       debug_content,
                                       num_invalid_debug };
-            } catch (leatherman::json_container::data_parse_error& e) {
+            } catch (lth_jc::data_parse_error& e) {
                 err_msg = e.what();
-            } catch (validator_error& e) {
+            } catch (lth_jc::validator_error& e) {
                 err_msg = e.what();
             }
 
@@ -211,7 +211,7 @@ ParsedChunks Message::getParsedChunks(const Validator& validator) const {
                                   true,
                                   debug_content,
                                   num_invalid_debug };
-        } else if (content_type == ContentType::Binary) {
+        } else if (content_type == lth_jc::ContentType::Binary) {
             auto data_content_binary = data_chunk_.content;
 
             // Binary data content

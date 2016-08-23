@@ -6,82 +6,82 @@ namespace Protocol {
 // HERE(ale): this must be kept up to date with
 // https://github.com/puppetlabs/pcp-specifications
 
-Schema EnvelopeSchema() {
-    Schema schema { ENVELOPE_SCHEMA_NAME, ContentType::Json };
-    schema.addConstraint("id", TypeConstraint::String, true);
-    schema.addConstraint("message_type", TypeConstraint::String, true);
-    schema.addConstraint("expires", TypeConstraint::String, true);
+lth_jc::Schema EnvelopeSchema() {
+    lth_jc::Schema schema { ENVELOPE_SCHEMA_NAME, lth_jc::ContentType::Json };
+    schema.addConstraint("id", lth_jc::TypeConstraint::String, true);
+    schema.addConstraint("message_type", lth_jc::TypeConstraint::String, true);
+    schema.addConstraint("expires", lth_jc::TypeConstraint::String, true);
     // TODO(ale): add array item constraint once implemented in Schema
-    schema.addConstraint("targets", TypeConstraint::Array, true);
-    schema.addConstraint("sender", TypeConstraint::String, true);
-    schema.addConstraint("destination_report", TypeConstraint::Bool, false);
-    schema.addConstraint("in-reply-to", TypeConstraint::String, false);
+    schema.addConstraint("targets", lth_jc::TypeConstraint::Array, true);
+    schema.addConstraint("sender", lth_jc::TypeConstraint::String, true);
+    schema.addConstraint("destination_report", lth_jc::TypeConstraint::Bool, false);
+    schema.addConstraint("in-reply-to", lth_jc::TypeConstraint::String, false);
     return schema;
 }
 
-Schema AssociateResponseSchema() {
-    Schema schema { ASSOCIATE_RESP_TYPE, ContentType::Json };
-    schema.addConstraint("id", TypeConstraint::String, true);
-    schema.addConstraint("success", TypeConstraint::Bool, true);
-    schema.addConstraint("reason", TypeConstraint::String, false);
+lth_jc::Schema AssociateResponseSchema() {
+    lth_jc::Schema schema { ASSOCIATE_RESP_TYPE, lth_jc::ContentType::Json };
+    schema.addConstraint("id", lth_jc::TypeConstraint::String, true);
+    schema.addConstraint("success", lth_jc::TypeConstraint::Bool, true);
+    schema.addConstraint("reason", lth_jc::TypeConstraint::String, false);
     return schema;
 }
 
-Schema InventoryRequestSchema() {
-    Schema schema { INVENTORY_REQ_TYPE, ContentType::Json };
-    schema.addConstraint("query", TypeConstraint::String, true);
+lth_jc::Schema InventoryRequestSchema() {
+    lth_jc::Schema schema { INVENTORY_REQ_TYPE, lth_jc::ContentType::Json };
+    schema.addConstraint("query", lth_jc::TypeConstraint::String, true);
     return schema;
 }
 
-Schema InventoryResponseSchema() {
-    Schema schema { INVENTORY_RESP_TYPE, ContentType::Json };
+lth_jc::Schema InventoryResponseSchema() {
+    lth_jc::Schema schema { INVENTORY_RESP_TYPE, lth_jc::ContentType::Json };
     // TODO(ale): add array item constraint once implemented in Schema
-    schema.addConstraint("uris", TypeConstraint::Array, true);
+    schema.addConstraint("uris", lth_jc::TypeConstraint::Array, true);
     return schema;
 }
 
-Schema ErrorMessageSchema() {
-    Schema schema { ERROR_MSG_TYPE, ContentType::Json };
-    schema.addConstraint("description", TypeConstraint::String, true);
-    schema.addConstraint("id", TypeConstraint::String, false);
+lth_jc::Schema ErrorMessageSchema() {
+    lth_jc::Schema schema { ERROR_MSG_TYPE, lth_jc::ContentType::Json };
+    schema.addConstraint("description", lth_jc::TypeConstraint::String, true);
+    schema.addConstraint("id", lth_jc::TypeConstraint::String, false);
     return schema;
 }
 
-Schema DestinationReportSchema() {
-    Schema schema { DESTINATION_REPORT_TYPE, ContentType::Json };
-    schema.addConstraint("id", TypeConstraint::String, true);
+lth_jc::Schema DestinationReportSchema() {
+    lth_jc::Schema schema { DESTINATION_REPORT_TYPE, lth_jc::ContentType::Json };
+    schema.addConstraint("id", lth_jc::TypeConstraint::String, true);
     // TODO(ale): add array item constraint once implemented in Schema
-    schema.addConstraint("targets", TypeConstraint::Array, true);
+    schema.addConstraint("targets", lth_jc::TypeConstraint::Array, true);
     return schema;
 }
 
-Schema TTLExpiredSchema() {
-    Schema schema { TTL_EXPIRED_TYPE, ContentType::Json };
+lth_jc::Schema TTLExpiredSchema() {
+    lth_jc::Schema schema { TTL_EXPIRED_TYPE, lth_jc::ContentType::Json };
     // NB: additionalProperties = false
-    schema.addConstraint("id", TypeConstraint::String, true);
+    schema.addConstraint("id", lth_jc::TypeConstraint::String, true);
     return schema;
 }
 
-Schema VersionErrorSchema() {
-    Schema schema { VERSION_ERROR_TYPE, ContentType::Json };
+lth_jc::Schema VersionErrorSchema() {
+    lth_jc::Schema schema { VERSION_ERROR_TYPE, lth_jc::ContentType::Json };
     // NB: additionalProperties = false
-    schema.addConstraint("id", TypeConstraint::String, true);
-    schema.addConstraint("target", TypeConstraint::String, true);
-    schema.addConstraint("reason", TypeConstraint::String, true);
+    schema.addConstraint("id", lth_jc::TypeConstraint::String, true);
+    schema.addConstraint("target", lth_jc::TypeConstraint::String, true);
+    schema.addConstraint("reason", lth_jc::TypeConstraint::String, true);
     return schema;
 }
 
-Schema DebugSchema() {
-    Schema schema { DEBUG_SCHEMA_NAME, ContentType::Json };
-    schema.addConstraint("hops", TypeConstraint::Array, true);
+lth_jc::Schema DebugSchema() {
+    lth_jc::Schema schema { DEBUG_SCHEMA_NAME, lth_jc::ContentType::Json };
+    schema.addConstraint("hops", lth_jc::TypeConstraint::Array, true);
     return schema;
 }
 
-Schema DebugItemSchema() {
-    Schema schema { DEBUG_ITEM_SCHEMA_NAME, ContentType::Json };
-    schema.addConstraint("server", TypeConstraint::String, true);
-    schema.addConstraint("time", TypeConstraint::String, true);
-    schema.addConstraint("stage", TypeConstraint::String, false);
+lth_jc::Schema DebugItemSchema() {
+    lth_jc::Schema schema { DEBUG_ITEM_SCHEMA_NAME, lth_jc::ContentType::Json };
+    schema.addConstraint("server", lth_jc::TypeConstraint::String, true);
+    schema.addConstraint("time", lth_jc::TypeConstraint::String, true);
+    schema.addConstraint("stage", lth_jc::TypeConstraint::String, false);
     return schema;
 }
 

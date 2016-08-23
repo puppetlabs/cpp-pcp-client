@@ -51,7 +51,7 @@ ParsedChunks::ParsedChunks()
         : envelope {},
           has_data { false },
           invalid_data { false },
-          data_type { ContentType::Json },
+          data_type { lth_jc::ContentType::Json },
           data {},
           binary_data { "" },
           debug {},
@@ -65,7 +65,7 @@ ParsedChunks::ParsedChunks(lth_jc::JsonContainer _envelope,
         : envelope { _envelope },
           has_data { false },
           invalid_data { false },
-          data_type { ContentType::Json },
+          data_type { lth_jc::ContentType::Json },
           data {},
           binary_data { "" },
           debug { _debug },
@@ -80,7 +80,7 @@ ParsedChunks::ParsedChunks(lth_jc::JsonContainer _envelope,
         : envelope { _envelope },
           has_data { _invalid_data },
           invalid_data { _invalid_data },
-          data_type { ContentType::Json },
+          data_type { lth_jc::ContentType::Json },
           data {},
           binary_data { "" },
           debug { _debug },
@@ -95,7 +95,7 @@ ParsedChunks::ParsedChunks(lth_jc::JsonContainer _envelope,
         : envelope { _envelope },
           has_data { true },
           invalid_data { false },
-          data_type { ContentType::Json },
+          data_type { lth_jc::ContentType::Json },
           data { _data },
           binary_data { "" },
           debug { _debug },
@@ -110,7 +110,7 @@ ParsedChunks::ParsedChunks(lth_jc::JsonContainer _envelope,
         : envelope { _envelope },
           has_data { true },
           invalid_data { false },
-          data_type { ContentType::Binary },
+          data_type { lth_jc::ContentType::Binary },
           data {},
           binary_data { _binary_data },
           debug { _debug },
@@ -124,7 +124,7 @@ std::string ParsedChunks::toString() const {
         s += "\nDATA: ";
         if (invalid_data) {
             s += "INVALID";
-        } else if (data_type == ContentType::Json) {
+        } else if (data_type == lth_jc::ContentType::Json) {
             s += data.toString();
         } else {
             s += binary_data;

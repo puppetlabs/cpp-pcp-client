@@ -141,7 +141,7 @@ Connector::~Connector()
 }
 
 // Register schemas and onMessage callbacks
-void Connector::registerMessageCallback(const Schema& schema,
+void Connector::registerMessageCallback(const lth_jc::Schema& schema,
                                         MessageCallback callback)
 {
     validator_.registerSchema(schema);
@@ -604,12 +604,12 @@ void Connector::processMessage(const std::string& msg_txt)
     if (err_msg.empty()) {
         try {
             parsed_chunks = msg_ptr->getParsedChunks(validator_);
-        } catch (const validation_error& e) {
+        } catch (const lth_jc::validation_error& e) {
             err_msg = lth_loc::format("Invalid envelope - bad content: {1}", e.what());
         } catch (const lth_jc::data_parse_error& e) {
             err_msg = lth_loc::format("Invalid envelope - invalid JSON content: {1}",
                                       e.what());
-        } catch (const schema_not_found_error& e) {
+        } catch (const lth_jc::schema_not_found_error& e) {
             // This is unexpected
             err_msg = lth_loc::format("Unknown schema: {1}", e.what());
         }

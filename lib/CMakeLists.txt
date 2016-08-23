@@ -18,8 +18,6 @@ set(SOURCES
     src/protocol/schemas.cc
     src/protocol/serialization.cc
     src/util/logging.cc
-    src/validator/schema.cc
-    src/validator/validator.cc
 )
 
 # Static libraries should come before shared libraries, or you can end up
@@ -52,7 +50,7 @@ set_target_properties(libcpp-pcp-client PROPERTIES VERSION ${PROJECT_VERSION})
 
 # Explicit dependency on external projects to ensure they get
 # extracted when building with multiple jobs
-add_dependencies(libcpp-pcp-client websocketpp valijson)
+add_dependencies(libcpp-pcp-client websocketpp)
 
 target_link_libraries(libcpp-pcp-client PRIVATE ${LIBS} ${PLATFORM_LIBS})
 
