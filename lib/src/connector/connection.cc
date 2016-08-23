@@ -10,8 +10,8 @@
 #include <cpp-pcp-client/connector/connection.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
 #include <cpp-pcp-client/protocol/message.hpp>
-#include <cpp-pcp-client/util/thread.hpp>
-#include <cpp-pcp-client/util/chrono.hpp>
+#include <leatherman/util/thread.hpp>
+#include <leatherman/util/chrono.hpp>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -112,7 +112,7 @@ Connection::Connection(std::vector<std::string> broker_ws_uris,
         endpoint_->set_pong_timeout(client_metadata_.pong_timeout_ms);
 
         // Start the event loop thread
-        endpoint_thread_.reset(new Util::thread(&WS_Client_Type::run, endpoint_.get()));
+        endpoint_thread_.reset(new lth_util::thread(&WS_Client_Type::run, endpoint_.get()));
     } catch (...) {
         LOG_DEBUG("Failed to configure the WebSocket endpoint; about to stop "
                   "the event loop");
@@ -169,7 +169,7 @@ void Connection::resetCallbacks()
 
 inline static void doSleep(int ms = CONNECTION_MIN_INTERVAL_MS)
 {
-    Util::this_thread::sleep_for(Util::chrono::milliseconds(ms));
+    lth_util::this_thread::sleep_for(lth_util::chrono::milliseconds(ms));
 }
 
 void Connection::connect(int max_connect_attempts)
@@ -291,7 +291,7 @@ void Connection::ping(const std::string& binary_payload)
 void Connection::close(CloseCode code, const std::string& reason)
 {
     LOG_DEBUG("About to close the WebSocket connection");
-    Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
+    lth_util::lock_guard<lth_util::mutex> the_lock { state_mutex_ };
     timings.setClosing();
     auto c_s = connection_state_.load();
     if (c_s != ConnectionState::closed) {
@@ -312,9 +312,9 @@ void Connection::close(CloseCode code, const std::string& reason)
 void Connection::connectAndWait()
 {
     connect_();
-    Util::unique_lock<Util::mutex> lck { onOpen_mtx };
+    lth_util::unique_lock<lth_util::mutex> lck { onOpen_mtx };
     onOpen_cv.wait_for(lck,
-                       Util::chrono::milliseconds(client_metadata_.ws_connection_timeout_ms),
+                       lth_util::chrono::milliseconds(client_metadata_.ws_connection_timeout_ms),
                        [this]() -> bool {
                            return connection_state_.load() == ConnectionState::open;
                        });
@@ -500,7 +500,7 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl)
 
 void Connection::onClose(WS_Connection_Handle hdl)
 {
-    Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
+    lth_util::lock_guard<lth_util::mutex> the_lock { state_mutex_ };
     timings.setClosed();
     auto con = endpoint_->get_con_from_hdl(hdl);
     auto close_code = con->get_remote_close_code();
@@ -532,7 +532,7 @@ void Connection::onClose(WS_Connection_Handle hdl)
 
 void Connection::onFail(WS_Connection_Handle hdl)
 {
-    Util::lock_guard<Util::mutex> the_lock { state_mutex_ };
+    lth_util::lock_guard<lth_util::mutex> the_lock { state_mutex_ };
     timings.setClosed(true);
     auto con = endpoint_->get_con_from_hdl(hdl);
     LOG_DEBUG("WebSocket on fail event - {1}", timings.toString());
@@ -584,13 +584,13 @@ void Connection::onPongTimeout(WS_Connection_Handle hdl,
 
 void Connection::onPreTCPInit(WS_Connection_Handle hdl)
 {
-    timings.tcp_pre_init = Util::chrono::high_resolution_clock::now();
+    timings.tcp_pre_init = lth_util::chrono::high_resolution_clock::now();
     LOG_TRACE("WebSocket pre-TCP initialization event");
 }
 
 void Connection::onPostTCPInit(WS_Connection_Handle hdl)
 {
-    timings.tcp_post_init = Util::chrono::high_resolution_clock::now();
+    timings.tcp_post_init = lth_util::chrono::high_resolution_clock::now();
     LOG_TRACE("WebSocket post-TCP initialization event");
 }
 
@@ -601,7 +601,7 @@ void Connection::onOpen(WS_Connection_Handle hdl) {
              "broker at {1}", getWsUri());
 
     {
-        Util::lock_guard<Util::mutex> { onOpen_mtx };
+        lth_util::lock_guard<lth_util::mutex> { onOpen_mtx };
         connection_state_ = ConnectionState::open;
     }
     onOpen_cv.notify_one();

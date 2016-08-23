@@ -19,7 +19,6 @@
 #include <websocketpp/common/connection_hdl.hpp>
 #pragma GCC diagnostic pop
 
-#include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/protocol/schemas.hpp>
 #include <cpp-pcp-client/protocol/message.hpp>
 #include <cpp-pcp-client/protocol/errors.hpp>

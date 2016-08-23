@@ -7,7 +7,7 @@
 #include <cpp-pcp-client/connector/errors.hpp>
 #include <cpp-pcp-client/connector/timings.hpp>
 
-#include <cpp-pcp-client/util/chrono.hpp>
+#include <leatherman/util/chrono.hpp>
 
 #include <leatherman/util/timer.hpp>
 
@@ -74,14 +74,14 @@ static void let_connection_stop(Connection const& connection, int timeout = 2)
     lth_util::Timer timer {};
     while (connection.getConnectionState() == ConnectionState::open
             && timer.elapsed_seconds() < timeout)
-        Util::this_thread::sleep_for(Util::chrono::milliseconds(1));
+        lth_util::this_thread::sleep_for(lth_util::chrono::milliseconds(1));
     REQUIRE(connection.getConnectionState() != ConnectionState::open);
 }
 
 static void wait_for_server_open()
 {
-    static Util::chrono::milliseconds pause {20};
-    Util::this_thread::sleep_for(pause);
+    static lth_util::chrono::milliseconds pause {20};
+    lth_util::this_thread::sleep_for(pause);
 }
 
 TEST_CASE("Connection::connect", "[connection]") {
@@ -114,7 +114,7 @@ TEST_CASE("Connection::connect", "[connection]") {
 
         while (connection.getConnectionState() != ConnectionState::closed
                && timer.elapsed_seconds() < 2)
-            Util::this_thread::sleep_for(Util::chrono::milliseconds(1));
+            lth_util::this_thread::sleep_for(lth_util::chrono::milliseconds(1));
 
         REQUIRE(connection.getConnectionState() == ConnectionState::closed);
         REQUIRE(duration_zero < connection.timings.getClosingHandshakeInterval());
@@ -208,7 +208,7 @@ TEST_CASE("Connection::~Connection", "[connection]") {
         // The WebSocket connection must not be established before 10 ms
         mock_server.set_validate_handler(
                 [](websocketpp::connection_hdl hdl) {
-                    Util::this_thread::sleep_for(Util::chrono::milliseconds(10));
+                    lth_util::this_thread::sleep_for(lth_util::chrono::milliseconds(10));
                     return true;
                 });
 
@@ -243,7 +243,7 @@ TEST_CASE("Connection::~Connection", "[connection]") {
         lth_util::Timer timer {};
         while (connection.getConnectionState() == ConnectionState::connecting
                && timer.elapsed_seconds() < 2)
-            Util::this_thread::sleep_for(Util::chrono::milliseconds(1));
+            lth_util::this_thread::sleep_for(lth_util::chrono::milliseconds(1));
 
         auto c_s = connection.getConnectionState();
         auto open_or_closed = c_s == ConnectionState::open

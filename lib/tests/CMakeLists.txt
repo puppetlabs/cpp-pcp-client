@@ -13,13 +13,11 @@ set(SOURCES
     unit/protocol/serialization_test.cc
     unit/protocol/message_test.cc
     unit/protocol/schemas_test.cc
-    unit/validator/schema_test.cc
-    unit/validator/validator_test.cc
 )
 
 include_directories(
     ${LEATHERMAN_CATCH_INCLUDE}
-    ${VALIJSON_INCLUDE_DIRS}
+    ${LEATHERMAN_VALIJSON_INCLUDE}
 )
 
 if (WIN32)
@@ -51,13 +49,10 @@ endif()
 add_library(pcp-chunks
     ${SOURCE_DIR}/protocol/chunks.cc
     ${SOURCE_DIR}/protocol/message.cc
-    ${SOURCE_DIR}/protocol/serialization.cc
-    ${SOURCE_DIR}/validator/schema.cc
-    ${SOURCE_DIR}/validator/validator.cc)
+    ${SOURCE_DIR}/protocol/serialization.cc)
 target_link_libraries(pcp-chunks PRIVATE
     ${MOCK_SERVER_LIBS}
     ${PLATFORM_LIBS})
-add_dependencies(pcp-chunks valijson)
 # Add the libcpp-pcp-client export header
 target_compile_definitions(pcp-chunks PRIVATE -Dlibcpp_pcp_client_EXPORTS)
 

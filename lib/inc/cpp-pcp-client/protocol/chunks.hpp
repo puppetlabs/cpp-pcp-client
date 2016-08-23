@@ -2,8 +2,8 @@
 #define CPP_PCP_CLIENT_SRC_PROTOCOL_CHUNKS_H_
 
 #include <cpp-pcp-client/protocol/serialization.hpp>
-#include <cpp-pcp-client/validator/schema.hpp>
 #include <cpp-pcp-client/export.h>
+#include <leatherman/json_container/schema.hpp>
 
 #include <string>
 #include <stdint.h>  // uint8_t
@@ -64,7 +64,7 @@ struct LIBCPP_PCP_CLIENT_EXPORT ParsedChunks {
     // Data
     bool has_data;
     bool invalid_data;
-    ContentType data_type;
+    lth_jc::ContentType data_type;
     lth_jc::JsonContainer data;
     std::string binary_data;
 

@@ -7,15 +7,14 @@
 #include <cpp-pcp-client/connector/errors.hpp>
 #include <cpp-pcp-client/connector/timings.hpp>
 
-#include <cpp-pcp-client/validator/validator.hpp>
-#include <cpp-pcp-client/validator/schema.hpp>
-
 #include <cpp-pcp-client/protocol/chunks.hpp>
 #include <cpp-pcp-client/protocol/message.hpp>
 
-#include <cpp-pcp-client/util/thread.hpp>
-
 #include <cpp-pcp-client/export.h>
+
+#include <leatherman/json_container/validator.hpp>
+#include <leatherman/json_container/schema.hpp>
+#include <leatherman/util/thread.hpp>
 
 #include <memory>
 #include <string>
@@ -73,7 +72,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
 
     /// Throw a schema_redefinition_error if the specified schema has
     /// been already registred.
-    void registerMessageCallback(const Schema& schema,
+    void registerMessageCallback(const lth_jc::Schema& schema,
                                  MessageCallback callback);
 
     /// Set an optional callback for error messages
@@ -263,7 +262,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     ClientMetadata client_metadata_;
 
     /// Content validator
-    Validator validator_;
+    lth_jc::Validator validator_;
 
     /// Schema - onMessage callback map
     std::map<std::string, MessageCallback> schema_callback_pairs_;
@@ -281,9 +280,9 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     bool is_monitoring_;
 
     /// To manage the Monitoring Task
-    Util::thread monitor_thread_;
-    Util::mutex monitor_mutex_;
-    Util::condition_variable monitor_cond_var_;
+    leatherman::util::thread monitor_thread_;
+    leatherman::util::mutex monitor_mutex_;
+    leatherman::util::condition_variable monitor_cond_var_;
     bool must_stop_monitoring_;
     std::exception_ptr monitor_exception_;
 

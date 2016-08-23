@@ -3,8 +3,8 @@
 
 #include <cpp-pcp-client/connector/timings.hpp>
 #include <cpp-pcp-client/connector/client_metadata.hpp>
-#include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/export.h>
+#include <leatherman/util/thread.hpp>
 
 #include <string>
 #include <vector>
@@ -176,11 +176,11 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     std::unique_ptr<WS_Client_Type> endpoint_;
 
     /// Transport layer event loop thread
-    std::shared_ptr<Util::thread> endpoint_thread_;
+    std::shared_ptr<leatherman::util::thread> endpoint_thread_;
 
     /// To synchronize the onOpen event
-    Util::condition_variable onOpen_cv;
-    Util::mutex onOpen_mtx;
+    leatherman::util::condition_variable onOpen_cv;
+    leatherman::util::mutex onOpen_mtx;
 
     // Callback functions called by the WebSocket event handlers.
     std::function<void()> onOpen_callback_;
@@ -192,7 +192,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     uint32_t connection_backoff_ms_ { CONNECTION_BACKOFF_MS };
 
     /// To manage the connection state
-    Util::mutex state_mutex_;
+    leatherman::util::mutex state_mutex_;
 
     /// Connect and wait until the connection is open or for the
     /// configured connection_timeout

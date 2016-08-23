@@ -4,8 +4,8 @@
 #include <cpp-pcp-client/protocol/chunks.hpp>
 #include <cpp-pcp-client/protocol/errors.hpp>
 #include <cpp-pcp-client/protocol/serialization.hpp>
-#include <cpp-pcp-client/validator/validator.hpp>
 #include <cpp-pcp-client/export.h>
+#include <leatherman/json_container/validator.hpp>
 
 #include <string>
 #include <vector>
@@ -18,6 +18,7 @@ namespace PCPClient {
 //
 // Message
 //
+namespace lth_jc = leatherman::json_container;
 
 class LIBCPP_PCP_CLIENT_EXPORT Message {
   public:
@@ -81,7 +82,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Message {
     //
     // Note that bad debug/data chunks are reported in the returned
     // ParsedChunks objects; no error will will be propagated.
-    ParsedChunks getParsedChunks(const Validator& validator) const;
+    ParsedChunks getParsedChunks(const lth_jc::Validator& validator) const;
 
     // Return a string representation of all message fields.
     std::string toString() const;

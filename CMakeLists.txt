@@ -43,7 +43,7 @@ endif()
 
 # Find libraries
 find_package(Leatherman REQUIRED
-  COMPONENTS locale nowide catch logging rapidjson json_container util)
+  COMPONENTS locale nowide catch logging rapidjson valijson json_container util)
 find_package(Boost 1.54 REQUIRED
   COMPONENTS filesystem chrono system date_time thread log regex random)
 find_package(OpenSSL REQUIRED)
@@ -83,7 +83,6 @@ endif()
 
 # Include vendor libraries and directories
 include(${VENDOR_DIRECTORY}/websocketpp.cmake)
-include(${VENDOR_DIRECTORY}/valijson.cmake)
 
 # Display a summary of the features
 include(FeatureSummary)
