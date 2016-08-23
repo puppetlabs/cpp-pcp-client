@@ -2,8 +2,8 @@
 #define CPP_PCP_CLIENT_SRC_VALIDATOR_VALIDATOR_H_
 
 #include <cpp-pcp-client/validator/schema.hpp>
-#include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/export.h>
+#include <leatherman/util/thread.hpp>
 
 #include <map>
 
@@ -66,7 +66,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Validator {
 
   private:
     std::map<std::string, Schema> schema_map_;
-    mutable Util::mutex lookup_mutex_;
+    mutable leatherman::util::mutex lookup_mutex_;
 };
 
 }  // namespace PCPClient

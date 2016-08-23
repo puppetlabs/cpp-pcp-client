@@ -1,8 +1,8 @@
 #ifndef CPP_PCP_CLIENT_SRC_CONNECTOR_SESSION_ASSOCIATION_HPP_
 #define CPP_PCP_CLIENT_SRC_CONNECTOR_SESSION_ASSOCIATION_HPP_
 
-#include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/export.h>
+#include <leatherman/util/thread.hpp>
 
 #include <string>
 #include <atomic>
@@ -19,8 +19,8 @@ struct LIBCPP_PCP_CLIENT_EXPORT SessionAssociation {
     std::atomic<bool> got_messaging_failure;
     std::string request_id;
     std::string error;
-    Util::mutex mtx;
-    Util::condition_variable cond_var;
+    leatherman::util::mutex mtx;
+    leatherman::util::condition_variable cond_var;
 
     SessionAssociation();
 

@@ -1,8 +1,8 @@
 #include <cpp-pcp-client/connector/connector.hpp>
 #include <cpp-pcp-client/protocol/message.hpp>
 #include <cpp-pcp-client/protocol/schemas.hpp>
-#include <cpp-pcp-client/util/thread.hpp>
-#include <cpp-pcp-client/util/chrono.hpp>
+#include <leatherman/util/thread.hpp>
+#include <leatherman/util/chrono.hpp>
 
 #define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".connector"
 
@@ -222,7 +222,7 @@ void Connector::connect(int max_connect_attempts)
                 while (connection_ptr_->getConnectionState()
                             != ConnectionState::closed
                        && timer.elapsed_seconds() < WS_CONNECTION_CLOSE_TIMEOUT_S)
-                    Util::this_thread::sleep_for(Util::chrono::milliseconds(100));
+                    lth_util::this_thread::sleep_for(lth_util::chrono::milliseconds(100));
 
                 if (connection_ptr_->getConnectionState()
                         != ConnectionState::closed) {
@@ -252,10 +252,10 @@ void Connector::connect(int max_connect_attempts)
     // CONNECTION_MIN_INTERVAL_MS) could leave pxp-agent retrying to
     // connect indefinitely (in case max_connect_attempts == 0)
     // instead of throwing a connection_association_response_failure.
-    Util::unique_lock<Util::mutex> the_lock { session_association_.mtx };
+    lth_util::unique_lock<lth_util::mutex> the_lock { session_association_.mtx };
     session_association_.reset();
     session_association_.in_progress = true;
-    Util::chrono::seconds assoc_timeout { client_metadata_.association_timeout_s };
+    lth_util::chrono::seconds assoc_timeout { client_metadata_.association_timeout_s };
 
     try {
         // Open the WebSocket connection (blocking call)
@@ -263,7 +263,7 @@ void Connector::connect(int max_connect_attempts)
         LOG_INFO("Waiting for the PCP Session Association to complete");
         session_association_.cond_var.wait_until(
             the_lock,                                           // lock
-            Util::chrono::system_clock::now() + assoc_timeout,  // timeout
+            lth_util::chrono::system_clock::now() + assoc_timeout,  // timeout
             [this]() -> bool {                                  // predicate
                 return !session_association_.in_progress.load()
                         || session_association_.got_messaging_failure.load();
@@ -357,10 +357,10 @@ void Connector::startMonitoring(const uint32_t max_connect_attempts,
 
     if (!is_monitoring_) {
         is_monitoring_ = true;
-        monitor_thread_ = Util::thread { &Connector::startMonitorTask,
-                                         this,
-                                         max_connect_attempts,
-                                         connection_check_interval_s };
+        monitor_thread_ = lth_util::thread { &Connector::startMonitorTask,
+                                             this,
+                                             max_connect_attempts,
+                                             connection_check_interval_s };
     } else {
         LOG_WARNING("The Monitoring Thread is already running");
     }
@@ -550,7 +550,7 @@ std::string Connector::sendMessage(const std::vector<std::string>& targets,
 
 void Connector::associateSession()
 {
-    Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
+    lth_util::lock_guard<lth_util::mutex> the_lock { session_association_.mtx };
 
     if (!session_association_.in_progress.load())
         LOG_DEBUG("About to send the Associate Session request; unexpectedly the "
@@ -621,7 +621,7 @@ void Connector::processMessage(const std::string& msg_txt)
         if (session_association_.in_progress.load()) {
             // Report that a bad message was received, as
             // associateResponseCallback() won't be executed
-            Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
+            lth_util::lock_guard<lth_util::mutex> the_lock { session_association_.mtx };
             session_association_.got_messaging_failure = true;
             session_association_.error = err_msg;
             session_association_.cond_var.notify_one();
@@ -659,7 +659,7 @@ void Connector::associateResponseCallback(const ParsedChunks& parsed_chunks)
     assert(parsed_chunks.has_data);
     assert(parsed_chunks.data_type == PCPClient::ContentType::Json);
 
-    Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
+    lth_util::lock_guard<lth_util::mutex> the_lock { session_association_.mtx };
 
     auto response_id = parsed_chunks.envelope.get<std::string>("id");
     auto sender_uri = parsed_chunks.envelope.get<std::string>("sender");
@@ -734,7 +734,7 @@ void Connector::errorMessageCallback(const ParsedChunks& parsed_chunks)
         error_callback_(parsed_chunks);
 
     if (session_association_.in_progress.load()) {
-        Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
+        lth_util::lock_guard<lth_util::mutex> the_lock { session_association_.mtx };
 
         if (!cause_id.empty() && cause_id == session_association_.request_id) {
             LOG_DEBUG("The error message {1} is due to the Associate Session "
@@ -766,7 +766,7 @@ void Connector::TTLMessageCallback(const ParsedChunks& parsed_chunks)
         TTL_expired_callback_(parsed_chunks);
 
     if (session_association_.in_progress.load()) {
-        Util::lock_guard<Util::mutex> the_lock { session_association_.mtx };
+        lth_util::lock_guard<lth_util::mutex> the_lock { session_association_.mtx };
 
         if (!expired_msg_id.empty()
                 && expired_msg_id == session_association_.request_id) {
@@ -792,15 +792,15 @@ void Connector::startMonitorTask(const uint32_t max_connect_attempts,
     // Reset the exception, in case one was previously triggered and handled.
     monitor_exception_ = {};
     LOG_INFO("Starting the monitor task");
-    Util::chrono::system_clock::time_point now {};
-    Util::unique_lock<Util::mutex> the_lock { monitor_mutex_ };
+    lth_util::chrono::system_clock::time_point now {};
+    lth_util::unique_lock<lth_util::mutex> the_lock { monitor_mutex_ };
 
     while (!must_stop_monitoring_) {
-        now = Util::chrono::system_clock::now();
+        now = lth_util::chrono::system_clock::now();
 
         monitor_cond_var_.wait_until(
             the_lock,
-            now + Util::chrono::seconds(connection_check_interval_s));
+            now + lth_util::chrono::seconds(connection_check_interval_s));
 
         if (must_stop_monitoring_)
             break;

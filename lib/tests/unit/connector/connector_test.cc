@@ -7,9 +7,8 @@
 #include <cpp-pcp-client/connector/errors.hpp>
 #include <cpp-pcp-client/connector/timings.hpp>
 
-#include <cpp-pcp-client/util/thread.hpp>
-#include <cpp-pcp-client/util/chrono.hpp>
-
+#include <leatherman/util/thread.hpp>
+#include <leatherman/util/chrono.hpp>
 #include <leatherman/util/timer.hpp>
 
 #include <memory>
@@ -41,7 +40,7 @@ static void wait_for(std::function<bool()> func, uint16_t pause_s = 2)
     lth_util::Timer timer {};
 
     while (!func() && timer.elapsed_seconds() < pause_s)
-        Util::this_thread::sleep_for(Util::chrono::milliseconds(1));
+        lth_util::this_thread::sleep_for(lth_util::chrono::milliseconds(1));
 }
 
 TEST_CASE("Connector::getConnectionTimings", "[connector]") {
@@ -169,7 +168,7 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
 
         std::unique_ptr<Connector> c_ptr;
         uint16_t port;
-        Util::thread monitor;
+        lth_util::thread monitor;
 
         {
             MockServer mock_server;
@@ -195,7 +194,7 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
 
             // Monitor with infinite retries and 1 s between each WebSocket ping
             if (use_blocking_call) {
-                monitor = Util::thread(
+                monitor = lth_util::thread(
                     [&c_ptr]() {
                         REQUIRE_NOTHROW(c_ptr->monitorConnection(0, 1));
                     });
@@ -255,7 +254,7 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
         }
 
         MockServer mock_server;
-        Util::thread monitor;
+        lth_util::thread monitor;
         std::atomic<int> num_connections {0};
         std::atomic<int> num_pings {0};
         mock_server.set_open_handler(
@@ -287,7 +286,7 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
 
         // Monitor with infinite retries and 1 s between each WebSocket ping
         if (use_blocking_call) {
-            monitor = Util::thread(
+            monitor = lth_util::thread(
                 [&c]() {
                     REQUIRE_NOTHROW(c.monitorConnection(0, 1));
                 });
@@ -325,7 +324,7 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
         }
 
         std::unique_ptr<MockServer> mock_server_ptr {new MockServer()};
-        Util::thread monitor;
+        lth_util::thread monitor;
         bool connected {false};
         mock_server_ptr->set_open_handler(
                 [&connected](websocketpp::connection_hdl hdl) {
@@ -346,7 +345,7 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
 
         // Monitor with 1 connection retry and 1 s between each WebSocket ping
         if (use_blocking_call) {
-            monitor = Util::thread(
+            monitor = lth_util::thread(
                     [&]() {
                         REQUIRE_THROWS_AS(c.monitorConnection(1, 1),
                                           connection_fatal_error);
@@ -361,7 +360,7 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
         // Wait for the connection to drop plus 3 seconds to let the monitor
         // task fail (monitoring period is 1 s)
         wait_for([&c](){return !c.isConnected();});
-        Util::this_thread::sleep_for(Util::chrono::seconds(3));
+        lth_util::this_thread::sleep_for(lth_util::chrono::seconds(3));
 
         if (!use_blocking_call)
             REQUIRE_THROWS_AS(c.stopMonitoring(), connection_fatal_error);

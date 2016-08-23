@@ -16,8 +16,9 @@
 
 namespace PCPClient {
 
-namespace lth_jc  = leatherman::json_container;
-namespace lth_loc = leatherman::locale;
+namespace lth_jc   = leatherman::json_container;
+namespace lth_loc  = leatherman::locale;
+namespace lth_util = leatherman::util;
 
 ///
 /// Auxiliary functions
@@ -73,7 +74,7 @@ Validator::Validator(Validator&& other_validator)
 }
 
 void Validator::registerSchema(const Schema& schema) {
-    Util::lock_guard<Util::mutex> lock(lookup_mutex_);
+    lth_util::lock_guard<lth_util::mutex> lock(lookup_mutex_);
     auto schema_name = schema.getName();
     if (includesSchema(schema_name)) {
         throw schema_redefinition_error {
@@ -86,7 +87,7 @@ void Validator::registerSchema(const Schema& schema) {
 
 void Validator::validate(const lth_jc::JsonContainer& data,
                          std::string schema_name) const {
-    Util::unique_lock<Util::mutex> lock(lookup_mutex_);
+    lth_util::unique_lock<lth_util::mutex> lock(lookup_mutex_);
     if (!includesSchema(schema_name)) {
         throw schema_not_found_error {
             lth_loc::format("'{1}' is not a registered schema", schema_name) };
@@ -106,7 +107,7 @@ bool Validator::includesSchema(std::string schema_name) const {
 }
 
 ContentType Validator::getSchemaContentType(std::string schema_name) const {
-    Util::unique_lock<Util::mutex> lock(lookup_mutex_);
+    lth_util::unique_lock<lth_util::mutex> lock(lookup_mutex_);
     if (!includesSchema(schema_name)) {
         throw schema_not_found_error {
             lth_loc::format("'{1}' is not a registered schema", schema_name) };

@@ -3,7 +3,7 @@
 
 #include <cpp-pcp-client/export.h>
 
-#include <boost/chrono/chrono.hpp>
+#include <leatherman/util/chrono.hpp>
 
 #include <string>
 
@@ -14,15 +14,15 @@ namespace PCPClient {
 //
 
 struct LIBCPP_PCP_CLIENT_EXPORT ConnectionTimings {
-    using Duration_us  = boost::chrono::duration<int, boost::micro>;
-    using Duration_min = boost::chrono::minutes;
+    using Duration_us  = leatherman::util::chrono::microseconds;
+    using Duration_min = leatherman::util::chrono::minutes;
 
-    boost::chrono::high_resolution_clock::time_point start;
-    boost::chrono::high_resolution_clock::time_point tcp_pre_init;
-    boost::chrono::high_resolution_clock::time_point tcp_post_init;
-    boost::chrono::high_resolution_clock::time_point open;
-    boost::chrono::high_resolution_clock::time_point closing_handshake;
-    boost::chrono::high_resolution_clock::time_point close;
+    leatherman::util::chrono::high_resolution_clock::time_point start;
+    leatherman::util::chrono::high_resolution_clock::time_point tcp_pre_init;
+    leatherman::util::chrono::high_resolution_clock::time_point tcp_post_init;
+    leatherman::util::chrono::high_resolution_clock::time_point open;
+    leatherman::util::chrono::high_resolution_clock::time_point closing_handshake;
+    leatherman::util::chrono::high_resolution_clock::time_point close;
 
     bool isOpen() const;
     bool isClosingStarted() const;
@@ -96,12 +96,12 @@ struct LIBCPP_PCP_CLIENT_EXPORT ConnectionTimings {
 //
 
 struct LIBCPP_PCP_CLIENT_EXPORT AssociationTimings {
-    using Duration_ms  = boost::chrono::duration<int, boost::milli>;
-    using Duration_min = boost::chrono::minutes;
+    using Duration_ms  = leatherman::util::chrono::milliseconds;
+    using Duration_min = leatherman::util::chrono::minutes;
 
-    boost::chrono::high_resolution_clock::time_point start;
-    boost::chrono::high_resolution_clock::time_point association;
-    boost::chrono::high_resolution_clock::time_point close;
+    leatherman::util::chrono::high_resolution_clock::time_point start;
+    leatherman::util::chrono::high_resolution_clock::time_point association;
+    leatherman::util::chrono::high_resolution_clock::time_point close;
 
     bool completed { false };
     bool success { false };

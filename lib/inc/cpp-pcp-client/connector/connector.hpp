@@ -13,9 +13,8 @@
 #include <cpp-pcp-client/protocol/chunks.hpp>
 #include <cpp-pcp-client/protocol/message.hpp>
 
-#include <cpp-pcp-client/util/thread.hpp>
-
 #include <cpp-pcp-client/export.h>
+#include <leatherman/util/thread.hpp>
 
 #include <memory>
 #include <string>
@@ -281,9 +280,9 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     bool is_monitoring_;
 
     /// To manage the Monitoring Task
-    Util::thread monitor_thread_;
-    Util::mutex monitor_mutex_;
-    Util::condition_variable monitor_cond_var_;
+    leatherman::util::thread monitor_thread_;
+    leatherman::util::mutex monitor_mutex_;
+    leatherman::util::condition_variable monitor_cond_var_;
     bool must_stop_monitoring_;
     std::exception_ptr monitor_exception_;
 
