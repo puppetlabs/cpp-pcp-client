@@ -410,6 +410,14 @@ msgstr ""
 msgid "Unknown schema: {1}"
 msgstr ""
 
+#: lib/src/connector/connector.cc
+msgid "DESERIALIZATION_ERROR %1% unknown unknown unknown"
+msgstr ""
+
+#: lib/src/connector/connector.cc
+msgid "AUTHORIZATION_SUCCESS %1% %2% %3% %4%"
+msgstr ""
+
 #. warning
 #: lib/src/connector/connector.cc
 msgid "No message callback has be registered for the '{1}' schema"
