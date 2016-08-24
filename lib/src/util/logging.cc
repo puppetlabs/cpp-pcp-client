@@ -3,44 +3,134 @@
 #define LEATHERMAN_LOGGING_NAMESPACE "puppetlabs.pcp_client.configuration"
 #include <leatherman/logging/logging.hpp>
 
+#include <boost/log/core.hpp>
+#include <boost/log/sinks/basic_sink_backend.hpp>
+#include <boost/log/sinks/sync_frontend.hpp>
+#include <boost/log/sources/logger.hpp>
+#include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/sources/record_ostream.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/attributes/scoped_attribute.hpp>
+
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+
+#include <boost/smart_ptr/make_shared_object.hpp>
+
 #include <map>
+#include <fstream>
+#include <cstdint>
 
 namespace PCPClient {
 namespace Util {
 
 namespace lth_log = leatherman::logging;
+namespace sinks = boost::log::sinks;
+namespace expr = boost::log::expressions;
+namespace attrs = boost::log::attributes;
 
-static void setupLoggingImp(std::ostream &stream,
-                            bool force_colorization,
-                            lth_log::log_level const& lvl) {
-    lth_log::setup_logging(stream);
-    lth_log::set_level(lvl);
-    if (force_colorization) {
-        lth_log::set_colorization(true);
+//
+// PCP Access Logging - sink backend
+//
+
+BOOST_LOG_ATTRIBUTE_KEYWORD(access_outcome, "AccessOutcome", std::string)
+
+class access_writer : public sinks::basic_sink_backend<sinks::synchronized_feeding>
+{
+  public:
+    explicit access_writer(std::shared_ptr<std::ostream> sink_stream_ptr);
+    void consume(boost::log::record_view const& rec);
+
+  private:
+    std::shared_ptr<std::ostream> _sink_stream_ptr;
+};
+
+access_writer::access_writer(std::shared_ptr<std::ostream> sink_stream_ptr)
+    : _sink_stream_ptr {std::move(sink_stream_ptr)}
+{
+}
+
+void access_writer::consume(boost::log::record_view const &rec)
+{
+    auto timestamp = boost::log::extract<boost::posix_time::ptime>("TimeStamp", rec);
+    auto message = rec[expr::smessage];
+
+    *_sink_stream_ptr << '[' << boost::gregorian::to_iso_extended_string(timestamp->date())
+                      << ' ' << boost::posix_time::to_simple_string(timestamp->time_of_day())
+                      << "] " << *message << std::endl;
+}
+
+//
+// PCP Access Logging - logger
+//
+
+void doLogAccess(std::string const& message,
+                 int line_num)
+{
+    // TODO(ale): consider adding an option to prevent access log
+
+    if (lth_log::is_enabled(lth_log::log_level::info)) {
+        boost::log::sources::severity_logger<lth_log::log_level> slg;
+        slg.add_attribute("AccessOutcome",
+                          attrs::constant<std::string>("processed"));
+        slg.add_attribute("Namespace", attrs::constant<std::string>(
+                "puppetlabs.pcp_client.connector"));
+        slg.add_attribute("LineNum", attrs::constant<int>(line_num));
+        BOOST_LOG_SEV(slg, lth_log::log_level::info) << message;
     }
 }
 
-void setupLogging(std::ostream &stream,
+//
+// setupLogging
+//
+
+static void setupLoggingImp(std::ostream& log_stream,
+                            bool force_colorization,
+                            lth_log::log_level const& lvl,
+                            std::shared_ptr<std::ofstream> access_stream)
+{
+    // General Logging
+    lth_log::setup_logging(log_stream);
+    lth_log::set_level(lvl);
+
+    if (force_colorization)
+        lth_log::set_colorization(true);
+
+    // PCP Access Logging
+    if (access_stream) {
+        using sink_t = sinks::synchronous_sink<access_writer>;
+        auto sink = boost::make_shared<sink_t>(std::move(access_stream));
+        sink->set_filter(expr::has_attr(access_outcome));
+        auto core = boost::log::core::get();
+        core->add_sink(sink);
+    }
+}
+
+void setupLogging(std::ostream &log_stream,
                   bool force_colorization,
-                  std::string const& loglevel_label) {
+                  std::string const& loglevel_label,
+                  std::shared_ptr<std::ofstream> access_stream)
+{
     const std::map<std::string, lth_log::log_level> label_to_log_level {
-        { "none", lth_log::log_level::none },
-        { "trace", lth_log::log_level::trace },
-        { "debug", lth_log::log_level::debug },
-        { "info", lth_log::log_level::info },
-        { "warning", lth_log::log_level::warning },
-        { "error", lth_log::log_level::error },
-        { "fatal", lth_log::log_level::fatal }
+            { "none", lth_log::log_level::none },
+            { "trace", lth_log::log_level::trace },
+            { "debug", lth_log::log_level::debug },
+            { "info", lth_log::log_level::info },
+            { "warning", lth_log::log_level::warning },
+            { "error", lth_log::log_level::error },
+            { "fatal", lth_log::log_level::fatal }
     };
 
     auto lvl = label_to_log_level.at(loglevel_label);
-    setupLoggingImp(stream, force_colorization, lvl);
+    setupLoggingImp(log_stream, force_colorization, lvl, std::move(access_stream));
 }
 
-void setupLogging(std::ostream &stream,
+void setupLogging(std::ostream &log_stream,
                   bool force_colorization,
-                  lth_log::log_level const& lvl) {
-    setupLoggingImp(stream, force_colorization, lvl);
+                  lth_log::log_level const& lvl,
+                  std::shared_ptr<std::ofstream> access_stream)
+{
+    setupLoggingImp(log_stream, force_colorization, lvl, std::move(access_stream));
 }
 
 }  // namespace Util
