@@ -29,6 +29,8 @@ namespace sinks = boost::log::sinks;
 namespace expr = boost::log::expressions;
 namespace attrs = boost::log::attributes;
 
+static bool access_logger_enabled { false };
+
 //
 // PCP Access Logging - sink backend
 //
@@ -53,29 +55,35 @@ access_writer::access_writer(std::shared_ptr<std::ostream> sink_stream_ptr)
 void access_writer::consume(boost::log::record_view const &rec)
 {
     auto timestamp = boost::log::extract<boost::posix_time::ptime>("TimeStamp", rec);
-    auto message = rec[expr::smessage];
-
+    auto access_outcome = boost::log::extract<std::string>("AccessOutcome", rec);
     *_sink_stream_ptr << '[' << boost::gregorian::to_iso_extended_string(timestamp->date())
                       << ' ' << boost::posix_time::to_simple_string(timestamp->time_of_day())
-                      << "] " << *message << std::endl;
+                      << "] " << access_outcome << std::endl;
 }
 
 //
 // PCP Access Logging - logger
 //
 
-void doLogAccess(std::string const& message,
-                 int line_num)
+void logAccess(std::string const& message, int line_num)
 {
-    // TODO(ale): consider adding an option to prevent access log
-
-    if (lth_log::is_enabled(lth_log::log_level::info)) {
+    if (access_logger_enabled) {
         boost::log::sources::severity_logger<lth_log::log_level> slg;
+        static attrs::constant <std::string> namespace_attr{
+                "puppetlabs.pcp_client.connector"};
         slg.add_attribute("AccessOutcome",
-                          attrs::constant<std::string>("processed"));
-        slg.add_attribute("Namespace", attrs::constant<std::string>(
-                "puppetlabs.pcp_client.connector"));
+                          attrs::constant<std::string>(message));
+        slg.add_attribute("Namespace", namespace_attr);
         slg.add_attribute("LineNum", attrs::constant<int>(line_num));
+
+        // TODO(ale): make leatherman.logging's color_writer::consume ignore
+        // empty messages (and don't stream 'message' below) or check the log
+        // level; in alternative, allow configuring the color_writer sink
+        // filter to avoid logging AccessOutcome messages (something like
+        // `lth_sink->set_filter(!expr::has_attr(access_outcome));`) - note
+        // that the on_message callback and the record log level are checked
+        // by the logger, not by color_writer::consume. Otherwise, as it's now,
+        // the access message will be logged if the configured log level > info.
         BOOST_LOG_SEV(slg, lth_log::log_level::info) << message;
     }
 }
@@ -98,11 +106,15 @@ static void setupLoggingImp(std::ostream& log_stream,
 
     // PCP Access Logging
     if (access_stream) {
+        access_logger_enabled = true;
         using sink_t = sinks::synchronous_sink<access_writer>;
         auto sink = boost::make_shared<sink_t>(std::move(access_stream));
         sink->set_filter(expr::has_attr(access_outcome));
         auto core = boost::log::core::get();
         core->add_sink(sink);
+
+    } else {
+        access_logger_enabled = false;
     }
 }
 

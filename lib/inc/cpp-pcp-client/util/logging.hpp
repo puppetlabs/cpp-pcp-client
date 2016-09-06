@@ -22,14 +22,7 @@ namespace leatherman {
 namespace PCPClient {
 namespace Util {
 
-void doLogAccess(std::string const& message,
-                 int line_num);
-
-static inline void logAccess(std::string const& message,
-                             int line_num)
-{
-    doLogAccess(message, line_num);
-}
+void logAccess(std::string const& message, int line_num);
 
 LIBCPP_PCP_CLIENT_EXPORT
 void setupLogging(std::ostream &stream,
