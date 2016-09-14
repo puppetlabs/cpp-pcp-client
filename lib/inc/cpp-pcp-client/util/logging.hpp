@@ -17,12 +17,12 @@ namespace leatherman {
    within the cpp-pcp-client library for logging to work.
 */
 
-#define LOG_ACCESS(message) PCPClient::Util::logAccess(message, __LINE__);
+#define LOG_ACCESS(message) PCPClient::Util::logAccess(message);
 
 namespace PCPClient {
 namespace Util {
 
-void logAccess(std::string const& message, int line_num);
+void logAccess(std::string const& message);
 
 LIBCPP_PCP_CLIENT_EXPORT
 void setupLogging(std::ostream &stream,

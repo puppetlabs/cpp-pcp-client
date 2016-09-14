@@ -65,26 +65,15 @@ void access_writer::consume(boost::log::record_view const &rec)
 // PCP Access Logging - logger
 //
 
-void logAccess(std::string const& message, int line_num)
+void logAccess(std::string const& message)
 {
     if (access_logger_enabled) {
         boost::log::sources::severity_logger<lth_log::log_level> slg;
-        static attrs::constant <std::string> namespace_attr{
-                "puppetlabs.pcp_client.connector"};
+        static attrs::constant <std::string> namespace_attr {
+                "puppetlabs.pcp_client.connector" };
         slg.add_attribute("AccessOutcome",
                           attrs::constant<std::string>(message));
-        slg.add_attribute("Namespace", namespace_attr);
-        slg.add_attribute("LineNum", attrs::constant<int>(line_num));
-
-        // TODO(ale): make leatherman.logging's color_writer::consume ignore
-        // empty messages (and don't stream 'message' below) or check the log
-        // level; in alternative, allow configuring the color_writer sink
-        // filter to avoid logging AccessOutcome messages (something like
-        // `lth_sink->set_filter(!expr::has_attr(access_outcome));`) - note
-        // that the on_message callback and the record log level are checked
-        // by the logger, not by color_writer::consume. Otherwise, as it's now,
-        // the access message will be logged if the configured log level > info.
-        BOOST_LOG_SEV(slg, lth_log::log_level::info) << message;
+        BOOST_LOG_SEV(slg, lth_log::log_level::none);
     }
 }
 
