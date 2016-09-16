@@ -131,7 +131,7 @@ Connector::~Connector()
         if (is_monitoring_) {
             stopMonitorTaskAndWait();
         } else if (monitor_exception_) {
-            std::rethrow_exception(monitor_exception_);
+            boost::rethrow_exception(monitor_exception_);
         }
     } catch (const std::exception& e) {
         LOG_ERROR("Error previously caught by the Monitor Thread: {1}", e.what());
@@ -375,7 +375,7 @@ void Connector::stopMonitoring()
     } else if (monitor_exception_) {
         LOG_DEBUG("The Monitoring Thread previously caught an exception; "
                   "re-throwing it");
-        std::rethrow_exception(monitor_exception_);
+        boost::rethrow_exception(monitor_exception_);
     } else {
         LOG_WARNING("The Monitoring Thread is not running");
     }
@@ -395,7 +395,7 @@ void Connector::monitorConnection(const uint32_t max_connect_attempts,
         // Avoid a race condition if the thread is stopped asynchronously by
         // checking must_stop_monitoring_.
         if (!must_stop_monitoring_ && monitor_exception_) {
-            std::rethrow_exception(monitor_exception_);
+            boost::rethrow_exception(monitor_exception_);
         }
     } else {
         LOG_WARNING("The Monitoring Thread is already running");
@@ -826,17 +826,29 @@ void Connector::startMonitorTask(const uint32_t max_connect_attempts,
             // Associate Session failure - stop
             LOG_WARNING("The connection monitor task will stop after an "
                         "Session Association failure: {1}", e.what());
-            monitor_exception_ = std::current_exception();
+            try {
+                boost::throw_exception(e);
+            } catch (...) {
+                monitor_exception_ = boost::current_exception();
+            }
             break;
         } catch (const connection_fatal_error& e) {
             // Failed to reconnect after max_connect_attempts - stop
             LOG_WARNING("The connection monitor task will stop: {1}", e.what());
-            monitor_exception_ = std::current_exception();
+            try {
+                boost::throw_exception(e);
+            } catch (...) {
+                monitor_exception_ = boost::current_exception();
+            }
             break;
-        } catch (...) {
+        } catch (const std::exception& e) {
             // Make sure unexpected exceptions don't cause std::terminate yet,
             // and can be handled by the caller.
-            monitor_exception_ = std::current_exception();
+            try {
+                boost::throw_exception(e);
+            } catch (...) {
+                monitor_exception_ = boost::current_exception();
+            }
             break;
         }
     }
@@ -857,7 +869,7 @@ void Connector::stopMonitorTaskAndWait() {
     }
 
     if (monitor_exception_) {
-        std::rethrow_exception(monitor_exception_);
+        boost::rethrow_exception(monitor_exception_);
     }
 }
 
