@@ -147,6 +147,9 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
     void close(CloseCode code = CloseCodeValues::normal,
                const std::string& reason = DEFAULT_CLOSE_REASON);
 
+    /// Return the current broker WebSocket URI to target
+    std::string const& getWsUri();
+
   private:
     /// WebSocket URIs of PCP brokers; first entry is the default
     std::vector<std::string> broker_ws_uris_;
@@ -206,9 +209,6 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
 
     // Connect the endpoint
     void connect_();
-
-    /// Return the current broker WebSocket URI to target
-    std::string const& getWsUri();
 
     /// Switch broker WebSocket URI targets
     void switchWsUri();

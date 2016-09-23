@@ -3,6 +3,7 @@
 #include <cpp-pcp-client/protocol/schemas.hpp>
 #include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/util/chrono.hpp>
+#include <cpp-pcp-client/util/logging.hpp>
 
 #define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".connector"
 
@@ -13,6 +14,8 @@
 #include <leatherman/util/timer.hpp>
 
 #include <leatherman/locale/locale.hpp>
+
+#include <boost/format.hpp>
 
 #include <cstdio>
 
@@ -618,6 +621,9 @@ void Connector::processMessage(const std::string& msg_txt)
     if (!err_msg.empty()) {
         // Log and return; we cannot break the WebSocket event loop
         LOG_ERROR(err_msg);
+        LOG_ACCESS((boost::format("DESERIALIZATION_ERROR %1% unknown unknown unknown")
+                    % connection_ptr_->getWsUri()).str());
+
         if (session_association_.in_progress.load()) {
             // Report that a bad message was received, as
             // associateResponseCallback() won't be executed
@@ -629,16 +635,20 @@ void Connector::processMessage(const std::string& msg_txt)
         return;
     }
 
-    // Execute the callback associated with the data schema
-    auto schema_name = parsed_chunks.envelope.get<std::string>("message_type");
+    auto message_type = parsed_chunks.envelope.get<std::string>("message_type");
+    auto id = parsed_chunks.envelope.get<std::string>("id");
+    auto sender = parsed_chunks.envelope.get<std::string>("sender");
+    LOG_ACCESS((boost::format("AUTHORIZATION_SUCCESS %1% %2% %3% %4%")
+                   % connection_ptr_->getWsUri() % sender % message_type % id).str());
 
-    if (schema_callback_pairs_.find(schema_name) != schema_callback_pairs_.end()) {
-        auto c_b = schema_callback_pairs_.at(schema_name);
-        LOG_TRACE("Executing callback for a message with '{1}' schema", schema_name);
+    // Execute the callback associated with the data schema
+    if (schema_callback_pairs_.find(message_type) != schema_callback_pairs_.end()) {
+        auto c_b = schema_callback_pairs_.at(message_type);
+        LOG_TRACE("Executing callback for a message with '{1}' schema", message_type);
         c_b(parsed_chunks);
     } else {
         LOG_WARNING("No message callback has be registered for the '{1}' schema",
-                    schema_name);
+                    message_type);
     }
 }
 
