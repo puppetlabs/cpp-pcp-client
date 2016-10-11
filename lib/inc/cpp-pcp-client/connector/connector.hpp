@@ -21,7 +21,6 @@
 #include <string>
 #include <map>
 #include <cstdint>
-#include <exception>
 
 namespace PCPClient {
 
@@ -285,7 +284,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     Util::mutex monitor_mutex_;
     Util::condition_variable monitor_cond_var_;
     bool must_stop_monitoring_;
-    std::exception_ptr monitor_exception_;
+    Util::exception_ptr monitor_exception_;
 
     /// To manage the Associate Session process
     SessionAssociation session_association_;
