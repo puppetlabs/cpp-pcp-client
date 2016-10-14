@@ -84,7 +84,7 @@ void logAccess(std::string const& message)
 static void setupLoggingImp(std::ostream& log_stream,
                             bool force_colorization,
                             lth_log::log_level const& lvl,
-                            std::shared_ptr<std::ofstream> access_stream)
+                            std::shared_ptr<std::ostream> access_stream)
 {
     // General Logging
     lth_log::setup_logging(log_stream);
@@ -97,11 +97,10 @@ static void setupLoggingImp(std::ostream& log_stream,
     if (access_stream) {
         access_logger_enabled = true;
         using sink_t = sinks::synchronous_sink<access_writer>;
-        auto sink = boost::make_shared<sink_t>(std::move(access_stream));
+        boost::shared_ptr<sink_t> sink(new sink_t(std::move(access_stream)));
         sink->set_filter(expr::has_attr(access_outcome));
         auto core = boost::log::core::get();
         core->add_sink(sink);
-
     } else {
         access_logger_enabled = false;
     }
@@ -110,7 +109,7 @@ static void setupLoggingImp(std::ostream& log_stream,
 void setupLogging(std::ostream &log_stream,
                   bool force_colorization,
                   std::string const& loglevel_label,
-                  std::shared_ptr<std::ofstream> access_stream)
+                  std::shared_ptr<std::ostream> access_stream)
 {
     const std::map<std::string, lth_log::log_level> label_to_log_level {
             { "none", lth_log::log_level::none },
@@ -129,7 +128,7 @@ void setupLogging(std::ostream &log_stream,
 void setupLogging(std::ostream &log_stream,
                   bool force_colorization,
                   lth_log::log_level const& lvl,
-                  std::shared_ptr<std::ofstream> access_stream)
+                  std::shared_ptr<std::ostream> access_stream)
 {
     setupLoggingImp(log_stream, force_colorization, lvl, std::move(access_stream));
 }

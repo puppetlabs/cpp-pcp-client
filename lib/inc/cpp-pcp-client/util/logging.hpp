@@ -2,8 +2,8 @@
 
 #include <cpp-pcp-client/export.h>
 
-#include <ostream>
 #include <memory>
+#include <ostream>
 
 // Forward declaration for leatherman::logging::log_level
 namespace leatherman {
@@ -28,13 +28,13 @@ LIBCPP_PCP_CLIENT_EXPORT
 void setupLogging(std::ostream &stream,
                   bool force_colorization,
                   std::string const& loglevel_label,
-                  std::shared_ptr<std::ofstream> access_stream = nullptr);
+                  std::shared_ptr<std::ostream> access_stream = nullptr);
 
 LIBCPP_PCP_CLIENT_EXPORT
 void setupLogging(std::ostream &log_stream,
                   bool force_colorization,
                   leatherman::logging::log_level const& lvl,
-                  std::shared_ptr<std::ofstream> access_stream = nullptr);
+                  std::shared_ptr<std::ostream> access_stream = nullptr);
 
 }  // namespace Util
 }  // namespace PCPClient
