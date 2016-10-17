@@ -97,7 +97,7 @@ static void setupLoggingImp(std::ostream& log_stream,
     if (access_stream) {
         access_logger_enabled = true;
         using sink_t = sinks::synchronous_sink<access_writer>;
-        boost::shared_ptr<sink_t> sink(new sink_t(std::move(access_stream)));
+        auto sink = boost::make_shared<sink_t>(boost::make_shared<access_writer>(std::move(access_stream)));
         sink->set_filter(expr::has_attr(access_outcome));
         auto core = boost::log::core::get();
         core->add_sink(sink);
