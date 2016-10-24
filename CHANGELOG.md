@@ -1,3 +1,16 @@
+## 1.3.0
+
+This is a feature and improvement release.
+
+* [PCP-617](https://tickets.puppetlabs.com/browse/PCP-617) Fix compilation
+with Boost 1.62.
+* [PCP-582](https://tickets.puppetlabs.com/browse/PCP-582) Use
+boost::exception_ptr instead of std::exception_ptr so we can build on ARM.
+* [PCP-556](https://tickets.puppetlabs.com/browse/PCP-556) Implement PCP
+access logging support.
+
+Note: this release did not include changes from 1.2.1.
+
 ## 1.2.1
 
 This is a maintenance release.
