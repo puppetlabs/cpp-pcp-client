@@ -613,15 +613,9 @@ Example usage:
     }
 ```
 
-## Maintenance
+## Contributing
 
-Maintainers: Alessandro Parisi <alessandro@puppet.com>, Michael Smith
-<michael.smith@puppet.com>, Michal Ruzicka <michal.ruzicka@puppet.com>.
-
-Contributing: Please refer to [this][contributing] document.
-
-Tickets: File bug tickets at https://tickets.puppet.com/browse/PCP and add the
-`cpp-pcp-client` component to the ticket.
+Please refer to [this][contributing] document.
 
 [contributing]: CONTRIBUTING.md
 [tutorial]: https://github.com/puppetlabs/cpp-pcp-client/tree/master/tutorial
