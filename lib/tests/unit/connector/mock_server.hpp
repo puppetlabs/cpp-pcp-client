@@ -34,9 +34,11 @@ namespace PCPClient {
 class MockServer
 {
 public:
+    enum class Version { v1, v2 };
     MockServer(uint16_t port = 0,
                std::string certPath = getCertPath(),
-               std::string keyPath = getKeyPath());
+               std::string keyPath = getKeyPath(),
+               Version v = Version::v1);
     ~MockServer();
     void go();
     uint16_t port();
@@ -58,6 +60,12 @@ private:
     std::unique_ptr<websocketpp::server<websocketpp::config::asio_tls>> server_;
 
     void association_request_handler(
+        websocketpp::connection_hdl hdl,
+        std::shared_ptr<
+            class websocketpp::message_buffer::message<
+                websocketpp::message_buffer::alloc::con_msg_manager>> req);
+
+    void message_handler(
         websocketpp::connection_hdl hdl,
         std::shared_ptr<
             class websocketpp::message_buffer::message<

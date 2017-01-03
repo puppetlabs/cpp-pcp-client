@@ -262,6 +262,106 @@ msgstr ""
 msgid "onMessage WebSocket callback failure: unexpected error"
 msgstr ""
 
+#. info
+#: lib/src/connector/connector_base.cc
+msgid "Resetting the WebSocket event callbacks"
+msgstr ""
+
+#. error
+#: lib/src/connector/connector_base.cc
+msgid "Error previously caught by the Monitor Thread: {1}"
+msgstr ""
+
+#. error
+#: lib/src/connector/connector_base.cc
+msgid "An unexpected error has been previously caught by the Monitor Thread"
+msgstr ""
+
+#. debug
+#: lib/src/connector/connector_base.cc
+#: lib/src/connector/v1/connector.cc
+msgid "Failed to establish the WebSocket connection ({1})"
+msgstr ""
+
+#: lib/src/connector/connector_base.cc
+msgid ""
+"pong timeout ({1} ms) must be less than connection check interval ({2} ms)"
+msgstr ""
+
+#. warning
+#: lib/src/connector/connector_base.cc
+msgid "The Monitoring Thread is already running"
+msgstr ""
+
+#. debug
+#: lib/src/connector/connector_base.cc
+msgid "The Monitoring Thread previously caught an exception; re-throwing it"
+msgstr ""
+
+#. warning
+#: lib/src/connector/connector_base.cc
+msgid "The Monitoring Thread is not running"
+msgstr ""
+
+#: lib/src/connector/connector_base.cc
+msgid "connection not initialized"
+msgstr ""
+
+#. info
+#: lib/src/connector/connector_base.cc
+msgid "Starting the monitor task"
+msgstr ""
+
+#. warning
+#: lib/src/connector/connector_base.cc
+msgid "WebSocket connection to PCP broker lost; retrying"
+msgstr ""
+
+#. debug
+#: lib/src/connector/connector_base.cc
+msgid "Sending heartbeat ping"
+msgstr ""
+
+#. warning
+#: lib/src/connector/connector_base.cc
+msgid ""
+"The connection monitor task will continue after a WebSocket failure ({1})"
+msgstr ""
+
+#. warning
+#: lib/src/connector/connector_base.cc
+msgid ""
+"The connection monitor task will continue after an error during the Session "
+"Association ({1})"
+msgstr ""
+
+#. warning
+#: lib/src/connector/connector_base.cc
+msgid ""
+"The connection monitor task will stop after an Session Association failure: "
+"{1}"
+msgstr ""
+
+#. warning
+#: lib/src/connector/connector_base.cc
+msgid "The connection monitor task will stop: {1}"
+msgstr ""
+
+#. info
+#: lib/src/connector/connector_base.cc
+msgid "Stopping the monitor task"
+msgstr ""
+
+#. info
+#: lib/src/connector/connector_base.cc
+msgid "Stopping the Monitoring Thread"
+msgstr ""
+
+#. warning
+#: lib/src/connector/connector_base.cc
+msgid "The Monitoring Thread is not joinable"
+msgstr ""
+
 #: lib/src/connector/timings.cc
 msgid "{1} hrs {2} min"
 msgstr ""
@@ -308,21 +408,6 @@ msgstr ""
 
 #: lib/src/connector/timings.cc
 msgid "PCP Session Association failed after {1} ms"
-msgstr ""
-
-#. info
-#: lib/src/connector/v1/connector.cc
-msgid "Resetting the WebSocket event callbacks"
-msgstr ""
-
-#. error
-#: lib/src/connector/v1/connector.cc
-msgid "Error previously caught by the Monitor Thread: {1}"
-msgstr ""
-
-#. error
-#: lib/src/connector/v1/connector.cc
-msgid "An unexpected error has been previously caught by the Monitor Thread"
 msgstr ""
 
 #. debug
@@ -378,42 +463,14 @@ msgstr ""
 
 #. debug
 #: lib/src/connector/v1/connector.cc
-msgid "Failed to establish the WebSocket connection ({1})"
-msgstr ""
-
-#: lib/src/connector/v1/connector.cc
-msgid ""
-"pong timeout ({1} ms) must be less than connection check interval ({2} ms)"
-msgstr ""
-
-#. warning
-#: lib/src/connector/v1/connector.cc
-msgid "The Monitoring Thread is already running"
-msgstr ""
-
-#. debug
-#: lib/src/connector/v1/connector.cc
-msgid "The Monitoring Thread previously caught an exception; re-throwing it"
-msgstr ""
-
-#. warning
-#: lib/src/connector/v1/connector.cc
-msgid "The Monitoring Thread is not running"
-msgstr ""
-
-#. debug
-#: lib/src/connector/v1/connector.cc
 msgid ""
 "Sending message of {1} bytes:\n"
 "{2}"
 msgstr ""
 
-#: lib/src/connector/v1/connector.cc
-msgid "connection not initialized"
-msgstr ""
-
 #. debug
 #: lib/src/connector/v1/connector.cc
+#: lib/src/connector/v2/connector.cc
 msgid "Creating message with id {1} for {2} receiver"
 msgstr ""
 
@@ -437,6 +494,7 @@ msgstr ""
 
 #. debug
 #: lib/src/connector/v1/connector.cc
+#: lib/src/connector/v2/connector.cc
 msgid ""
 "Received message of {1} bytes - raw message:\n"
 "{2}"
@@ -447,28 +505,34 @@ msgid "Failed to deserialize message: {1}"
 msgstr ""
 
 #: lib/src/connector/v1/connector.cc
+#: lib/src/connector/v2/connector.cc
 msgid "Invalid envelope - bad content: {1}"
 msgstr ""
 
 #: lib/src/connector/v1/connector.cc
+#: lib/src/connector/v2/connector.cc
 msgid "Invalid envelope - invalid JSON content: {1}"
 msgstr ""
 
 #: lib/src/connector/v1/connector.cc
+#: lib/src/connector/v2/connector.cc
 msgid "Unknown schema: {1}"
 msgstr ""
 
 #: lib/src/connector/v1/connector.cc
+#: lib/src/connector/v2/connector.cc
 msgid "DESERIALIZATION_ERROR %1% unknown unknown unknown"
 msgstr ""
 
 #: lib/src/connector/v1/connector.cc
+#: lib/src/connector/v2/connector.cc
 msgid "AUTHORIZATION_SUCCESS %1% %2% %3% %4%"
 msgstr ""
 
 #. warning
 #: lib/src/connector/v1/connector.cc
-msgid "No message callback has be registered for the '{1}' schema"
+#: lib/src/connector/v2/connector.cc
+msgid "No message callback has been registered for the '{1}' schema"
 msgstr ""
 
 #. warning
@@ -503,16 +567,19 @@ msgid "{1}: failure"
 msgstr ""
 
 #: lib/src/connector/v1/connector.cc
+#: lib/src/connector/v2/connector.cc
 msgid "Received error {1} from {2}"
 msgstr ""
 
 #. warning
 #: lib/src/connector/v1/connector.cc
+#: lib/src/connector/v2/connector.cc
 msgid "{1} caused by message {2}: {3}"
 msgstr ""
 
 #. warning
 #: lib/src/connector/v1/connector.cc
+#: lib/src/connector/v2/connector.cc
 msgid "{1} (the id of the message that caused it is unknown): {2}"
 msgstr ""
 
@@ -532,59 +599,11 @@ msgid ""
 "The TTL expired message {1} is related to the Associate Session request {2}"
 msgstr ""
 
-#. info
-#: lib/src/connector/v1/connector.cc
-msgid "Starting the monitor task"
-msgstr ""
-
-#. warning
-#: lib/src/connector/v1/connector.cc
-msgid "WebSocket connection to PCP broker lost; retrying"
-msgstr ""
-
 #. debug
-#: lib/src/connector/v1/connector.cc
-msgid "Sending heartbeat ping"
-msgstr ""
-
-#. warning
-#: lib/src/connector/v1/connector.cc
+#: lib/src/connector/v2/connector.cc
 msgid ""
-"The connection monitor task will continue after a WebSocket failure ({1})"
-msgstr ""
-
-#. warning
-#: lib/src/connector/v1/connector.cc
-msgid ""
-"The connection monitor task will continue after an error during the Session "
-"Association ({1})"
-msgstr ""
-
-#. warning
-#: lib/src/connector/v1/connector.cc
-msgid ""
-"The connection monitor task will stop after an Session Association failure: "
+"Sending message:\n"
 "{1}"
-msgstr ""
-
-#. warning
-#: lib/src/connector/v1/connector.cc
-msgid "The connection monitor task will stop: {1}"
-msgstr ""
-
-#. info
-#: lib/src/connector/v1/connector.cc
-msgid "Stopping the monitor task"
-msgstr ""
-
-#. info
-#: lib/src/connector/v1/connector.cc
-msgid "Stopping the Monitoring Thread"
-msgstr ""
-
-#. warning
-#: lib/src/connector/v1/connector.cc
-msgid "The Monitoring Thread is not joinable"
 msgstr ""
 
 #. warning
@@ -599,6 +618,7 @@ msgstr ""
 
 #. debug
 #: lib/src/protocol/v1/message.cc
+#: lib/src/protocol/v2/message.cc
 msgid "Invalid data in message {1}: {2}"
 msgstr ""
 

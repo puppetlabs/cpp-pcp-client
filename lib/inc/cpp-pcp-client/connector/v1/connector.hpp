@@ -1,20 +1,9 @@
 #pragma once
 
-#include <cpp-pcp-client/connector/connection.hpp>
-#include <cpp-pcp-client/connector/client_metadata.hpp>
 #include <cpp-pcp-client/connector/session_association.hpp>
-#include <cpp-pcp-client/connector/errors.hpp>
-#include <cpp-pcp-client/connector/timings.hpp>
-
-#include <cpp-pcp-client/validator/validator.hpp>
-#include <cpp-pcp-client/validator/schema.hpp>
-
-#include <cpp-pcp-client/protocol/v1/chunks.hpp>
 #include <cpp-pcp-client/protocol/v1/message.hpp>
 
-#include <cpp-pcp-client/util/thread.hpp>
-
-#include <cpp-pcp-client/export.h>
+#include <cpp-pcp-client/connector/connector_base.hpp>
 
 #include <memory>
 #include <string>
@@ -28,10 +17,8 @@ namespace v1 {
 // Connector
 //
 
-class LIBCPP_PCP_CLIENT_EXPORT Connector {
+class LIBCPP_PCP_CLIENT_EXPORT Connector : public ConnectorBase {
   public:
-    using MessageCallback = std::function<void(const ParsedChunks& parsed_chunks)>;
-
     Connector() = delete;
 
     /// The timeout for the call that establishes the WebSocket
@@ -61,20 +48,6 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
               uint32_t association_request_ttl_s = 10,
               uint32_t pong_timeouts_before_retry = 3,
               long ws_pong_timeout_ms = 5000);
-
-    /// Calls stopMonitorTaskAndWait if the Monitoring Task thread is
-    /// still active. In case an exception was previously stored by
-    /// the Monitoring Task, the error message will be logged, but
-    /// the exception won't be rethrown.
-    ~Connector();
-
-    /// Throw a schema_redefinition_error if the specified schema has
-    /// been already registred.
-    void registerMessageCallback(const Schema& schema,
-                                 MessageCallback callback);
-
-    /// Set an optional callback for error messages
-    void setPCPErrorCallback(MessageCallback callback);
 
     /// Set an optional callback for associate responses
     void setAssociateCallback(MessageCallback callback);
@@ -121,81 +94,15 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     ///
     /// NB: this function is not thread safe; it should not be called
     ///     when the monitor thread is executing
-    void connect(int max_connect_attempts = 0);
-
-    /// Returns true if the underlying connection is currently open,
-    /// false otherwise.
-    bool isConnected() const;
+    void connect(int max_connect_attempts = 0) override;
 
     /// Returns true if a successful Associate response has been
     /// received and the underlying connection did not drop since
     /// then, false otherwise.
     bool isAssociated() const;
 
-    /// Returns the timings of the underlying WebSocket connection
-    /// if established, otherwise invokes and returns the
-    /// ConnectionTimings' default constructor.
-    ConnectionTimings getConnectionTimings() const;
-
     /// Returns the timings of the PCP Associate Session.
     AssociationTimings getAssociationTimings() const;
-
-    /// Starts the Monitoring Task in a separate thread.
-    /// Such task will periodically check the state of the
-    /// underlying connection and re-establish it in case it has
-    /// dropped, otherwise it will send a WebSocket ping to the
-    /// current broker in to keep the connection alive.
-    /// The check period is specified by connection_check_interval_s
-    /// (optional, in seconds).
-    /// The max_connect_attempts parameters is used to reconnect
-    /// (optional); it works as for the above connect() function.
-    ///
-    /// Note that startMonitoring simply returns in case of multiple
-    /// calls.
-    ///
-    /// It is safe to call startMonitoring in a multithreading
-    /// context; it will return as soon as the dtor has been invoked.
-    ///
-    /// Throws a connection_not_init_error in case the connection has
-    /// not been opened previously.
-    ///
-    /// Propagates a possible exception thrown while spawning the
-    /// Monitor Thread.
-    ///
-    /// Exceptions caught by the Monitoring Task may be stored
-    /// and propagated later, by a subsequent call to stopMonitoring
-    /// or the destructor. In that case, the task will terminate.
-    /// Otherwise, in case the exception is not stored, the error
-    /// will be logged as a warning.
-    /// The following exceptions are simply logged:
-    ///   - connection_config_error (invalid certificates);
-    ///   - connection_association_error (failure during the Association);
-    /// The following exceptions are stored:
-    ///   - connection_association_response_failure (the Association
-    ///     response was not successful);
-    ///   - connection_fatal_error (failed to re-connect after the
-    ///     specified maximum number of attempts);
-    ///   - all other exceptions.
-    void startMonitoring(const uint32_t max_connect_attempts = 0,
-                         const uint32_t connection_check_interval_s = 15);
-
-    /// Stops the Monitoring Task in case it's running, otherwise the
-    /// function simply logs a warning.
-    ///
-    /// Throws a connection_not_init_error in case the connection has
-    /// not been opened previously.
-    /// Rethrows a possible exception stored by the Monitoring Task
-    /// (see startMonitoring doc above).
-    void stopMonitoring();
-
-    /// A blocking version of startMonitoring.
-    ///
-    /// Throws a connection_not_init_error in case the connection has
-    /// not been opened previously.
-    /// Rethrows a possible exception stored by the Monitoring Task
-    /// (see the startMonitoring doc above).
-    void monitorConnection(const uint32_t max_connect_attempts = 0,
-                           const uint32_t connection_check_interval_s = 15);
 
     /// Send the specified message.
     /// Throw a connection_processing_error in case of failure;
@@ -254,48 +161,24 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
                           const std::string& description);
 
   protected:
-    /// Connection instance pointer
-    std::unique_ptr<Connection> connection_ptr_;
+    // WebSocket Callback for the Connection instance to handle all
+    // incoming messages.
+    // Parse and validate the passed message; execute the callback
+    // associated with the schema specified in the envelope.
+    void processMessage(const std::string& msg_txt) override;
 
   private:
-    /// WebSocket URIs of PCP brokers; first entry is the default
-    std::vector<std::string> broker_ws_uris_;
-
-    /// Client metadata
-    ClientMetadata client_metadata_;
-
-    /// Content validator
-    Validator validator_;
-
-    /// Schema - onMessage callback map
-    std::map<std::string, MessageCallback> schema_callback_pairs_;
-
-    /// Error callback
-    MessageCallback error_callback_;
-
     /// Associate response callback
     MessageCallback associate_response_callback_;
 
     /// TTL Expired callback
     MessageCallback TTL_expired_callback_;
 
-    /// Flag; true if monitorConnection is executing
-    bool is_monitoring_;
-
-    /// To manage the Monitoring Task
-    Util::thread monitor_thread_;
-    Util::mutex monitor_mutex_;
-    Util::condition_variable monitor_cond_var_;
-    bool must_stop_monitoring_;
-    Util::exception_ptr monitor_exception_;
-
     /// To manage the Associate Session process
     SessionAssociation session_association_;
 
     /// To keep track of Associate Session timings
     AssociationTimings association_timings_;
-
-    void checkConnectionInitialization();
 
     MessageChunk createEnvelope(const std::vector<std::string>& targets,
                                 const std::string& message_type,
@@ -314,12 +197,6 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     // on an onOpen event.
     void associateSession();
 
-    // WebSocket Callback for the Connection instance to handle all
-    // incoming messages.
-    // Parse and validate the passed message; execute the callback
-    // associated with the schema specified in the envelope.
-    void processMessage(const std::string& msg_txt);
-
     // WebSocket Callback for the Connection instance to be triggered
     // on onClose or onFail events.
     void closeAssociationTimings();
@@ -335,17 +212,6 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
     // PCP Callback executed by processMessage when a ttl_expired
     // message is received.
     void TTLMessageCallback(const ParsedChunks& parsed_chunks);
-
-    // Monitor the underlying connection; reconnect or keep it alive.
-    // If the underlying connection is dropped, unset the
-    // is_associated_ flag.
-    void startMonitorTask(const uint32_t max_connect_attempts,
-                          const uint32_t connection_check_interval_s);
-
-    // Stop the monitoring thread and wait for it to terminate.
-    // Then rethrows any exceptions encountered while startMonitorTask
-    // was running in its own thread.
-    void stopMonitorTaskAndWait();
 };
 
 }  // namespace v1

@@ -24,6 +24,8 @@
 #include <cpp-pcp-client/protocol/v1/message.hpp>
 #include <cpp-pcp-client/protocol/v1/errors.hpp>
 #include <cpp-pcp-client/protocol/v1/chunks.hpp>
+#include <cpp-pcp-client/protocol/v2/schemas.hpp>
+#include <cpp-pcp-client/protocol/v2/message.hpp>
 
 #include <leatherman/json_container/json_container.hpp>
 
@@ -37,11 +39,11 @@
 namespace PCPClient {
 
 namespace lth_jc  = leatherman::json_container;
-using namespace v1;
 
 MockServer::MockServer(uint16_t port,
                        std::string certPath,
-                       std::string keyPath)
+                       std::string keyPath,
+                       Version v)
     : certPath_(std::move(certPath)),
       keyPath_(std::move(keyPath)),
       server_(new websocketpp::server<websocketpp::config::asio_tls>())
@@ -67,12 +69,8 @@ MockServer::MockServer(uint16_t port,
             return ctx;
         });
 
-    // Set the onMessage handler specifically for Association Requests
-    server_->set_message_handler(
-            std::bind(&MockServer::association_request_handler,
-                      this,
-                      std::placeholders::_1,
-                      std::placeholders::_2));
+    auto handler = (v == Version::v1) ? &MockServer::association_request_handler : &MockServer::message_handler;
+    server_->set_message_handler(std::bind(handler, this, std::placeholders::_1, std::placeholders::_2));
 
     server_->listen(port);
 }
@@ -130,6 +128,8 @@ void MockServer::association_request_handler
             class websocketpp::message_buffer::message<
                 websocketpp::message_buffer::alloc::con_msg_manager>> req)
 {
+    using namespace v1;
+
     try {
         // Deserialize
         Message request {req->get_payload()};
@@ -161,10 +161,43 @@ void MockServer::association_request_handler
                       websocketpp::frame::opcode::binary);
     } catch (const message_error& e) {
         LOG_ERROR("Failed to deserialize message: {1}", e.what());
-        return;
     } catch (const lth_jc::data_error&) {
         LOG_ERROR("Invalid message (bad envelope)");
-        return;
+    } catch (const std::exception& e) {
+        LOG_ERROR("Failed to send the Association response: {1}", e.what());
+    }
+}
+
+void MockServer::message_handler
+        (websocketpp::connection_hdl hdl,
+         std::shared_ptr<
+            class websocketpp::message_buffer::message<
+                websocketpp::message_buffer::alloc::con_msg_manager>> req)
+{
+    using namespace v2;
+    try {
+        Message request { req->get_payload() };
+
+        // Expect inventory_request/response or error_message
+        auto env = request.getEnvelope();
+        auto message_type = env.get<std::string>(MESSAGE_TYPE);
+        if (message_type == Protocol::INVENTORY_REQ_TYPE) {
+            env.set<std::string>(MESSAGE_TYPE, Protocol::INVENTORY_RESP_TYPE);
+            lth_jc::JsonContainer data {};
+            data.set<std::vector<std::string>>("uris", std::vector<std::string>{"pcp://foo/bar"});
+            env.set<std::string>("in_reply_to", env.get<std::string>(ID));
+            env.set<std::string>(ID, "42424242");
+            env.set("data", data);
+
+            Message response { env };
+            server_->send(hdl, response.toString(), websocketpp::frame::opcode::text);
+        } else if (message_type == Protocol::ERROR_MSG_TYPE) {
+            server_->send(hdl, request.toString(), websocketpp::frame::opcode::text);
+        } else {
+            LOG_ERROR("Unknown message type: {1}", message_type);
+        }
+    } catch (const lth_jc::data_error&) {
+        LOG_ERROR("Invalid message (bad envelope)");
     } catch (const std::exception& e) {
         LOG_ERROR("Failed to send the Association response: {1}", e.what());
     }

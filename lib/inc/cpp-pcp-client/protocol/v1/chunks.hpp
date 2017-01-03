@@ -4,6 +4,8 @@
 #include <cpp-pcp-client/validator/schema.hpp>
 #include <cpp-pcp-client/export.h>
 
+#include <cpp-pcp-client/protocol/parsed_chunks.hpp>
+
 #include <string>
 #include <stdint.h>  // uint8_t
 
@@ -52,48 +54,7 @@ struct LIBCPP_PCP_CLIENT_EXPORT MessageChunk {
     std::string toString() const;
 };
 
-//
-// ParsedChunks
-//
-
-struct LIBCPP_PCP_CLIENT_EXPORT ParsedChunks {
-    // Envelope
-    lth_jc::JsonContainer envelope;
-
-    // Data
-    bool has_data;
-    bool invalid_data;
-    ContentType data_type;
-    lth_jc::JsonContainer data;
-    std::string binary_data;
-
-    // Debug
-    std::vector<lth_jc::JsonContainer> debug;
-    unsigned int num_invalid_debug;
-
-    ParsedChunks();
-
-    ParsedChunks(lth_jc::JsonContainer _envelope,
-                 std::vector<lth_jc::JsonContainer> _debug,
-                 unsigned int _num_invalid_debug);
-
-    ParsedChunks(lth_jc::JsonContainer _envelope,
-                 bool _invalid_data,                // invalid data
-                 std::vector<lth_jc::JsonContainer> _debug,
-                 unsigned int _num_invalid_debug);
-
-    ParsedChunks(lth_jc::JsonContainer _envelope,
-                 lth_jc::JsonContainer _data,               // JSON data
-                 std::vector<lth_jc::JsonContainer> _debug,
-                 unsigned int _num_invalid_debug);
-
-    ParsedChunks(lth_jc::JsonContainer _envelope,
-                 std::string _binary_data,          // binary data
-                 std::vector<lth_jc::JsonContainer> _debug,
-                 unsigned int _num_invalid_debug);
-
-    std::string toString() const;
-};
+using ParsedChunks = PCPClient::ParsedChunks;
 
 }  // namespace v1
 }  // namespace PCPClient
