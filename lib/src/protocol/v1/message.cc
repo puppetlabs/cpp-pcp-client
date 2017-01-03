@@ -1,5 +1,5 @@
-#include <cpp-pcp-client/protocol/message.hpp>
-#include <cpp-pcp-client/protocol/schemas.hpp>
+#include <cpp-pcp-client/protocol/v1/message.hpp>
+#include <cpp-pcp-client/protocol/v1/schemas.hpp>
 
 #define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".message"
 
@@ -15,6 +15,7 @@
 #include <cassert>
 
 namespace PCPClient {
+namespace v1 {
 
 namespace lth_jc  = leatherman::json_container;
 namespace lth_loc = leatherman::locale;
@@ -411,4 +412,5 @@ void Message::validateChunk(const MessageChunk& chunk) const {
     }
 }
 
+}  // namespace v1
 }  // namespace PCPClient

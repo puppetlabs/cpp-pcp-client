@@ -1,8 +1,7 @@
-#ifndef CPP_PCP_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
-#define CPP_PCP_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_
+#pragma once
 
 #include <cpp-pcp-client/export.h>
-#include <cpp-pcp-client/protocol/errors.hpp>
+#include <cpp-pcp-client/protocol/v1/errors.hpp>
 
 #include <leatherman/locale/locale.hpp>
 
@@ -20,6 +19,7 @@
 #include <cassert>
 
 namespace PCPClient {
+namespace v1 {
 
 typedef std::vector<uint8_t> SerializedMessage;
 
@@ -157,6 +157,5 @@ inline uint32_t deserialize(size_t thing_size,
     return getHostNumber(value);
 }
 
+}  // namespace v1
 }  // namespace PCPClient
-
-#endif  // CPP_PCP_CLIENT_SRC_PROTOCOL_SERIALIZATION_H_

@@ -1,7 +1,6 @@
-#ifndef CPP_PCP_CLIENT_SRC_PROTOCOL_CHUNKS_H_
-#define CPP_PCP_CLIENT_SRC_PROTOCOL_CHUNKS_H_
+#pragma once
 
-#include <cpp-pcp-client/protocol/serialization.hpp>
+#include <cpp-pcp-client/protocol/v1/serialization.hpp>
 #include <cpp-pcp-client/validator/schema.hpp>
 #include <cpp-pcp-client/export.h>
 
@@ -9,11 +8,11 @@
 #include <stdint.h>  // uint8_t
 
 namespace PCPClient {
+namespace v1 {
 
 //
 // ChunkDescriptor
 //
-namespace lth_jc = leatherman::json_container;
 
 namespace ChunkDescriptor {
     // Filter the chunk type bits (envelope, data, debug)
@@ -96,6 +95,5 @@ struct LIBCPP_PCP_CLIENT_EXPORT ParsedChunks {
     std::string toString() const;
 };
 
+}  // namespace v1
 }  // namespace PCPClient
-
-#endif  // CPP_PCP_CLIENT_SRC_PROTOCOL_CHUNKS_H_

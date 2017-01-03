@@ -6,13 +6,13 @@ include_directories("${SOURCE_DIR}")
 
 set(SOURCES
     main.cc
+    unit/connector/certs.cc
     unit/connector/client_metadata_test.cc
     unit/connector/connection_test.cc
-    unit/connector/connector_test.cc
-    unit/connector/certs.cc
-    unit/protocol/serialization_test.cc
-    unit/protocol/message_test.cc
-    unit/protocol/schemas_test.cc
+    unit/connector/v1/connector_test.cc
+    unit/protocol/v1/serialization_test.cc
+    unit/protocol/v1/message_test.cc
+    unit/protocol/v1/schemas_test.cc
     unit/validator/schema_test.cc
     unit/validator/validator_test.cc
 )
@@ -49,9 +49,9 @@ endif()
 
 # pcp-chunk provides cpp-pcp-clients functions needed by MockServer
 add_library(pcp-chunks
-    ${SOURCE_DIR}/protocol/chunks.cc
-    ${SOURCE_DIR}/protocol/message.cc
-    ${SOURCE_DIR}/protocol/serialization.cc
+    ${SOURCE_DIR}/protocol/v1/chunks.cc
+    ${SOURCE_DIR}/protocol/v1/message.cc
+    ${SOURCE_DIR}/protocol/v1/serialization.cc
     ${SOURCE_DIR}/validator/schema.cc
     ${SOURCE_DIR}/validator/validator.cc)
 target_link_libraries(pcp-chunks PRIVATE

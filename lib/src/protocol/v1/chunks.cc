@@ -1,6 +1,7 @@
-#include <cpp-pcp-client/protocol/chunks.hpp>
+#include <cpp-pcp-client/protocol/v1/chunks.hpp>
 
 namespace PCPClient {
+namespace v1 {
 
 namespace lth_jc = leatherman::json_container;
 
@@ -138,4 +139,5 @@ std::string ParsedChunks::toString() const {
     return s;
 }
 
+}  // namespace v1
 }  // namespace PCPClient

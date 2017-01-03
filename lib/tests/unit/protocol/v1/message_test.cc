@@ -1,7 +1,7 @@
 #include "tests/test.hpp"
 
-#include <cpp-pcp-client/protocol/message.hpp>
-#include <cpp-pcp-client/protocol/errors.hpp>
+#include <cpp-pcp-client/protocol/v1/message.hpp>
+#include <cpp-pcp-client/protocol/v1/errors.hpp>
 
 #include <iostream>
 #include <vector>
@@ -9,6 +9,7 @@
 #include <chrono>
 
 namespace PCPClient {
+using namespace v1;
 
 TEST_CASE("MessageChunk", "[message]") {
     SECTION("can instantiate with default ctor") {
@@ -63,7 +64,7 @@ TEST_CASE("MessageChunk::toString", "[message]") {
     }
 }
 
-TEST_CASE("Message::Message, getters & inspectors - passing chunks", "[message]") {
+TEST_CASE("v1::Message::Message, getters & inspectors - passing chunks", "[message]") {
     SECTION("can instantiate by passing an envelope chunk") {
         Message msg { envelope_chunk };
 
@@ -185,7 +186,7 @@ void checkChunk(const MessageChunk& m_c,
     REQUIRE(m_c.content == content);
 }
 
-TEST_CASE("Message::Message - parsing valid messages", "[message]") {
+TEST_CASE("v1::Message::Message - parsing valid messages", "[message]") {
     SECTION("can instantiate by passing a valid message") {
         REQUIRE_NOTHROW(Message(vecToStr(msg_buffer_valid)));
     }
@@ -272,7 +273,7 @@ TEST_CASE("Message::Message - parsing valid messages", "[message]") {
     }
 }
 
-TEST_CASE("Message::Message - failure cases", "[message]") {
+TEST_CASE("v1::Message::Message - failure cases", "[message]") {
     SECTION("fails to parse if the message doesn't have an envelope") {
         SerializedMessage msg_buffer_bad { 0x01 };  // has only version
         auto msg_s = vecToStr(msg_buffer_bad, { data_chunk_buffer_valid });
@@ -324,7 +325,7 @@ TEST_CASE("Message::Message - failure cases", "[message]") {
     }
 }
 
-TEST_CASE("Message modifiers", "[message]") {
+TEST_CASE("v1::Message modifiers", "[message]") {
     Message msg { vecToStr(msg_buffer_valid) };
 
     SECTION("set the data chunk") {
@@ -399,7 +400,7 @@ static const MessageChunk da_c { 0x02, 5, "stuff" };
 static const MessageChunk db_c_1 { 0x03, 6, "errors" };
 static const MessageChunk db_c_2 { 0x13, 5, "stats" };
 
-TEST_CASE("Message::getSerialized", "[message]") {
+TEST_CASE("v1::Message::getSerialized", "[message]") {
     Message msg { e_c };
     auto expected_buffer = msg_buffer_valid;  // with only version and envelope
 
@@ -481,7 +482,7 @@ TEST_CASE("Message::getSerialized", "[message]") {
 // Performance
 //
 
-TEST_CASE("Message serialization and parsing performance", "[message]") {
+TEST_CASE("v1::Message serialization and parsing performance", "[message]") {
     static const std::string big_txt {
         "a 1019 bytes txt:\n"
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam "

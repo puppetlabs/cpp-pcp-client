@@ -1,12 +1,13 @@
 #include "tests/test.hpp"
 
-#include <cpp-pcp-client/protocol/serialization.hpp>
+#include <cpp-pcp-client/protocol/v1/serialization.hpp>
 
 #include <iostream>
 #include <string>
 #include <stdint.h>
 
 namespace PCPClient {
+using namespace v1;
 
 TEST_CASE("PCPClient::serialize", "[message]") {
     SECTION("can serialize a string") {

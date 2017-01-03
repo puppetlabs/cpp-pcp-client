@@ -3,7 +3,7 @@
 #include <cpp-pcp-client/connector/connector.hpp>  // Connector
 #include <cpp-pcp-client/connector/errors.hpp>     // connection_config_error
 
-#include <cpp-pcp-client/protocol/schemas.hpp>     // Protocol::ErrorMessageSchema
+#include <cpp-pcp-client/protocol/v1/schemas.hpp>  // Protocol::ErrorMessageSchema
 
 #include  <leatherman/json_container/json_container.hpp>  // JsonContainer
 

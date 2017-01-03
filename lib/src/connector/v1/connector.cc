@@ -1,6 +1,6 @@
-#include <cpp-pcp-client/connector/connector.hpp>
-#include <cpp-pcp-client/protocol/message.hpp>
-#include <cpp-pcp-client/protocol/schemas.hpp>
+#include <cpp-pcp-client/connector/v1/connector.hpp>
+#include <cpp-pcp-client/protocol/v1/message.hpp>
+#include <cpp-pcp-client/protocol/v1/schemas.hpp>
 #include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/util/chrono.hpp>
 #include <cpp-pcp-client/util/logging.hpp>
@@ -25,6 +25,7 @@
 #include <cassert>
 
 namespace PCPClient {
+namespace v1 {
 
 namespace lth_jc   = leatherman::json_container;
 namespace lth_util = leatherman::util;
@@ -883,4 +884,5 @@ void Connector::stopMonitorTaskAndWait() {
     }
 }
 
+}  // namespace v1
 }  // namespace PCPClient

@@ -2,7 +2,7 @@
 #include "tests/unit/connector/certs.hpp"
 #include "tests/unit/connector/mock_server.hpp"
 
-#include <cpp-pcp-client/connector/connector.hpp>
+#include <cpp-pcp-client/connector/v1/connector.hpp>
 #include <cpp-pcp-client/connector/client_metadata.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
 #include <cpp-pcp-client/connector/timings.hpp>
@@ -17,6 +17,7 @@
 #include <functional>
 
 namespace PCPClient {
+namespace v1 {
 
 namespace lth_util = leatherman::util;
 
@@ -159,7 +160,7 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
     bool use_blocking_call;
 
     SECTION("reconnects after the broker stops (also updates Association metrics)") {
-        SECTION("when using NON blocking calls (start/stopMonitoring") {
+        SECTION("when using NON blocking calls (start/stopMonitoring)") {
             use_blocking_call = false;
         }
 
@@ -246,7 +247,7 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
     }
 
     SECTION("reconnects after 1 pong timeout") {
-        SECTION("when using NON blocking calls (start/stopMonitoring") {
+        SECTION("when using NON blocking calls (start/stopMonitoring)") {
             use_blocking_call = false;
         }
 
@@ -375,4 +376,5 @@ TEST_CASE("Connector Monitoring Task", "[connector]") {
     }
 }
 
+}  // namespace v1
 }  // namespace PCPClient

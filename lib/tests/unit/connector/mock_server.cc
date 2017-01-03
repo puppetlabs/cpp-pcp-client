@@ -20,10 +20,10 @@
 #pragma GCC diagnostic pop
 
 #include <cpp-pcp-client/util/thread.hpp>
-#include <cpp-pcp-client/protocol/schemas.hpp>
-#include <cpp-pcp-client/protocol/message.hpp>
-#include <cpp-pcp-client/protocol/errors.hpp>
-#include <cpp-pcp-client/protocol/chunks.hpp>
+#include <cpp-pcp-client/protocol/v1/schemas.hpp>
+#include <cpp-pcp-client/protocol/v1/message.hpp>
+#include <cpp-pcp-client/protocol/v1/errors.hpp>
+#include <cpp-pcp-client/protocol/v1/chunks.hpp>
 
 #include <leatherman/json_container/json_container.hpp>
 
@@ -37,6 +37,7 @@
 namespace PCPClient {
 
 namespace lth_jc  = leatherman::json_container;
+using namespace v1;
 
 MockServer::MockServer(uint16_t port,
                        std::string certPath,

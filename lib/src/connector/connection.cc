@@ -9,7 +9,7 @@
 
 #include <cpp-pcp-client/connector/connection.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
-#include <cpp-pcp-client/protocol/message.hpp>
+#include <cpp-pcp-client/protocol/v1/message.hpp>
 #include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/util/chrono.hpp>
 

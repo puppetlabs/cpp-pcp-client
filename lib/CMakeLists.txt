@@ -10,13 +10,13 @@ include_directories(
 set(SOURCES
     src/connector/client_metadata.cc
     src/connector/connection.cc
-    src/connector/connector.cc
     src/connector/session_association.cc
     src/connector/timings.cc
-    src/protocol/chunks.cc
-    src/protocol/message.cc
-    src/protocol/schemas.cc
-    src/protocol/serialization.cc
+    src/connector/v1/connector.cc
+    src/protocol/v1/chunks.cc
+    src/protocol/v1/message.cc
+    src/protocol/v1/schemas.cc
+    src/protocol/v1/serialization.cc
     src/util/logging.cc
     src/validator/schema.cc
     src/validator/validator.cc

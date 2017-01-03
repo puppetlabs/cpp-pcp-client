@@ -1,10 +1,10 @@
-#ifndef CPP_PCP_CLIENT_SRC_PROTOCOL_SCHEMAS_H_
-#define CPP_PCP_CLIENT_SRC_PROTOCOL_SCHEMAS_H_
+#pragma once
 
 #include <cpp-pcp-client/validator/schema.hpp>
 #include <cpp-pcp-client/export.h>
 
 namespace PCPClient {
+namespace v1 {
 namespace Protocol {
 
 //
@@ -57,6 +57,5 @@ static const std::string DEBUG_ITEM_SCHEMA_NAME { "debug_item_schema" };
 LIBCPP_PCP_CLIENT_EXPORT Schema DebugItemSchema();
 
 }  // namespace Protocol
+}  // namespace v1
 }  // namespace PCPClient
-
-#endif  // CPP_PCP_CLIENT_SRC_PROTOCOL_SCHEMAS_H_

@@ -1,9 +1,8 @@
-#ifndef CPP_PCP_CLIENT_SRC_PROTOCOL_MESSAGE_H_
-#define CPP_PCP_CLIENT_SRC_PROTOCOL_MESSAGE_H_
+#pragma once
 
-#include <cpp-pcp-client/protocol/chunks.hpp>
-#include <cpp-pcp-client/protocol/errors.hpp>
-#include <cpp-pcp-client/protocol/serialization.hpp>
+#include <cpp-pcp-client/protocol/v1/chunks.hpp>
+#include <cpp-pcp-client/protocol/v1/errors.hpp>
+#include <cpp-pcp-client/protocol/v1/serialization.hpp>
 #include <cpp-pcp-client/validator/validator.hpp>
 #include <cpp-pcp-client/export.h>
 
@@ -14,6 +13,7 @@
 #include <stdint.h>  // uint8_t
 
 namespace PCPClient {
+namespace v1 {
 
 //
 // Message
@@ -98,6 +98,5 @@ class LIBCPP_PCP_CLIENT_EXPORT Message {
     void validateChunk(const MessageChunk& chunk) const;
 };
 
+}  // namespace v1
 }  // namespace PCPClient
-
-#endif  // CPP_PCP_CLIENT_SRC_PROTOCOL_MESSAGE_H_

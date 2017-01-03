@@ -1,11 +1,11 @@
-#ifndef CPP_PCP_CLIENT_SRC_PROTOCOL_ERRORS_H_
-#define CPP_PCP_CLIENT_SRC_PROTOCOL_ERRORS_H_
+#pragma once
 
 #include <cpp-pcp-client/export.h>
 #include <stdexcept>
 #include <string>
 
 namespace PCPClient {
+namespace v1 {
 
 /// Base error class.
 class LIBCPP_PCP_CLIENT_EXPORT message_error : public std::runtime_error {
@@ -35,6 +35,5 @@ class LIBCPP_PCP_CLIENT_EXPORT invalid_chunk_error : public message_error {
             : message_error(msg) {}
 };
 
+}  // namespace v1
 }  // namespace PCPClient
-
-#endif  // CPP_PCP_CLIENT_SRC_PROTOCOL_ERRORS_H_
