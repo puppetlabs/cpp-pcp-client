@@ -248,6 +248,11 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector {
                      const std::vector<lth_jc::JsonContainer>& debug
                         = std::vector<lth_jc::JsonContainer> {});
 
+    std::string sendError(const std::vector<std::string>& targets,
+                          unsigned int timeout,
+                          const std::string& id,
+                          const std::string& description);
+
   protected:
     /// Connection instance pointer
     std::unique_ptr<Connection> connection_ptr_;

@@ -475,6 +475,18 @@ std::string Connector::send(const std::vector<std::string>& targets,
                        debug);
 }
 
+std::string Connector::sendError(const std::vector<std::string>& targets,
+                     unsigned int timeout,
+                     const std::string& id,
+                     const std::string& description)
+{
+    lth_jc::JsonContainer error_data {};
+    error_data.set<std::string>("id", id);
+    error_data.set<std::string>("description", description);
+
+    return send(targets, Protocol::ERROR_MSG_TYPE, timeout, error_data);
+}
+
 //
 // Private interface
 //
