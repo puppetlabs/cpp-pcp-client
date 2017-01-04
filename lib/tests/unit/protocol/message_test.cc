@@ -312,6 +312,16 @@ TEST_CASE("Message::Message - failure cases", "[message]") {
 
         REQUIRE_THROWS_AS(Message { msg_s }, message_serialization_error);
     }
+
+    SECTION("fails to parse if the chunk size is too large to store in memory") {
+        SerializedMessage msg_buffer_bad = msg_buffer_valid;
+        for (auto i : {2, 3, 4, 5}) {
+            msg_buffer_bad[i] = { 0xFF };
+        }
+        auto msg_s = vecToStr(msg_buffer_bad);
+
+        REQUIRE_THROWS_AS(Message { msg_s }, message_serialization_error);
+    }
 }
 
 TEST_CASE("Message modifiers", "[message]") {

@@ -614,6 +614,15 @@ msgstr ""
 
 #. error
 #: lib/src/protocol/message.cc
+msgid "Invalid msg; envelope size is too large for 32-bit systems"
+msgstr ""
+
+#: lib/src/protocol/message.cc
+msgid "invalid msg: size too large"
+msgstr ""
+
+#. error
+#: lib/src/protocol/message.cc
 msgid "Invalid msg; missing envelope content"
 msgstr ""
 
