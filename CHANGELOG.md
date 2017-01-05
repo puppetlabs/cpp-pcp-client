@@ -9,6 +9,16 @@ boost::exception_ptr instead of std::exception_ptr so we can build on ARM.
 * [PCP-556](https://tickets.puppetlabs.com/browse/PCP-556) Implement PCP
 access logging support.
 
+Note: this release did not include changes from 1.2.1.
+
+## 1.2.1
+
+This is a maintenance release.
+
+* [PCP-622](https://tickets.puppetlabs.com/browse/PCP-622) Fix crash on 32-bit
+systems when receiving a packet claiming to have more data than can be stored
+in 32-bit memory addressing.
+
 ## 1.2.0
 
 This is a feature and improvement release.
