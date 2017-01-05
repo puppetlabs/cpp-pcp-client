@@ -279,6 +279,13 @@ void Message::parseMessage(const std::string& transport_msg) {
     }
 
     auto envelope_size = deserialize<uint32_t>(4, next_itr);
+    if (envelope_size > UINT_MAX - (VERSION_FIELD_SIZE + CHUNK_METADATA_SIZE)) {
+        LOG_ERROR("Invalid msg; envelope size is too large for 32-bit systems");
+        LOG_TRACE("Invalid msg content (unserialized): '{1}'", transport_msg);
+        throw message_serialization_error {
+            lth_loc::translate("invalid msg: size too large") };
+    }
+
     if (msg_size < VERSION_FIELD_SIZE + CHUNK_METADATA_SIZE + envelope_size) {
         LOG_ERROR("Invalid msg; missing envelope content");
         LOG_TRACE("Invalid msg content (unserialized): '{1}'", transport_msg);
