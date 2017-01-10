@@ -28,7 +28,7 @@ Message::Message(const std::string& transport_msg) :
     Message(lth_jc::JsonContainer(transport_msg))
 { }
 
-static bool validate_data(lth_jc::JsonContainer envelope, Validator const& validator)
+static bool validate_data(lth_jc::JsonContainer const& envelope, Validator const& validator)
 {
     auto message_type = envelope.get<std::string>("message_type");
     assert(validator.getSchemaContentType(message_type) == ContentType::Json);

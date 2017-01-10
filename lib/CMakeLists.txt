@@ -11,9 +11,9 @@ set(SOURCES
     src/connector/client_metadata.cc
     src/connector/connection.cc
     src/connector/connector_base.cc
-    src/connector/session_association.cc
     src/connector/timings.cc
     src/connector/v1/connector.cc
+    src/connector/v1/session_association.cc
     src/connector/v2/connector.cc
     src/protocol/parsed_chunks.cc
     src/protocol/v1/chunks.cc

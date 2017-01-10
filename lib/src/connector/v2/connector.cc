@@ -62,8 +62,6 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
                           std::move(client_crt_path),
                           std::move(client_key_path),
                           std::move(ws_connection_timeout_ms),
-                          0,  // association_timeout_s
-                          0,  // association_request_ttl_s
                           std::move(pong_timeouts_before_retry),
                           std::move(ws_pong_timeout_ms) }
 {

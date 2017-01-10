@@ -37,9 +37,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("retrieves correctly the client common name from the certificate") {
         std::string type { "test" };
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(),
-                             WS_TIMEOUT,
-                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
-                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+                             WS_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
 
         REQUIRE(c_m.common_name == "localhost");
     }
@@ -47,9 +45,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("determines correctly the client URI") {
         std::string type { "test" };
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(),
-                             WS_TIMEOUT,
-                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
-                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+                             WS_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
         std::string expected_uri { "pcp://localhost/" + type };
 
         REQUIRE(c_m.uri == expected_uri);
@@ -59,9 +55,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
             "file does not exist") {
         REQUIRE_THROWS_AS(ClientMetadata("test", getCaPath(),
                                          getNotExistentFilePath(), getKeyPath(),
-                                         WS_TIMEOUT, ASSOCIATION_TIMEOUT_S,
-                                         ASSOCIATION_REQUEST_TTL_S,
-                                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS),
+                                         WS_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS),
                           connection_config_error);
     }
 
@@ -69,9 +63,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
             "is invalid") {
         REQUIRE_THROWS_AS(ClientMetadata("test", getCaPath(), getNotACertPath(),
                                          getKeyPath(),
-                                         WS_TIMEOUT, ASSOCIATION_TIMEOUT_S,
-                                         ASSOCIATION_REQUEST_TTL_S,
-                                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS),
+                                         WS_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS),
                           connection_config_error);
     }
 }

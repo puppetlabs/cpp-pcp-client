@@ -79,12 +79,10 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
                           std::move(client_crt_path),
                           std::move(client_key_path),
                           std::move(ws_connection_timeout_ms),
-                          std::move(association_timeout_s),
-                          std::move(association_request_ttl_s),
                           std::move(pong_timeouts_before_retry),
                           std::move(ws_pong_timeout_ms) },
           associate_response_callback_ {},
-          session_association_ {}
+          session_association_ { std::move(association_timeout_s) }
 {
     // Add PCP schemas to the Validator instance member
     validator_.registerSchema(Protocol::EnvelopeSchema());
@@ -211,7 +209,7 @@ void Connector::connect(int max_connect_attempts)
     Util::unique_lock<Util::mutex> the_lock { session_association_.mtx };
     session_association_.reset();
     session_association_.in_progress = true;
-    Util::chrono::seconds assoc_timeout { client_metadata_.association_timeout_s };
+    Util::chrono::seconds assoc_timeout { session_association_.association_timeout_s };
 
     try {
         // Open the WebSocket connection (blocking call)
@@ -448,7 +446,7 @@ void Connector::associateSession()
     // NB: createEnvelope will update session_association_.request_id
     auto envelope = createEnvelope(std::vector<std::string> { MY_BROKER_URI },
                                    Protocol::ASSOCIATE_REQ_TYPE,
-                                   client_metadata_.association_timeout_s,
+                                   session_association_.association_timeout_s,
                                    false,
                                    session_association_.request_id);
 
@@ -458,7 +456,7 @@ void Connector::associateSession()
     //     and let a connection_association_error be triggered
     Message msg { envelope };
     LOG_INFO("Sending Associate Session request with id {1} and a TTL of {2} s",
-             session_association_.request_id, client_metadata_.association_timeout_s);
+             session_association_.request_id, session_association_.association_timeout_s);
     send(msg);
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cpp-pcp-client/connector/session_association.hpp>
+#include <cpp-pcp-client/connector/v1/session_association.hpp>
 #include <cpp-pcp-client/protocol/v1/message.hpp>
 
 #include <cpp-pcp-client/connector/connector_base.hpp>
@@ -34,7 +34,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector : public ConnectorBase {
               std::string client_key_path,
               long ws_connection_timeout_ms = 5000,
               uint32_t association_timeout_s = 15,
-              uint32_t association_request_ttl_s = 10,
+              uint32_t association_request_ttl_s = 10,  // Unused
               uint32_t pong_timeouts_before_retry = 3,
               long ws_pong_timeout_ms = 5000);
 
@@ -45,7 +45,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector : public ConnectorBase {
               std::string client_key_path,
               long ws_connection_timeout_ms = 5000,
               uint32_t association_timeout_s = 15,
-              uint32_t association_request_ttl_s = 10,
+              uint32_t association_request_ttl_s = 10,  // Unused
               uint32_t pong_timeouts_before_retry = 3,
               long ws_pong_timeout_ms = 5000);
 
