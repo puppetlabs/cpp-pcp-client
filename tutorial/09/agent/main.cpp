@@ -3,8 +3,8 @@
 #include <cpp-pcp-client/connector/connector.hpp>  // Connector
 #include <cpp-pcp-client/connector/errors.hpp>     // connection_config_error
 
-#include <cpp-pcp-client/protocol/chunks.hpp>      // ParsedChunk
-#include <cpp-pcp-client/protocol/schemas.hpp>     // Protocol::ErrorMessageSchema
+#include <cpp-pcp-client/protocol/v1/chunks.hpp>   // ParsedChunk
+#include <cpp-pcp-client/protocol/v1/schemas.hpp>  // Protocol::ErrorMessageSchema
 
 #include <cpp-pcp-client/validator/schema.hpp>     // Schema, ContentType
 #include <cpp-pcp-client/validator/validator.hpp>  // Validator

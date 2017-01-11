@@ -1,4 +1,4 @@
-#include <cpp-pcp-client/protocol/serialization.hpp>
+#include <cpp-pcp-client/protocol/v1/serialization.hpp>
 
 #if _WIN32
 #include <Winsock2.h>
@@ -7,6 +7,7 @@
 #endif
 
 namespace PCPClient {
+namespace v1 {
 
 #ifdef BOOST_LITTLE_ENDIAN
 
@@ -22,4 +23,5 @@ uint32_t getHostNumber(const uint32_t& number)
 
 #endif  // BOOST_LITTLE_ENDIAN
 
+}  // namespace v1
 }  // namespace PCPClient

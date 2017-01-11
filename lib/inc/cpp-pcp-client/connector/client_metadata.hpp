@@ -21,8 +21,6 @@ class LIBCPP_PCP_CLIENT_EXPORT ClientMetadata {
     std::string common_name;
     std::string uri;
     long ws_connection_timeout_ms;
-    uint32_t association_timeout_s;
-    uint32_t association_request_ttl_s;
     uint32_t pong_timeouts_before_retry;
     long pong_timeout_ms;
 
@@ -35,8 +33,6 @@ class LIBCPP_PCP_CLIENT_EXPORT ClientMetadata {
                    std::string _crt,
                    std::string _key,
                    long _ws_connection_timeout_ms,
-                   uint32_t _association_timeout_s,
-                   uint32_t _association_request_ttl_s,
                    uint32_t _pong_timeouts_before_retry,
                    long _pong_timeout_ms);
 };

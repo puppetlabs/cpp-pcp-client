@@ -1,6 +1,7 @@
 #include "tests/test.hpp"
 #include "tests/unit/connector/certs.hpp"
 #include "tests/unit/connector/mock_server.hpp"
+#include "tests/unit/connector/connector_utils.hpp"
 
 #include <cpp-pcp-client/connector/connection.hpp>
 #include <cpp-pcp-client/connector/client_metadata.hpp>
@@ -17,19 +18,14 @@ namespace PCPClient {
 
 namespace lth_util = leatherman::util;
 
-static constexpr int WS_TIMEOUT { 5000 };
-static constexpr uint32_t ASSOCIATION_TIMEOUT_S { 15 };
-static constexpr uint32_t ASSOCIATION_REQUEST_TTL_S { 10 };
-static constexpr uint32_t PONG_TIMEOUTS_BEFORE_RETRY { 3 };
-static constexpr uint32_t PONG_TIMEOUT_MS { 30000 };
+static constexpr uint32_t PONG_LONG_TIMEOUT_MS { 30000 };
 
 TEST_CASE("Connection::connect errors", "[connection]") {
     SECTION("throws a connection_processing_error if the broker url is "
             "not a valid WebSocket url") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
                              getKeyPath(), 6,
-                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
-                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_LONG_TIMEOUT_MS };
         // NB: the dtor will wait for the 6 ms specified above
         Connection connection { "foo", c_m };
 
@@ -40,9 +36,8 @@ TEST_CASE("Connection::connect errors", "[connection]") {
 
 TEST_CASE("Connection timings", "[connection]") {
     ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                         getKeyPath(), WS_TIMEOUT,
-                         ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
-                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+                         getKeyPath(), WS_TIMEOUT_MS,
+                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_LONG_TIMEOUT_MS };
 
     SECTION("can stringify timings") {
         Connection connection { "wss://localhost:8142/pcp", c_m };
@@ -87,9 +82,8 @@ static void wait_for_server_open()
 TEST_CASE("Connection::connect", "[connection]") {
     SECTION("successfully connects, closes, and sets Closing Handshake timings") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), WS_TIMEOUT,
-                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
-                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+                             getKeyPath(), WS_TIMEOUT_MS,
+                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_LONG_TIMEOUT_MS };
 
         MockServer mock_server;
         bool connected = false;
@@ -122,9 +116,8 @@ TEST_CASE("Connection::connect", "[connection]") {
 
     SECTION("successfully connects to failover broker") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), WS_TIMEOUT,
-                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
-                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+                             getKeyPath(), WS_TIMEOUT_MS,
+                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_LONG_TIMEOUT_MS };
 
         MockServer mock_server;
         bool connected = false;
@@ -148,9 +141,8 @@ TEST_CASE("Connection::connect", "[connection]") {
 
     SECTION("successfully connects to failover when primary broker disappears") {
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), WS_TIMEOUT,
-                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
-                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+                             getKeyPath(), WS_TIMEOUT_MS,
+                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_LONG_TIMEOUT_MS };
 
         bool connected_a = false, connected_b = false, connected_c = false;
 
@@ -201,9 +193,8 @@ TEST_CASE("Connection::~Connection", "[connection]") {
     SECTION("connect fails with connection timeout < server's processing time") {
         MockServer mock_server;
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), WS_TIMEOUT,
-                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
-                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+                             getKeyPath(), WS_TIMEOUT_MS,
+                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_LONG_TIMEOUT_MS };
 
         // The WebSocket connection must not be established before 10 ms
         mock_server.set_validate_handler(
@@ -229,9 +220,8 @@ TEST_CASE("Connection::~Connection", "[connection]") {
     SECTION("succeeds with connection timeout = 990 ms") {
         MockServer mock_server;
         ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                             getKeyPath(), WS_TIMEOUT,
-                             ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
-                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
+                             getKeyPath(), WS_TIMEOUT_MS,
+                             PONG_TIMEOUTS_BEFORE_RETRY, PONG_LONG_TIMEOUT_MS };
         mock_server.go();
         c_m.ws_connection_timeout_ms = 990;
         Connection connection {

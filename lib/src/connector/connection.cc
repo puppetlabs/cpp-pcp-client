@@ -9,7 +9,7 @@
 
 #include <cpp-pcp-client/connector/connection.hpp>
 #include <cpp-pcp-client/connector/errors.hpp>
-#include <cpp-pcp-client/protocol/message.hpp>
+#include <cpp-pcp-client/protocol/v1/message.hpp>
 #include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/util/chrono.hpp>
 
@@ -258,7 +258,7 @@ void Connection::send(const std::string& msg)
     websocketpp::lib::error_code ec;
     endpoint_->send(connection_handle_,
                     msg,
-                    websocketpp::frame::opcode::binary,
+                    websocketpp::frame::opcode::text,
                     ec);
     if (ec)
         throw connection_processing_error {

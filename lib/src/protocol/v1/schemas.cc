@@ -1,6 +1,7 @@
-#include <cpp-pcp-client/protocol/schemas.hpp>
+#include <cpp-pcp-client/protocol/v1/schemas.hpp>
 
 namespace PCPClient {
+namespace v1 {
 namespace Protocol {
 
 // HERE(ale): this must be kept up to date with
@@ -86,4 +87,5 @@ Schema DebugItemSchema() {
 }
 
 }  // namespace Protocol
+}  // namespace v1
 }  // namespace PCPClient
