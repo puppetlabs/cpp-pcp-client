@@ -65,6 +65,11 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
                           std::move(pong_timeouts_before_retry),
                           std::move(ws_pong_timeout_ms) }
 {
+    // Rely on ConnectorBase being an abstract class with no operations in the constructor.
+    for (auto& broker : broker_ws_uris_) {
+        broker += (broker.back() == '/' ? "" : "/") + client_metadata_.client_type;
+    }
+
     // Add PCP schemas to the Validator instance member
     validator_.registerSchema(Protocol::EnvelopeSchema());
 
