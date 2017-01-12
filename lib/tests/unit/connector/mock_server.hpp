@@ -41,7 +41,8 @@ public:
                Version v = Version::v1);
     ~MockServer();
     void go();
-    uint16_t port();
+    uint16_t port() const;
+    std::string connection_path(websocketpp::connection_hdl) const;
 
     void set_tcp_pre_init_handler(std::function<void(websocketpp::connection_hdl)> func);
 

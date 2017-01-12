@@ -87,11 +87,17 @@ void MockServer::go()
     bt_.reset(new boost::thread(&websocketpp::server<websocketpp::config::asio_tls>::run, server_.get()));
 }
 
-uint16_t MockServer::port()
+uint16_t MockServer::port() const
 {
     websocketpp::lib::asio::error_code ec;
     auto ep = server_->get_local_endpoint(ec);
     return ec ? 0 : ep.port();
+}
+
+std::string MockServer::connection_path(websocketpp::connection_hdl hdl) const
+{
+    auto conn = server_->get_con_from_hdl(hdl);
+    return conn->get_resource();
 }
 
 void MockServer::set_tcp_pre_init_handler(std::function<void(websocketpp::connection_hdl)> func)

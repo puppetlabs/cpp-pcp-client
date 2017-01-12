@@ -25,19 +25,21 @@ TEST_CASE("v2::Connector::Connector", "[connector]") {
 TEST_CASE("v2::Connector::connect", "[connector]") {
     MockServer mock_server;
     bool connected = false;
+    std::string connection_path;
     mock_server.set_open_handler(
-        [&connected](websocketpp::connection_hdl hdl) {
+        [&](websocketpp::connection_hdl hdl) {
             connected = true;
+            connection_path = mock_server.connection_path(hdl);
         });
     mock_server.go();
     auto port = mock_server.port();
+    std::string client_type = "test_client";
+    auto server_uri = "wss://localhost:" + std::to_string(port) + "/pcp";
 
     SECTION("successfully connects and update WebSocket timings") {
-        Connector c { "wss://localhost:" + std::to_string(port) + "/pcp",
-                      "test_client",
+        Connector c { server_uri, client_type,
                       getCaPath(), getCertPath(), getKeyPath(),
-                      WS_TIMEOUT_MS,
-                      PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
+                      WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         REQUIRE_FALSE(connected);
         REQUIRE_NOTHROW(c.connect(1));
 
@@ -56,7 +58,34 @@ TEST_CASE("v2::Connector::connect", "[connector]") {
         REQUIRE(min_zero == ws_timings.getOverallConnectionInterval_min());
         REQUIRE(us_zero  == ws_timings.getClosingHandshakeInterval());
     }
-}
+
+    SECTION("successfully connects to broker with client type in the URI") {
+        Connector c { server_uri, client_type,
+                      getCaPath(), getCertPath(), getKeyPath(),
+                      WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
+        REQUIRE_FALSE(connected);
+        REQUIRE_NOTHROW(c.connect(1));
+
+        // NB: ConnectorBase::connect is blocking, but the onOpen handler isn't
+        wait_for([&](){return connected;});
+        REQUIRE(c.isConnected());
+        REQUIRE(connected);
+        REQUIRE(connection_path == "/pcp/"+client_type);
+    }
+
+    SECTION("successfully connects to broker with trailing slash with client type in the URI") {
+        Connector c { server_uri+"/", client_type,
+                      getCaPath(), getCertPath(), getKeyPath(),
+                      WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
+        REQUIRE_FALSE(connected);
+        REQUIRE_NOTHROW(c.connect(1));
+
+        // NB: ConnectorBase::connect is blocking, but the onOpen handler isn't
+        wait_for([&](){return connected;});
+        REQUIRE(c.isConnected());
+        REQUIRE(connected);
+        REQUIRE(connection_path == "/pcp/"+client_type);
+    }}
 
 TEST_CASE("v2::Connector::send", "[connector]") {
     MockServer mock_server(0, getCertPath(), getKeyPath(), MockServer::Version::v2);
