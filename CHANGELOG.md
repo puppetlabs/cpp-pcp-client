@@ -1,3 +1,10 @@
+## 1.4.0
+
+This is a feature release.
+
+* [PCP-679](https://tickets.puppetlabs.com/browse/PCP-679) Implement PCP v2
+Connector and Protocol. Preserves header compatibility for PCP v1 consumers.
+
 ## 1.3.1
 
 This is a maintenance release.
