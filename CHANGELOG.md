@@ -1,3 +1,11 @@
+## 1.3.1
+
+This is a maintenance release.
+
+* [PCP-622](https://tickets.puppetlabs.com/browse/PCP-622) Fix crash on 32-bit
+systems when receiving a packet claiming to have more data than can be stored
+in 32-bit memory addressing.
+
 ## 1.3.0
 
 This is a feature and improvement release.
