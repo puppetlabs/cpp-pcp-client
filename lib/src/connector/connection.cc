@@ -507,7 +507,7 @@ void Connection::onClose(WS_Connection_Handle hdl)
 
     if (close_code == 1000) {
         // Normal closure; don't log error code
-        LOG_DEBUG("WebSocket on close event (nromal) - {1}", timings.toString());
+        LOG_DEBUG("WebSocket on close event (normal) - {1}", timings.toString());
     } else {
         LOG_DEBUG("WebSocket on close event: {1} (code: {2}) - {3}",
                   con->get_ec().message(), close_code, timings.toString());
