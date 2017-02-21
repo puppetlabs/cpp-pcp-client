@@ -222,6 +222,9 @@ TEST_CASE("ConnectorTester Monitoring Task", "[connector]") {
         REQUIRE(num_pings == 0);
         REQUIRE_NOTHROW(c.connect(1));
         REQUIRE(c.isConnected());
+
+        // Client registering the connection doesn't mean server open handler was called, wait for it.
+        wait_for([&num_connections](){return num_connections == 1;}, 1);
         REQUIRE(num_connections == 1);
 
         // Monitor with infinite retries and 1 s between each WebSocket ping
