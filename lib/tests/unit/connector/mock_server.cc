@@ -59,7 +59,7 @@ MockServer::MockServer(uint16_t port,
 
     server_->set_tls_init_handler(
         [&](websocketpp::connection_hdl hdl) {
-            auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv1);
+            auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv12_server);
             ctx->set_options(asio::ssl::context::default_workarounds |
                              asio::ssl::context::no_sslv2 |
                              asio::ssl::context::no_sslv3 |

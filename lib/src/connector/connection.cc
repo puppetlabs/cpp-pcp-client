@@ -467,7 +467,7 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl)
     // NB: for TLS certificates, refer to:
     // www.boost.org/doc/libs/1_56_0/doc/html/boost_asio/reference/ssl__context.html
     WS_Context_Ptr ctx {
-        new boost::asio::ssl::context(boost::asio::ssl::context::tlsv1) };
+        new boost::asio::ssl::context(boost::asio::ssl::context::tlsv12_client) };
     try {
         // no_sslv2 and no_sslv3 here are not strictly necessary, as the tlsv1 method above
         // ensures we will not try to initiate any connection below TLSv1. However, this avoids
