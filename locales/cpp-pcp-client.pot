@@ -166,7 +166,7 @@ msgstr ""
 
 #. debug
 #: lib/src/connector/connection.cc
-msgid "WebSocket on close event (nromal) - {1}"
+msgid "WebSocket on close event (normal) - {1}"
 msgstr ""
 
 #. debug
