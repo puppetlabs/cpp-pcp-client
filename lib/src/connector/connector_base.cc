@@ -253,6 +253,8 @@ void ConnectorBase::startMonitorTask(const uint32_t max_connect_attempts,
         } catch (const std::exception& e) {
             // Make sure unexpected exceptions don't cause std::terminate yet,
             // and can be handled by the caller.
+            LOG_WARNING("The connection monitor task encountered an unknown "
+                        "exception: {1}", e.what());
             try {
                 boost::throw_exception(e);
             } catch (...) {
