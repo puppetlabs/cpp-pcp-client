@@ -347,6 +347,11 @@ msgstr ""
 msgid "The connection monitor task will stop: {1}"
 msgstr ""
 
+#. warning
+#: lib/src/connector/connector_base.cc
+msgid "The connection monitor task encountered an unknown exception: {1}"
+msgstr ""
+
 #. info
 #: lib/src/connector/connector_base.cc
 msgid "Stopping the monitor task"
