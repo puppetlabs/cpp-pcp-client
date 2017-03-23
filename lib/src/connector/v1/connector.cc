@@ -143,6 +143,7 @@ void Connector::connect(int max_connect_attempts)
         connection_ptr_->setOnCloseCallback(
             [this]() {
                 closeAssociationTimings();
+                notifyClose();
             });
 
         connection_ptr_->setOnFailCallback(

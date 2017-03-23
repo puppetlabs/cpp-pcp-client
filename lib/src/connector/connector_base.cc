@@ -90,6 +90,11 @@ void ConnectorBase::connect(int max_connect_attempts)
             [this](std::string message) {
                 processMessage(message);
             });
+
+        connection_ptr_->setOnCloseCallback(
+            [this]() {
+                notifyClose();
+            });
     }
 
     try {
@@ -190,6 +195,11 @@ void ConnectorBase::checkConnectionInitialization()
     }
 }
 
+void ConnectorBase::notifyClose()
+{
+    monitor_cond_var_.notify_one();
+}
+
 //
 // Monitoring Task
 //
@@ -217,6 +227,9 @@ void ConnectorBase::startMonitorTask(const uint32_t max_connect_attempts,
         try {
             if (!isConnected()) {
                 LOG_WARNING("WebSocket connection to PCP broker lost; retrying");
+                // Wait 200ms to avoid busy-waiting against pcp-broker if connections
+                // are being closed.
+                Util::this_thread::sleep_for(Util::chrono::milliseconds(200));
                 connect(max_connect_attempts);
             } else {
                 LOG_DEBUG("Sending heartbeat ping");
