@@ -169,6 +169,9 @@ class LIBCPP_PCP_CLIENT_EXPORT ConnectorBase {
     // Implement to define how incoming messages are handled.
     virtual void processMessage(const std::string& msg_txt) = 0;
 
+    /// Used to notify the Monitoring Task when a connection is lost
+    void notifyClose();
+
   private:
     /// Flag; true if monitorConnection is executing
     bool is_monitoring_;
