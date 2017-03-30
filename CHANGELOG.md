@@ -1,3 +1,13 @@
+## 1.5.0
+
+This is a feature release.
+
+* [PCP-719](https://tickets.puppetlabs.com/browse/PCP-719) Now uses TLS v1.2
+exclusively. Previously only TLS v1.0 was supported.
+* [PCP-734](https://tickets.puppetlabs.com/browse/PCP-734) Now immediately
+detects a closed connection, and attempts to reconnect after a 200ms delay.
+Previously it would only identify closed connections when trying to ping.
+
 ## 1.4.0
 
 This is a feature release.
