@@ -244,6 +244,10 @@ void ConnectorBase::startMonitorTask(const uint32_t max_connect_attempts,
             // Associate Session timeout or invalid response - retry
             LOG_WARNING("The connection monitor task will continue after an "
                         "error during the Session Association ({1})", e.what());
+        } catch (const connection_processing_error& e) {
+            // send or ping failed, likely connection lost - retry
+            LOG_WARNING("The connection monitor task will continue after a "
+                        "WebSocket failure ({1})", e.what());
         } catch (const connection_association_response_failure& e) {
             // Associate Session failure - stop
             LOG_WARNING("The connection monitor task will stop after an "
