@@ -23,6 +23,7 @@ install:
 
   - ps: wget "https://github.com/puppetlabs/leatherman/releases/download/$env:LEATHERMAN_VERSION/leatherman.7z" -OutFile "$pwd\leatherman.7z"
   - ps: 7z.exe x leatherman.7z -oC:\tools | FIND /V "ing "
+  - SET PATH=C:\tools\bin;%PATH%
 
     # Minimize environment polution; previously we were linking against the wrong OpenSSL DLLs.
   - SET PATH=C:\tools\openssl\bin;C:\tools\mingw64\bin;C:\ProgramData\chocolatey\bin;C:\Windows\system32;C:\Windows
