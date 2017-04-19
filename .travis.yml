@@ -18,6 +18,14 @@ addons:
       - libboost-locale1.55-dev
       - libboost-chrono1.55-dev
       - libboost-random1.55-dev
+  coverity_scan:
+    project:
+      name: "puppetlabs/cpp-pcp-client"
+      description: "Build submitted via Travis CI"
+    notification_email: michael.smith@puppetlabs.com
+    build_command_prepend: "$USERDIR/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=$USERDIR .; make clean"
+    build_command: "make"
+    branch_pattern: coverity_scan
 
 before_install:
   # Use a predefined install location; cppcheck requires the cfg
@@ -31,21 +39,18 @@ before_install:
   - tar xzvf leatherman.tar.gz -C $USERDIR
 
 script:
-  - ./.travis_target.sh
+  - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then ./scripts/travis_target.sh ; fi
 
 env:
   global:
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "x9kqTFuRGpNeKaBEqAsaGCkqWma96SSyQsU7g8yleEvUHFpZ/77eJKu6cbZwkAj/IrWLR/WdFMwsDBeb2p9rTRXF/HSZQ0Dk9y2GJN5MzHe9QHN0BIxcjKXG55iP8ra7/YJXCw9zVnyEpa3m0ZNgWXp7+k0vJs127gVxZaSdafTPVM4y9xNAQaByYZYod9d7Sa+51uUsRBSTb4TYh99SeAhGYnFc/6AzlCbn2gr7+n9aNhxTLH75i9umJbELFYVopuwnB1GGZ5GaHC4YflGiNCNp8uQZuniBaUKww7N1DzDNgD0u2Jfa5yYzbrmKIbadllqAqHO8hPTt6fMgaHyUhbyWKWHJ9UGSd2wNd3IZjXNSdKlcY70Oryd2U2JHWewaMItJQUqqIswkX63H0AlGPA5A1loiKYRxJXWk6qm7RpWuTt/rzzg1R4H58VpJs0iG1JLDBRHnayobbWcIbfhxE+CLFWEOklbgYDc3eKp+YTWSAJrihON7hJRtJXP4T9fOGviQLFiFmqPEF8s1wzYgVr7qEGBVnAvB8ZU4ueZYRvBeJwaJoLr5ZO+vYtTS7OqPUpaKHcjdO2jMqjBiKJ93ubNTfCdPYcl+qA0dNExWkV0IznHLpUhoSfQZ6FnKZQgpttuigQUT0lLURIXtTQzKVg92bpxs0P0Sx2KpOQXYppQ="
     - USERDIR=/tmp/userdir
     - PYTHONUSERBASE=$USERDIR
     - PATH=$USERDIR/bin:$PATH
     - LD_LIBRARY_PATH=$USERDIR/lib:$LD_LIBRARY_PATH
     - LEATHERMAN_VERSION=0.9.1
-  matrix:
-    - TRAVIS_TARGET=CPPLINT
-    - TRAVIS_TARGET=CPPCHECK
-    - TRAVIS_TARGET=RELEASE
-    - TRAVIS_TARGET=DEBUG
-    - TRAVIS_TARGET=SHARED_RELEASE
 
 notifications:
   email: false
