@@ -37,6 +37,7 @@ before_install:
   # Install cpp-pcp-client's dependencies
   - wget https://github.com/puppetlabs/leatherman/releases/download/${LEATHERMAN_VERSION}/leatherman.tar.gz
   - tar xzvf leatherman.tar.gz -C $USERDIR
+  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 script:
   - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then ./scripts/travis_target.sh ; fi
@@ -45,7 +46,7 @@ env:
   global:
     # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
     #   via the "travis encrypt" command using the project repo's public key
-    - secure: "x9kqTFuRGpNeKaBEqAsaGCkqWma96SSyQsU7g8yleEvUHFpZ/77eJKu6cbZwkAj/IrWLR/WdFMwsDBeb2p9rTRXF/HSZQ0Dk9y2GJN5MzHe9QHN0BIxcjKXG55iP8ra7/YJXCw9zVnyEpa3m0ZNgWXp7+k0vJs127gVxZaSdafTPVM4y9xNAQaByYZYod9d7Sa+51uUsRBSTb4TYh99SeAhGYnFc/6AzlCbn2gr7+n9aNhxTLH75i9umJbELFYVopuwnB1GGZ5GaHC4YflGiNCNp8uQZuniBaUKww7N1DzDNgD0u2Jfa5yYzbrmKIbadllqAqHO8hPTt6fMgaHyUhbyWKWHJ9UGSd2wNd3IZjXNSdKlcY70Oryd2U2JHWewaMItJQUqqIswkX63H0AlGPA5A1loiKYRxJXWk6qm7RpWuTt/rzzg1R4H58VpJs0iG1JLDBRHnayobbWcIbfhxE+CLFWEOklbgYDc3eKp+YTWSAJrihON7hJRtJXP4T9fOGviQLFiFmqPEF8s1wzYgVr7qEGBVnAvB8ZU4ueZYRvBeJwaJoLr5ZO+vYtTS7OqPUpaKHcjdO2jMqjBiKJ93ubNTfCdPYcl+qA0dNExWkV0IznHLpUhoSfQZ6FnKZQgpttuigQUT0lLURIXtTQzKVg92bpxs0P0Sx2KpOQXYppQ="
+    - secure: "GlXsEgyu7TGw+EQDAovi5Hau98LI2WVkITd5QtvKlEAU7oE4vZgrLBTsdyg5BYwgdjSJ74FyTyZN+AdXGjiTj21/QcdIJiSvCJ3IwZqnBctSBA5WOnM5wEbEMa36e1XvMVJ16rutEhxcd82Tx9+PHkCJTvrx/PrfVlb5BLSRzOsCuEpgJv01cpQ9rBK4aA2dQOFqsqV0qWC8wSiCeoETlTKy2q7xGS/qEMNQ06JZ8jo96uxXvQTYKFYg/h/3yFNtGoiXB1tsWodhh8KIvl5HqL+d80fs4xm4hBYX4Cm/fKognd9fLxuL1Sq7jlyHnjO48cjOMTeEoHxntDo51MF/obXi4TrAticMEZWrwcrRMXJf6tY2cvDCE7chM1LktYSbs+syCMU07+3kZbU4rH66XgkT7yM5ikZOTb1hW5nge7KQFwpr+YLXcMCONLPNaPX2zoypstRLQDK0VtSjm+TeoRBcZk8fCNruHYPhyxmx/8w+426JHtL7431UJCDJcOgwJQUrsIEglIGXvBS94UxFpTUkd3/tmh54xNCjEirM/+1KVYuhAONW09vsvJ0cDlxNk99yU11gfTi3YmeNqikS9mD04MIFXqN5r5966+a521UJRTMDmSfhAuBeljRkWoK8CmmYqGsXKM4Jt/MMYp/98C/QiEPQ5vFT/q9PIYQmeGw="
     - USERDIR=/tmp/userdir
     - PYTHONUSERBASE=$USERDIR
     - PATH=$USERDIR/bin:$PATH
