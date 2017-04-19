@@ -1,3 +1,9 @@
+## 1.5.1
+
+This is a maintenance release.
+
+* [PCP-715](https://tickets.puppetlabs.com/browse/PCP-715) Attempt to reestablish connection after processing error.
+
 ## 1.5.0
 
 This is a feature release.
