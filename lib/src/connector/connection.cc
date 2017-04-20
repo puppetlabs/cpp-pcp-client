@@ -190,7 +190,7 @@ void Connection::connect(int max_connect_attempts)
     bool got_max_backoff { false };
     std::random_device rd;
     std::default_random_engine engine { rd() };
-    std::uniform_int_distribution<int> dist { -250, 250 };
+    std::uniform_int_distribution<int> dist { -500, 500 };
 
     do {
         current_c_s = connection_state_.load();
@@ -238,7 +238,8 @@ void Connection::connect(int max_connect_attempts)
                 doSleep(connection_backoff_ms_ + dist(engine));
                 connectAndWait();
                 if (try_again && !got_max_backoff) {
-                    connection_backoff_ms_ *= CONNECTION_BACKOFF_MULTIPLIER;
+                    // exponential backoff with a 1.5-2.5x multiplier up to a max of 32 seconds
+                    connection_backoff_ms_ *= static_cast<int>(dist(engine) / 1000 + CONNECTION_BACKOFF_MULTIPLIER);
                 }
             }
             break;
