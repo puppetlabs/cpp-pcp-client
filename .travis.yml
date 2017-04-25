@@ -29,6 +29,7 @@ before_install:
   # Install cpp-pcp-client's dependencies
   - wget https://github.com/puppetlabs/leatherman/releases/download/${LEATHERMAN_VERSION}/leatherman.tar.gz
   - tar xzvf leatherman.tar.gz -C $USERDIR
+  - export CC=gcc-4.8 CXX=g++-4.8
 
 script:
   - ./.travis_target.sh
