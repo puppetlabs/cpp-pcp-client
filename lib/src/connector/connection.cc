@@ -13,12 +13,19 @@
 #include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/util/chrono.hpp>
 
+// This is hacky because MinGW-w64 5.2 with Boost 1.58 is printing warnings that should be suppressed. Preserve the
+// warnings elsewhere to make sure we have coverage of our code, but suppress for the whole file on Windows to avoid
+// printing them to stderr (which causes Appveyor builds to fail).
+#ifndef _WIN32
 #pragma GCC diagnostic push
+#endif
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/client.hpp>
 #include <websocketpp/config/asio_client.hpp>
+#ifndef _WIN32
 #pragma GCC diagnostic pop
+#endif
 
 #define LEATHERMAN_LOGGING_NAMESPACE CPP_PCP_CLIENT_LOGGING_PREFIX".connection"
 
