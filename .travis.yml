@@ -39,7 +39,7 @@ before_install:
   - tar xzvf leatherman.tar.gz -C $USERDIR
 
 script:
-  - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then ./scripts/travis_target.sh ; fi
+  - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then ./.travis_target.sh ; fi
 
 env:
   global:
