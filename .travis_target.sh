@@ -36,6 +36,12 @@ else
   make test ARGS=-V
 
   # Make sure installation succeeds
-  make DESTDIR=$USERDIR install
+  mkdir dest
+  make DESTDIR=`pwd`/dest install
 fi
 
+# If this is a release build, prepare an artifact for github
+if [ ${TRAVIS_TARGET} == RELEASE ]; then
+  cd dest
+  tar czvf $TRAVIS_BUILD_DIR/cpp-pcp-client.tar.gz `find . -type f -print`
+fi

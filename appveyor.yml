@@ -25,11 +25,26 @@ install:
   - ps: 7z.exe x leatherman.7z -oC:\tools | FIND /V "ing "
 
     # Minimize environment polution; previously we were linking against the wrong OpenSSL DLLs.
-  - SET PATH=C:\tools\openssl\bin;C:\tools\mingw64\bin;C:\ProgramData\chocolatey\bin;C:\Windows\system32;C:\Windows
+  - SET PATH=C:\tools\openssl\bin;C:\tools\mingw64\bin;C:\ProgramData\chocolatey\bin;C:\Program Files\7-Zip;C:\Windows\system32;C:\Windows
 
 build_script:
-  - ps: cmake -G "MinGW Makefiles" -DBOOST_ROOT="C:\tools\boost_1_58_0-x86_64_mingw-w64_4.8.3_win32_seh" -DBOOST_STATIC=ON -DCURL_STATIC=ON -DBUILD_SHARED_LIBS="$env:shared" -DCMAKE_PREFIX_PATH="C:\tools\leatherman;C:\tools\curl-7.42.1-x86_64_mingw-w64_4.8.3_win32_seh" -Wno-dev .
+  - ps: cmake -G "MinGW Makefiles" -DBOOST_ROOT="C:\tools\boost_1_58_0-x86_64_mingw-w64_4.8.3_win32_seh" -DBOOST_STATIC=ON -DCURL_STATIC=ON -DBUILD_SHARED_LIBS="$env:shared" -DCMAKE_PREFIX_PATH="C:\tools\leatherman;C:\tools\curl-7.42.1-x86_64_mingw-w64_4.8.3_win32_seh" -DCMAKE_INSTALL_PREFIX=C:\tools\cpp-pcp-client -Wno-dev .
   - ps: mingw32-make install
+  - ps: 7z.exe a -t7z cpp-pcp-client.7z C:\tools\cpp-pcp-client\
 
 test_script:
   - ps: ctest -V 2>&1 | %{ if ($_ -is [System.Management.Automation.ErrorRecord]) { $_ | c++filt } else { $_ } }
+
+artifacts:
+  - path: cpp-pcp-client.7z
+    name: cpp-pcp-client.7z
+
+deploy:
+  description: cpp-pcp-client build from AppVeyor
+  provider: GitHub
+  auth_token:
+    secure: m2K6++vmTevHCe1dfZs4rd+hjwSL/na3jvGrdAM34miNOQ9yDucj2NndW2ISpa38
+  artifact: cpp-pcp-client.7z
+  on:
+    appveyor_repo_tag: true
+    shared: OFF
