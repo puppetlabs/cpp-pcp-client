@@ -23,7 +23,7 @@ addons:
       name: "puppetlabs/cpp-pcp-client"
       description: "Build submitted via Travis CI"
     notification_email: michael.smith@puppetlabs.com
-    build_command_prepend: "CC=gcc-4.8 CXX=g++-4.8 $USERDIR/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=$USERDIR -DLEATHERMAN_GETTEXT=OFF ."
+    build_command_prepend: "cov-configure --comptype gcc --compiler gcc-4.8 --template && $USERDIR/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=$USERDIR -DLEATHERMAN_GETTEXT=OFF ."
     build_command: "make"
     branch_pattern: coverity_scan
 
@@ -37,6 +37,7 @@ before_install:
   # Install cpp-pcp-client's dependencies
   - wget https://github.com/puppetlabs/leatherman/releases/download/${LEATHERMAN_VERSION}/leatherman.tar.gz
   - tar xzvf leatherman.tar.gz -C $USERDIR
+  - export CC=gcc-4.8 CXX=g++-4.8
 
 script:
   - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then ./.travis_target.sh ; fi
