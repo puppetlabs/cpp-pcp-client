@@ -1,3 +1,15 @@
+## 1.5.3
+
+This is a maintenance release.
+
+* update version reported by pcp-client to 1.5.3
+
+## 1.5.2
+
+This is a maintenance release.
+
+* [PCP-738](https://tickets.puppetlabs.com/browse/PCP-738) pxp-agents previously included some randomness in the interval they wait before retrying a connection. However, that randomness wasn't very large, and continued to result in a large amount of clustering retries. Introduce more randomness in the wait period to smooth out reconnect attempts.
+
 ## 1.5.1
 
 This is a maintenance release.
