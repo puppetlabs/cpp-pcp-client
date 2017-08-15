@@ -60,6 +60,10 @@ set(CPP_PCP_CLIENT_FLAGS "-Wno-deprecated-declarations -Wno-reorder -Wno-sign-co
 set(CMAKE_CXX_FLAGS "${LEATHERMAN_CXX_FLAGS} ${CPP_PCP_CLIENT_FLAGS}")
 add_definitions(${LEATHERMAN_DEFINITIONS})
 
+if (WIN32)
+    link_libraries("-Wl,--nxcompat -Wl,--dynamicbase")
+endif()
+
 if(DEV_LOG_RAW_MESSAGE)
     add_definitions(-DDEV_LOG_RAW_MESSAGE)
 endif()
