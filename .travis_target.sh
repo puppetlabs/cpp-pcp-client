@@ -24,7 +24,7 @@ fi
 
 # Generate build files
 [ $1 == "debug" ] && export CMAKE_VARS="-DCMAKE_BUILD_TYPE=Debug -DCOVERALLS=ON"
-[ $1 == "shared_release" ] && export CMAKE_VARS="-DBUILD_SHARED_LIBS=ON"
+[ $1 != "shared_release" ] && export CMAKE_VARS="-DBUILD_SHARED_LIBS=OFF"
 cmake $CMAKE_VARS .
 
 if [ ${TRAVIS_TARGET} == CPPLINT ]; then
