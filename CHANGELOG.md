@@ -1,3 +1,10 @@
+## 1.5.4
+
+This is a maintenance release.
+
+* Update Travis and AppVeyor CI builds to generate release artifacts for downstream CI systems.
+* [PCP-775](https://tickets.puppetlabs.com/browse/PCP-775) Enable DEP support via nxcompat and dynamicbase on Windows.
+
 ## 1.5.3
 
 This is a maintenance release.

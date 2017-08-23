@@ -1,9 +1,6 @@
 #!/bin/bash
 set -ev
 
-# Set compiler to GCC 4.8 here, as Travis overrides the global variables.
-export CC=gcc-4.8 CXX=g++-4.8
-
 get_gettext() {
   wget https://s3.amazonaws.com/kylo-pl-bucket/gettext-0.19.6_install.tar.bz2
   tar xjvf gettext-0.19.6_install.tar.bz2 --strip 1 -C $USERDIR
@@ -39,6 +36,12 @@ else
   make test ARGS=-V
 
   # Make sure installation succeeds
-  make DESTDIR=$USERDIR install
+  mkdir dest
+  make DESTDIR=`pwd`/dest install
 fi
 
+# If this is a release build, prepare an artifact for github
+if [ ${TRAVIS_TARGET} == RELEASE ]; then
+  cd dest/usr/local
+  tar czvf $TRAVIS_BUILD_DIR/cpp-pcp-client.tar.gz `find . -type f -print`
+fi
