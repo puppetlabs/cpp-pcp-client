@@ -53,16 +53,5 @@ env:
     - LD_LIBRARY_PATH=$USERDIR/lib:$LD_LIBRARY_PATH
     - LEATHERMAN_VERSION=0.9.1
 
-deploy:
-  provider: releases
-  api_key:
-    secure: 5fZ4P7hgt3MgZAHt5iBhFmhXM/BkvzTIZb109jx4+D+I18mqc9bOSEYy92s7KGiGkivZG+XoDRMIBtb21ULGY2d4vsj3P5J5wh5Kd29hYYKxGWRaGz63+rOUBl3o45uoQ2aVJQBntMlHsgqsnVOFtn1g1j2j/tFegkPJvZBpvmXGAfXbJEUa0jze3owxdWO/uyPolGaoCcNpsSOUreTSz1wsoF9HvEAnRsCNUWTMROEbNhOh5XNrRTB+8vBt8Z76vdITtzgV+ZMFv0nlgW9V7Akc39IZ2GJtkA1fieUML+TsKYJEKXyNthZ2XoWp99A5HupN+eXaOsr+p9bW8mIC7z+gAHCsYA5AfibXMe+tk7Lk2fnEBwy1WCqXCRY/YfqrOK4jGtG/L/SPj49Bj4NzIXyyQixSjyWKrZWWYjn0Wle9OqQ69rZSCb2wBcRpxJ0zq6u2u0wXSkcc13TSZuA1BFJCSsGu2wxXyz68AhtdsfifNBUosSWt5sntc4PcSpW7M3EcJCzaS41XjAJ5bYQw/ZmBLwaEytG9Hj91hANqVkOiEd2BbtyWgvMpBh6yYg/QmouK6hCY4DBYl5jbNUJrcM5PlbqmzpZFxBeGGfg20c//yH59HUXwl5T+6Ub+oYiHwJZ26uEdSqXKcslpistmyxgTSrrT83fds8BSJfMB4EA=
-  file: cpp-pcp-client.tar.gz
-  skip_cleanup: true
-  on:
-    repo: puppetlabs/cpp-pcp-client
-    tags: true
-    condition: '"$TRAVIS_TARGET" == "RELEASE"'
-
 notifications:
   email: false
