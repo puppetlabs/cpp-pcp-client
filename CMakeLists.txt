@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2.2)
-project(cpp-pcp-client VERSION 1.5.1)
+project(cpp-pcp-client VERSION 1.5.4)
 
 # Project paths
 
@@ -59,6 +59,10 @@ leatherman_logging_line_numbers()
 set(CPP_PCP_CLIENT_FLAGS "-Wno-deprecated-declarations -Wno-reorder -Wno-sign-compare")
 set(CMAKE_CXX_FLAGS "${LEATHERMAN_CXX_FLAGS} ${CPP_PCP_CLIENT_FLAGS}")
 add_definitions(${LEATHERMAN_DEFINITIONS})
+
+if (WIN32)
+    link_libraries("-Wl,--nxcompat -Wl,--dynamicbase")
+endif()
 
 if(DEV_LOG_RAW_MESSAGE)
     add_definitions(-DDEV_LOG_RAW_MESSAGE)
