@@ -1,3 +1,9 @@
+## 1.5.5
+
+This is a maintenance release.
+
+* Internal fixes for test and build stability.
+
 ## 1.5.4
 
 This is a maintenance release.
