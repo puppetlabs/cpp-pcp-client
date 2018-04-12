@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <chrono>
 
-namespace PCPClient {
+using namespace PCPClient;
 using namespace v2;
 
 TEST_CASE("v2::Message::Message - parsing valid messages", "[message]") {
@@ -200,5 +200,3 @@ TEST_CASE("v2::Message serialization and parsing performance", "[message]") {
               << static_cast<int>((num_msg / execution_time) * (1000 * 1000))
               << " msg/s)\n";
 }
-
-}  // namespace PCPClient

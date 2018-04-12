@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace PCPClient {
+using namespace PCPClient;
 
 TEST_CASE("validatePrivateKeyCertPair", "[connector]") {
     SECTION("validates a matched key cert pair") {
@@ -67,5 +67,3 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
                           connection_config_error);
     }
 }
-
-}  // namespace PCPClient
