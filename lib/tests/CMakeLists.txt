@@ -28,6 +28,8 @@ include_directories(
 
 if (WIN32)
     list(APPEND PLATFORM_LIBS Mswsock)
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux" OR CMAKE_SYSTEM_NAME MATCHES "SunOS")
+    list(APPEND PLATFORM_LIBS rt)
 endif()
 
 set(test_BIN cpp-pcp-client-unittests)
