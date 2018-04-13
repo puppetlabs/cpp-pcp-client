@@ -9,7 +9,7 @@
 #include <atomic>
 #include <functional>
 
-using namespace PCPClient;
+namespace PCPClient {
 using namespace v1;
 
 TEST_CASE("v1::Connector::Connector", "[connector]") {
@@ -96,3 +96,5 @@ TEST_CASE("v1::Connector::connect", "[connector]") {
         REQUIRE(ass_timings.close > ass_timings.start);
     }
 }
+
+}  // namespace PCPClient

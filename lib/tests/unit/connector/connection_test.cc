@@ -14,7 +14,7 @@
 
 #include <memory>
 
-using namespace PCPClient;
+namespace PCPClient {
 
 namespace lth_util = leatherman::util;
 
@@ -247,3 +247,5 @@ TEST_CASE("Connection::~Connection", "[connection]") {
     // event handler and join its thread
     REQUIRE(true);
 }
+
+}  // namespace PCPClient

@@ -3,7 +3,9 @@
 #include <cpp-pcp-client/validator/validator.hpp>
 #include <cpp-pcp-client/validator/schema.hpp>
 
-using namespace PCPClient;
+namespace PCPClient {
+
+namespace lth_jc = leatherman::json_container;
 
 TEST_CASE("Validator::registerSchema", "[validation]") {
     Validator validator {};
@@ -63,3 +65,5 @@ TEST_CASE("Validator::getSchemaContentType", "[validation]") {
                           schema_not_found_error);
     }
 }
+
+}  // namespace PCPClient
