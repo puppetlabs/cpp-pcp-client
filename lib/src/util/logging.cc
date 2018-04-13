@@ -47,7 +47,6 @@ class access_writer : public sinks::basic_sink_backend<sinks::synchronized_feedi
     std::shared_ptr<std::ostream> _sink_stream_ptr;
 };
 
-// cppcheck-suppress passedByValue
 access_writer::access_writer(std::shared_ptr<std::ostream> sink_stream_ptr)
     : _sink_stream_ptr {std::move(sink_stream_ptr)}
 {

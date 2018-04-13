@@ -435,7 +435,6 @@ template <typename Verifier>
 class verbose_verification
 {
   public:
-    // cppcheck-suppress passedByValue
     verbose_verification(Verifier verifier, std::string uri)
             : verifier_(verifier), uri_(std::move(uri))
     {}
