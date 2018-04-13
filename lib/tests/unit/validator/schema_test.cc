@@ -11,9 +11,7 @@
 #include <valijson/validator.hpp>
 #pragma GCC diagnostic pop
 
-namespace PCPClient {
-
-namespace lth_jc = leatherman::json_container;
+using namespace PCPClient;
 
 bool validateTest(lth_jc::JsonContainer document, Schema schema) {
     valijson::Validator validator { schema.getRaw() };
@@ -290,5 +288,3 @@ TEST_CASE("Schema::getContentType()", "[validation]") {
     Schema schema { "eggs", ContentType::Binary };
     REQUIRE(schema.getContentType() == ContentType::Binary);
 }
-
-}  // namespace PCPClient

@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <chrono>
 
-namespace PCPClient {
+using namespace PCPClient;
 using namespace v1;
 
 TEST_CASE("MessageChunk", "[message]") {
@@ -563,5 +563,3 @@ TEST_CASE("v1::Message serialization and parsing performance", "[message]") {
               << static_cast<int>((num_msg / execution_time) * (1000 * 1000))
               << " msg/s)\n";
 }
-
-}  // namespace PCPClient
