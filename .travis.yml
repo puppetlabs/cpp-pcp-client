@@ -24,8 +24,8 @@ env:
   matrix:
     - TARGET=cpplint
     - TARGET=cppcheck
-    - TARGET="all test install ARGS=-V" DO_RELEASE=true EXTRA_VARS="-DBOOST_STATIC=ON"
-    - TARGET="all test install ARGS=-V" EXTRA_VARS="-DBOOST_STATIC=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERALLS=ON" COVERALLS=ON
+    - TARGET="all test install ARGS=-V" DO_RELEASE=true EXTRA_VARS="-DBOOST_STATIC=ON -DBUILD_SHARED_LIBS=OFF"
+    - TARGET="all test install ARGS=-V" EXTRA_VARS="-DBOOST_STATIC=ON -DCMAKE_BUILD_TYPE=Debug -DCOVERALLS=ON -DBUILD_SHARED_LIBS=OFF" COVERALLS=ON
 
 deploy:
   provider: releases
