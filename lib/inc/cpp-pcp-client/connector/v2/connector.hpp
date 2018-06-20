@@ -31,6 +31,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector : public ConnectorBase {
               std::string ca_crt_path,
               std::string client_crt_path,
               std::string client_key_path,
+              std::string ws_proxy,
               long ws_connection_timeout_ms = 5000,
               uint32_t pong_timeouts_before_retry = 3,
               long ws_pong_timeout_ms = 5000);
@@ -40,6 +41,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector : public ConnectorBase {
               std::string ca_crt_path,
               std::string client_crt_path,
               std::string client_key_path,
+              std::string ws_proxy,
               long ws_connection_timeout_ms = 5000,
               uint32_t pong_timeouts_before_retry = 3,
               long ws_pong_timeout_ms = 5000);
