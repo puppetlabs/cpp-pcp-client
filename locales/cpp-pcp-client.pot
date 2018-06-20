@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: cpp-pcp-client 1.5.4\n"
+"Project-Id-Version: cpp-pcp-client 1.6.0\n"
 "Report-Msgid-Bugs-To: docs@puppet.com\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -126,6 +126,13 @@ msgstr ""
 
 #: lib/src/connector/connection.cc
 msgid "failed to establish the WebSocket connection with {1}: {2}"
+msgstr ""
+
+#. info
+#: lib/src/connector/connection.cc
+msgid ""
+"Establishing the WebSocket connection with '{1}' through proxy '{2}' with a "
+"timeout of {3} ms"
 msgstr ""
 
 #. info
@@ -278,8 +285,7 @@ msgid "An unexpected error has been previously caught by the Monitor Thread"
 msgstr ""
 
 #. debug
-#: lib/src/connector/connector_base.cc
-#: lib/src/connector/v1/connector.cc
+#: lib/src/connector/connector_base.cc lib/src/connector/v1/connector.cc
 msgid "Failed to establish the WebSocket connection ({1})"
 msgstr ""
 
@@ -474,8 +480,7 @@ msgid ""
 msgstr ""
 
 #. debug
-#: lib/src/connector/v1/connector.cc
-#: lib/src/connector/v2/connector.cc
+#: lib/src/connector/v1/connector.cc lib/src/connector/v2/connector.cc
 msgid "Creating message with id {1} for {2} receiver"
 msgstr ""
 
@@ -498,8 +503,7 @@ msgid "Sending Associate Session request with id {1} and a TTL of {2} s"
 msgstr ""
 
 #. debug
-#: lib/src/connector/v1/connector.cc
-#: lib/src/connector/v2/connector.cc
+#: lib/src/connector/v1/connector.cc lib/src/connector/v2/connector.cc
 msgid ""
 "Received message of {1} bytes - raw message:\n"
 "{2}"
@@ -509,34 +513,28 @@ msgstr ""
 msgid "Failed to deserialize message: {1}"
 msgstr ""
 
-#: lib/src/connector/v1/connector.cc
-#: lib/src/connector/v2/connector.cc
+#: lib/src/connector/v1/connector.cc lib/src/connector/v2/connector.cc
 msgid "Invalid envelope - bad content: {1}"
 msgstr ""
 
-#: lib/src/connector/v1/connector.cc
-#: lib/src/connector/v2/connector.cc
+#: lib/src/connector/v1/connector.cc lib/src/connector/v2/connector.cc
 msgid "Invalid envelope - invalid JSON content: {1}"
 msgstr ""
 
-#: lib/src/connector/v1/connector.cc
-#: lib/src/connector/v2/connector.cc
+#: lib/src/connector/v1/connector.cc lib/src/connector/v2/connector.cc
 msgid "Unknown schema: {1}"
 msgstr ""
 
-#: lib/src/connector/v1/connector.cc
-#: lib/src/connector/v2/connector.cc
+#: lib/src/connector/v1/connector.cc lib/src/connector/v2/connector.cc
 msgid "DESERIALIZATION_ERROR %1% unknown unknown unknown"
 msgstr ""
 
-#: lib/src/connector/v1/connector.cc
-#: lib/src/connector/v2/connector.cc
+#: lib/src/connector/v1/connector.cc lib/src/connector/v2/connector.cc
 msgid "AUTHORIZATION_SUCCESS %1% %2% %3% %4%"
 msgstr ""
 
 #. warning
-#: lib/src/connector/v1/connector.cc
-#: lib/src/connector/v2/connector.cc
+#: lib/src/connector/v1/connector.cc lib/src/connector/v2/connector.cc
 msgid "No message callback has been registered for the '{1}' schema"
 msgstr ""
 
@@ -571,20 +569,17 @@ msgstr ""
 msgid "{1}: failure"
 msgstr ""
 
-#: lib/src/connector/v1/connector.cc
-#: lib/src/connector/v2/connector.cc
+#: lib/src/connector/v1/connector.cc lib/src/connector/v2/connector.cc
 msgid "Received error {1} from {2}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/v1/connector.cc
-#: lib/src/connector/v2/connector.cc
+#: lib/src/connector/v1/connector.cc lib/src/connector/v2/connector.cc
 msgid "{1} caused by message {2}: {3}"
 msgstr ""
 
 #. warning
-#: lib/src/connector/v1/connector.cc
-#: lib/src/connector/v2/connector.cc
+#: lib/src/connector/v1/connector.cc lib/src/connector/v2/connector.cc
 msgid "{1} (the id of the message that caused it is unknown): {2}"
 msgstr ""
 
@@ -622,8 +617,7 @@ msgid "Invalid debug in message {1}: {2}"
 msgstr ""
 
 #. debug
-#: lib/src/protocol/v1/message.cc
-#: lib/src/protocol/v2/message.cc
+#: lib/src/protocol/v1/message.cc lib/src/protocol/v2/message.cc
 msgid "Invalid data in message {1}: {2}"
 msgstr ""
 
