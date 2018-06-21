@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2.2)
-project(cpp-pcp-client VERSION 1.5.6)
+project(cpp-pcp-client VERSION 1.6.0)
 
 # Project paths
 
