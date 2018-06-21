@@ -26,6 +26,18 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector : public ConnectorBase {
     /// certificate file does not exist or is invalid; it fails to
     /// retrieve the client identity from the file; the client
     /// certificate and private key are not paired
+
+    // legacy constructor: pre proxy
+    Connector(std::string broker_ws_uri,
+              std::string client_type,
+              std::string ca_crt_path,
+              std::string client_crt_path,
+              std::string client_key_path,
+              long ws_connection_timeout_ms = 5000,
+              uint32_t pong_timeouts_before_retry = 3,
+              long ws_pong_timeout_ms = 5000);
+
+    // constructor for proxy addition
     Connector(std::string broker_ws_uri,
               std::string client_type,
               std::string ca_crt_path,
@@ -36,6 +48,17 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector : public ConnectorBase {
               uint32_t pong_timeouts_before_retry = 3,
               long ws_pong_timeout_ms = 5000);
 
+    // legacy constructor: pre proxy
+    Connector(std::vector<std::string> broker_ws_uris,
+              std::string client_type,
+              std::string ca_crt_path,
+              std::string client_crt_path,
+              std::string client_key_path,
+              long ws_connection_timeout_ms = 5000,
+              uint32_t pong_timeouts_before_retry = 3,
+              long ws_pong_timeout_ms = 5000);
+
+    // constructor for proxy addition
     Connector(std::vector<std::string> broker_ws_uris,
               std::string client_type,
               std::string ca_crt_path,
