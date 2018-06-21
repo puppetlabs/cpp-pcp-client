@@ -14,7 +14,7 @@
 #include <atomic>
 #include <functional>
 
-namespace PCPClient {
+using namespace PCPClient;
 
 // Concrete implementation of ContectorBase for testing that ignores messages.
 class ConnectorTester : public ConnectorBase {
@@ -310,5 +310,3 @@ TEST_CASE("ConnectorTester Monitoring Task", "[connector]") {
         }
     }
 }
-
-}  // namespace PCPClient

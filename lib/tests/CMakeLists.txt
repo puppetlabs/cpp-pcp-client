@@ -10,6 +10,7 @@ set(SOURCES
     unit/connector/client_metadata_test.cc
     unit/connector/connection_test.cc
     unit/connector/connector_base_test.cc
+    unit/connector/mock_server.cc
     unit/connector/v1/connector_test.cc
     unit/connector/v2/connector_test.cc
     unit/protocol/v1/serialization_test.cc
@@ -27,53 +28,9 @@ include_directories(
 
 if (WIN32)
     list(APPEND PLATFORM_LIBS Mswsock)
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux" OR CMAKE_SYSTEM_NAME MATCHES "SunOS")
+    list(APPEND PLATFORM_LIBS rt)
 endif()
-
-# On EL 4, we run into a linking error when trying to create libraries or
-# executables that link in a static library with code using threads. As I
-# described in https://gcc.gnu.org/ml/gcc-help/2015-08/msg00035.html, we get
-# the error undefined reference to symbol '__tls_get_addr@@GLIBC_2.3'.
-# Build mock_server as a separate shared library to avoid this error.
-
-if (LEATHERMAN_SHARED)
-    # Careful with the order, as done for libcpp-pcp-client
-    list(APPEND MOCK_SERVER_LIBS
-        ${Boost_REGEX_LIBRARY}
-        ${Boost_THREAD_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY}
-        ${LEATHERMAN_LIBRARIES})
-else()
-    list(APPEND MOCK_SERVER_LIBS
-        ${LEATHERMAN_LIBRARIES}
-        ${Boost_REGEX_LIBRARY}
-        ${Boost_THREAD_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY})
-endif()
-
-# pcp-chunk provides cpp-pcp-clients functions needed by MockServer
-add_library(pcp-chunks
-    ${SOURCE_DIR}/protocol/parsed_chunks.cc
-    ${SOURCE_DIR}/protocol/v1/chunks.cc
-    ${SOURCE_DIR}/protocol/v1/message.cc
-    ${SOURCE_DIR}/protocol/v1/serialization.cc
-    ${SOURCE_DIR}/protocol/v2/message.cc
-    ${SOURCE_DIR}/validator/schema.cc
-    ${SOURCE_DIR}/validator/validator.cc)
-target_link_libraries(pcp-chunks PRIVATE
-    ${MOCK_SERVER_LIBS}
-    ${PLATFORM_LIBS})
-add_dependencies(pcp-chunks valijson)
-# Add the libcpp-pcp-client export header
-target_compile_definitions(pcp-chunks PRIVATE -Dlibcpp_pcp_client_EXPORTS)
-
-add_library(mock-server unit/connector/mock_server.cc)
-target_link_libraries(mock-server PRIVATE
-    ${MOCK_SERVER_LIBS}
-    ${OPENSSL_SSL_LIBRARY}
-    ${OPENSSL_CRYPTO_LIBRARY}
-    ${PLATFORM_LIBS}
-    pcp-chunks)
-add_dependencies(mock-server pcp-chunks websocketpp)
 
 set(test_BIN cpp-pcp-client-unittests)
 add_executable(${test_BIN} ${SOURCES})
@@ -82,10 +39,7 @@ add_executable(${test_BIN} ${SOURCES})
 # linking causes segfaults as it picks up the wrong Asio symbols when using
 # Boost.Asio directly in the test, and Boost.Log and libcpp-pcp-client are
 # both dynamic libraries.
-# Ensure mock-server comes after libcpp-pcp-client, so it picks up libraries
-# compiled into libcpp-pcp-client. It comes after LIBS to avoid double
-# definition of boost::system::system_category() on Windows.
-target_link_libraries(${test_BIN} libcpp-pcp-client ${LIBS} pcp-chunks mock-server)
+target_link_libraries(${test_BIN} libcpp-pcp-client ${LIBS} ${PLATFORM_LIBS})
 
 add_custom_target(check
     "${EXECUTABLE_OUTPUT_PATH}/${test_BIN}"

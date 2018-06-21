@@ -10,7 +10,7 @@
 #include <atomic>
 #include <functional>
 
-namespace PCPClient {
+using namespace PCPClient;
 using namespace v2;
 
 TEST_CASE("v2::Connector::Connector", "[connector]") {
@@ -154,5 +154,3 @@ TEST_CASE("v2::Connector::sendError", "[connector]") {
         REQUIRE(in_reply_to == reply_id);
     }
 }
-
-}  // namespace PCPClient
