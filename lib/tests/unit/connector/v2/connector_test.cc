@@ -10,13 +10,13 @@
 #include <atomic>
 #include <functional>
 
-namespace PCPClient {
+using namespace PCPClient;
 using namespace v2;
 
 TEST_CASE("v2::Connector::Connector", "[connector]") {
     SECTION("can instantiate") {
         REQUIRE_NOTHROW(Connector("wss://localhost:8142/pcp", "test_client",
-                                  getCaPath(), getCertPath(), getKeyPath(),
+                                  getCaPath(), getCertPath(), getKeyPath(), "",
                                   WS_TIMEOUT_MS,
                                   PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT));
     }
@@ -38,7 +38,7 @@ TEST_CASE("v2::Connector::connect", "[connector]") {
 
     SECTION("successfully connects and update WebSocket timings") {
         Connector c { server_uri, client_type,
-                      getCaPath(), getCertPath(), getKeyPath(),
+                      getCaPath(), getCertPath(), getKeyPath(), "",
                       WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         REQUIRE_FALSE(connected);
         REQUIRE_NOTHROW(c.connect(1));
@@ -61,7 +61,7 @@ TEST_CASE("v2::Connector::connect", "[connector]") {
 
     SECTION("successfully connects to broker with client type in the URI") {
         Connector c { server_uri, client_type,
-                      getCaPath(), getCertPath(), getKeyPath(),
+                      getCaPath(), getCertPath(), getKeyPath(), "",
                       WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         REQUIRE_FALSE(connected);
         REQUIRE_NOTHROW(c.connect(1));
@@ -75,7 +75,7 @@ TEST_CASE("v2::Connector::connect", "[connector]") {
 
     SECTION("successfully connects to broker with trailing slash with client type in the URI") {
         Connector c { server_uri+"/", client_type,
-                      getCaPath(), getCertPath(), getKeyPath(),
+                      getCaPath(), getCertPath(), getKeyPath(), "",
                       WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         REQUIRE_FALSE(connected);
         REQUIRE_NOTHROW(c.connect(1));
@@ -95,7 +95,7 @@ TEST_CASE("v2::Connector::send", "[connector]") {
     SECTION("successfully sends a request and receives a response") {
         Connector c { "wss://localhost:" + std::to_string(port) + "/pcp",
                       "test_client",
-                      getCaPath(), getCertPath(), getKeyPath(),
+                      getCaPath(), getCertPath(), getKeyPath(), "",
                       WS_TIMEOUT_MS,
                       PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         std::string response_data, in_reply_to;
@@ -131,7 +131,7 @@ TEST_CASE("v2::Connector::sendError", "[connector]") {
     SECTION("successfully sends a request and receives a response") {
         Connector c { "wss://localhost:" + std::to_string(port) + "/pcp",
                       "test_client",
-                      getCaPath(), getCertPath(), getKeyPath(),
+                      getCaPath(), getCertPath(), getKeyPath(), "",
                       WS_TIMEOUT_MS,
                       PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         std::string response_data, in_reply_to;
@@ -154,5 +154,3 @@ TEST_CASE("v2::Connector::sendError", "[connector]") {
         REQUIRE(in_reply_to == reply_id);
     }
 }
-
-}  // namespace PCPClient

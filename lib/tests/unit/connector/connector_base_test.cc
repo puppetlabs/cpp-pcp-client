@@ -14,7 +14,7 @@
 #include <atomic>
 #include <functional>
 
-namespace PCPClient {
+using namespace PCPClient;
 
 // Concrete implementation of ContectorBase for testing that ignores messages.
 class ConnectorTester : public ConnectorBase {
@@ -28,7 +28,7 @@ TEST_CASE("ConnectorBase::ConnectorBase", "[connector]") {
     SECTION("can instantiate") {
         REQUIRE_NOTHROW(ConnectorTester(std::vector<std::string> {"wss://localhost:8142/pcp"},
             "test_client",
-            getCaPath(), getCertPath(), getKeyPath(),
+            getCaPath(), getCertPath(), getKeyPath(), "",
             WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT));
     }
 }
@@ -36,7 +36,7 @@ TEST_CASE("ConnectorBase::ConnectorBase", "[connector]") {
 TEST_CASE("ConnectorBase::getConnectionTimings", "[connector]") {
     ConnectorTester c { std::vector<std::string> { "wss://localhost:8142/pcp" },
         "test_client",
-        getCaPath(), getCertPath(), getKeyPath(),
+        getCaPath(), getCertPath(), getKeyPath(), "",
         WS_TIMEOUT_MS,
         PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
 
@@ -67,7 +67,7 @@ TEST_CASE("ConnectorBase::connect", "[connector]") {
     SECTION("successfully connects and update WebSocket timings") {
         ConnectorTester c { std::vector<std::string> { "wss://localhost:" + std::to_string(port) + "/pcp" },
             "test_client",
-            getCaPath(), getCertPath(), getKeyPath(),
+            getCaPath(), getCertPath(), getKeyPath(), "",
             WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         REQUIRE_FALSE(connected);
         REQUIRE_NOTHROW(c.connect(1));
@@ -95,7 +95,7 @@ TEST_CASE("ConnectorTester monitor connection throws if pong timeout would be ig
     auto port = mock_server.port();
 
     ConnectorTester c { std::vector<std::string> { "wss://localhost:" + std::to_string(port) + "/pcp" },
-        "test_client", getCaPath(), getCertPath(), getKeyPath(),
+        "test_client", getCaPath(), getCertPath(), getKeyPath(), "",
         WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, 2000 };
     c.connect(1);
 
@@ -139,7 +139,7 @@ TEST_CASE("ConnectorTester Monitoring Task", "[connector]") {
 
             c_ptr.reset(new ConnectorTester(std::vector<std::string> { "wss://localhost:" + std::to_string(port) + "/pcp" },
                 "test_client",
-                getCaPath(), getCertPath(), getKeyPath(),
+                getCaPath(), getCertPath(), getKeyPath(), "",
                 WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT));
 
             REQUIRE_NOTHROW(c_ptr->connect(1));
@@ -215,7 +215,7 @@ TEST_CASE("ConnectorTester Monitoring Task", "[connector]") {
 
         ConnectorTester c { std::vector<std::string> { "wss://localhost:" + std::to_string(port) + "/pcp" },
             "test_client",
-            getCaPath(), getCertPath(), getKeyPath(),
+            getCaPath(), getCertPath(), getKeyPath(), "",
             WS_TIMEOUT_MS, 1, 500 };
 
         REQUIRE(num_connections == 0);
@@ -274,7 +274,7 @@ TEST_CASE("ConnectorTester Monitoring Task", "[connector]") {
         // Setting pong timeout to 900 ms and Association timeout to 1 s
         ConnectorTester c { std::vector<std::string> { "wss://localhost:" + std::to_string(port) + "/pcp" },
             "test_client",
-            getCaPath(), getCertPath(), getKeyPath(),
+            getCaPath(), getCertPath(), getKeyPath(), "",
             900, 1, PONG_TIMEOUT };
 
         REQUIRE_NOTHROW(c.connect(1));
@@ -310,5 +310,3 @@ TEST_CASE("ConnectorTester Monitoring Task", "[connector]") {
         }
     }
 }
-
-}  // namespace PCPClient

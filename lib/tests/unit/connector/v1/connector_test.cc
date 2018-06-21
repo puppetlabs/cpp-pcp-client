@@ -9,13 +9,13 @@
 #include <atomic>
 #include <functional>
 
-namespace PCPClient {
+using namespace PCPClient;
 using namespace v1;
 
 TEST_CASE("v1::Connector::Connector", "[connector]") {
     SECTION("can instantiate") {
         REQUIRE_NOTHROW(Connector("wss://localhost:8142/pcp", "test_client",
-                                  getCaPath(), getCertPath(), getKeyPath(),
+                                  getCaPath(), getCertPath(), getKeyPath(), "",
                                   WS_TIMEOUT_MS,
                                   ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
                                   PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT));
@@ -25,7 +25,7 @@ TEST_CASE("v1::Connector::Connector", "[connector]") {
 TEST_CASE("v1::Connector::getAssociationTimings", "[connector]") {
     Connector c { "wss://localhost:8142/pcp",
                   "test_client",
-                  getCaPath(), getCertPath(), getKeyPath(),
+                  getCaPath(), getCertPath(), getKeyPath(), "",
                   WS_TIMEOUT_MS, ASSOCIATION_TIMEOUT_S,
                   ASSOCIATION_REQUEST_TTL_S,
                   PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
@@ -56,7 +56,7 @@ TEST_CASE("v1::Connector::connect", "[connector]") {
 
             c_ptr.reset(new Connector { "wss://localhost:" + std::to_string(port) + "/pcp",
                                         "test_client",
-                                        getCaPath(), getCertPath(), getKeyPath(),
+                                        getCaPath(), getCertPath(), getKeyPath(), "",
                                         WS_TIMEOUT_MS, ASSOCIATION_TIMEOUT_S,
                                         ASSOCIATION_REQUEST_TTL_S,
                                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT });
@@ -96,5 +96,3 @@ TEST_CASE("v1::Connector::connect", "[connector]") {
         REQUIRE(ass_timings.close > ass_timings.start);
     }
 }
-
-}  // namespace PCPClient

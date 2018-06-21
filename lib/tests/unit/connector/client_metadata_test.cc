@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace PCPClient {
+using namespace PCPClient;
 
 TEST_CASE("validatePrivateKeyCertPair", "[connector]") {
     SECTION("validates a matched key cert pair") {
@@ -36,7 +36,7 @@ static constexpr uint32_t PONG_TIMEOUT_MS { 10000 };
 TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("retrieves correctly the client common name from the certificate") {
         std::string type { "test" };
-        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(),
+        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(), "",
                              WS_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
 
         REQUIRE(c_m.common_name == "localhost");
@@ -44,7 +44,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
 
     SECTION("determines correctly the client URI") {
         std::string type { "test" };
-        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(),
+        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(), "",
                              WS_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
         std::string expected_uri { "pcp://localhost/" + type };
 
@@ -54,7 +54,7 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("throws a connection_config_error if the provided certificate "
             "file does not exist") {
         REQUIRE_THROWS_AS(ClientMetadata("test", getCaPath(),
-                                         getNotExistentFilePath(), getKeyPath(),
+                                         getNotExistentFilePath(), getKeyPath(), "",
                                          WS_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS),
                           connection_config_error);
     }
@@ -62,10 +62,8 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
     SECTION("throws a connection_config_error if the provided certificate "
             "is invalid") {
         REQUIRE_THROWS_AS(ClientMetadata("test", getCaPath(), getNotACertPath(),
-                                         getKeyPath(),
+                                         getKeyPath(), "",
                                          WS_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS),
                           connection_config_error);
     }
 }
-
-}  // namespace PCPClient

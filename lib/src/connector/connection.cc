@@ -398,8 +398,15 @@ void Connection::connect_()
                             "with {1}: {2}", ws_uri, ec.message()) };
 
     connection_handle_ = connection_ptr->get_handle();
-    LOG_INFO("Establishing the WebSocket connection with '{1}' with a timeout of {2} ms",
-              ws_uri, client_metadata_.ws_connection_timeout_ms);
+    if (client_metadata_.proxy.length() > 0) {
+        connection_ptr->set_proxy(client_metadata_.proxy);
+        LOG_INFO("Establishing the WebSocket connection with '{1}'"
+                 " through proxy '{2}' with a timeout of {3} ms",
+                 ws_uri, client_metadata_.proxy, client_metadata_.ws_connection_timeout_ms);
+    } else {
+        LOG_INFO("Establishing the WebSocket connection with '{1}' with a timeout of {2} ms",
+                  ws_uri, client_metadata_.ws_connection_timeout_ms);
+    }
     connection_ptr->set_open_handshake_timeout(client_metadata_.ws_connection_timeout_ms);
 
     try {
@@ -435,6 +442,7 @@ template <typename Verifier>
 class verbose_verification
 {
   public:
+    // cppcheck-suppress passedByValue
     verbose_verification(Verifier verifier, std::string uri)
             : verifier_(verifier), uri_(std::move(uri))
     {}

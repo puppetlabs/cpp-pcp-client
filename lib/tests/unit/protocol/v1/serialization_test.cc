@@ -6,7 +6,7 @@
 #include <string>
 #include <stdint.h>
 
-namespace PCPClient {
+using namespace PCPClient;
 using namespace v1;
 
 TEST_CASE("PCPClient::serialize", "[message]") {
@@ -202,5 +202,3 @@ TEST_CASE("PCPClient::deserialize", "[message]") {
         REQUIRE(some_data_d  == some_data);
     }
 }
-
-}  // namespace PCPClient
