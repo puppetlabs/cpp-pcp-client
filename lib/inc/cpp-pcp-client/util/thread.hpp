@@ -3,6 +3,7 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#pragma GCC diagnostic ignored "-Wunused-variable"
 #include <boost/thread/thread.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/exception_ptr.hpp>
