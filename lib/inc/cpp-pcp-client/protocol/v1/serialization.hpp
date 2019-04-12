@@ -5,7 +5,7 @@
 
 #include <leatherman/locale/locale.hpp>
 
-#include <boost/detail/endian.hpp>
+#include <boost/predef/other/endian.h>
 
 #include <string>
 #include <vector>
@@ -27,7 +27,7 @@ typedef std::vector<uint8_t> SerializedMessage;
 // Utility functions
 //
 
-#ifdef BOOST_LITTLE_ENDIAN
+#ifdef BOOST_ENDIAN_LITTLE_BYTE
 
 LIBCPP_PCP_CLIENT_EXPORT uint32_t getNetworkNumber(const uint32_t& number);
 LIBCPP_PCP_CLIENT_EXPORT uint32_t getHostNumber(const uint32_t& number);
@@ -42,7 +42,7 @@ inline uint32_t getHostNumber(const uint32_t& number) {
     return number;
 }
 
-#endif  // BOOST_LITTLE_ENDIAN
+#endif  // BOOST_ENDIAN_LITTLE_BYTE
 
 //
 // Serialize
