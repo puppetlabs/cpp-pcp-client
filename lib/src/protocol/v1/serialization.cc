@@ -9,7 +9,7 @@
 namespace PCPClient {
 namespace v1 {
 
-#ifdef BOOST_LITTLE_ENDIAN
+#if BOOST_ENDIAN_LITTLE_BYTE
 
 uint32_t getNetworkNumber(const uint32_t& number)
 {
@@ -21,7 +21,7 @@ uint32_t getHostNumber(const uint32_t& number)
     return ntohl(number);
 }
 
-#endif  // BOOST_LITTLE_ENDIAN
+#endif  // BOOST_ENDIAN_LITTLE_BYTE
 
 }  // namespace v1
 }  // namespace PCPClient
