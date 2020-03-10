@@ -88,6 +88,33 @@ Connector::Connector(std::string broker_ws_uri,
                       std::move(ws_pong_timeout_ms)}
 {
 }
+// constructor for crl addition
+Connector::Connector(std::string broker_ws_uri,
+                     std::string client_type,
+                     std::string ca_crt_path,
+                     std::string client_crt_path,
+                     std::string client_key_path,
+                     std::string client_crl_path,
+                     std::string ws_proxy,
+                     long ws_connection_timeout_ms,
+                     uint32_t association_timeout_s,
+                     uint32_t association_request_ttl_s,
+                     uint32_t pong_timeouts_before_retry,
+                     long ws_pong_timeout_ms)
+        : Connector { std::vector<std::string> { std::move(broker_ws_uri) },
+                      std::move(client_type),
+                      std::move(ca_crt_path),
+                      std::move(client_crt_path),
+                      std::move(client_key_path),
+                      std::move(client_crl_path),
+                      std::move(ws_proxy),
+                      std::move(ws_connection_timeout_ms),
+                      std::move(association_timeout_s),
+                      std::move(association_request_ttl_s),
+                      std::move(pong_timeouts_before_retry),
+                      std::move(ws_pong_timeout_ms)}
+{
+}
 // legacy constructor: pre proxy
 Connector::Connector(std::vector<std::string> broker_ws_uris,
                      std::string client_type,
@@ -151,6 +178,56 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
                           std::move(ca_crt_path),
                           std::move(client_crt_path),
                           std::move(client_key_path),
+                          std::move(ws_proxy),
+                          std::move(ws_connection_timeout_ms),
+                          std::move(pong_timeouts_before_retry),
+                          std::move(ws_pong_timeout_ms) },
+          associate_response_callback_ {},
+          session_association_ { std::move(association_timeout_s) }
+{
+    // Add PCP schemas to the Validator instance member
+    validator_.registerSchema(Protocol::EnvelopeSchema());
+    validator_.registerSchema(Protocol::DebugSchema());
+    validator_.registerSchema(Protocol::DebugItemSchema());
+
+    // Register PCP callbacks
+    registerMessageCallback(
+        Protocol::AssociateResponseSchema(),
+        [this](const ParsedChunks& parsed_chunks) {
+            associateResponseCallback(parsed_chunks);
+        });
+
+    registerMessageCallback(
+        Protocol::ErrorMessageSchema(),
+        [this](const ParsedChunks& parsed_chunks) {
+            errorMessageCallback(parsed_chunks);
+        });
+
+    registerMessageCallback(
+        Protocol::TTLExpiredSchema(),
+        [this](const ParsedChunks& parsed_chunks) {
+            TTLMessageCallback(parsed_chunks);
+        });
+}
+// constructor for crl addition
+Connector::Connector(std::vector<std::string> broker_ws_uris,
+                     std::string client_type,
+                     std::string ca_crt_path,
+                     std::string client_crt_path,
+                     std::string client_key_path,
+                     std::string client_crl_path,
+                     std::string ws_proxy,
+                     long ws_connection_timeout_ms,
+                     uint32_t association_timeout_s,
+                     uint32_t association_request_ttl_s,
+                     uint32_t pong_timeouts_before_retry,
+                     long ws_pong_timeout_ms)
+        : ConnectorBase { std::move(broker_ws_uris),
+                          std::move(client_type),
+                          std::move(ca_crt_path),
+                          std::move(client_crt_path),
+                          std::move(client_key_path),
+                          std::move(client_crl_path),
                           std::move(ws_proxy),
                           std::move(ws_connection_timeout_ms),
                           std::move(pong_timeouts_before_retry),
