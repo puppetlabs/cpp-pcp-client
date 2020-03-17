@@ -347,9 +347,11 @@ void Connection::cleanUp()
             break;
 
         case (ConnectionState::open):
-            tryClose();
         case (ConnectionState::closing):
         {
+            if (c_s == ConnectionState::open) {
+                tryClose();
+            }
             lth_util::Timer timer{};
             while (connection_state_.load() == ConnectionState::closing
                    && timer.elapsed_seconds() < 2)
