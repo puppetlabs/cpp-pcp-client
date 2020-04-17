@@ -70,6 +70,31 @@ Connector::Connector(std::string broker_ws_uri,
                       std::move(ws_pong_timeout_ms)}
 {
 }
+
+// constructor for crl addition
+Connector::Connector(std::string broker_ws_uri,
+                     std::string client_type,
+                     std::string ca_crt_path,
+                     std::string client_crt_path,
+                     std::string client_key_path,
+                     std::string client_crl_path,
+                     std::string ws_proxy,
+                     long ws_connection_timeout_ms,
+                     uint32_t pong_timeouts_before_retry,
+                     long ws_pong_timeout_ms)
+        : Connector { std::vector<std::string> { std::move(broker_ws_uri) },
+                      std::move(client_type),
+                      std::move(ca_crt_path),
+                      std::move(client_crt_path),
+                      std::move(client_key_path),
+                      std::move(client_crl_path),
+                      std::move(ws_proxy),
+                      std::move(ws_connection_timeout_ms),
+                      std::move(pong_timeouts_before_retry),
+                      std::move(ws_pong_timeout_ms)}
+{
+}
+
 // legacy constructor: pre proxy
 Connector::Connector(std::vector<std::string> broker_ws_uris,
                      std::string client_type,
@@ -119,6 +144,44 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
                           std::move(ca_crt_path),
                           std::move(client_crt_path),
                           std::move(client_key_path),
+                          std::move(ws_proxy),
+                          std::move(ws_connection_timeout_ms),
+                          std::move(pong_timeouts_before_retry),
+                          std::move(ws_pong_timeout_ms) }
+{
+    // Rely on ConnectorBase being an abstract class with no operations in the constructor.
+    for (auto& broker : broker_ws_uris_) {
+        broker += (broker.back() == '/' ? "" : "/") + client_metadata_.client_type;
+    }
+
+    // Add PCP schemas to the Validator instance member
+    validator_.registerSchema(Protocol::EnvelopeSchema());
+
+    // Register PCP callbacks
+    registerMessageCallback(
+        Protocol::ErrorMessageSchema(),
+        [this](const ParsedChunks& msg) {
+            errorMessageCallback(msg);
+        });
+}
+
+// constructor for crl addition
+Connector::Connector(std::vector<std::string> broker_ws_uris,
+                     std::string client_type,
+                     std::string ca_crt_path,
+                     std::string client_crt_path,
+                     std::string client_key_path,
+                     std::string client_crl_path,
+                     std::string ws_proxy,
+                     long ws_connection_timeout_ms,
+                     uint32_t pong_timeouts_before_retry,
+                     long ws_pong_timeout_ms)
+        : ConnectorBase { std::move(broker_ws_uris),
+                          std::move(client_type),
+                          std::move(ca_crt_path),
+                          std::move(client_crt_path),
+                          std::move(client_key_path),
+                          std::move(client_crl_path),
                           std::move(ws_proxy),
                           std::move(ws_connection_timeout_ms),
                           std::move(pong_timeouts_before_retry),
