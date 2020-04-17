@@ -164,15 +164,6 @@ msgstr ""
 
 #. debug
 #: lib/src/connector/connection.cc
-msgid "Using CRL file: {1}"
-msgstr ""
-
-#: lib/src/connector/connection.cc
-msgid "Cannot load crl file: {1}"
-msgstr ""
-
-#. debug
-#: lib/src/connector/connection.cc
 msgid "Initialized SSL context to verify broker {1}"
 msgstr ""
 
