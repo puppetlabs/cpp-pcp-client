@@ -6,11 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-<<<<<<< HEAD
 "Project-Id-Version: cpp-pcp-client 1.7.0\n"
-=======
-"Project-Id-Version: cpp-pcp-client 1.6.2\n"
->>>>>>> upstream/1.6.x
 "Report-Msgid-Bugs-To: docs@puppet.com\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
