@@ -40,6 +40,11 @@
 #include <random>
 #include <algorithm>
 
+// We need to modify underlying openssl object to set CRL.
+// These includes exposes methods for reading and validating
+// against a CRL.
+#include <openssl/x509_vfy.h>
+
 // TODO(ale): disable assert() once we're confident with the code...
 // To disable assert()
 // #define NDEBUG
@@ -500,6 +505,17 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl)
                                   boost::asio::ssl::context::file_format::pem);
         ctx->load_verify_file(client_metadata_.ca);
 
+        if (client_metadata_.crl.length() > 0) {
+            LOG_DEBUG("Using CRL file: {1}", client_metadata_.crl);
+            auto x509_store = SSL_CTX_get_cert_store(ctx->native_handle());
+            X509_LOOKUP* lu = X509_STORE_add_lookup(x509_store, X509_LOOKUP_file());
+            // Returns the number of objects loaded from CRL file or 0 on error
+            if (X509_load_crl_file(lu, client_metadata_.crl.c_str(), X509_FILETYPE_PEM) == 0) {
+                throw connection_config_error {
+                    lth_loc::format("Cannot load crl file: {1}", client_metadata_.crl) };
+            }
+            X509_STORE_set_flags(x509_store, (X509_V_FLAG_CRL_CHECK_ALL | X509_V_FLAG_CRL_CHECK));
+        }
         auto uri_txt = getWsUri();
         auto uri = websocketpp::uri(uri_txt);
         ctx->set_verify_mode(boost::asio::ssl::verify_peer);

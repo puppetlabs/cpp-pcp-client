@@ -71,6 +71,38 @@ ConnectorBase::ConnectorBase(std::vector<std::string> broker_ws_uris,
           must_stop_monitoring_ { false }
 { }
 
+// constructor for crl addition
+ConnectorBase::ConnectorBase(std::vector<std::string> broker_ws_uris,
+                             std::string client_type,
+                             std::string ca_crt_path,
+                             std::string client_crt_path,
+                             std::string client_key_path,
+                             std::string client_crl_path,
+                             std::string ws_proxy,
+                             long ws_connection_timeout_ms,
+                             uint32_t pong_timeouts_before_retry,
+                             long ws_pong_timeout_ms)
+        : connection_ptr_ { nullptr },
+          broker_ws_uris_ { std::move(broker_ws_uris) },
+          client_metadata_ { std::move(client_type),
+                             std::move(ca_crt_path),
+                             std::move(client_crt_path),
+                             std::move(client_key_path),
+                             std::move(client_crl_path),
+                             std::move(ws_proxy),
+                             std::move(ws_connection_timeout_ms),
+                             std::move(pong_timeouts_before_retry),
+                             std::move(ws_pong_timeout_ms)},
+          validator_ {},
+          schema_callback_pairs_ {},
+          error_callback_ {},
+          is_monitoring_ { false },
+          monitor_thread_ {},
+          monitor_mutex_ {},
+          monitor_cond_var_ {},
+          must_stop_monitoring_ { false }
+{ }
+
 ConnectorBase::~ConnectorBase()
 {
     if (connection_ptr_ != nullptr) {

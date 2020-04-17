@@ -4,7 +4,6 @@ services:
 
 before_install:
   - docker pull gcr.io/cpp-projects/cpp-ci:1
-
 script:
   - >
     docker run -v `pwd`:/cpp-pcp-client gcr.io/cpp-projects/cpp-ci:1 /bin/bash -c "

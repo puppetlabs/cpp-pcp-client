@@ -34,9 +34,9 @@ static constexpr uint32_t PONG_TIMEOUTS_BEFORE_RETRY { 3 };
 static constexpr uint32_t PONG_TIMEOUT_MS { 10000 };
 
 TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
-    SECTION("retrieves correctly the client common name from the certificate (call with proxy constructor)") {
+    SECTION("retrieves correctly the client common name from the certificate (call with proxy, crl constructor)") {
         std::string type { "test" };
-        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(), "",
+        ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
                              WS_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
 
         REQUIRE(c_m.common_name == "localhost");
