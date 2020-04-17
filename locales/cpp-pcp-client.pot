@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: cpp-pcp-client 1.6.0\n"
+"Project-Id-Version: cpp-pcp-client 1.7.0\n"
 "Report-Msgid-Bugs-To: docs@puppet.com\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -160,6 +160,15 @@ msgstr ""
 #. debug
 #: lib/src/connector/connection.cc
 msgid "WebSocket TLS initialization event; about to validate the certificate"
+msgstr ""
+
+#. debug
+#: lib/src/connector/connection.cc
+msgid "Using CRL file: {1}"
+msgstr ""
+
+#: lib/src/connector/connection.cc
+msgid "Cannot load crl file: {1}"
 msgstr ""
 
 #. debug
