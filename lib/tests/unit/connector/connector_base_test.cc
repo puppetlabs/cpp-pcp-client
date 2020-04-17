@@ -25,10 +25,10 @@ class ConnectorTester : public ConnectorBase {
 };
 
 TEST_CASE("ConnectorBase::ConnectorBase", "[connector]") {
-    SECTION("can instantiate (with ws_proxy constructor)") {
+    SECTION("can instantiate (with crl, ws_proxy constructor)") {
         REQUIRE_NOTHROW(ConnectorTester(std::vector<std::string> {"wss://localhost:8142/pcp"},
             "test_client",
-            getCaPath(), getCertPath(), getKeyPath(), "",
+            getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
             WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT));
     }
 }
