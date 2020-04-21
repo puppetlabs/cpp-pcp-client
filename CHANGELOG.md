@@ -1,3 +1,9 @@
+## 1.6.3
+
+This is a maintenance release.
+
+* Internal fixes for test and build stability
+
 ## 1.6.2
 
 This is a maintenance release.
