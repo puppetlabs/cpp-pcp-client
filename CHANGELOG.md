@@ -5,6 +5,12 @@ This is a feature release.
 * Internal fixes for test and build stability.
 * [PE-28850](https://tickets.puppetlabs.com/browse/PE-28850) Honor CRL when establishing connection
 
+## 1.6.3
+
+This is a maintenance release.
+
+* Internal fixes for test and build stability
+
 ## 1.6.2
 
 This is a maintenance release.
