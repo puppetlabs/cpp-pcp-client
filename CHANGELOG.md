@@ -1,3 +1,48 @@
+## 1.6.2
+
+This is a maintenance release.
+
+* [PE-28850](https://tickets.puppetlabs.com/browse/PE-28850) Honor CRL when establishing connection
+
+## 1.6.1
+
+This is a maintenance release.
+
+* Internal fixes for test and build stability.
+
+## 1.6.0
+
+This is a feature release.
+
+* Internal fixes for test and build stability.
+* Websocketpp updated to 0.8.1
+
+## 1.5.9
+
+This is a maintenance release.
+
+* Internal fixes for test and build stability.
+
+## 1.5.8
+
+This is a maintenance release.
+
+* Internal fixes for test and build stability.
+
+## 1.5.7
+
+This is a maintenance release.
+
+* Internal fixes for test and build stability.
+
+## 1.5.6
+
+This is a maintenance release
+
+* Internal fixes for test and build stability.
+* Reverted to shared lib build by default
+* [PCP-848](https://tickets.puppetlabs.com/browse/PCP-848) Enable proxy support
+
 ## 1.5.5
 
 This is a maintenance release.
