@@ -27,7 +27,7 @@ namespace websocketpp {
     class client;
 
     namespace config {
-        struct asio_tls_client;
+        struct debug_asio_tls;
     }
 
     namespace message_buffer {
@@ -57,7 +57,7 @@ static const std::string DEFAULT_CLOSE_REASON { "Closed by client" };
 
 // Configuration of the WebSocket transport layer
 
-using WS_Client_Type = websocketpp::client<websocketpp::config::asio_tls_client>;
+using WS_Client_Type = websocketpp::client<websocketpp::config::debug_asio_tls>;
 using WS_Context_Ptr = websocketpp::lib::shared_ptr<boost::asio::ssl::context>;
 using WS_Connection_Handle = websocketpp::connection_hdl;
 

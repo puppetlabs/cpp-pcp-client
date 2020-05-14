@@ -22,7 +22,7 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/client.hpp>
-#include <websocketpp/config/asio_client.hpp>
+#include <websocketpp/config/debug_asio.hpp>
 #ifndef _WIN32
 #pragma GCC diagnostic pop
 #endif
@@ -85,8 +85,8 @@ Connection::Connection(std::vector<std::string> broker_ws_uris,
           endpoint_ { new WS_Client_Type() }
 {
     // Turn off websocketpp logging to avoid runtime errors (see CTH-69)
-    endpoint_->clear_access_channels(websocketpp::log::alevel::all);
-    endpoint_->clear_error_channels(websocketpp::log::elevel::all);
+    endpoint_->set_access_channels(websocketpp::log::alevel::all);
+    endpoint_->set_error_channels(websocketpp::log::elevel::all);
 
     // Initialize the transport system. Note that in perpetual mode,
     // the event loop does not terminate when there are no connections
