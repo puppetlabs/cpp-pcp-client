@@ -73,7 +73,7 @@ endif()
 # gettext_compile(${CMAKE_CURRENT_SOURCE_DIR}/locales share/locale)
 
 # Configure i18n
-file(GLOB_RECURSE PCP_CLIENT_SOURCES */src/*.cc */inc/*.hpp)
+file(GLOB_RECURSE PCP_CLIENT_SOURCES lib/src/**/*.cc lib/inc/**/*.hpp)
 gettext_templates(${CMAKE_CURRENT_SOURCE_DIR}/locales ${PCP_CLIENT_SOURCES})
 
 # Prefer openssl from ports
