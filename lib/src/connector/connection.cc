@@ -308,13 +308,18 @@ void Connection::close(CloseCode code, const std::string& reason)
     timings.setClosing();
     auto c_s = connection_state_.load();
     if (c_s != ConnectionState::closed) {
+        connection_state_ = ConnectionState::closing;
         websocketpp::lib::error_code ec;
+        endpoint_->pause_reading(connection_handle_, ec);
+        if (ec)
+            throw connection_processing_error {
+                    lth_loc::format("failed to pause reading on WebSocket connection: {1}",
+                                    ec.message()) };
         endpoint_->close(connection_handle_, code, reason, ec);
         if (ec)
             throw connection_processing_error {
                     lth_loc::format("failed to close WebSocket connection: {1}",
                                     ec.message()) };
-        connection_state_ = ConnectionState::closing;
     }
 }
 
