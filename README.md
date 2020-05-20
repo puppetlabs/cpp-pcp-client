@@ -16,7 +16,7 @@ Dependencies
 
  - a C++11 compiler (clang/gcc 4.7)
  - CMake (3.2 or newer)
- - Boost (1.54 or newer)
+ - Boost (1.55 or newer)
  - OpenSSL
  - [leatherman][leatherman], installed as a standalone library (0.5.1 or newer)
 
