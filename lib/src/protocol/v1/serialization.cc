@@ -9,7 +9,7 @@
 namespace PCPClient {
 namespace v1 {
 
-#if BOOST_ENDIAN_LITTLE_BYTE
+#ifdef BOOST_ENDIAN_LITTLE_BYTE
 
 uint32_t getNetworkNumber(const uint32_t& number)
 {
