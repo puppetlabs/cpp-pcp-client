@@ -6,6 +6,8 @@
 #include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/export.h>
 
+#include <boost/nowide/fstream.hpp>
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -20,6 +22,13 @@ namespace boost {
         }
     }
 }  // namespace boost
+
+// Forward declarations for leatherman::logging::log_level
+namespace leatherman {
+  namespace logging {
+    enum class log_level;
+  }
+}
 
 // Forward declarations for websocketpp
 namespace websocketpp {
@@ -118,6 +127,10 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
 
     /// Reset all the callbacks
     void resetCallbacks();
+
+    /// WebSocket++ logging configuration
+    void setWebSocketLogLevel(leatherman::logging::log_level loglevel);
+    void setWebSocketLogStream(std::ofstream* logstream);
 
     /// Check the state of the WebSocket connection; in case it's not
     /// open, try to re-open it.

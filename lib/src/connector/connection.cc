@@ -54,6 +54,7 @@ namespace PCPClient {
 
 namespace lth_util = leatherman::util;
 namespace lth_loc  = leatherman::locale;
+namespace lth_log  = leatherman::logging;
 
 //
 // Constants
@@ -84,10 +85,6 @@ Connection::Connection(std::vector<std::string> broker_ws_uris,
           consecutive_pong_timeouts_ { 0 },
           endpoint_ { new WS_Client_Type() }
 {
-    // Turn off websocketpp logging to avoid runtime errors (see CTH-69)
-    endpoint_->clear_access_channels(websocketpp::log::alevel::all);
-    endpoint_->clear_error_channels(websocketpp::log::elevel::all);
-
     // Initialize the transport system. Note that in perpetual mode,
     // the event loop does not terminate when there are no connections
     endpoint_->init_asio();
@@ -141,6 +138,62 @@ Connection::~Connection()
 ConnectionState Connection::getConnectionState() const
 {
     return connection_state_.load();
+}
+
+//
+// WebSocket logging configuration
+//
+
+void Connection::setWebSocketLogLevel(lth_log::log_level loglevel)
+{
+    // Ensure all log channels are disabled
+    endpoint_->set_access_channels(websocketpp::log::alevel::none);
+    endpoint_->set_error_channels(websocketpp::log::elevel::none);
+
+    // WebSocket++ log levels are defined at
+    // https://raw.githubusercontent.com/zaphoyd/websocketpp/master/docs/logging.dox
+    // For any given log level, fallthrough and set logs at all higher levels.
+    // This could also be accomplished by defining a custom log package for each
+    // leatherman log level using a bitwise OR operator, but this is simpler.
+    switch  (loglevel) {
+        case(lth_log::log_level::trace):
+            endpoint_->set_access_channels(websocketpp::log::alevel::devel);
+            endpoint_->set_error_channels(websocketpp::log::elevel::devel);
+
+        case(lth_log::log_level::debug):
+            endpoint_->set_access_channels(websocketpp::log::alevel::frame_header |
+                                          websocketpp::log::alevel::frame_payload |
+                                          websocketpp::log::alevel::debug_handshake |
+                                          websocketpp::log::alevel::debug_close);
+            endpoint_->set_error_channels(websocketpp::log::elevel::library);
+
+        case(lth_log::log_level::info):
+            endpoint_->set_access_channels(websocketpp::log::alevel::connect |
+                                          websocketpp::log::alevel::disconnect);
+            endpoint_->set_error_channels(websocketpp::log::elevel::info);
+
+        case(lth_log::log_level::warning):
+            endpoint_->set_error_channels(websocketpp::log::elevel::warn);
+
+        case(lth_log::log_level::error):
+            endpoint_->set_error_channels(websocketpp::log::elevel::rerror);
+
+        case(lth_log::log_level::fatal):
+            endpoint_->set_error_channels(websocketpp::log::elevel::fatal);
+            break;
+
+        case(lth_log::log_level::none):
+            break;  // All log channels already disabled, do nothing
+
+        default:
+            throw connection_config_error { lth_loc::format("invalid log level: '{1}'", loglevel) };
+    }
+}
+
+void Connection::setWebSocketLogStream(std::ofstream* logstream)
+{
+    endpoint_->get_alog().set_ostream(logstream);
+    endpoint_->get_elog().set_ostream(logstream);
 }
 
 //
