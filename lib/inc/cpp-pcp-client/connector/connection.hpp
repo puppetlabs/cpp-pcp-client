@@ -3,6 +3,7 @@
 
 #include <cpp-pcp-client/connector/timings.hpp>
 #include <cpp-pcp-client/connector/client_metadata.hpp>
+#include <cpp-pcp-client/util/logging.hpp>
 #include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/export.h>
 
@@ -22,13 +23,6 @@ namespace boost {
         }
     }
 }  // namespace boost
-
-// Forward declarations for leatherman::logging::log_level
-namespace leatherman {
-  namespace logging {
-    enum class log_level;
-  }
-}
 
 // Forward declarations for websocketpp
 namespace websocketpp {

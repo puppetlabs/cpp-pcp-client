@@ -2,6 +2,7 @@
 #define CPP_PCP_CLIENT_SRC_CONNECTOR_CLIENT_METADATA_H_
 
 #include <cpp-pcp-client/export.h>
+#include <cpp-pcp-client/util/logging.hpp>
 
 #include <string>
 #include <cstdint>
@@ -25,6 +26,8 @@ class LIBCPP_PCP_CLIENT_EXPORT ClientMetadata {
     long ws_connection_timeout_ms;
     uint32_t pong_timeouts_before_retry;
     long pong_timeout_ms;
+    leatherman::logging::log_level loglevel{};
+    std::ofstream* logstream;
 
     /// Throws a connection_config_error in case: the client
     /// certificate file does not exist or is invalid; it fails to
@@ -57,6 +60,19 @@ class LIBCPP_PCP_CLIENT_EXPORT ClientMetadata {
                    std::string _key,
                    std::string _crl,
                    std::string proxy,
+                   long _ws_connection_timeout_ms,
+                   uint32_t _pong_timeouts_before_retry,
+                   long _pong_timeout_ms);
+
+    // constructor logging addition
+    ClientMetadata(std::string _client_type,
+                   std::string _ca,
+                   std::string _crt,
+                   std::string _key,
+                   std::string _crl,
+                   std::string proxy,
+                   leatherman::logging::log_level loglevel,
+                   std::ofstream* logstream,
                    long _ws_connection_timeout_ms,
                    uint32_t _pong_timeouts_before_retry,
                    long _pong_timeout_ms);

@@ -87,6 +87,8 @@ Connection::Connection(std::vector<std::string> broker_ws_uris,
 {
     // Initialize the transport system. Note that in perpetual mode,
     // the event loop does not terminate when there are no connections
+    setWebSocketLogLevel(client_metadata_.loglevel);
+    setWebSocketLogStream(client_metadata_.logstream);
     endpoint_->init_asio();
     endpoint_->start_perpetual();
 
@@ -157,19 +159,18 @@ void Connection::setWebSocketLogLevel(lth_log::log_level loglevel)
     // leatherman log level using a bitwise OR operator, but this is simpler.
     switch  (loglevel) {
         case(lth_log::log_level::trace):
-            endpoint_->set_access_channels(websocketpp::log::alevel::devel);
+            endpoint_->set_access_channels(websocketpp::log::alevel::devel |
+                                           websocketpp::log::alevel::frame_header);
             endpoint_->set_error_channels(websocketpp::log::elevel::devel);
 
         case(lth_log::log_level::debug):
-            endpoint_->set_access_channels(websocketpp::log::alevel::frame_header |
-                                          websocketpp::log::alevel::frame_payload |
-                                          websocketpp::log::alevel::debug_handshake |
-                                          websocketpp::log::alevel::debug_close);
+            endpoint_->set_access_channels(websocketpp::log::alevel::debug_handshake |
+                                           websocketpp::log::alevel::debug_close);
             endpoint_->set_error_channels(websocketpp::log::elevel::library);
 
         case(lth_log::log_level::info):
             endpoint_->set_access_channels(websocketpp::log::alevel::connect |
-                                          websocketpp::log::alevel::disconnect);
+                                           websocketpp::log::alevel::disconnect);
             endpoint_->set_error_channels(websocketpp::log::elevel::info);
 
         case(lth_log::log_level::warning):
@@ -192,8 +193,10 @@ void Connection::setWebSocketLogLevel(lth_log::log_level loglevel)
 
 void Connection::setWebSocketLogStream(std::ofstream* logstream)
 {
-    endpoint_->get_alog().set_ostream(logstream);
-    endpoint_->get_elog().set_ostream(logstream);
+    if (logstream != nullptr) {
+      endpoint_->get_alog().set_ostream(logstream);
+      endpoint_->get_elog().set_ostream(logstream);
+    }
 }
 
 //
