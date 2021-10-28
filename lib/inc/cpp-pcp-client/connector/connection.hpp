@@ -29,10 +29,6 @@ namespace websocketpp {
     template <typename T>
     class client;
 
-    namespace config {
-        struct asio_tls_client;
-    }
-
     namespace message_buffer {
         namespace alloc {
             template <typename message>
@@ -52,6 +48,8 @@ namespace websocketpp {
 
 namespace PCPClient {
 
+  struct ws_config;
+
 // Constants
 
 static const std::string PING_PAYLOAD_DEFAULT { "" };
@@ -60,7 +58,7 @@ static const std::string DEFAULT_CLOSE_REASON { "Closed by client" };
 
 // Configuration of the WebSocket transport layer
 
-using WS_Client_Type = websocketpp::client<websocketpp::config::asio_tls_client>;
+using WS_Client_Type = websocketpp::client<ws_config>;
 using WS_Context_Ptr = websocketpp::lib::shared_ptr<boost::asio::ssl::context>;
 using WS_Connection_Handle = websocketpp::connection_hdl;
 

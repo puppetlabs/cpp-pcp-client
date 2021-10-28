@@ -12,6 +12,7 @@
 #include <cpp-pcp-client/protocol/v1/message.hpp>
 #include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/util/chrono.hpp>
+#include <cpp-pcp-client/ws_config.hpp>
 
 // This is hacky because MinGW-w64 5.2 with Boost 1.58 is printing warnings that should be suppressed. Preserve the
 // warnings elsewhere to make sure we have coverage of our code, but suppress for the whole file on Windows to avoid
@@ -22,7 +23,6 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/client.hpp>
-#include <websocketpp/config/asio_client.hpp>
 #ifndef _WIN32
 #pragma GCC diagnostic pop
 #endif
