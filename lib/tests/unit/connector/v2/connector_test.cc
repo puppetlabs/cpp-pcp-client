@@ -17,14 +17,14 @@ using namespace v2;
 TEST_CASE("v2::Connector::Connector", "[connector]") {
     SECTION("can instantiate") {
         REQUIRE_NOTHROW(Connector("wss://localhost:8142/pcp", "test_client",
-                                  getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getEmptyCrlPath(), "",
+                                  getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
                                   WS_TIMEOUT_MS,
                                   PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT));
     }
 }
 
 TEST_CASE("v2::Connector::connect", "[connector]") {
-    MockServer mock_server(0, getGoodCertPathCrl(), getGoodKeyPathCrl(), MockServer::Version::v2);
+    MockServer mock_server(0, getCertPath(), getKeyPath(), MockServer::Version::v2);
     bool connected = false;
     std::string connection_path;
     mock_server.set_open_handler(
@@ -39,7 +39,7 @@ TEST_CASE("v2::Connector::connect", "[connector]") {
 
     SECTION("successfully connects and update WebSocket timings") {
         Connector c { server_uri, client_type,
-                      getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getEmptyCrlPath(), "",
+                      getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
                       WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         REQUIRE_FALSE(connected);
         REQUIRE_NOTHROW(c.connect(1));
@@ -62,7 +62,7 @@ TEST_CASE("v2::Connector::connect", "[connector]") {
 
     SECTION("successfully connects to broker with client type in the URI") {
         Connector c { server_uri, client_type,
-                      getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getEmptyCrlPath(), "",
+                      getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
                       WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         REQUIRE_FALSE(connected);
         REQUIRE_NOTHROW(c.connect(1));
@@ -76,7 +76,7 @@ TEST_CASE("v2::Connector::connect", "[connector]") {
 
     SECTION("successfully connects to broker with trailing slash with client type in the URI") {
         Connector c { server_uri+"/", client_type,
-                      getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getEmptyCrlPath(), "",
+                      getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
                       WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         REQUIRE_FALSE(connected);
         REQUIRE_NOTHROW(c.connect(1));
@@ -89,7 +89,7 @@ TEST_CASE("v2::Connector::connect", "[connector]") {
     }}
 
 TEST_CASE("v2::Connector::connect revoked-crl", "[connector]") {
-    MockServer mock_server(0, getBadCertPathCrl(), getBadKeyPathCrl(), MockServer::Version::v2);
+    MockServer mock_server(0, getBadCertPath(), getBadKeyPath(), MockServer::Version::v2);
     bool connected = false;
     std::string connection_path;
     mock_server.set_open_handler(
@@ -104,7 +104,7 @@ TEST_CASE("v2::Connector::connect revoked-crl", "[connector]") {
 
     SECTION("When pcp-broker cert is included in CRL connection is not established") {
         Connector c { server_uri, client_type,
-                      getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getRevokedCrlPath(), "",
+                      getCaPath(), getCertPath(), getKeyPath(), getRevokedCrlPath(), "",
                       WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         REQUIRE_FALSE(connected);
         REQUIRE_THROWS_AS(c.connect(1), connection_fatal_error);
@@ -112,21 +112,21 @@ TEST_CASE("v2::Connector::connect revoked-crl", "[connector]") {
 
     SECTION("When invalid CRL is used") {
         Connector c { server_uri, client_type,
-                      getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getNotACertPath(), "",
+                      getCaPath(), getCertPath(), getKeyPath(), getNotACertPath(), "",
                       WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         REQUIRE_FALSE(connected);
         REQUIRE_THROWS_AS(c.connect(1), connection_config_error);
     }}
 
 TEST_CASE("v2::Connector::send", "[connector]") {
-    MockServer mock_server(0, getGoodCertPathCrl(), getGoodKeyPathCrl(), MockServer::Version::v2);
+    MockServer mock_server(0, getCertPath(), getKeyPath(), MockServer::Version::v2);
     mock_server.go();
     auto port = mock_server.port();
 
     SECTION("successfully sends a request and receives a response") {
         Connector c { "wss://localhost:" + std::to_string(port) + "/pcp",
                       "test_client",
-                      getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getEmptyCrlPath(), "",
+                      getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
                       WS_TIMEOUT_MS,
                       PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         std::string response_data, in_reply_to;
@@ -155,14 +155,14 @@ TEST_CASE("v2::Connector::send", "[connector]") {
 }
 
 TEST_CASE("v2::Connector::sendError", "[connector]") {
-    MockServer mock_server(0, getGoodCertPathCrl(), getGoodKeyPathCrl(), MockServer::Version::v2);
+    MockServer mock_server(0, getCertPath(), getKeyPath(), MockServer::Version::v2);
     mock_server.go();
     auto port = mock_server.port();
 
     SECTION("successfully sends a request and receives a response") {
         Connector c { "wss://localhost:" + std::to_string(port) + "/pcp",
                       "test_client",
-                      getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getEmptyCrlPath(), "",
+                      getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
                       WS_TIMEOUT_MS,
                       PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
         std::string response_data, in_reply_to;
