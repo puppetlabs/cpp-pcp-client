@@ -3,8 +3,11 @@
 
 #include <cpp-pcp-client/connector/timings.hpp>
 #include <cpp-pcp-client/connector/client_metadata.hpp>
+#include <cpp-pcp-client/util/logging.hpp>
 #include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/export.h>
+
+#include <boost/nowide/fstream.hpp>
 
 #include <string>
 #include <vector>
@@ -26,10 +29,6 @@ namespace websocketpp {
     template <typename T>
     class client;
 
-    namespace config {
-        struct asio_tls_client;
-    }
-
     namespace message_buffer {
         namespace alloc {
             template <typename message>
@@ -49,6 +48,8 @@ namespace websocketpp {
 
 namespace PCPClient {
 
+  struct ws_config;
+
 // Constants
 
 static const std::string PING_PAYLOAD_DEFAULT { "" };
@@ -57,7 +58,7 @@ static const std::string DEFAULT_CLOSE_REASON { "Closed by client" };
 
 // Configuration of the WebSocket transport layer
 
-using WS_Client_Type = websocketpp::client<websocketpp::config::asio_tls_client>;
+using WS_Client_Type = websocketpp::client<ws_config>;
 using WS_Context_Ptr = websocketpp::lib::shared_ptr<boost::asio::ssl::context>;
 using WS_Connection_Handle = websocketpp::connection_hdl;
 
@@ -118,6 +119,10 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
 
     /// Reset all the callbacks
     void resetCallbacks();
+
+    /// WebSocket++ logging configuration
+    void setWebSocketLogLevel(leatherman::logging::log_level loglevel);
+    void setWebSocketLogStream(std::ofstream* logstream);
 
     /// Check the state of the WebSocket connection; in case it's not
     /// open, try to re-open it.

@@ -16,7 +16,7 @@ using namespace v1;
 TEST_CASE("v1::Connector::Connector", "[connector]") {
     SECTION("can instantiate") {
         REQUIRE_NOTHROW(Connector("wss://localhost:8142/pcp", "test_client",
-                                  getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getEmptyCrlPath(), "",
+                                  getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
                                   WS_TIMEOUT_MS,
                                   ASSOCIATION_TIMEOUT_S, ASSOCIATION_REQUEST_TTL_S,
                                   PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT));
@@ -26,7 +26,7 @@ TEST_CASE("v1::Connector::Connector", "[connector]") {
 TEST_CASE("v1::Connector::getAssociationTimings", "[connector]") {
     Connector c { "wss://localhost:8142/pcp",
                   "test_client",
-                  getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getEmptyCrlPath(), "",
+                  getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
                   WS_TIMEOUT_MS, ASSOCIATION_TIMEOUT_S,
                   ASSOCIATION_REQUEST_TTL_S,
                   PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT };
@@ -46,7 +46,7 @@ TEST_CASE("v1::Connector::connect", "[connector]") {
     SECTION("successfully connects and update WebSocket and Association timings") {
         std::unique_ptr<Connector> c_ptr;
         {
-            MockServer mock_server(0, getGoodCertPathCrl(), getGoodKeyPathCrl(), MockServer::Version::v1);
+            MockServer mock_server(0, getCertPath(), getKeyPath(), MockServer::Version::v1);
             bool connected = false;
             mock_server.set_open_handler(
                 [&connected](websocketpp::connection_hdl hdl) {
@@ -57,7 +57,7 @@ TEST_CASE("v1::Connector::connect", "[connector]") {
 
             c_ptr.reset(new Connector { "wss://localhost:" + std::to_string(port) + "/pcp",
                                         "test_client",
-                                        getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getEmptyCrlPath(), "",
+                                        getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
                                         WS_TIMEOUT_MS, ASSOCIATION_TIMEOUT_S,
                                         ASSOCIATION_REQUEST_TTL_S,
                                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT });
@@ -99,7 +99,7 @@ TEST_CASE("v1::Connector::connect", "[connector]") {
     SECTION("When pcp-broker cert is included in CRL connection is not established") {
         std::unique_ptr<Connector> c_ptr;
         {
-            MockServer mock_server(0, getBadCertPathCrl(), getBadKeyPathCrl(), MockServer::Version::v1);
+            MockServer mock_server(0, getBadCertPath(), getBadKeyPath(), MockServer::Version::v1);
             bool connected = false;
             mock_server.set_open_handler(
                 [&connected](websocketpp::connection_hdl hdl) {
@@ -110,7 +110,7 @@ TEST_CASE("v1::Connector::connect", "[connector]") {
 
             c_ptr.reset(new Connector { "wss://localhost:" + std::to_string(port) + "/pcp",
                                         "test_client",
-                                        getCaPathCrl(), getGoodCertPathCrl(), getGoodKeyPathCrl(), getRevokedCrlPath(), "",
+                                        getCaPath(), getCertPath(), getKeyPath(), getRevokedCrlPath(), "",
                                         WS_TIMEOUT_MS, ASSOCIATION_TIMEOUT_S,
                                         ASSOCIATION_REQUEST_TTL_S,
                                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT });

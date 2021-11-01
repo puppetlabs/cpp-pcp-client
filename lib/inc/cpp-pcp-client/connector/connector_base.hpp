@@ -10,9 +10,11 @@
 #include <cpp-pcp-client/validator/validator.hpp>
 #include <cpp-pcp-client/validator/schema.hpp>
 
+#include <cpp-pcp-client/util/logging.hpp>
 #include <cpp-pcp-client/util/thread.hpp>
 
 #include <cpp-pcp-client/export.h>
+
 
 namespace PCPClient {
 
@@ -56,6 +58,21 @@ class LIBCPP_PCP_CLIENT_EXPORT ConnectorBase {
         std::string client_key_path,
         std::string client_crl_path,
         std::string ws_proxy,
+        long ws_connection_timeout_ms,
+        uint32_t pong_timeouts_before_retry,
+        long ws_pong_timeout_ms);
+
+
+    // constructor logging addition
+    ConnectorBase(std::vector<std::string> broker_ws_uris,
+        std::string client_type,
+        std::string ca_crt_path,
+        std::string client_crt_path,
+        std::string client_key_path,
+        std::string client_crl_path,
+        std::string ws_proxy,
+        leatherman::logging::log_level loglevel,
+        std::ofstream* logstream,
         long ws_connection_timeout_ms,
         uint32_t pong_timeouts_before_retry,
         long ws_pong_timeout_ms);

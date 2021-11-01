@@ -39,14 +39,14 @@ TEST_CASE("ClientMetadata::ClientMetadata", "[connector]") {
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(), getEmptyCrlPath(), "",
                              WS_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
 
-        REQUIRE(c_m.common_name == "localhost");
+        REQUIRE(c_m.common_name == getCertname());
     }
 
     SECTION("determines correctly the client URI") {
         std::string type { "test" };
         ClientMetadata c_m { type, getCaPath(), getCertPath(), getKeyPath(),
                              WS_TIMEOUT, PONG_TIMEOUTS_BEFORE_RETRY, PONG_TIMEOUT_MS };
-        std::string expected_uri { "pcp://localhost/" + type };
+        std::string expected_uri { "pcp://" + getCertname() + "/" + type };
 
         REQUIRE(c_m.uri == expected_uri);
     }

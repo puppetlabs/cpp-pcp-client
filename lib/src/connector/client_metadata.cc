@@ -17,6 +17,7 @@
 namespace PCPClient {
 
 namespace lth_loc = leatherman::locale;
+namespace lth_log = leatherman::logging;
 
 // Get rid of OSX 10.7 and greater deprecation warnings.
 #if defined(__APPLE__) && defined(__clang__)
@@ -121,6 +122,7 @@ ClientMetadata::ClientMetadata(std::string _client_type,
           ws_connection_timeout_ms { std::move(_ws_connection_timeout_ms) },
           pong_timeouts_before_retry { std::move(_pong_timeouts_before_retry) },
           pong_timeout_ms { std::move(_pong_timeout_ms) }
+
 {
     LOG_INFO("Retrieved common name from the certificate and determined "
              "the client URI: {1}", uri);
@@ -182,5 +184,37 @@ ClientMetadata::ClientMetadata(std::string _client_type,
     LOG_DEBUG("Validated the private key / certificate pair");
 }
 
+
+// constructor for logging addition
+ClientMetadata::ClientMetadata(std::string _client_type,
+                               std::string _ca,
+                               std::string _crt,
+                               std::string _key,
+                               std::string _crl,
+                               std::string _proxy,
+                               lth_log::log_level _loglevel,
+                               std::ofstream* _logstream,
+                               long _ws_connection_timeout_ms,
+                               uint32_t _pong_timeouts_before_retry,
+                               long _pong_timeout_ms)
+        : ca { std::move(_ca) },
+          crt { std::move(_crt) },
+          key { std::move(_key) },
+          crl { std::move(_crl) },
+          proxy { std::move(_proxy) },
+          client_type { std::move(_client_type) },
+          common_name { getCommonNameFromCert(crt) },
+          uri { PCP_URI_SCHEME + common_name + "/" + client_type },
+          loglevel { std::move(_loglevel) },
+          logstream { _logstream },
+          ws_connection_timeout_ms { std::move(_ws_connection_timeout_ms) },
+          pong_timeouts_before_retry { std::move(_pong_timeouts_before_retry) },
+          pong_timeout_ms { std::move(_pong_timeout_ms) }
+{
+    LOG_INFO("Retrieved common name from the certificate and determined "
+             "the client URI: {1}", uri);
+    validatePrivateKeyCertPair(key, crt);
+    LOG_DEBUG("Validated the private key / certificate pair");
+}
 
 }  // namespace PCPClient
