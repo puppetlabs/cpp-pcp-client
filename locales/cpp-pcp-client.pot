@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: cpp-pcp-client 1.7.0\n"
+"Project-Id-Version: cpp-pcp-client 1.7.4\n"
 "Report-Msgid-Bugs-To: docs@puppet.com\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -76,6 +76,10 @@ msgstr ""
 
 #: lib/src/connector/connection.cc
 msgid "failed to initialize"
+msgstr ""
+
+#: lib/src/connector/connection.cc
+msgid "invalid log level: '{1}'"
 msgstr ""
 
 #. warning
