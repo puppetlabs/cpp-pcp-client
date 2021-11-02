@@ -193,7 +193,7 @@ ClientMetadata::ClientMetadata(std::string _client_type,
                                std::string _crl,
                                std::string _proxy,
                                lth_log::log_level _loglevel,
-                               std::ofstream* _logstream,
+                               std::ostream* _logstream,
                                long _ws_connection_timeout_ms,
                                uint32_t _pong_timeouts_before_retry,
                                long _pong_timeout_ms)

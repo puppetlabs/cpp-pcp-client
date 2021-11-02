@@ -10,6 +10,11 @@
 
 #include <cpp-pcp-client/util/chrono.hpp>
 
+#include <boost/nowide/iostream.hpp>
+
+#define LEATHERMAN_LOGGING_NAMESPACE "puppetlabs.cpp_pcp_client.test"
+#include <leatherman/logging/logging.hpp>
+
 #include <leatherman/util/timer.hpp>
 
 #include <memory>
@@ -36,8 +41,9 @@ TEST_CASE("Connection::connect errors", "[connection]") {
 
 TEST_CASE("Connection timings", "[connection]") {
     ClientMetadata c_m { "test_client", getCaPath(), getCertPath(),
-                         getKeyPath(), WS_TIMEOUT_MS,
-                         PONG_TIMEOUTS_BEFORE_RETRY, PONG_LONG_TIMEOUT_MS };
+                         getKeyPath(), std::string{}, std::string{},
+                         leatherman::logging::log_level::error, &boost::nowide::cout,
+                         WS_TIMEOUT_MS, PONG_TIMEOUTS_BEFORE_RETRY, PONG_LONG_TIMEOUT_MS };
 
     SECTION("can stringify timings") {
         Connection connection { "wss://localhost:8142/pcp", c_m };

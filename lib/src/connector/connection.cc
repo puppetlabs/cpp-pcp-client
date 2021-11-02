@@ -191,7 +191,7 @@ void Connection::setWebSocketLogLevel(lth_log::log_level loglevel)
     }
 }
 
-void Connection::setWebSocketLogStream(std::ofstream* logstream)
+void Connection::setWebSocketLogStream(std::ostream* logstream)
 {
     if (logstream != nullptr) {
       endpoint_->get_alog().set_ostream(logstream);
