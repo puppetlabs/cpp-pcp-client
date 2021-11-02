@@ -213,7 +213,7 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
                      std::string client_crl_path,
                      std::string ws_proxy,
                      lth_log::log_level loglevel,
-                     std::ofstream* logstream,
+                     std::ostream* logstream,
                      long ws_connection_timeout_ms,
                      uint32_t pong_timeouts_before_retry,
                      long ws_pong_timeout_ms)

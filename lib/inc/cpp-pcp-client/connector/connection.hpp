@@ -122,7 +122,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connection {
 
     /// WebSocket++ logging configuration
     void setWebSocketLogLevel(leatherman::logging::log_level loglevel);
-    void setWebSocketLogStream(std::ofstream* logstream);
+    void setWebSocketLogStream(std::ostream* logstream);
 
     /// Check the state of the WebSocket connection; in case it's not
     /// open, try to re-open it.

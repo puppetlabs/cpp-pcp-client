@@ -115,7 +115,7 @@ class LIBCPP_PCP_CLIENT_EXPORT Connector : public ConnectorBase {
               std::string client_crl_path,
               std::string ws_proxy,
               leatherman::logging::log_level loglevel,
-              std::ofstream* logstream,
+              std::ostream* logstream,
               long ws_connection_timeout_ms = 5000,
               uint32_t association_timeout_s = 15,
               uint32_t association_request_ttl_s = 10,  // Unused
