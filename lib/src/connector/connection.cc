@@ -85,10 +85,12 @@ Connection::Connection(std::vector<std::string> broker_ws_uris,
           consecutive_pong_timeouts_ { 0 },
           endpoint_ { new WS_Client_Type() }
 {
+    // Disable websocket logging until PE-33165 is resolved.
+    setWebSocketLogLevel(leatherman::logging::log_level::none);
+    setWebSocketLogStream(nullptr);
+
     // Initialize the transport system. Note that in perpetual mode,
     // the event loop does not terminate when there are no connections
-    setWebSocketLogLevel(client_metadata_.loglevel);
-    setWebSocketLogStream(client_metadata_.logstream);
     endpoint_->init_asio();
     endpoint_->start_perpetual();
 
