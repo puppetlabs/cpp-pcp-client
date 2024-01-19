@@ -7,8 +7,10 @@ cpp-pcp-client.
 
 To build on OS X:
 ```
-    g++ -std=c++11 -o agent -L /usr/local/lib -lcpp-pcp-client \
-    -lboost_system -I ../../../lib/inc main.cpp
+    export CPLUS_INCLUDE_PATH=/opt/homebrew/Cellar/boost/1.83.0/include
+    g++ -std=c++11 -o agent -Wl,-rpath,/usr/local/lib -L/opt/homebrew/lib \
+      -lcpp-pcp-client -lboost_system -I ../../../lib/inc \
+      main.cpp
 ```
 
 You need to install PCP and [leatherman][1] before that: `make` then
