@@ -1,5 +1,7 @@
 # cpp-pcp-client
 
+This repository is archived and Perforce will no longer be updating this repository. For more information, see [this Puppet blog post](https://www.puppet.com/blog/open-source-puppet-updates-2025).
+
 cpp-pcp-client is a C++ client library for the [PCP protocol][specs]. It includes a
 collection of abstractions which can be used to initiate connections to a PCP
 broker, wrapping the PCP message format and performing schema validation for
